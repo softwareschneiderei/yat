@@ -12,7 +12,7 @@
 
     <groupId>fr.soleil.lib</groupId>
     <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
-    <version>1.5.9</version>
+    <version>1.5.10-SNAPSHOT</version>
 
     <packaging>nar</packaging>
 
@@ -37,15 +37,9 @@
     </developers>
 
     <scm>
-        <connection>
-			      ${scm.connection.cvs.tango-ds}:Libraries/YAT
-        </connection>
-        <developerConnection>
-            ${scm.developerConnection.cvs.tango-ds}:Libraries/YAT
-        </developerConnection>
-        <url>
-			      ${scm.url.cvs.tango-ds}/Libraries/YAT
-        </url>
+        <connection>${scm.connection.svn.tango-cs}:share/yat</connection>
+        <developerConnection>${scm.developerConnection.cvs.svn.tango-cs}:share/yat</developerConnection>
+        <url>${scm.url.svn.tango-cs}/share/yat</url>
     </scm>
 
     <build>
