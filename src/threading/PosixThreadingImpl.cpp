@@ -446,9 +446,9 @@ void Thread::join (Thread::IOArg * oarg_)
            (this->m_state != yat::Thread::STATE_TERMINATED)
        )
        {
-        if (oarg_) *oarg_ = 0;
-        delete this;
-        return;
+         if (oarg_) *oarg_ = 0;
+         delete this;
+         return;
        }
   }
 

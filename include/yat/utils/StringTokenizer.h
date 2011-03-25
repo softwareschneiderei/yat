@@ -31,83 +31,57 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \author N.Leclercq, J.Malik - Synchrotron SOLEIL
+ * \author N.Leclercq - Synchrotron SOLEIL
  */
 
-#ifndef _YAT_XSTRING_H_
-#define _YAT_XSTRING_H_
+#ifndef _YAT_STRING_TOKENIZER_H_
+#define _YAT_STRING_TOKENIZER_H_
 
 //=============================================================================
 // DEPENDENCIES
 //=============================================================================
-#include <yat/CommonHeader.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <string>
 
 namespace yat 
 {
-
 // ============================================================================
-// XString class
+// StringTokenizer class
 // ============================================================================
-template <typename _T>
-class XString
+class StringTokenizer
 {
-public:  
-  
-  //- converts string content to numeric type _T
-  //- should also work for any "istringstream::operator>>" supported type
-  //---------------------------------------------------------------------
-  static _T to_num (const std::string& _s, bool _throw = true)
-  {
-    ISStream iss(_s.c_str());
+public:
+  StringTokenizer (const std::string & str, const std::string & delim);
 
-    _T num_val;
+  ~StringTokenizer () {};
 
-    if ( (iss >> num_val) == false )
-    {
-      if (_throw)
-      {
-        OSStream desc;
-        desc << "conversion from string to num failed [" 
-             << _s
-             << "]"
-             << std::ends;
-        THROW_YAT_ERROR ("SOFTWARE_ERROR",
-                         desc.str().c_str(),
-                         "XString::to_num");
-      }
-      return 0;
-    }
+  int count_tokens () const;
 
-    return num_val;
-  } 
+  bool has_more_tokens () const;
 
-  //- converts from type _T to std::string
-  //---------------------------------------------------------------------
-  static std::string to_string (const _T & _t, bool _throw = true)
-  {
-    OSStream oss;
+  std::string next_token ();
 
-    if ( (oss << std::fixed << _t) == false )
-    {
-      if (_throw)
-      {
-        OSStream desc;
-        desc << "conversion from num to string failed [" 
-             << _t
-             << "]"
-             << std::ends;
-        THROW_YAT_ERROR ("SOFTWARE_ERROR",
-                         desc.str().c_str(),
-                         "XString::to_string");
-      }
-      return std::string("");
-    }
+  int next_int_token ();
 
-    return oss.str();
-  } 
+  long next_long_token ();
 
+  double next_fp_token ();
+
+  std::string next_token (const std::string & delim);
+
+  std::string remaining_string ();
+
+  std::string filter_next_token (const std::string & filterStr);
+
+private:
+  std::string m_delim_str;
+  std::string m_token_str;
 };
 
 } //- namespace
 
-#endif // _XSTRING_H_
+#endif
+
+
