@@ -37,13 +37,16 @@
 //=============================================================================
 // DEPENDENCIES
 //=============================================================================
-#include <yat/StringTokenizer.h>
+#include <yat/utils/StringTokenizer.h>
+
+namespace yat 
+{
 
 //=============================================================================
 // StringTokenizer::StringTokenizer
 //=============================================================================
 StringTokenizer::StringTokenizer (const std::string & s, const std::string & d)
-  m_token_str(s), m_delim_str(d)
+: m_token_str(s), m_delim_str(d)
 {
   if ( ! s.length () || ! d.length() )
     return;
@@ -211,3 +214,4 @@ std::string StringTokenizer::filter_next_token (const std::string & filterStr)
   return str;
 }
 
+} //- namespace
