@@ -51,7 +51,6 @@ namespace yat
 template <typename _T>
 class XString
 {
-
 public:  
   
   //- converts string content to numeric type _T

@@ -31,17 +31,58 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \author Ramon Sune - ALBA
+ * \author N.Leclercq - Synchrotron SOLEIL
  */
- 
-// ============================================================================
+
+#ifndef _YAT_STRING_TOKENIZER_H_
+#define _YAT_STRING_TOKENIZER_H_
+
+//=============================================================================
 // DEPENDENCIES
+//=============================================================================
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <string>
+
+namespace yat 
+{
+
 // ============================================================================
-#if defined(WIN32)
-#pragma message("<yat/Signal.h> is obsolete - change to <yat/utils/Signal.h>")
-#else
-#warning "<yat/Signal.h> is obsolete - change to <yat/utils/Signal.h>"
+// StringTokenizer class
+// ============================================================================
+class StringTokenizer
+{
+public:
+  StringTokenizer (const std::string & str, const std::string & delim);
+
+  ~StringTokenizer () {};
+
+  int count_tokens () const;
+
+  bool has_more_tokens () const;
+
+  std::string next_token ();
+
+  int next_int_token ();
+
+  long next_long_token ();
+
+  double next_fp_token ();
+
+  std::string next_token (const std::string & delim);
+
+  std::string remaining_string ();
+
+  std::string filter_next_token (const std::string & filterStr);
+
+private:
+  std::string m_delim_str;
+  std::string m_token_str;
+};
+
+} //- namespace
+
 #endif
 
-#include <yat/utils/Signal.h>
 
