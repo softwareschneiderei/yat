@@ -109,28 +109,28 @@ public:
   virtual ~Task ();
 
   //- starts the task
-  virtual void go (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
-    //-> might throw (Exception);
+  virtual void go (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
+    throw (Exception);
     
   //- starts the task 
   //- an exception is thrown in case the specified message:
   //-   * is not of type TASK_INIT
   //-   * is not "waitable"
-  virtual void go (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
-  	//-> might throw (Exception);
+  virtual void go (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
+    throw (Exception);
   
   //! aborts the task (join with the underlying thread before returning).
   //! provides an implementation to the Thread::exit pure virtual method.
-  virtual void exit ();
-    //-> might throw (Exception);
+  virtual void exit ()
+    throw (Exception);
 
   //- posts a message to the task
-  virtual void post (Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO);
-    //-> might throw (Exception);
+  virtual void post (Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO)
+    throw (Exception);
 
   //- wait for a msg to be handled
-  virtual void wait_msg_handled (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
-  	//-> might throw (Exception);
+  virtual void wait_msg_handled (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
+    throw (Exception);
     
   //- timeout msg period mutator
   void set_timeout_msg_period (size_t p_msecs);

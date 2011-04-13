@@ -56,7 +56,7 @@ namespace yat
 
   public:
     //! static method to get the unique instance of the class
-    static T & instance( void )
+    static T & instance( )
     {
       static T the_unique_instance;
       return the_unique_instance;
