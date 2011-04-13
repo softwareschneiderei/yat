@@ -90,7 +90,7 @@ YAT_INLINE MutexState NullMutex::try_acquire ()
 // ----------------------------------------------------------------------------
 // NullMutex::timed_try_lock
 // ----------------------------------------------------------------------------
-YAT_INLINE MutexState NullMutex::timed_try_lock (unsigned long tmo_msecs)
+YAT_INLINE MutexState NullMutex::timed_try_lock (unsigned long)
 {
   return yat::MUTEX_LOCKED;
 }
@@ -98,7 +98,7 @@ YAT_INLINE MutexState NullMutex::timed_try_lock (unsigned long tmo_msecs)
 // ----------------------------------------------------------------------------
 // NullMutex::timed_try_acquire
 // ----------------------------------------------------------------------------
-YAT_INLINE MutexState NullMutex::timed_try_acquire (unsigned long tmo_msecs)
+YAT_INLINE MutexState NullMutex::timed_try_acquire (unsigned long)
 {
   return yat::MUTEX_LOCKED;
 }

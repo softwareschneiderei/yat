@@ -125,7 +125,7 @@ YAT_INLINE size_t Task::actual_timeout () const
 // Task::post
 // ============================================================================
 YAT_INLINE void Task::post (yat::Message * _msg, size_t _tmo_msecs)
-  //-> might throw (Exception)
+  throw (Exception)
 {
   this->msg_q_.post (_msg, _tmo_msecs);
 }
