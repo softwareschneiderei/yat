@@ -46,7 +46,7 @@ namespace yat
 // StringTokenizer::StringTokenizer
 //=============================================================================
 StringTokenizer::StringTokenizer (const std::string & s, const std::string & d)
-: m_token_str(s), m_delim_str(d)
+  :  m_delim_str(d), m_token_str(s)
 {
   if ( ! s.length () || ! d.length() )
     return;
