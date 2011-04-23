@@ -88,8 +88,10 @@ namespace yat
 //-----------------------------------------------------------------------------
 #if defined (YAT_DEBUG)
 # define DEBUG_ASSERT(EXP) assert(EXP)
+# define YAT_ASSERT(EXP) assert(EXP)
 #else
 # define DEBUG_ASSERT(EXP)
+# define YAT_ASSERT(EXP)
 #endif
 
 }
