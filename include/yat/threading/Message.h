@@ -240,6 +240,11 @@ public:
     throw (Exception);
 
   //---------------------------------------------
+  // Message::check_attached_data_type
+  //---------------------------------------------
+  template <typename T> bool check_attached_data_type () const;
+
+  //---------------------------------------------
   // Message::make_waitable
   //---------------------------------------------
   void make_waitable ()
@@ -362,11 +367,7 @@ template <typename T> void Message::attach_data (T * _data, bool _ownership)
   if (this->msg_data_)
   {
     //- is <msg_data_> content a <T>?
-    try 
-    {
-      this->get_data<T>();
-    }
-    catch (...) 
+    if (! this->check_attached_data_type<T>())
     {
       delete this->msg_data_;
       this->msg_data_ = 0;
@@ -403,11 +404,7 @@ template <typename T> void Message::attach_data (const T & _data)
   if (this->msg_data_)
   {
     //- is <msg_data_> content a <T>?
-    try 
-    {
-      this->get_data<T>();
-    }
-    catch (...) 
+    if (! this->check_attached_data_type<T>())
     {
       delete this->msg_data_;
       this->msg_data_ = 0;
@@ -447,14 +444,14 @@ template <typename T> T& Message::get_data () const
     if (c == 0)
     {
       THROW_YAT_ERROR("RUNTIME_ERROR",
-                      "could not extract data from message [unexpected content]",
+                      "could not extract data from message [attached data type is not the specified type]",
                       "Message::get_data");
     }
   }
   catch(const std::bad_cast&)
   {
     THROW_YAT_ERROR("RUNTIME_ERROR",
-                    "could not extract data from message [unexpected content]",
+                    "could not extract data from message [attached data type is not the specified type]",
                     "Message::get_data");
   }
   return c->get_content();
@@ -468,20 +465,36 @@ template <typename T> void Message::detach_data (T*& _data) const
   try
   {
     GenericContainer<T> * c = dynamic_cast<GenericContainer<T>*>(this->msg_data_);
-    if (c == 0)
+    if (! c)
     {
       THROW_YAT_ERROR("RUNTIME_ERROR",
-                      "could not extract data from message [unexpected content]",
+                      "could not extract data from message [attached data type is not the specified type]",
                       "Message::detach_data");
     }
     _data = c->get_content(true);
   }
-  catch(const std::bad_cast&)
+  catch (const std::bad_cast&)
   {
     THROW_YAT_ERROR("RUNTIME_ERROR",
-                    "could not extract data from message [unexpected content]",
+                    "could not extract data from message [attached data type is not the specified type]",
                     "Message::detach_data");
   }
+}
+//---------------------------------------------
+// Message::check_attached_data_type
+//---------------------------------------------
+template <typename T> bool Message::check_attached_data_type () const
+{
+  try
+  {
+    if (! dynamic_cast<GenericContainer<T>*>(this->msg_data_))
+      return false;
+  }
+  catch (const std::bad_cast&)
+  {
+    return false;
+  }
+  return true;
 }
 
 } // namespace
