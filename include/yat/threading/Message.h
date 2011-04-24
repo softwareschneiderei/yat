@@ -218,137 +218,26 @@ public:
   //---------------------------------------------
   // Message::attach_data 
   //---------------------------------------------
-  template <typename T> void attach_data (T * _data, bool _ownership = true)
-    throw (Exception)
-  {
-    //- try to avoid GenericContainer<T> reallocation
-    if (this->msg_data_)
-    {
-      //- is <msg_data_> content a <T>?
-      try 
-      {
-        this->get_data<T>();
-      }
-      catch (...) 
-      {
-        delete this->msg_data_;
-        this->msg_data_ = 0;
-      }
-    }
-    //- no existing or deleted data
-    if (! this->msg_data_)
-    {
-      //- (re)allocate the underlying generic container
-      Container * md = new GenericContainer<T>(_data, _ownership);
-      if (md == 0)
-      {
-        THROW_YAT_ERROR("OUT_OF_MEMORY",
-                        "MessageData allocation failed",
-                        "Message::attach_data");
-      }
-      //- point to <new> data
-      this->msg_data_ = md;
-    }
-    //- simply change message GenericContainer<T> content
-    else 
-    {
-      GenericContainer<T> * c = reinterpret_cast<GenericContainer<T>*>(this->msg_data_); 
-      c->set_content(_data, _ownership);
-    }
-  }
+  template <typename T> void attach_data (T * _data, bool _transfer_ownership = true)
+    throw (Exception);
 
   //---------------------------------------------
   // Message::attach_data (makes a copy of _data)
   //---------------------------------------------
   template <typename T> void attach_data (const T & _data)
-    throw (Exception)
-  {
-    //- try to avoid GenericContainer<T> reallocation
-    if (this->msg_data_)
-    {
-      //- is <msg_data_> content a <T>?
-      try 
-      {
-        this->get_data<T>();
-      }
-      catch (...) 
-      {
-        delete this->msg_data_;
-        this->msg_data_ = 0;
-      }
-    }
-    //- no existing or deleted data
-    if (! this->msg_data_)
-    {
-      //- (re)allocate the underlying generic container
-      Container * md = new GenericContainer<T>(_data);
-      if (md == 0)
-      {
-        THROW_YAT_ERROR("OUT_OF_MEMORY",
-                        "MessageData allocation failed",
-                        "Message::attach_data");
-      }
-      //- point to <new> data
-      this->msg_data_ = md;
-    }
-    //- simply change message GenericContainer<T> content
-    else 
-    {
-      GenericContainer<T> * c = reinterpret_cast<GenericContainer<T>*>(this->msg_data_); 
-      c->set_content(_data);
-    }
-  }
+    throw (Exception);
 
   //---------------------------------------------
   // Message::get_data
   //---------------------------------------------
   template <typename T> T& get_data () const
-    throw (Exception)
-  {
-    GenericContainer<T> * c = 0;
-    try
-    {
-      c = dynamic_cast<GenericContainer<T>*>(this->msg_data_);
-      if (c == 0)
-      {
-        THROW_YAT_ERROR("RUNTIME_ERROR",
-                        "could not extract data from message [unexpected content]",
-                        "Message::get_data");
-      }
-    }
-    catch(const std::bad_cast&)
-    {
-      THROW_YAT_ERROR("RUNTIME_ERROR",
-                      "could not extract data from message [unexpected content]",
-                      "Message::get_data");
-    }
-    return c->get_content();
-  }
+    throw (Exception);
 
   //---------------------------------------------
   // Message::detach_data
   //---------------------------------------------
   template <typename T> void detach_data (T*& _data) const
-    throw (Exception)
-  {
-    try
-    {
-      GenericContainer<T> * c = dynamic_cast<GenericContainer<T>*>(this->msg_data_);
-      if (c == 0)
-      {
-        THROW_YAT_ERROR("RUNTIME_ERROR",
-                        "could not extract data from message [unexpected content]",
-                        "Message::detach_data");
-      }
-      _data = c->get_content(true);
-    }
-    catch(const std::bad_cast&)
-    {
-      THROW_YAT_ERROR("RUNTIME_ERROR",
-                      "could not extract data from message [unexpected content]",
-                      "Message::detach_data");
-    }
-  }
+    throw (Exception);
 
   //---------------------------------------------
   // Message::make_waitable
@@ -462,6 +351,138 @@ protected:
   Message & operator= (const Message &);
   Message (const Message &);
 };
+
+//---------------------------------------------
+// Message::attach_data 
+//---------------------------------------------
+template <typename T> void Message::attach_data (T * _data, bool _ownership)
+  throw (Exception)
+{
+  //- try to avoid GenericContainer<T> reallocation
+  if (this->msg_data_)
+  {
+    //- is <msg_data_> content a <T>?
+    try 
+    {
+      this->get_data<T>();
+    }
+    catch (...) 
+    {
+      delete this->msg_data_;
+      this->msg_data_ = 0;
+    }
+  }
+  //- no existing or deleted data
+  if (! this->msg_data_)
+  {
+    //- (re)allocate the underlying generic container
+    Container * md = new GenericContainer<T>(_data, _ownership);
+    if (md == 0)
+    {
+      THROW_YAT_ERROR("OUT_OF_MEMORY",
+                      "MessageData allocation failed",
+                      "Message::attach_data");
+    }
+    //- point to <new> data
+    this->msg_data_ = md;
+  }
+  //- simply change message GenericContainer<T> content
+  else 
+  {
+    GenericContainer<T> * c = reinterpret_cast<GenericContainer<T>*>(this->msg_data_); 
+    c->set_content(_data, _ownership);
+  }
+}
+//---------------------------------------------
+// Message::attach_data (makes a copy of _data)
+//---------------------------------------------
+template <typename T> void Message::attach_data (const T & _data)
+  throw (Exception)
+{
+  //- try to avoid GenericContainer<T> reallocation
+  if (this->msg_data_)
+  {
+    //- is <msg_data_> content a <T>?
+    try 
+    {
+      this->get_data<T>();
+    }
+    catch (...) 
+    {
+      delete this->msg_data_;
+      this->msg_data_ = 0;
+    }
+  }
+  //- no existing or deleted data
+  if (! this->msg_data_)
+  {
+    //- (re)allocate the underlying generic container
+    Container * md = new GenericContainer<T>(_data);
+    if (md == 0)
+    {
+      THROW_YAT_ERROR("OUT_OF_MEMORY",
+                      "MessageData allocation failed",
+                      "Message::attach_data");
+    }
+    //- point to <new> data
+    this->msg_data_ = md;
+  }
+  //- simply change message GenericContainer<T> content
+  else 
+  {
+    GenericContainer<T> * c = reinterpret_cast<GenericContainer<T>*>(this->msg_data_); 
+    c->set_content(_data);
+  }
+}
+//---------------------------------------------
+// Message::get_data
+//---------------------------------------------
+template <typename T> T& Message::get_data () const
+  throw (Exception)
+{
+  GenericContainer<T> * c = 0;
+  try
+  {
+    c = dynamic_cast<GenericContainer<T>*>(this->msg_data_);
+    if (c == 0)
+    {
+      THROW_YAT_ERROR("RUNTIME_ERROR",
+                      "could not extract data from message [unexpected content]",
+                      "Message::get_data");
+    }
+  }
+  catch(const std::bad_cast&)
+  {
+    THROW_YAT_ERROR("RUNTIME_ERROR",
+                    "could not extract data from message [unexpected content]",
+                    "Message::get_data");
+  }
+  return c->get_content();
+}
+//---------------------------------------------
+// Message::detach_data
+//---------------------------------------------
+template <typename T> void Message::detach_data (T*& _data) const
+  throw (Exception)
+{
+  try
+  {
+    GenericContainer<T> * c = dynamic_cast<GenericContainer<T>*>(this->msg_data_);
+    if (c == 0)
+    {
+      THROW_YAT_ERROR("RUNTIME_ERROR",
+                      "could not extract data from message [unexpected content]",
+                      "Message::detach_data");
+    }
+    _data = c->get_content(true);
+  }
+  catch(const std::bad_cast&)
+  {
+    THROW_YAT_ERROR("RUNTIME_ERROR",
+                    "could not extract data from message [unexpected content]",
+                    "Message::detach_data");
+  }
+}
 
 } // namespace
 
