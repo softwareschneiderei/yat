@@ -468,7 +468,7 @@ template <typename T> void Message::detach_data (T*& _data) const
     if (! c)
     {
       THROW_YAT_ERROR("RUNTIME_ERROR",
-                      "could not extract data from message [attached data type is not the specified type]",
+                      "could not extract data from message [attached data type is not of specified type]",
                       "Message::detach_data");
     }
     _data = c->get_content(true);
@@ -476,7 +476,7 @@ template <typename T> void Message::detach_data (T*& _data) const
   catch (const std::bad_cast&)
   {
     THROW_YAT_ERROR("RUNTIME_ERROR",
-                    "could not extract data from message [attached data type is not the specified type]",
+                    "could not extract data from message [attached data type is not of specified type]",
                     "Message::detach_data");
   }
 }
