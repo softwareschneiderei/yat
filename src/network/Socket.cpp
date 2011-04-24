@@ -228,8 +228,8 @@ void Socket::close ()
 #endif
     {
       THROW_SOCKET_ERROR(err_no, 
-                                "OS <close> call failed",
-                                "Socket::close");
+                         "OS <close> call failed",
+                         "Socket::close");
     }
   }
 
@@ -267,8 +267,8 @@ Address Socket::get_address () const
   if (::getpeername(this->m_os_desc, &sa, &l)) 
   {
     THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR,
-                           "OS <getpeername> call failed [unable to retrieve peer address]",
-                           "Socket::get_address");
+                       "OS <getpeername> call failed [unable to retrieve peer address]",
+                       "Socket::get_address");
   }
 
   struct sockaddr_in * sai = reinterpret_cast<struct sockaddr_in*>(&sa);

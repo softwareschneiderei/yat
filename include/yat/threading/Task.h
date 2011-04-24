@@ -125,110 +125,46 @@ public:
     throw (Exception);
 
   //- posts a message to the task
-  virtual void post (Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO)
+  void post (Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO)
     throw (Exception);
     
   //- posts the specified msg to the task then returns immediately (asynchronous approach)
   void post (size_t msg_type, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception)
-  {
-    Message * m = new (std::nothrow) Message(msg_type);
-    if (! m)
-    {
-      THROW_YAT_ERROR("OUT_OF_MEMORY",
-                      "yat::Message allocation failed",
-                      "Task::post");
-    }
-    this->post(m, tmo_msecs);
-  }
+    throw (Exception);
 
   //- posts the specified data to the task then returns immediately (asynchronous approach)
   template <typename T> void post (size_t msg_type, 
                                    T * data, 
                                    bool transfer_ownership = true,  
                                    size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception)
-  {
-    Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, false);
-    if (! m)
-    {
-      THROW_YAT_ERROR("OUT_OF_MEMORY",
-                      "yat::Message allocation failed",
-                      "Task::post");
-    }
-    m->attach_data(data);
-    this->post(m, tmo_msecs);
-  }
+    throw (Exception);
 
   //- posts the specified data to the task then returns immediately (asynchronous approach)
   template <typename T> void post (size_t msg_type,  
                                    const T & data,  
                                    size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception)
-  {
-    Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, false);
-    if (! m)
-    {
-      THROW_YAT_ERROR("OUT_OF_MEMORY",
-                      "yat::Message allocation failed",
-                      "Task::post");
-    }
-    m->attach_data(data);
-    this->post(m, tmo_msecs);
-  }
+    throw (Exception);
 
   //- posts the specified msg to the task then waits for this message to be handled (synchronous approach)
-  virtual void wait_msg_handled (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
+  void wait_msg_handled (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
     throw (Exception);
 
   //- posts the specified msg to the task then waits for this message to be handled (synchronous approach)
   void wait_msg_handled (size_t msg_type, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception)
-  {
-    Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, true);
-    if (! m)
-    {
-      THROW_YAT_ERROR("OUT_OF_MEMORY",
-                      "yat::Message allocation failed",
-                      "Task::post");
-    }
-    this->wait_msg_handled(m, tmo_msecs);
-  }
+    throw (Exception);
 
   //- posts the specified data to the task then waits for the associated message to be handled (synchronous approach)
   template <typename T> void wait_msg_handled (size_t msg_type, 
                                                T * data, 
                                                bool transfer_ownership = true,  
                                                size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception)
-  {
-    Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, true);
-    if (! m)
-    {
-      THROW_YAT_ERROR("OUT_OF_MEMORY",
-                      "yat::Message allocation failed",
-                      "Task::post");
-    }
-    m->attach_data(data);
-    this->wait_msg_handled(m, tmo_msecs);
-  }
+    throw (Exception);
 
   //- posts the specified data to the task then waits for the associated message to be handled (synchronous approach)
   template <typename T> void wait_msg_handled (size_t msg_type,  
                                                const T & data,  
                                                size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception)
-  {
-    Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, true);
-    if (! m)
-    {
-      THROW_YAT_ERROR("OUT_OF_MEMORY",
-                      "yat::Message allocation failed",
-                      "Task::post");
-    }
-    m->attach_data(data);
-    this->wait_msg_handled(m, tmo_msecs);
-  }
+    throw (Exception);
 
   //- timeout msg period mutator
   void set_timeout_msg_period (size_t p_msecs);
@@ -318,6 +254,81 @@ private:
   unsigned long ctrl_msg_counter;
 #endif
 };
+
+// ============================================================================
+// Task::post
+// ============================================================================
+template <typename T> void Task::post (size_t msg_type, 
+                                       T * data, 
+                                       bool transfer_ownership,  
+                                       size_t tmo_msecs)
+  throw (Exception)
+{
+  Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, false);
+  if (! m)
+  {
+    THROW_YAT_ERROR("OUT_OF_MEMORY",
+                    "yat::Message allocation failed",
+                    "Task::post");
+  }
+  m->attach_data(data);
+  this->post(m, tmo_msecs);
+}
+// ============================================================================
+// Task::post
+// ============================================================================
+template <typename T> void Task::post (size_t msg_type,  
+                                       const T & data,  
+                                       size_t tmo_msecs)
+  throw (Exception)
+{
+  Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, false);
+  if (! m)
+  {
+    THROW_YAT_ERROR("OUT_OF_MEMORY",
+                    "yat::Message allocation failed",
+                    "Task::post");
+  }
+  m->attach_data(data);
+  this->post(m, tmo_msecs);
+}
+// ============================================================================
+// Task::wait_msg_handled
+// ============================================================================
+  template <typename T> void Task::wait_msg_handled (size_t msg_type, 
+                                                     T * data, 
+                                                     bool transfer_ownership,  
+                                                     size_t tmo_msecs)
+    throw (Exception)
+{
+  Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, true);
+  if (! m)
+  {
+    THROW_YAT_ERROR("OUT_OF_MEMORY",
+                    "yat::Message allocation failed",
+                    "Task::post");
+  }
+  m->attach_data(data);
+  this->wait_msg_handled(m, tmo_msecs);
+}
+// ============================================================================
+// Task::wait_msg_handled
+// ============================================================================
+template <typename T> void Task::wait_msg_handled (size_t msg_type,  
+                                                   const T & data,  
+                                                   size_t tmo_msecs)
+  throw (Exception)
+{
+  Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, true);
+  if (! m)
+  {
+    THROW_YAT_ERROR("OUT_OF_MEMORY",
+                    "yat::Message allocation failed",
+                    "Task::post");
+  }
+  m->attach_data(data);
+  this->wait_msg_handled(m, tmo_msecs);
+}
 
 } // namespace
 
