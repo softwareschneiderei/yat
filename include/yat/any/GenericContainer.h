@@ -70,53 +70,51 @@ public:
 
   //- default ctor
   GenericContainer () 
-    : ptr_(0), own_(false), allocated_memory_(false)
+    : ptr_(0), own_(false)
   {
     //- noop
   }
 
   //- ctor - no copy
-  //- just point to <_data> - <_ownership> will tell us...
-  GenericContainer (T* _data, bool _ownership = true) 
-    : ptr_(0), own_(_ownership), allocated_memory_(false)
+  //- points to <_data> and optionnally gets <_ownership> 
+  GenericContainer (T* _data, bool _transfer_ownership = true) 
+    : ptr_(0), own_(false)
   {
-    *this = _data;
+    this->set_content(_data, _transfer_ownership);
   }
 
-  //- ctor - copy - ownership set to true
+  //- ctor - makes a copy
   GenericContainer (const T& _data) 
-    : ptr_(0), own_(false), allocated_memory_(false)
+    : ptr_(0), own_(false)
   {
-    *this = _data;
+    this->set_content(_data);
   }
 
-  //- copy ctor  - copy - ownership set to true
+  //- copy ctor  - makes a copy
   GenericContainer (const GenericContainer<T>& _src) 
-    : ptr_(0), own_(false), allocated_memory_(false)
+    : ptr_(0), own_(false)
   {
     *this = _src;
   }
 
-  //- dtor - delete dat according to ownership flag
+  //- dtor - delete data according to the ownership flag
   virtual ~GenericContainer ()
   {
-    if (own_ && allocated_memory_)
-      delete ptr_;
+    if (own_) delete ptr_;
   }
 
-  //- changes content - makes a copy and sets ownership to true
+  //- changes content - makes a copy
   const GenericContainer& operator= (const GenericContainer<T>& _src)
   {  
     if (&_src == this)
       return *this;
-    if (! ptr_ || ! own_ || ! allocated_memory_)
+    if (! ptr_ || ! own_)
     {
       try
       {
         ptr_ = new (std::nothrow) T(_src.content());
         if (! ptr_)
           throw std::bad_alloc();
-        allocated_memory_ = true;
       }
       catch (const std::bad_alloc&)
       {
@@ -135,23 +133,22 @@ public:
     return *this;
   }
 
-  //- changes content - makes a copy and sets ownership to true
+  //- changes content - makes a copy
   const GenericContainer& operator= (T& _src)
   {
     return this->operator=(static_cast<const T&>(_src));
   }
     
-  //- changes content - makes a copy and sets ownership to true
+  //- changes content - makes a copy
   const GenericContainer& operator= (const T& _src)
   {
-    if (! ptr_ || ! own_ || ! allocated_memory_)
+    if (! ptr_ || ! own_)
     {
       try
       {
         ptr_ = new (std::nothrow) T(_src);
         if (! ptr_)
           throw std::bad_alloc();
-        allocated_memory_ = true;
       }
       catch (const std::bad_alloc&)
       {
@@ -170,7 +167,7 @@ public:
     return *this;
   }
 
-  //- changes content but does not change ownership
+  //- changes content but does NOT gets ownership of the data
   const GenericContainer& operator= (T* _data)
   { 
     if (_data == ptr_)
@@ -178,22 +175,21 @@ public:
     if (own_)
       delete ptr_;
     ptr_ = _data;
-    allocated_memory_ = false;
+    own_ = false;
     return *this;
   }
 
   //- changes content and set ownership
-  void set_content (T* _data, bool _ownership = true)
+  void set_content (T* _data, bool _transfer_ownership)
   {
     *this = _data;
-    own_ = _ownership;
+    own_ = _transfer_ownership;
   }
 
   //- changes content (makes a copy)
   void set_content (const T& _data)
   {
     *this = _data;
-    own_ = true;
   }
 
   //- changes content (makes a copy)
@@ -215,17 +211,20 @@ public:
   T * get_content (bool transfer_ownership)
   {
     if (transfer_ownership)
-    {
       own_ = false;
-      allocated_memory_ = false;
-    }
     return ptr_;
   }
 
   //- returns content
   T & get_content ()
+    throw (Exception)
   {
-    DEBUG_ASSERT(ptr_ != 0);
+    if (! ptr_)
+    {
+      THROW_YAT_ERROR("RUNTIME_ERROR",
+                      "could not extract data from GenericContainer [empty]",
+                      "GenericContainer::get_content");
+    }
     return *ptr_;
   }
 
@@ -235,10 +234,10 @@ public:
     return own_;
   }
   
-  //- changes data ownership (dangerous isn't)
-  void set_ownership (bool own)
+  //- returns true if the container is empty, return false otherwise
+  bool empty () const 
   {
-    own_ = own;
+    return ptr_ ? false : true;
   }
 
 private:
@@ -246,9 +245,62 @@ private:
   T * ptr_;
   //- do we have data ownership?
   bool own_;
-  //- did we allocated memory pointed by <ptr_>?
-  bool allocated_memory_;
 };
+
+// ============================================================================
+//  template method: any_cast
+// ============================================================================
+template<typename T>
+T * any_cast (Container * _c, bool _transfer_ownership = false)
+{
+  GenericContainer<T> * gc = dynamic_cast<GenericContainer<T>*>(_c);
+  return gc 
+       ? gc->get_content(_transfer_ownership)
+       : 0;
+}
+
+// ============================================================================
+//  template method: any_cast
+// ============================================================================
+template<typename T>
+const T * any_cast (const Container * c)
+{
+  return any_cast<T>(const_cast<Container*>(c), false);
+}
+
+// ============================================================================
+//  template method: any_cast
+// ============================================================================
+template<typename T>
+const T & any_cast (const Container & c) 
+  throw (yat::Exception)
+{
+  const T * t = any_cast<T>(&c);
+  if (! t)
+  {
+    THROW_YAT_ERROR("RUNTIME_ERROR",
+                    "could not extract data from GenericContainer [attached data type is not of specified type]",
+                    "yat::any_cast");
+  }
+  return *t;
+}
+
+// ============================================================================
+//  template method: any_cast
+// ============================================================================
+template<typename T>
+T & any_cast (Container & c) 
+  throw (yat::Exception)
+{
+  T * t = any_cast<T>(&c, false);
+  if (! t)
+  {
+    THROW_YAT_ERROR("RUNTIME_ERROR",
+                    "could not extract data from GenericContainer [attached data type is not of specified type]",
+                    "yat::any_cast");
+  }
+  return *t;
+}
 
 } // namespace yat
 

@@ -240,6 +240,11 @@ public:
     throw (Exception);
 
   //---------------------------------------------
+  // Message::detach_data
+  //---------------------------------------------
+  template <typename T> T * detach_data () const;
+
+  //---------------------------------------------
   // Message::check_attached_data_type
   //---------------------------------------------
   template <typename T> bool check_attached_data_type () const;
@@ -360,7 +365,7 @@ protected:
 //---------------------------------------------
 // Message::attach_data 
 //---------------------------------------------
-template <typename T> void Message::attach_data (T * _data, bool _ownership)
+template <typename T> void Message::attach_data (T * _data, bool _transfer_ownership)
   throw (Exception)
 {
   //- try to avoid GenericContainer<T> reallocation
@@ -377,7 +382,7 @@ template <typename T> void Message::attach_data (T * _data, bool _ownership)
   if (! this->msg_data_)
   {
     //- (re)allocate the underlying generic container
-    Container * md = new GenericContainer<T>(_data, _ownership);
+    Container * md = new GenericContainer<T>(_data, _transfer_ownership);
     if (md == 0)
     {
       THROW_YAT_ERROR("OUT_OF_MEMORY",
@@ -391,9 +396,10 @@ template <typename T> void Message::attach_data (T * _data, bool _ownership)
   else 
   {
     GenericContainer<T> * c = reinterpret_cast<GenericContainer<T>*>(this->msg_data_); 
-    c->set_content(_data, _ownership);
+    c->set_content(_data, _transfer_ownership);
   }
 }
+
 //---------------------------------------------
 // Message::attach_data (makes a copy of _data)
 //---------------------------------------------
@@ -431,6 +437,7 @@ template <typename T> void Message::attach_data (const T & _data)
     c->set_content(_data);
   }
 }
+
 //---------------------------------------------
 // Message::get_data
 //---------------------------------------------
@@ -444,57 +451,50 @@ template <typename T> T& Message::get_data () const
     if (c == 0)
     {
       THROW_YAT_ERROR("RUNTIME_ERROR",
-                      "could not extract data from message [attached data type is not the specified type]",
+                      "could not extract data from message [attached data type is not the requested type]",
                       "Message::get_data");
     }
   }
   catch(const std::bad_cast&)
   {
     THROW_YAT_ERROR("RUNTIME_ERROR",
-                    "could not extract data from message [attached data type is not the specified type]",
+                    "could not extract data from message [attached data type is not the requested type]",
                     "Message::get_data");
   }
   return c->get_content();
 }
+
 //---------------------------------------------
 // Message::detach_data
 //---------------------------------------------
 template <typename T> void Message::detach_data (T*& _data) const
   throw (Exception)
 {
-  try
-  {
-    GenericContainer<T> * c = dynamic_cast<GenericContainer<T>*>(this->msg_data_);
-    if (! c)
-    {
-      THROW_YAT_ERROR("RUNTIME_ERROR",
-                      "could not extract data from message [attached data type is not of specified type]",
-                      "Message::detach_data");
-    }
-    _data = c->get_content(true);
-  }
-  catch (const std::bad_cast&)
+  _data = yat::any_cast<T>(this->msg_data_, true);
+  if (! _data)
   {
     THROW_YAT_ERROR("RUNTIME_ERROR",
-                    "could not extract data from message [attached data type is not of specified type]",
+                    "could not extract data from message [attached data type is not the requested type]",
                     "Message::detach_data");
   }
 }
+
+//---------------------------------------------
+// Message::detach_data
+//---------------------------------------------
+template <typename T> T * Message::detach_data () const
+{
+  return yat::any_cast<T>(this->msg_data_, true);
+}
+
 //---------------------------------------------
 // Message::check_attached_data_type
 //---------------------------------------------
 template <typename T> bool Message::check_attached_data_type () const
 {
-  try
-  {
-    if (! dynamic_cast<GenericContainer<T>*>(this->msg_data_))
-      return false;
-  }
-  catch (const std::bad_cast&)
-  {
-    return false;
-  }
-  return true;
+  return yat::any_cast<T>(this->msg_data_)
+       ? true
+       : false;
 }
 
 } // namespace
