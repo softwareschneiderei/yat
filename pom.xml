@@ -12,12 +12,12 @@
 
     <groupId>fr.soleil.lib</groupId>
     <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
-    <version>1.6.2-SNAPSHOT</version>
+    <version>1.6.2</version>
 
     <packaging>nar</packaging>
 
     <name>YAT</name>
-    <description>Yet Another Toolkit library</description>
+    <description>Yet Another Toolkit Library</description>
 
     <developers>
         <developer>
