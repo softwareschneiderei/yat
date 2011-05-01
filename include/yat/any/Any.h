@@ -94,6 +94,11 @@ namespace yat
             return ! m_content;
         }
 
+        void clear ()
+        {
+          Any().swap(*this);
+        }
+
         const std::type_info & type() const
         {
             return m_content ? m_content->type() : typeid(void);
