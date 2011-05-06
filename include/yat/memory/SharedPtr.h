@@ -31,8 +31,10 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \author N.Leclercq, J.Malik - (boost inspired impl) - Synchrotron SOLEIL
+ * \ based on Madhu Raykar's article : http://www.codeproject.com/KB/cpp/SmartPointers.aspx
+ * \ N.Leclercq - Synchrotron SOLEIL
  */
+
 
 #ifndef _YAT_SHARED_PTR_H_
 #define _YAT_SHARED_PTR_H_
@@ -40,10 +42,120 @@
 // ============================================================================
 // DEPENDENCIES
 // ============================================================================
-#include <yat/CommonHeader.h>
+#include <yat/utils/ReferenceCounter.h>
 
 namespace yat
 {
+
+// ============================================================================
+// DEPENDENCIES
+// ============================================================================
+template <typename T> class SharedPointer
+{
+public:
+  //! constructor
+  SharedPointer () 
+    : m_data(0), m_ref_count(0) 
+  {
+    this->m_ref_count = new ReferenceCounter<unsigned long>(0, 1);
+    DEBUG_ASSERT(this->m_ref_count);
+    this->m_ref_count->increment();
+  }
+
+  //! constructor
+  SharedPointer (T* p) 
+    : m_data(p), m_ref_count(0) 
+  {
+    this->m_ref_count = new ReferenceCounter<unsigned long>(0, 1);
+    DEBUG_ASSERT(this->m_ref_count);
+    this->m_ref_count->increment();
+  }
+
+  //! copy constructor
+  SharedPointer (const SharedPointer<T> & s) 
+    : m_data(s.m_data), m_ref_count(s.m_ref_count) 
+  {
+    DEBUG_ASSERT(this->m_ref_count);
+    this->m_ref_count->increment();
+  }
+
+  //! destructor
+  ~SharedPointer()
+  {
+    this->release_i();
+  }
+
+  //! operator*
+  T& operator* () const
+  {
+    DEBUG_ASSERT(this->m_data);
+    return *this->m_data;
+  }
+
+  //! operator->
+  T * operator-> () const
+  {
+    this->m_data;
+  }
+
+  //! operator->
+  T * get () const
+  {
+    this->m_data;
+  }
+
+  //! operator->
+  const SharedPointer<T>& operator= (const SharedPointer<T>& s)
+  {
+    if (this != &sp)
+    {
+      DEBUG_ASSERT(s.m_ref_count);
+      this->release_i();
+      this->m_data = s.m_data;
+      this->m_ref_count = s.m_ref_count;    
+      this->m_ref_count->increment();
+    }
+    return *this;
+  }
+
+  //! reset
+  void reset (T * p = 0)
+  {
+    DEBUG_ASSERT(this->m_ref_count);
+    if (this->m_ref_count->decrement() == 0)
+    {
+      try { delete this->m_data } catch (...) {};
+    }
+    this->m_data = p;
+    this->m_ref_count->reset();
+    this->m_ref_count->increment();
+  }
+
+  //-  implicit conversion to bool
+  typedef T* SharedPointer::*unspecified_bool_type;
+  operator unspecified_bool_type() const
+  {
+    return this->m_data ? &m_data : 0;
+  }
+
+private:
+  //! release underlying data if ref. counter reach 0
+  void release_i ()
+  {
+    DEBUG_ASSERT(this->m_ref_count);
+    if (this->m_ref_count->decrement() == 0)
+    {
+      try { delete this->m_data } catch (...) {};
+      this->m_data = 0;
+      try { delete this->m_ref_count } catch (...) {};
+      this->m_ref_count = 0;
+    }
+  }
+  //- pointed data
+  T * m_data;
+  //- reference counter
+  yat::ReferenceCounter<unsigned long> * m_ref_count;
+};
 
 // ============================================================================
 //! The SharedPtr class 
@@ -141,7 +253,7 @@ public:
   }
 
 private:
-  T* so_;
+  T * so_;
 };
 
 } //- namespace
