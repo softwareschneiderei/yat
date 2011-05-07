@@ -51,9 +51,9 @@
 
 #if (defined (_DEBUG) || defined (DEBUG))
 # define YAT_DEBUG
-# include <assert.h>
 #endif
 
+#include <assert.h>
 #include <yat/Portability.h>
 #include <yat/Inline.h>
 #include <yat/LogHelper.h>
@@ -88,11 +88,10 @@ namespace yat
 //-----------------------------------------------------------------------------
 #if defined (YAT_DEBUG)
 # define DEBUG_ASSERT(EXP) assert(EXP)
-# define YAT_ASSERT(EXP) assert(EXP)
 #else
 # define DEBUG_ASSERT(EXP)
-# define YAT_ASSERT(EXP)
 #endif
+#define YAT_ASSERT(EXP) assert(EXP)
 
 }
 

@@ -6,21 +6,30 @@
 
 #include <iostream>
 #include <yat/memory/SharedPtr.h>
+#include <yat/threading/SharedObject.h>
+
 
 //-----------------------------------------------------------------------------
-// MyObject
+// MySharedObject
 //-----------------------------------------------------------------------------
-struct MyObject
+struct MySharedObject : public yat::SharedObject
 {
-  MyObject ( const std::string& s )
+  MySharedObject( std::string s )
     : some_attribute(s)
   {
-  	std::cout << "MyObject::calling ctor for " << some_attribute << std::endl;
+  	std::cout << "MySharedObject::calling ctor for " << some_attribute << std::endl;
   }
 
-  ~MyObject()
+  ~MySharedObject()
   {
-    std::cout << "MyObject::calling dtor for " << some_attribute << std::endl;
+    std::cout << "MySharedObject::calling dtor for " << some_attribute << std::endl;
+  }
+
+  //- reimplements yat::yat::SharedObject::duplicate so that it returns a <MySharedObject*> 
+  //- instead of a <yat::SharedObject*>...
+  MySharedObject* duplicate()
+  {
+    return reinterpret_cast< MySharedObject* >(yat::SharedObject::duplicate());
   }
 
   std::string some_attribute;
@@ -30,12 +39,12 @@ struct MyObject
 // DUMP MACRO
 //-----------------------------------------------------------------------------
 #define DUMP( ptr ) \
-  std::cout << "SharedPtr " \
+  std::cout << "SharedObjectPtr " \
   					<< #ptr \
-            << " -- points to --> " \
+            << " -- points to sharedobject --> " \
             << (ptr ? ptr->some_attribute : "xxxxxx") \
             << " [which ref. count is " \
-            << ptr.use_count() \
+            << (ptr ? ptr->reference_count() : 0) \
             << "]" \
             << std::endl
             
@@ -44,13 +53,13 @@ struct MyObject
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-  typedef yat::SharedPtr<MyObject> MyObjectPtr;
+  typedef yat::SharedObjectPtr<MySharedObject> MySharedObjectPtr;
 
-  MyObjectPtr foo ( new MyObject("foo-sp") );
+  MySharedObjectPtr foo ( new MySharedObject("foo-so") );
  
-  MyObjectPtr bar ( new MyObject("bar-sp") );
+  MySharedObjectPtr bar ( new MySharedObject("bar-so") );
 
-  MyObjectPtr tmp;
+  MySharedObjectPtr tmp;
 
   std::cout << std::endl; //-----------------------------------------------------
   
@@ -92,9 +101,9 @@ int main(int argc, char* argv[])
   
   tmp = foo; 
   
-  foo.reset( new MyObject("oof-so") );
+  foo.reset( new MySharedObject("oof-so") );
   
-  std::cout << "after 'tmp = foo; foo.reset( new MyObject(\"oof-so\") )' :" << std::endl;
+  std::cout << "after 'tmp = foo; foo.reset( new MySharedObject(\"oof-so\") )' :" << std::endl;
   
   DUMP( tmp );
   DUMP( foo );

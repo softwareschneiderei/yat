@@ -31,8 +31,7 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \ based on Madhu Raykar's article : http://www.codeproject.com/KB/cpp/SmartPointers.aspx
- * \ N.Leclercq - Synchrotron SOLEIL
+ * \author N.Leclercq - Synchrotron SOLEIL
  */
 
 #ifndef _YAT_REF_COUNTER_H_
@@ -81,7 +80,7 @@ public:
   //! increment the underlying counter
   const T & operator+= (const T& inc) 
   {
-    yat::MutexLock<L> guard(this->lock);
+    yat::AutoMutex<L> guard(this->m_lock);
     T tmp(this->m_count);
     this->m_count = tmp + inc;
     return this->m_count;
@@ -102,7 +101,7 @@ public:
   //! decrement the underlying counter
   const T & operator-= (const T& inc) 
   {
-    yat::MutexLock<L> guard(this->lock);
+    yat::AutoMutex<L> guard(this->m_lock);
     T tmp(this->m_count);
     this->m_count = tmp - inc;
     return this->m_count;
@@ -111,32 +110,31 @@ public:
   //! decrement the underlying counter
   bool operator== (const T& v) 
   {
-    yat::MutexLock<L> guard(this->lock);
+    yat::AutoMutex<L> guard(this->m_lock);
     return this->m_count == v;
   }
 
   //! unique
-  bool unique () const
+  bool unique ()
   {
-    yat::MutexLock<L> guard(this->lock);
+    yat::AutoMutex<L> guard(this->m_lock);
     return this->m_count == this->m_inc;
   }
 
   //! use count
-  const T & use_count () const
+  const T & use_count ()
   {
-    yat::MutexLock<L> guard(this->lock);
+    yat::AutoMutex<L> guard(this->m_lock);
     return this->m_count;
   }
 
-  //! reset
-  bool reset () const
+  //! increment value
+  const T & increment_value () const
   {
-    yat::MutexLock<L> guard(this->lock);
-    return this->m_count = 0;
+    return this->m_inc;
   }
 
-  //-  implicit conversion to bool: operator
+  //- implicit conversion to bool
   typedef T* ReferenceCounter::*unspecified_bool_type;
   operator unspecified_bool_type() const
   {
@@ -148,7 +146,6 @@ private:
   T m_inc;
   L m_lock;
 };
-}
 
 } // namespace
 

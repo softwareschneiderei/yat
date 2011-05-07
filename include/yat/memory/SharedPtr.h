@@ -31,8 +31,7 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \ based on Madhu Raykar's article : http://www.codeproject.com/KB/cpp/SmartPointers.aspx
- * \ N.Leclercq - Synchrotron SOLEIL
+ * \author N.Leclercq - Synchrotron SOLEIL
  */
 
 
@@ -50,126 +49,152 @@ namespace yat
 // ============================================================================
 // DEPENDENCIES
 // ============================================================================
-template <typename T> class SharedPointer
+template <typename T, typename L = yat::NullMutex> class SharedPtr
 {
+  typedef SharedPtr<T,L> ThisSpecialization;
+  typedef ReferenceCounter<unsigned long, L> ThisSpecializationRefCnt;
+
 public:
   //! constructor
-  SharedPointer () 
+  SharedPtr () 
     : m_data(0), m_ref_count(0) 
   {
-    this->m_ref_count = new ReferenceCounter<unsigned long>(0, 1);
-    DEBUG_ASSERT(this->m_ref_count);
-    this->m_ref_count->increment();
+    this->m_ref_count = new ThisSpecializationRefCnt(0, 1);
+    YAT_ASSERT(this->m_ref_count);
   }
 
   //! constructor
-  SharedPointer (T* p) 
+  SharedPtr (T* p) 
     : m_data(p), m_ref_count(0) 
   {
-    this->m_ref_count = new ReferenceCounter<unsigned long>(0, 1);
-    DEBUG_ASSERT(this->m_ref_count);
-    this->m_ref_count->increment();
+    this->m_ref_count = new ThisSpecializationRefCnt(1, 1);
+    YAT_ASSERT(this->m_ref_count);
   }
 
   //! copy constructor
-  SharedPointer (const SharedPointer<T> & s) 
+  SharedPtr (const SharedPtr<T> & s) 
     : m_data(s.m_data), m_ref_count(s.m_ref_count) 
   {
-    DEBUG_ASSERT(this->m_ref_count);
+    YAT_ASSERT(this->m_ref_count);
     this->m_ref_count->increment();
   }
 
   //! destructor
-  ~SharedPointer()
+  ~SharedPtr()
   {
-    this->release_i();
+    this->release();
+  }
+
+  //! operator=
+  const SharedPtr<T>& operator= (const SharedPtr<T>& s)
+  {
+    YAT_ASSERT(s.m_ref_count);  
+    if (this != &s)
+    {
+      this->release();
+      this->m_data = s.m_data;
+      this->m_ref_count = s.m_ref_count;
+      this->m_ref_count->increment();
+    }
+    return *this;
   }
 
   //! operator*
   T& operator* () const
   {
-    DEBUG_ASSERT(this->m_data);
+    YAT_ASSERT(this->m_data);
     return *this->m_data;
   }
 
   //! operator->
   T * operator-> () const
   {
-    this->m_data;
+    return this->m_data;
   }
 
   //! operator->
   T * get () const
   {
-    this->m_data;
-  }
-
-  //! operator->
-  const SharedPointer<T>& operator= (const SharedPointer<T>& s)
-  {
-    if (this != &sp)
-    {
-      DEBUG_ASSERT(s.m_ref_count);
-      this->release_i();
-      this->m_data = s.m_data;
-      this->m_ref_count = s.m_ref_count;    
-      this->m_ref_count->increment();
-    }
-    return *this;
+    return this->m_data;
   }
 
   //! reset
-  void reset (T * p = 0)
+  void reset ()
   {
-    DEBUG_ASSERT(this->m_ref_count);
-    if (this->m_ref_count->decrement() == 0)
-    {
-      try { delete this->m_data } catch (...) {};
-    }
-    this->m_data = p;
-    this->m_ref_count->reset();
-    this->m_ref_count->increment();
+    ThisSpecialization().swap(*this);
+  } 
+
+  //! reset
+  void reset (T * p)
+  {
+    ThisSpecialization(p).swap(*this);
+  } 
+
+  //! reset (Y must be T convertible)
+  template <typename Y> void reset (Y * p)
+  {
+    ThisSpecialization(p).swap(*this);
+  } 
+
+  //- swap content
+  void swap (SharedPtr & s)
+  {
+    std::swap(this->m_data, s.m_data);
+    std::swap(this->m_ref_count, s.m_ref_count);
   }
 
-  //-  implicit conversion to bool
-  typedef T* SharedPointer::*unspecified_bool_type;
-  operator unspecified_bool_type() const
+  //! unique
+  bool unique () const
   {
-    return this->m_data ? &m_data : 0;
+    YAT_ASSERT(this->m_ref_count);
+    return this->m_ref_count->unique();
+  }
+
+  //! use count
+  unsigned long use_count () const
+  {
+    YAT_ASSERT(this->m_ref_count);
+    return this->m_ref_count->use_count();
+  }
+
+  //- implicit conversion to bool
+  typedef T* ThisSpecialization::*anonymous_bool_type;
+  operator anonymous_bool_type () const
+  {
+    return this->m_data == 0 ? 0 : &ThisSpecialization::m_data;
   }
 
 private:
-  //! release underlying data if ref. counter reach 0
-  void release_i ()
+  //! release underlying data if ref. counter reaches 0
+  void release ()
   {
-    DEBUG_ASSERT(this->m_ref_count);
-    if (this->m_ref_count->decrement() == 0)
+    if (this->m_ref_count == 0 || this->m_ref_count->decrement() == 0)
     {
-      try { delete this->m_data } catch (...) {};
+      try { delete this->m_data; } catch (...) {};
       this->m_data = 0;
-      try { delete this->m_ref_count } catch (...) {};
+      try { delete this->m_ref_count; } catch (...) {};
       this->m_ref_count = 0;
     }
   }
   //- pointed data
   T * m_data;
   //- reference counter
-  yat::ReferenceCounter<unsigned long> * m_ref_count;
+  ThisSpecializationRefCnt * m_ref_count;
 };
 
 // ============================================================================
-//! The SharedPtr class 
+//! The SharedObjectPtr class 
 // ============================================================================
 //! Template arg class <T> must inherit from yat::SharedObject
 // ============================================================================
-template <typename T> class SharedPtr
+template <typename T> class SharedObjectPtr
 {
 public:
 
   /**
    * Default constructor. 
    */
-  SharedPtr() : so_(0)
+  SharedObjectPtr() : m_so(0)
   {
     //- noop
   }
@@ -179,7 +204,7 @@ public:
    * Takes ownership of the specified yat::SharedObject. 
    * <T> must inherit from yat::SharedObject. 
    */
-  template <typename Y> explicit SharedPtr( Y * so ) : so_(so)
+  template <typename Y> explicit SharedObjectPtr( Y * so ) : m_so(so)
   {
     //- noop
   }
@@ -187,7 +212,7 @@ public:
   /**
    * Destructor.
    */
-  ~SharedPtr()
+  ~SharedObjectPtr()
   {
     this->reset();
   }
@@ -196,12 +221,12 @@ public:
    * Assignment operator.
    * Releases currently pointed SharedObject, then points to the specified one.
    */
-  SharedPtr& operator= (SharedPtr& r) 
+  SharedObjectPtr& operator= (SharedObjectPtr& r) 
   {
-    T * new_so = r ? r.so_->duplicate() : 0;
-    if (so_)
-      so_->release();
-    so_ = new_so;
+    T * new_so = r ? r.m_so->duplicate() : 0;
+    if (m_so)
+      m_so->release();
+    m_so = new_so;
     return *this;
   }
 
@@ -210,9 +235,9 @@ public:
    */
   void reset ( T* so = 0 )
   {
-    if (so_)
-      so_->release();
-    so_ = so;
+    if (m_so)
+      m_so->release();
+    m_so = so;
   }
 
   /**
@@ -220,7 +245,7 @@ public:
    */
   T* get()
   {
-    return so_;
+    return m_so;
   }
   
   /**
@@ -228,7 +253,7 @@ public:
    */
   T* operator-> ()
   {
-    return so_;
+    return m_so;
   }
   
   /**
@@ -236,24 +261,20 @@ public:
    */
   T& operator* ()
   {
-    return *so_;
+    return *m_so;
   }
 
   /**
-   * Implicit conversion to bool: typedef
+   * Implicit conversion to bool
    */
-  typedef T* SharedPtr::*unspecified_bool_type;
-  
-  /**
-   * Implicit conversion to bool: operator
-   */
-  operator unspecified_bool_type() const
+  typedef T* SharedObjectPtr::*anonymous_bool_type;
+  operator anonymous_bool_type() const
   {
-    return so_ ? &SharedPtr::so_ : 0;
+    return m_so ? &SharedObjectPtr::m_so : 0;
   }
 
 private:
-  T * so_;
+  T * m_so;
 };
 
 } //- namespace
