@@ -59,7 +59,7 @@ public:
   SharedPtr () 
     : m_data(0), m_ref_count(0) 
   {
-    this->m_ref_count = new ThisTypeRefCnt(0, 1);
+    this->m_ref_count = new ThisTypeRefCnt(0);
     YAT_ASSERT(this->m_ref_count);
   }
 
@@ -67,7 +67,7 @@ public:
   SharedPtr (T* p) 
     : m_data(p), m_ref_count(0) 
   {
-    this->m_ref_count = new ThisTypeRefCnt(1, 1);
+    this->m_ref_count = new ThisTypeRefCnt(1);
     YAT_ASSERT(this->m_ref_count);
   }
 

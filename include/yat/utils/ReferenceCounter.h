@@ -55,8 +55,8 @@ class ReferenceCounter
 public:
 
   //! constructor
-  ReferenceCounter (const T& initial_value = 0, const T& increment = 1)
-    : m_count(initial_value),  m_inc(increment)
+  ReferenceCounter (const T& initial_value = 0)
+    : m_count(initial_value)
   {}
 
   //! destructor
@@ -68,42 +68,32 @@ public:
   //! increment the underlying counter
   const T & increment () 
   {
-    return this->operator+=(this->m_inc);
+    yat::AutoMutex<L> guard(this->m_lock);
+    this->m_count++;
+    return this->m_count;
   }
 
   //! decrement the underlying counter
   const T & operator++  () 
   {
-    this->operator+=(this->m_inc);
-  }
-
-  //! increment the underlying counter
-  const T & operator+= (const T& inc) 
-  {
     yat::AutoMutex<L> guard(this->m_lock);
-    T tmp(this->m_count);
-    this->m_count = tmp + inc;
+    this->m_count++;
     return this->m_count;
   }
 
   //! dencrement the underlying counter
   const T & decrement () 
   {
-    return this->operator-=(this->m_inc);
+    yat::AutoMutex<L> guard(this->m_lock);
+    this->m_count--;
+    return this->m_count;
   }
 
   //! decrement the underlying counter
   const T & operator-- () 
   {
-    this->operator-=(this->m_inc);
-  }
-
-  //! decrement the underlying counter
-  const T & operator-= (const T& inc) 
-  {
     yat::AutoMutex<L> guard(this->m_lock);
-    T tmp(this->m_count);
-    this->m_count = tmp - inc;
+    this->m_count--;
     return this->m_count;
   }
 
@@ -118,7 +108,7 @@ public:
   bool unique ()
   {
     yat::AutoMutex<L> guard(this->m_lock);
-    return this->m_count == this->m_inc;
+    return this->m_count == 1;
   }
 
   //! use count
@@ -131,7 +121,7 @@ public:
   //! increment value
   const T & increment_value () const
   {
-    return this->m_inc;
+    return 1;
   }
 
   //- implicit conversion to bool
@@ -143,7 +133,6 @@ public:
 
 private:
   T m_count;
-  T m_inc;
   L m_lock;
 };
 
