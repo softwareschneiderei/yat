@@ -62,15 +62,15 @@ public:
   
   /**
    * Constructor. 
-   * @param  capacity the maximum number of element of type T that can be stored into the buffer 
+   * @param  capacity the maximum number of elements of type T that can be stored into the buffer 
    * @param  clear clears the associated memory (i.e. set each byte to 0), does nothing ortherwise 
    */
   Buffer (size_t capacity = 0, bool clear = false)
     throw (Exception);
  
   /*
-   * Memory copy constructor. Memory is copied from base to base + length.
-   * @param  length the number of element of type T to be copied into the buffer. 
+   * Memory copy constructor. Memory is copied from base to base + length * sizeof(T).
+   * @param  length the number of elements of type T to be copied into the buffer. 
    * @param  base address of the block to copy.
    */
   Buffer (size_t length, T *base)
@@ -94,7 +94,7 @@ public:
   Buffer<T>& operator= (const Buffer<T> &src);
 
   /**
-   * operator=. Memory is copied from base to base + Buffer::length_. 
+   * operator=. Memory is copied from base to base + Buffer::length_ * sizeof(T). 
    * @param base address of the block to copy.
    */
   Buffer<T>& operator= (const T *base);
@@ -150,11 +150,11 @@ public:
   size_t length () const;
   
   /**
-   * Returns artificially change the buffer length. 
-   * @param new_length new buffer capacity in num of elements.
+   * Artificially change the buffer length. 
+   * @param new_length actual number of elements.
    *
    *\remark
-   * If new_length is greater then buffer capacity, then buffer length is set to buffer capacity.
+   * If new_length is greater than buffer capacity, then buffer length is set to buffer capacity.
    */
   void force_length (size_t new_length);
   
@@ -167,7 +167,7 @@ public:
   /**
    * Set the buffer capacity to _capacity
    * @param new_capacity new buffer capacity in num of elements.
-   * @param keep_content if set to true, the current buffer content is maintained but may be troncated.
+   * @param keep_content if set to true, the current buffer content is maintained (might be troncated if new capacity < current buffer capacity).
    */
   virtual void capacity (size_t new_capacity, bool keep_content = false)
     throw (Exception);
@@ -308,16 +308,15 @@ class SharedBuffer : public Buffer<T>, private SharedObject
 protected:
   /**
    * Constructor. 
-   * @param  capacity the maximum number of element of type T 
+   * @param  capacity the maximum number of elements of type T 
    *         that can be stored into the buffer 
    */
   SharedBuffer (size_t capacity = 0)
     throw (Exception);
  
-  /**
-   * Memory copy constructor. Memory is copied from _base to _base + _length.
-   * @param  length the maximum number of element of type T 
-   *         that can be stored into the buffer. 
+  /*
+   * Memory copy constructor. Memory is copied from base to base + length * sizeof(T).
+   * @param  length the number of elements of type T to be copied into the buffer. 
    * @param  base address of the block to copy.
    */
   SharedBuffer (size_t length, T *base)

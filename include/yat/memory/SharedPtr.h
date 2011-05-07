@@ -47,19 +47,19 @@ namespace yat
 {
 
 // ============================================================================
-// DEPENDENCIES
+// class: SharedPtr
 // ============================================================================
 template <typename T, typename L = yat::NullMutex> class SharedPtr
 {
-  typedef SharedPtr<T,L> ThisSpecialization;
-  typedef ReferenceCounter<unsigned long, L> ThisSpecializationRefCnt;
+  typedef SharedPtr<T,L> ThisType;
+  typedef ReferenceCounter<unsigned long, L> ThisTypeRefCnt;
 
 public:
   //! constructor
   SharedPtr () 
     : m_data(0), m_ref_count(0) 
   {
-    this->m_ref_count = new ThisSpecializationRefCnt(0, 1);
+    this->m_ref_count = new ThisTypeRefCnt(0, 1);
     YAT_ASSERT(this->m_ref_count);
   }
 
@@ -67,7 +67,7 @@ public:
   SharedPtr (T* p) 
     : m_data(p), m_ref_count(0) 
   {
-    this->m_ref_count = new ThisSpecializationRefCnt(1, 1);
+    this->m_ref_count = new ThisTypeRefCnt(1, 1);
     YAT_ASSERT(this->m_ref_count);
   }
 
@@ -121,19 +121,19 @@ public:
   //! reset
   void reset ()
   {
-    ThisSpecialization().swap(*this);
+    ThisType().swap(*this);
   } 
 
   //! reset
   void reset (T * p)
   {
-    ThisSpecialization(p).swap(*this);
+    ThisType(p).swap(*this);
   } 
 
   //! reset (Y must be T convertible)
   template <typename Y> void reset (Y * p)
   {
-    ThisSpecialization(p).swap(*this);
+    ThisType(p).swap(*this);
   } 
 
   //- swap content
@@ -158,10 +158,10 @@ public:
   }
 
   //- implicit conversion to bool
-  typedef T* ThisSpecialization::*anonymous_bool_type;
+  typedef T* ThisType::*anonymous_bool_type;
   operator anonymous_bool_type () const
   {
-    return this->m_data == 0 ? 0 : &ThisSpecialization::m_data;
+    return this->m_data == 0 ? 0 : &ThisType::m_data;
   }
 
 private:
@@ -179,7 +179,7 @@ private:
   //- pointed data
   T * m_data;
   //- reference counter
-  ThisSpecializationRefCnt * m_ref_count;
+  ThisTypeRefCnt * m_ref_count;
 };
 
 // ============================================================================

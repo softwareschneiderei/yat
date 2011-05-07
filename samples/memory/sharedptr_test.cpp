@@ -34,7 +34,7 @@ struct MyObject
   					<< #ptr \
             << " -- points to --> " \
             << (ptr ? ptr->some_attribute : "xxxxxx") \
-            << " [which ref. count is " \
+            << " [its ref. count is " \
             << ptr.use_count() \
             << "]" \
             << std::endl
@@ -100,7 +100,17 @@ int main(int argc, char* argv[])
   DUMP( foo );
   DUMP( bar );
 
-  std::cout << std::endl;
+  std::cout << std::endl; //-----------------------------------------------------
   
+  foo.reset();
+
+  std::cout << "after 'foo.reset()' :" << std::endl;
+  
+  DUMP( tmp );
+  DUMP( foo );
+  DUMP( bar );
+
+  std::cout << std::endl; //-----------------------------------------------------
+
   return 0;
 }

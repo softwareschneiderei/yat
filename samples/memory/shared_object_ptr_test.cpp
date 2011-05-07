@@ -43,7 +43,7 @@ struct MySharedObject : public yat::SharedObject
   					<< #ptr \
             << " -- points to sharedobject --> " \
             << (ptr ? ptr->some_attribute : "xxxxxx") \
-            << " [which ref. count is " \
+            << " [its ref. count is " \
             << (ptr ? ptr->reference_count() : 0) \
             << "]" \
             << std::endl
