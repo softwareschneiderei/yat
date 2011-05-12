@@ -142,15 +142,6 @@ namespace yat
         Placeholder * m_content;
     };
 
-    class bad_any_cast : public std::bad_cast
-    {
-    public:
-        virtual const char * what() const throw()
-        {
-            return "yat::Any conversion failed using yat::any_cast";
-        }
-    };
-
     template<typename ValueType>
     ValueType * any_cast (Any * operand)
     {
@@ -166,7 +157,8 @@ namespace yat
     }
 
     template<typename ValueType>
-    const ValueType & any_cast (const Any & operand) throw (yat::Exception)
+    const ValueType & any_cast (const Any & operand) 
+        throw (yat::Exception)
     {
         const ValueType * result = any_cast<ValueType>(&operand);
     
@@ -179,7 +171,8 @@ namespace yat
     }
 
     template<typename ValueType>
-    ValueType & any_cast (Any & operand) throw (yat::Exception)
+    ValueType & any_cast (Any & operand) 
+      throw (yat::Exception)
     {
         ValueType * result = any_cast<ValueType>(&operand);
     
