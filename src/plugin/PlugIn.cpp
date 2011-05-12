@@ -76,14 +76,12 @@ namespace yat
     this->load_library( library_file_name );
   }
 
-
   PlugIn::~PlugIn()
   {
     this->release_library();
   }
 
-  IPlugInInfo*
-    PlugIn::info()
+  IPlugInInfo* PlugIn::info()
   {
     Symbol symbol;
     try
@@ -114,8 +112,7 @@ namespace yat
     return info;
   }
 
-  IPlugInFactory* 
-    PlugIn::factory()
+  IPlugInFactory* PlugIn::factory()
   {
     Symbol symbol;
     try
@@ -147,8 +144,7 @@ namespace yat
   }
 
 
-  PlugIn::Symbol 
-    PlugIn::find_symbol( const std::string &symbol )
+  PlugIn::Symbol PlugIn::find_symbol( const std::string &symbol )
   {
     try
     {
@@ -166,8 +162,7 @@ namespace yat
     return NULL;    // keep compiler happy
   }
 
-  void
-    PlugIn::load_library( const std::string &library_file_name )
+  void PlugIn::load_library( const std::string &library_file_name )
   {
     try
     {
@@ -202,9 +197,7 @@ namespace yat
 
   }
 
-
-  void 
-    PlugIn::release_library()
+  void PlugIn::release_library()
   {
     try
     {
@@ -233,6 +226,4 @@ namespace yat
                       "PlugIn::release_library");
     }
   }
-
-
 }

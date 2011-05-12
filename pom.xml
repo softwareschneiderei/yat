@@ -94,6 +94,9 @@
                                     <exclude>**/*Win32*.cpp</exclude>
                                     <exclude>**/*Work*.cpp</exclude>
                                 </excludes>
+                                <options>
+                                    <!--option>-save-temps</option-->
+                                </options>
                             </cpp>
                         </specificConfiguration>
                         <specificConfiguration>
