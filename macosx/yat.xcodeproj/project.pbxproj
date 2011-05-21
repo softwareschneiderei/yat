@@ -7,18 +7,15 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		37C776ED0F42D22E00DCAAB0 /* Any.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Any.h; sourceTree = "<group>"; };
 		37C776EF0F42D22E00DCAAB0 /* BitsRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitsRecord.h; sourceTree = "<group>"; };
 		37C776F00F42D22E00DCAAB0 /* BitsStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitsStream.h; sourceTree = "<group>"; };
 		37C776F10F42D22E00DCAAB0 /* Endianness.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Endianness.h; sourceTree = "<group>"; };
 		37C776F20F42D22E00DCAAB0 /* Endianness.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = Endianness.i; sourceTree = "<group>"; };
-		37C776F30F42D22E00DCAAB0 /* Callback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Callback.h; sourceTree = "<group>"; };
 		37C776F40F42D22E00DCAAB0 /* CommonHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommonHeader.h; sourceTree = "<group>"; };
 		37C776F60F42D22E00DCAAB0 /* config-macosx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "config-macosx.h"; sourceTree = "<group>"; };
 		37C776F80F42D22E00DCAAB0 /* DataBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataBuffer.h; sourceTree = "<group>"; };
 		37C776FB0F42D22E00DCAAB0 /* Exception.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Exception.h; sourceTree = "<group>"; };
 		37C776FC0F42D22E00DCAAB0 /* Exception.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = Exception.i; sourceTree = "<group>"; };
-		37C776FD0F42D22E00DCAAB0 /* GenericContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GenericContainer.h; sourceTree = "<group>"; };
 		37C776FE0F42D22E00DCAAB0 /* Inline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Inline.h; sourceTree = "<group>"; };
 		37C776FF0F42D22E00DCAAB0 /* LogHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogHelper.h; sourceTree = "<group>"; };
 		37C777010F42D22E00DCAAB0 /* Address.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Address.h; sourceTree = "<group>"; };
@@ -28,7 +25,6 @@
 		37C777050F42D22E00DCAAB0 /* Socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Socket.h; sourceTree = "<group>"; };
 		37C777060F42D22E00DCAAB0 /* Socket.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = Socket.i; sourceTree = "<group>"; };
 		37C777070F42D22E00DCAAB0 /* SocketException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SocketException.h; sourceTree = "<group>"; };
-		37C777080F42D22E00DCAAB0 /* NonCopyable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NonCopyable.h; sourceTree = "<group>"; };
 		37C7770A0F42D22E00DCAAB0 /* IPlugInFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugInFactory.h; sourceTree = "<group>"; };
 		37C7770B0F42D22E00DCAAB0 /* IPlugInInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugInInfo.h; sourceTree = "<group>"; };
 		37C7770C0F42D22E00DCAAB0 /* IPlugInObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugInObject.h; sourceTree = "<group>"; };
@@ -38,7 +34,6 @@
 		37C777100F42D22E00DCAAB0 /* PlugInSymbols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlugInSymbols.h; sourceTree = "<group>"; };
 		37C777110F42D22E00DCAAB0 /* PlugInTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlugInTypes.h; sourceTree = "<group>"; };
 		37C777130F42D22E00DCAAB0 /* Portability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Portability.h; sourceTree = "<group>"; };
-		37C777140F42D22E00DCAAB0 /* Singleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Singleton.h; sourceTree = "<group>"; };
 		37C777150F42D22E00DCAAB0 /* TargetPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TargetPlatform.h; sourceTree = "<group>"; };
 		37C777170F42D22E00DCAAB0 /* Barrier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Barrier.h; sourceTree = "<group>"; };
 		37C777180F42D22E00DCAAB0 /* Barrier.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = Barrier.i; sourceTree = "<group>"; };
@@ -62,8 +57,6 @@
 		37C777300F42D22E00DCAAB0 /* Task.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = Task.i; sourceTree = "<group>"; };
 		37C777310F42D22E00DCAAB0 /* Thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Thread.h; sourceTree = "<group>"; };
 		37C777320F42D22E00DCAAB0 /* Utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utilities.h; sourceTree = "<group>"; };
-		37C7773B0F42D22E00DCAAB0 /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Timer.h; sourceTree = "<group>"; };
-		37C7773C0F42D22E00DCAAB0 /* XString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XString.h; sourceTree = "<group>"; };
 		37C7773F0F42D22E00DCAAB0 /* BitsStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BitsStream.cpp; sourceTree = "<group>"; };
 		37C777400F42D22E00DCAAB0 /* Endianness.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Endianness.cpp; sourceTree = "<group>"; };
 		37C777420F42D22E00DCAAB0 /* Exception.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Exception.cpp; sourceTree = "<group>"; };
@@ -101,7 +94,6 @@
 		3B82938B115F658B0021D81F /* SharedPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SharedPtr.h; path = memory/SharedPtr.h; sourceTree = "<group>"; };
 		3BB997EB117E221000A421E5 /* config-linux.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "config-linux.h"; sourceTree = "<group>"; };
 		3BB997EC117E221000A421E5 /* config-win32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "config-win32.h"; sourceTree = "<group>"; };
-		3BE9656F11687C1E008E3E65 /* Signal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Signal.h; sourceTree = "<group>"; };
 		3BE967F61168D0B1008E3E65 /* pom.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = pom.xml; path = ../pom.xml; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
@@ -143,19 +135,11 @@
 				37C776F80F42D22E00DCAAB0 /* DataBuffer.h */,
 				37C777130F42D22E00DCAAB0 /* Portability.h */,
 				37C777150F42D22E00DCAAB0 /* TargetPlatform.h */,
-				37C776ED0F42D22E00DCAAB0 /* Any.h */,
-				37C776F30F42D22E00DCAAB0 /* Callback.h */,
 				37C776F40F42D22E00DCAAB0 /* CommonHeader.h */,
 				37C776FB0F42D22E00DCAAB0 /* Exception.h */,
 				37C776FC0F42D22E00DCAAB0 /* Exception.i */,
-				37C776FD0F42D22E00DCAAB0 /* GenericContainer.h */,
 				37C776FE0F42D22E00DCAAB0 /* Inline.h */,
 				37C776FF0F42D22E00DCAAB0 /* LogHelper.h */,
-				37C777080F42D22E00DCAAB0 /* NonCopyable.h */,
-				37C777140F42D22E00DCAAB0 /* Singleton.h */,
-				37C7773B0F42D22E00DCAAB0 /* Timer.h */,
-				37C7773C0F42D22E00DCAAB0 /* XString.h */,
-				3BE9656F11687C1E008E3E65 /* Signal.h */,
 				3B137BF7117E1ED300B68456 /* any */,
 				37C776EE0F42D22E00DCAAB0 /* bitsstream */,
 				3B279F2F1125E1F800F25272 /* memory */,
@@ -412,14 +396,6 @@
 		1DEB919008733D9F0010E9CD /* x86_64-debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				DEBUGGING_SYMBOLS = YES;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "yat-static-debug-x86_64";
 				YAT_BUILD_OPTIONS = "PROJECT_TYPE=STATIC_LIB RELEASE_TYPE=DEBUG  ARCH_TYPE=x86_64";
 			};
@@ -428,10 +404,6 @@
 		1DEB919108733D9F0010E9CD /* x86_64-release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "yat-static-release-x86_64";
 				YAT_BUILD_OPTIONS = "PROJECT_TYPE=STATIC_LIB RELEASE_TYPE=OPTIMIZED ARCH_TYPE=x86_64";
 			};
@@ -463,12 +435,7 @@
 		37C776CD0F42D0A400DCAAB0 /* x86_64-debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
 				PRODUCT_NAME = "yat-dynamic-debug-i386";
-				PROJECT_TYPE = SHARED_LIB;
-				RELEASE_TYPE = DEBUG;
 				YAT_BUILD_OPTIONS = "PROJECT_TYPE=SHARED_LIB RELEASE_TYPE=DEBUG ARCH_TYPE=x86_64";
 			};
 			name = "x86_64-debug";
@@ -476,14 +443,8 @@
 		37C776CE0F42D0A400DCAAB0 /* x86_64-release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PRODUCT_NAME = "yat-dynamic-release-i386";
-				PROJECT_TYPE = SHARED_LIB;
-				RELEASE_TYPE = OPTIMIZED;
 				YAT_BUILD_OPTIONS = "PROJECT_TYPE=SHARED_LIB RELEASE_TYPE=OPTIMIZED ARCH_TYPE=x86_64";
-				ZERO_LINK = NO;
 			};
 			name = "x86_64-release";
 		};
@@ -502,14 +463,6 @@
 		37F3511611EC7C97009278C6 /* i386-debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				DEBUGGING_SYMBOLS = YES;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "yat-static-debug-i386";
 				YAT_BUILD_OPTIONS = "PROJECT_TYPE=STATIC_LIB RELEASE_TYPE=DEBUG ARCH_TYPE=i386";
 			};
@@ -518,12 +471,7 @@
 		37F3511711EC7C97009278C6 /* i386-debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
 				PRODUCT_NAME = "yat-dynamic-debug-i386";
-				PROJECT_TYPE = SHARED_LIB;
-				RELEASE_TYPE = DEBUG;
 				YAT_BUILD_OPTIONS = "PROJECT_TYPE=SHARED_LIB RELEASE_TYPE=DEBUG ARCH_TYPE=i386";
 			};
 			name = "i386-debug";
@@ -542,10 +490,6 @@
 		37F3511911EC7CA0009278C6 /* i386-release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "yat-static-release-i386";
 				YAT_BUILD_OPTIONS = "PROJECT_TYPE=STATIC_LIB RELEASE_TYPE=OPTIMIZED  ARCH_TYPE=i386";
 			};
@@ -554,14 +498,8 @@
 		37F3511A11EC7CA0009278C6 /* i386-release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PRODUCT_NAME = "yat-dynamic-release-i386";
-				PROJECT_TYPE = SHARED_LIB;
-				RELEASE_TYPE = OPTIMIZED;
 				YAT_BUILD_OPTIONS = "PROJECT_TYPE=SHARED_LIB RELEASE_TYPE=OPTIMIZED ARCH_TYPE=i386";
-				ZERO_LINK = NO;
 			};
 			name = "i386-release";
 		};

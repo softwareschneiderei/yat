@@ -29,7 +29,7 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \author N.Leclercq, J.Malik - Synchrotron SOLEIL
+ * \author See AUTHORS file
  */
 
 #ifndef _YAT_CONFIG_WIN32_H_

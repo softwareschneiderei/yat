@@ -2,7 +2,7 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2010  The Tango Community
+// Copyright (C) 2006-2011  N.Leclercq & The Tango Community
 //
 // Part of the code comes from the ACE Framework (i386 asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
@@ -12,7 +12,7 @@
 // see http://omniorb.sourceforge.net/ for more about omniORB.
 //
 // Contributors form the TANGO community:
-// Ramon Sune (ALBA) for the yat::Signal class 
+// See AUTHORS file 
 //
 // The YAT library is free software; you can redistribute it and/or modify it 
 // under the terms of the GNU General Public License as published by the Free 
@@ -31,7 +31,7 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \author N.Leclercq, J.Malik - Synchrotron SOLEIL
+ * \author See AUTHORS file
  */
 
 #ifndef _YAT_THREADING_IMPL_H_
