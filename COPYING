@@ -2,7 +2,7 @@
  YAT LIBRARY
 ------------------------------------------------------------------------------
 
- Copyright (C) 2006-2009  N.leclercq, J.Malik & The Tango Community
+ Copyright (C) 2006-2011 - N.Leclercq & The Tango Community
 
  Part of the code comes from the ACE Framework
  see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
@@ -15,7 +15,7 @@
  see http://www.boost.org/
 
  Contributors form the TANGO community:
- Ramon Sunes (ALBA) 
+ See AUTHORS file
  
  The YAT library is free software; you can redistribute it and/or modify it 
  under the terms of the GNU General Public License as published by the Free 
