@@ -34,6 +34,20 @@ ifndef AR
 endif
 
 #------------------------------------------------------------------------------
+#-- ARCH_TYPE
+#------------------------------------------------------------------------------
+ifndef ARCH_TYPE
+	ARCH_TYPE = i386
+endif
+
+#------------------------------------------------------------------------------
+#-- RELEASE_TYPE
+#------------------------------------------------------------------------------
+ifndef RELEASE_TYPE
+	RELEASE_TYPE = OPTIMIZED
+endif
+
+#------------------------------------------------------------------------------
 #-- OUTPUT_TYPE (BACKWARD COMPATIBILITY)
 #------------------------------------------------------------------------------
 ifdef OUTPUT_TYPE
@@ -97,42 +111,47 @@ LIB_DIRS += $(LIB_DIR_USER)
 #------------------------------------------------------------------------------
 #-- OBJ_DIR
 #------------------------------------------------------------------------------
-ifndef OBJ_DIR
-	OBJ_DIR = /tmp/$(USER)/$(PROJECT_NAME)
+ifeq ($(ARCH_TYPE),i386)
+ifeq ($(PROJECT_TYPE),STATIC_LIB)
+	OBJ_DIR = ./objs/i386/static
+else
+	OBJ_DIR = ./objs/i386/shared
 endif
-
-OBJDIR = $(OBJ_DIR)
+else
+ifeq ($(PROJECT_TYPE),STATIC_LIB)
+	OBJ_DIR = ./objs/x86_64/static
+else
+	OBJ_DIR = ./objs/x86_64/shared
+endif
+endif
 
 #------------------------------------------------------------------------------
 #-- OUTPUT_DIR
 #------------------------------------------------------------------------------
-ifndef OUTPUT_DIR
-ifeq ($(PROJECT_TYPE),DEVICE)
-	OUTPUT_DIR= $(HOME)/DeviceServers
+ifeq ($(ARCH_TYPE),i386)
+ifeq ($(PROJECT_TYPE),STATIC_LIB)
+	OUTPUT_DIR= ../lib/i386/static
+else
+	OUTPUT_DIR= ../lib/i386/shared
+endif
 else
 ifeq ($(PROJECT_TYPE),STATIC_LIB)
-	OUTPUT_DIR= ../lib
+	OUTPUT_DIR= ../lib/x86_64/static
 else
-ifeq ($(PROJECT_TYPE),SHARED_LIB)
-	OUTPUT_DIR= ../lib
-else
-	OUTPUT_DIR= ../bin
+	OUTPUT_DIR= ../lib/x86_64/shared
 endif
-endif
-endif
-endif
-
-#------------------------------------------------------------------------------
-#-- RELEASE_TYPE
-#------------------------------------------------------------------------------
-ifndef RELEASE_TYPE
-	RELEASE_TYPE = OPTIMIZED
 endif
 
 #------------------------------------------------------------------------------
 #-- CXXFLAGS
 #------------------------------------------------------------------------------
 CXXFLAGS =
+
+ifeq ($(ARCH_TYPE), i386)
+	CXXFLAGS += -m32
+else
+	CXXFLAGS += -m64
+endif
 
 ifeq ($(RELEASE_TYPE),DEBUG)
 	CXXFLAGS +=	-g -D_DEBUG
@@ -155,6 +174,12 @@ CXXFLAGS += -D_REENTRANT -W -Wall -pipe -fno-enforce-eh-specs $(INCLUDE_DIRS) $(
 #------------------------------------------------------------------------------
 CFLAGS =
 
+ifeq ($(ARCH_TYPE), i386)
+	CFLAGS += -m32
+else
+	CFLAGS += -m64
+endif
+
 ifeq ($(RELEASE_TYPE),DEBUG)
 	CFLAGS +=	-g -D_DEBUG
 else
@@ -175,6 +200,12 @@ CFLAGS +=	-D_REENTRANT -W -Wall -pipe $(INCLUDE_DIRS) $(CFLAGS_USER)
 #-- LDFLAGS
 #------------------------------------------------------------------------------
 LDFLAGS =
+
+ifeq ($(ARCH_TYPE), i386)
+	LDFLAGS += -m32
+else
+	LDFLAGS += -m64
+endif
 
 ifeq ($(PROJECT_TYPE),SHARED_LIB)
 	LDFLAGS +=	-shared -O -Wl,-soname,lib$(PROJECT_NAME).so

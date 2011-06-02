@@ -24,12 +24,24 @@
 #------------------------------------------------------------------------------
 
 #=============================================================================
+# ARCH_TYPE
+#=============================================================================
+# - i386   : build 32 bits libraries
+# - x86_64 : build 64 bits libraries
+#-----------------------------------------------------------------------------
+ifndef ARCH_TYPE
+ARCH_TYPE = i386  
+endif
+
+#=============================================================================
 # PROJECT_TYPE
 #=============================================================================
 # - STATIC_LIB : your project is a static library (.a)
-# - SHARED_LIB : your project is a shared library (.so)
+# - SHARED_LIB : your project is a shared library (.dylib)
 #-----------------------------------------------------------------------------
-PROJECT_TYPE = STATIC_LIB
+ifndef PROJECT_TYPE
+PROJECT_TYPE = SHARED_LIB
+endif
 
 #=============================================================================
 # RELEASE_TYPE
@@ -37,7 +49,9 @@ PROJECT_TYPE = STATIC_LIB
 # - DEBUG     : debug symbols - no optimization
 # - OPTIMIZED : no debug symbols - optimization level set to O2
 #-----------------------------------------------------------------------------
-RELEASE_TYPE = DEBUG
+ifndef RELEASE_TYPE
+RELEASE_TYPE = OPTIMIZED
+endif
 
 #=============================================================================
 # TANGO_REQUIRED 
@@ -108,12 +122,11 @@ endif
 #=============================================================================
 # CXXFLAGS_USER - compiler options or user defined macros
 #=============================================================================
-# - NOTE : put your compile-time macros here using '-Dmy_macro'
+# - NOTE : put your compile-time defines here using '-Dmy_defines'
 #-----------------------------------------------------------------------------
 CXXFLAGS_USER  = -DNoNanoSleep
 CXXFLAGS_USER += -DPthreadDraftVersion=8 
 CXXFLAGS_USER += -UPthreadSupportThreadPriority 
-CXXFLAGS_USER += -UNeedPthreadInit
 CXXFLAGS_USER += -fno-enforce-eh-specs -Wno-unused-parameter
 ifeq ($(RELEASE_TYPE),DEBUG)
 	CXXFLAGS_USER += -D_DEBUG
@@ -154,21 +167,45 @@ SVC_OBJS = $(OBJ_DIR)/Exception.a.o \
 #=============================================================================
 include ./build/linux/common_target.opt
 
-releases:
-	make -f Makefile.linux clean all RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=STATIC_LIB
-	make -f Makefile.linux clean all RELEASE_TYPE=DEBUG PROJECT_TYPE=STATIC_LIB
-	make -f Makefile.linux clean all RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=SHARED_LIB
-	make -f Makefile.linux clean all RELEASE_TYPE=DEBUG PROJECT_TYPE=SHARED_LIB
+cleanall: i386-clean x86_64-clean
 
-distrib:
-	cd ../include/yat; cp *.h *.i $(SOLEIL_ROOT)/sw-support/YAT/include/yat
-	cd ../include/yat/bitsstream; cp *.h *.i $(SOLEIL_ROOT)/sw-support/YAT/include/yat/bitsstream
-	cd ../include/yat/memory; cp *.h *.i *.tpp $(SOLEIL_ROOT)/sw-support/YAT/include/yat/memory
-	cd ../include/yat/network; cp *.h *.i $(SOLEIL_ROOT)/sw-support/YAT/include/yat/network
-	cd ../include/yat/plugin; cp *.h $(SOLEIL_ROOT)/sw-support/YAT/include/yat/plugin
-	cd ../include/yat/threading; cp *.h *.i $(SOLEIL_ROOT)/sw-support/YAT/include/yat/threading
-	cd ../include/yat/threading/impl; cp *.h *.i $(SOLEIL_ROOT)/sw-support/YAT/include/yat/threading/impl
-	cd ../lib/static; cp *.a $(SOLEIL_ROOT)/sw-support/YAT/lib/static/linux
-	cd ../lib/shared; cp *.so $(SOLEIL_ROOT)/sw-support/YAT/lib/shared/linux
+i386-clean:
+	make -f Makefile.linux clean RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=STATIC_LIB ARCH_TYPE=i386
+	make -f Makefile.linux clean RELEASE_TYPE=DEBUG PROJECT_TYPE=STATIC_LIB ARCH_TYPE=i386
+	make -f Makefile.linux clean RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=SHARED_LIB ARCH_TYPE=i386
+	make -f Makefile.linux clean RELEASE_TYPE=DEBUG PROJECT_TYPE=SHARED_LIB ARCH_TYPE=i386
+
+x86_64-clean:
+	make -f Makefile.linux clean RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=STATIC_LIB ARCH_TYPE=x86_64
+	make -f Makefile.linux clean RELEASE_TYPE=DEBUG PROJECT_TYPE=STATIC_LIB ARCH_TYPE=x86_64
+	make -f Makefile.linux clean RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=SHARED_LIB ARCH_TYPE=x86_64
+	make -f Makefile.linux clean RELEASE_TYPE=DEBUG PROJECT_TYPE=SHARED_LIB ARCH_TYPE=x86_64
+
+releases: i386-releases x86_64-releases
+
+i386:
+	make -f Makefile.linux all ARCH_TYPE=i386 RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=STATIC_LIB
+	make -f Makefile.linux all ARCH_TYPE=i386 RELEASE_TYPE=DEBUG PROJECT_TYPE=STATIC_LIB
+	make -f Makefile.linux all ARCH_TYPE=i386 RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=SHARED_LIB
+	make -f Makefile.linux all ARCH_TYPE=i386 RELEASE_TYPE=DEBUG PROJECT_TYPE=SHARED_LIB
+
+i386-releases:
+	make -f Makefile.linux clean all ARCH_TYPE=i386 RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=STATIC_LIB
+	make -f Makefile.linux clean all ARCH_TYPE=i386 RELEASE_TYPE=DEBUG PROJECT_TYPE=STATIC_LIB
+	make -f Makefile.linux clean all ARCH_TYPE=i386 RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=SHARED_LIB
+	make -f Makefile.linux clean all ARCH_TYPE=i386 RELEASE_TYPE=DEBUG PROJECT_TYPE=SHARED_LIB
+
+x86_64:
+	make -f Makefile.linux all ARCH_TYPE=x86_64 RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=STATIC_LIB
+	make -f Makefile.linux all ARCH_TYPE=x86_64 RELEASE_TYPE=DEBUG PROJECT_TYPE=STATIC_LIB
+	make -f Makefile.linux all ARCH_TYPE=x86_64 RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=SHARED_LIB
+	make -f Makefile.linux all ARCH_TYPE=x86_64 RELEASE_TYPE=DEBUG PROJECT_TYPE=SHARED_LIB
+
+x86_64-releases:
+	make -f Makefile.linux clean all ARCH_TYPE=x86_64 RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=STATIC_LIB
+	make -f Makefile.linux clean all ARCH_TYPE=x86_64 RELEASE_TYPE=DEBUG PROJECT_TYPE=STATIC_LIB
+	make -f Makefile.linux clean all ARCH_TYPE=x86_64 RELEASE_TYPE=OPTIMIZED PROJECT_TYPE=SHARED_LIB
+	make -f Makefile.linux clean all ARCH_TYPE=x86_64 RELEASE_TYPE=DEBUG PROJECT_TYPE=SHARED_LIB
+
 
 

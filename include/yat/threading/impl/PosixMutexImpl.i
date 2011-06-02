@@ -143,34 +143,6 @@ YAT_INLINE MutexState Mutex::try_acquire ()
 }
 
 // ----------------------------------------------------------------------------
-// Mutex::timed_try_lock
-// ----------------------------------------------------------------------------
-YAT_INLINE MutexState Mutex::timed_try_lock (unsigned long tmo_msecs)
-{
-  MutexState ms = yat::MUTEX_BUSY;
-  
-  yat::Timeout tmo(tmo_msecs, yat::Timeout::TMO_UNIT_MSEC, true);
-  
-  while (! tmo.expired() )
-  {
-    ms = this->try_lock();
-    if (ms == yat::MUTEX_LOCKED)
-      break;
-#if YAT_HAS_PTHREAD_YIELD == 1
-# if (PthreadDraftVersion == 6)
-    ::pthread_yield(NULL);
-# elif (PthreadDraftVersion < 9)
-    ::pthread_yield();
-# endif
-#else
-    ::sched_yield();
-#endif
-  }
-  
-  return ms;
-}
-
-// ----------------------------------------------------------------------------
 // Mutex::timed_try_acquire
 // ----------------------------------------------------------------------------
 YAT_INLINE MutexState Mutex::timed_try_acquire (unsigned long tmo_msecs)

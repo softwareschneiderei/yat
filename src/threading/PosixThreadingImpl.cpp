@@ -120,6 +120,26 @@ Mutex::~Mutex()
   ::pthread_mutex_destroy(&m_posix_mux);
 }
 
+// ----------------------------------------------------------------------------
+// Mutex::timed_try_lock
+// ----------------------------------------------------------------------------
+MutexState Mutex::timed_try_lock (unsigned long tmo_msecs)
+{
+  MutexState ms = yat::MUTEX_BUSY;
+  
+  yat::Timeout tmo(tmo_msecs, yat::Timeout::TMO_UNIT_MSEC, true);
+  
+  while ( ! tmo.expired() )
+  {
+    ms = this->try_lock();
+    if (ms == yat::MUTEX_LOCKED)
+      break;
+    yat::Thread::yield();
+  }
+  
+  return ms;
+}
+
 // ****************************************************************************
 // YAT SEMAPHORE IMPL
 // ****************************************************************************
@@ -510,6 +530,22 @@ void Thread::priority (Priority _p)
 
   //- store new priority
   this->m_priority = _p;
+}
+
+// ----------------------------------------------------------------------------
+// Thread::yield
+// ----------------------------------------------------------------------------
+void Thread::yield ()
+{
+#if YAT_HAS_PTHREAD_YIELD == 1
+# if (PthreadDraftVersion == 6)
+  ::pthread_yield(NULL);
+# elif (PthreadDraftVersion < 9)
+  ::pthread_yield();
+# endif
+#else
+  ::sched_yield();
+#endif
 }
 
 // ----------------------------------------------------------------------------

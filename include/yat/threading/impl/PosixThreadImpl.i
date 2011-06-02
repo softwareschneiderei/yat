@@ -45,6 +45,7 @@ YAT_INLINE Thread::Priority Thread::priority ()
 
   return this->m_priority;
 }
+
 // ----------------------------------------------------------------------------
 // Thread::state
 // ----------------------------------------------------------------------------
@@ -55,6 +56,7 @@ YAT_INLINE Thread::State Thread::state ()
 
   return this->m_state;
 }
+
 // ----------------------------------------------------------------------------
 // Thread::state
 // ----------------------------------------------------------------------------
@@ -62,21 +64,7 @@ YAT_INLINE Thread::State Thread::state_i () const
 {
   return this->m_state;
 }
-// ----------------------------------------------------------------------------
-// Thread::yield
-// ----------------------------------------------------------------------------
-YAT_INLINE void Thread::yield ()
-{
-#if YAT_HAS_PTHREAD_YIELD == 1
-# if (PthreadDraftVersion == 6)
-  ::pthread_yield(NULL);
-# elif (PthreadDraftVersion < 9)
-  ::pthread_yield();
-# endif
-#else
-  ::sched_yield();
-#endif
-}
+
 // ----------------------------------------------------------------------------
 // Thread::sleep
 // ----------------------------------------------------------------------------
@@ -99,6 +87,7 @@ YAT_INLINE void Thread::sleep (unsigned long _msecs)
 #undef kNSECS_PER_MSEC
 #undef kNSECS_PER_SEC
 }
+
 // ----------------------------------------------------------------------------
 // Thread::self
 // ----------------------------------------------------------------------------
