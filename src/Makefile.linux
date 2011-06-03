@@ -66,16 +66,22 @@ TANGO_REQUIRED = FALSE
 #=============================================================================
 # OUTPUT_DIR - this directory will contain the build result
 #=============================================================================
-# - STATIC_LIB : defaults to ../lib
-# - SHARED_LIB : defaults to ../lib
-# - DEVICE     : defaults to $(HOME)/DeviceServers
-# - SIMPLE_EXE : defaults to ../bin
+# - STATIC_LIB : defaults to ../lib/i386/static or ../lib/x86_64/static
+# - SHARED_LIB : defaults to ../lib/i386/shared or ../lib/x86_64/shared
 #-----------------------------------------------------------------------------
+ifeq ($(ARCH_TYPE),i386)
 ifeq ($(PROJECT_TYPE),STATIC_LIB)
-  OUTPUT_DIR = ../lib/static/linux
+	OUTPUT_DIR= ../lib/i386/static
 else
-  OUTPUT_DIR = ../lib/shared/linux
-endif  
+	OUTPUT_DIR= ../lib/i386/shared
+endif
+else
+ifeq ($(PROJECT_TYPE),STATIC_LIB)
+	OUTPUT_DIR= ../lib/x86_64/static
+else
+	OUTPUT_DIR= ../lib/x86_64/shared
+endif
+endif
 
 #=============================================================================
 # PROJECT_NAME is the name of the library/device/exe you want to build
@@ -155,7 +161,8 @@ SVC_OBJS = $(OBJ_DIR)/Exception.a.o \
 					$(OBJ_DIR)/threading/Barrier.a.o \
 					$(OBJ_DIR)/threading/Task.a.o \
 					$(OBJ_DIR)/threading/Message.a.o \
-					$(OBJ_DIR)/threading/MessageQ.a.o
+					$(OBJ_DIR)/threading/MessageQ.a.o \
+					$(OBJ_DIR)/utils/StringTokenizer.a.o
 
 #=============================================================================
 # VERBOSE - comment the following line if you want a verbose compilation

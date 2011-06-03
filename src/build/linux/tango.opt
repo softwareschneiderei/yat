@@ -128,6 +128,7 @@ endif
 #------------------------------------------------------------------------------
 #-- OUTPUT_DIR
 #------------------------------------------------------------------------------
+ifndef OUTPUT_DIR
 ifeq ($(ARCH_TYPE),i386)
 ifeq ($(PROJECT_TYPE),STATIC_LIB)
 	OUTPUT_DIR= ../lib/i386/static
@@ -139,6 +140,7 @@ ifeq ($(PROJECT_TYPE),STATIC_LIB)
 	OUTPUT_DIR= ../lib/x86_64/static
 else
 	OUTPUT_DIR= ../lib/x86_64/shared
+endif
 endif
 endif
 
