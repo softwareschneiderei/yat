@@ -92,9 +92,9 @@ endif
 # - for a SIMPLE_EXE : PROJECT_NAME will be the name of the executable
 #-----------------------------------------------------------------------------
 ifeq ($(RELEASE_TYPE),OPTIMIZED)
-  PROJECT_NAME = YAT
+  PROJECT_NAME = yat
 else
-  PROJECT_NAME = YATd
+  PROJECT_NAME = yatd
 endif  
 
 #=============================================================================

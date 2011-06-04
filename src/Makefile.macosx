@@ -60,9 +60,9 @@ endif
 # - for a SHARED_LIB : PROJECT_NAME will be prefixed by 'lib'
 #-----------------------------------------------------------------------------
 ifeq ($(RELEASE_TYPE),OPTIMIZED)
-  PROJECT_NAME = YAT
+  PROJECT_NAME = yat
 else
-  PROJECT_NAME = YATd
+  PROJECT_NAME = yatd
 endif  
 
 #=============================================================================
