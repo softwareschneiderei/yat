@@ -1,21 +1,20 @@
 nobase_include_HEADERS =  \
-	yat/Any.h \
+	yat/CommonHeader.h \
+	yat/config-linux.h \
+	yat/config-macosx.h \
+	yat/config-win32.h \
+	yat/Exception.h \
+	yat/Exception.i \
+	yat/Inline.h \
+	yat/LogHelper.h \
+	yat/Portability.h \
+	yat/TargetPlatform.h \
 	yat/any/Any.h \
 	yat/any/GenericContainer.h \
 	yat/bitsstream/BitsRecord.h \
 	yat/bitsstream/BitsStream.h \
 	yat/bitsstream/Endianness.h \
 	yat/bitsstream/Endianness.i \
-	yat/CommonHeader.h \
-	yat/config-linux.h \
-	yat/config-macosx.h \
-	yat/config-win32.h \
-	yat/DataBuffer.h \
-	yat/Exception.h \
-	yat/Exception.i \
-	yat/GenericContainer.h \
-	yat/Inline.h \
-	yat/LogHelper.h \
 	yat/memory/Allocator.h \
 	yat/memory/Allocator.i \
 	yat/memory/Allocator.tpp \
@@ -30,7 +29,6 @@ nobase_include_HEADERS =  \
 	yat/network/SocketException.h \
 	yat/network/Socket.h \
 	yat/network/Socket.i \
-	yat/NonCopyable.h \
 	yat/plugin/IPlugInFactory.h \
 	yat/plugin/IPlugInInfo.h \
 	yat/plugin/IPlugInObject.h \
@@ -39,10 +37,6 @@ nobase_include_HEADERS =  \
 	yat/plugin/PlugInManager.h \
 	yat/plugin/PlugInSymbols.h \
 	yat/plugin/PlugInTypes.h \
-	yat/Portability.h \
-	yat/Signal.h \
-	yat/Singleton.h \
-	yat/TargetPlatform.h \
 	yat/threading/Barrier.h \
 	yat/threading/Barrier.i \
 	yat/threading/Condition.h \
@@ -70,11 +64,11 @@ nobase_include_HEADERS =  \
 	yat/threading/Task.i \
 	yat/threading/Thread.h \
 	yat/threading/Utilities.h \
-  yat/Timer.h \
 	yat/time/Timer.h \
-  yat/utils/Callback.h \
-  yat/utils/NonCopyable.h \
-  yat/utils/Signal.h \
-  yat/utils/Singleton.h \
-  yat/utils/XString.h \
-	yat/XString.h
+  	yat/utils/Callback.h \
+  	yat/utils/NonCopyable.h \
+  	yat/utils/XString.h \
+	yat/utils/Signal.h \
+	yat/utils/Singleton.h \
+	yat/utils/StringTokenizer.h
+

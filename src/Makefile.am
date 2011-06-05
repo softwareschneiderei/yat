@@ -20,4 +20,5 @@ libyat_la_SOURCES = \
 	threading/Barrier.cpp \
 	threading/Task.cpp \
 	threading/Message.cpp \
-	threading/MessageQ.cpp
+	threading/MessageQ.cpp \
+	utils/StringTokenizer.cpp
