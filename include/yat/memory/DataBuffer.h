@@ -52,7 +52,7 @@ namespace yat
 // ============================================================================
 //!  
 //! This template class provides a buffer abstraction. 
-//! <operator=> must be defined for template parameter T.
+//! Implementation constraint: operator= must be defined for template parameter T.
 //! 
 // ============================================================================
 template <typename T> 
@@ -62,29 +62,29 @@ public:
   
   /**
    * Constructor. 
-   * @param  capacity the maximum number of elements of type T that can be stored into the buffer 
-   * @param  clear clears the associated memory (i.e. set each byte to 0), does nothing ortherwise 
+   * @param capacity the maximum number of elements of type T that can be stored into the buffer 
+   * @param clear clears the associated memory block (i.e. set each byte to 0), does nothing ortherwise 
    */
   Buffer (size_t capacity = 0, bool clear = false)
     throw (Exception);
  
-  /*
-   * Memory copy constructor. Memory is copied from base to base + length * sizeof(T).
-   * @param  length the number of elements of type T to be copied into the buffer. 
-   * @param  base address of the block to copy.
+  /**
+   * Memory copy constructor. Memory is copied from 'base' to 'base + length * sizeof(T)'.
+   * @param length the number of elements of type T to be copied into the buffer. 
+   * @param base address of the memory block to copy into the buffer.
    */
   Buffer (size_t length, T *base)
     throw (Exception);
 
   /**
    * Copy constructor 
-   * @param  buf the source buffer.
+   * @param buf the source buffer.
    */
   Buffer (const Buffer<T> &buf)
     throw (Exception);
 
   /**
-   * Destructor. Release resources.
+   * Destructor. Release underlying memory.
    */
   virtual ~Buffer ();
 

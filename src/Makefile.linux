@@ -133,7 +133,7 @@ endif
 CXXFLAGS_USER  = -DNoNanoSleep
 CXXFLAGS_USER += -DPthreadDraftVersion=8 
 CXXFLAGS_USER += -UPthreadSupportThreadPriority 
-CXXFLAGS_USER += -fno-enforce-eh-specs -Wno-unused-parameter
+CXXFLAGS_USER += -Wall -Wno-unused-parameter -fstrict-aliasing
 ifeq ($(RELEASE_TYPE),DEBUG)
 	CXXFLAGS_USER += -D_DEBUG
 endif
