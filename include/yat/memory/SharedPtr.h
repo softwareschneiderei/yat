@@ -99,6 +99,13 @@ public:
     return *this;
   }
 
+  //! operator=
+  const SharedPtr<T>& operator= (T* p)
+  {
+    this->reset(p);
+    return *this;
+  }
+
   //! operator*
   T& operator* () const
   {
@@ -157,11 +164,17 @@ public:
     return this->m_ref_count->use_count();
   }
 
-  //- implicit conversion to bool
+  //! implicit conversion to bool
   typedef T* ThisType::*anonymous_bool_type;
   operator anonymous_bool_type () const
   {
     return this->m_data == 0 ? 0 : &ThisType::m_data;
+  }
+
+  //! does this point to something?  
+  bool is_null () const
+  {
+    return this->m_data ? false : true;
   }
 
 private:
