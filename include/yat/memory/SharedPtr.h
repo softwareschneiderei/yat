@@ -42,6 +42,7 @@
 // DEPENDENCIES
 // ============================================================================
 #include <yat/utils/ReferenceCounter.h>
+#include <iostream>
 
 namespace yat
 {
@@ -59,8 +60,6 @@ public:
   SharedPtr () 
     : m_data(0), m_ref_count(0) 
   {
-    this->m_ref_count = new ThisTypeRefCnt(0);
-    YAT_ASSERT(this->m_ref_count);
   }
 
   //! constructor
@@ -72,37 +71,46 @@ public:
   }
 
   //! copy constructor
-  SharedPtr (const SharedPtr<T> & s) 
+  SharedPtr (const ThisType & s) 
     : m_data(s.m_data), m_ref_count(s.m_ref_count) 
   {
-    YAT_ASSERT(this->m_ref_count);
-    this->m_ref_count->increment();
+    if( m_data )
+    {
+      YAT_ASSERT(this->m_ref_count);
+      this->m_ref_count->increment();
+    }
   }
 
   //! destructor
   ~SharedPtr()
   {
-    this->release();
+    this->release();    
   }
 
   //! operator=
-  const SharedPtr<T>& operator= (const SharedPtr<T>& s)
+  const ThisType& operator= (const ThisType& s)
   {
-    YAT_ASSERT(s.m_ref_count);  
     if (this != &s)
     {
       this->release();
       this->m_data = s.m_data;
       this->m_ref_count = s.m_ref_count;
-      this->m_ref_count->increment();
+      if( m_data )
+      {
+        YAT_ASSERT(this->m_ref_count);
+        this->m_ref_count->increment();
+      }
     }
     return *this;
   }
 
   //! operator=
-  const SharedPtr<T>& operator= (T* p)
+  const ThisType& operator= (T* p)
   {
-    this->reset(p);
+    if (p)
+      this->reset(p);
+    else
+      this->reset();
     return *this;
   }
 
@@ -144,7 +152,7 @@ public:
   } 
 
   //- swap content
-  void swap (SharedPtr & s)
+  void swap (ThisType & s)
   {
     std::swap(this->m_data, s.m_data);
     std::swap(this->m_ref_count, s.m_ref_count);
@@ -181,7 +189,7 @@ private:
   //! release underlying data if ref. counter reaches 0
   void release ()
   {
-    if (this->m_ref_count == 0 || this->m_ref_count->decrement() == 0)
+    if (this->m_data && this->m_ref_count->decrement() == 0)
     {
       try { delete this->m_data; } catch (...) {};
       this->m_data = 0;

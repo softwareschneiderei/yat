@@ -39,6 +39,10 @@
 
 #include <Basetsd.h>
 
+/**
+ *  Some integer types.
+ *  Deprecated. Use new definitions below
+ */
 typedef unsigned char yat_uint8_t;
 
 typedef short yat_int16_t;
@@ -51,6 +55,37 @@ typedef unsigned short yat_uint16_t;
   typedef long yat_int32_t;
   typedef unsigned long yat_uint32_t;
 #endif
+
+/**
+ * New type definitions
+ */
+namespace yat
+{
+  typedef unsigned char uint8;
+  typedef unsigned char byte;
+
+  typedef short int16;
+  typedef unsigned short uint16;
+
+  #if defined(_WIN64)
+    typedef int int32;
+    typedef unsigned int uint32;
+  #else
+    typedef long int32;
+    typedef unsigned long uint32;
+  #endif
+  
+  typedef __int64          int64;
+  typedef unsigned __int64 uint64;
+}
+
+/**
+ * Simulation of Posix types
+*/
+typedef int  mode_t;
+typedef long uid_t;
+typedef long gid_t;
+typedef int  fsid_t;
 
 /**
  *  Disable some annoying warnings

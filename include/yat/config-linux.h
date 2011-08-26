@@ -38,7 +38,8 @@
 #define YAT_LINUX
 
 /**
- *  Some integer types
+ *  Some integer types.
+ *  Deprecated. Use new definitions below
  */
 #include <stdint.h>
 typedef uint8_t yat_uint8_t;
@@ -46,6 +47,21 @@ typedef int16_t  yat_int16_t;
 typedef uint16_t yat_uint16_t;
 typedef int32_t yat_int32_t;
 typedef uint32_t yat_uint32_t;
+
+/**
+ * New type definitions
+ */
+namespace yat
+{
+  typedef uint8_t  uint8;
+  typedef uint8_t  byte;  // another name for 8-bit integer
+  typedef int16_t  int16;
+  typedef uint16_t uint16;
+  typedef int32_t  int32;
+  typedef uint32_t uint32;
+  typedef int64_t  int64;
+  typedef uint64_t uint64;
+}
 
 /**
  *  Shared library related stuff
