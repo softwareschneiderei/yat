@@ -54,6 +54,12 @@ class YAT_DECL ClientSocket : public Socket
   //! Base class for both TCPClientSocket and UDPClientSocket.
 
 public:
+  //! ClientSocket connection status
+  typedef enum {
+    CONNECTED_YES,
+    CONNECTED_NO
+  } ConnectionStatus;
+
   //! Construct new CleintSocket
   //! 
   //! \param p The associated protocol. Defaults to \c yat::TCP_PROTOCOL
@@ -92,6 +98,17 @@ public:
   //! \param _throw_exception Throw an exception in case \c _tmo_msecs expires
   bool wait_input_data (size_t _tmo_msecs, bool _throw_exception = true)
     throw (SocketException);
+
+  //! Is this client socket currently connected? 
+  //! \return the connection status: ClientSocket::CONNECTED_YES or ClientSocket::CONNECTED_NO
+  inline ConnectionStatus connection_status () const 
+  {
+    return this->m_connection_status;
+  }
+
+private:
+  //! Connection status
+  ConnectionStatus m_connection_status;
 };  
   
 } //-  namespace

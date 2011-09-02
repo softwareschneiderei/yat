@@ -50,10 +50,10 @@ namespace yat {
 // ClientSocket::ClientSocket
 // ----------------------------------------------------------------------------
 ClientSocket::ClientSocket (Socket::Protocol _p) 
-  : Socket(_p)
-
+  : Socket(_p),
+    m_connection_status(ClientSocket::CONNECTED_NO)
 {
-  YAT_TRACE("ClientSocket::ClientSocket");
+  YAT_TRACE("yat::ClientSocket::ClientSocket");
 }
 
 // ----------------------------------------------------------------------------
@@ -61,9 +61,16 @@ ClientSocket::ClientSocket (Socket::Protocol _p)
 // ----------------------------------------------------------------------------
 ClientSocket::~ClientSocket ()
 {
-  YAT_TRACE("ClientSocket::~ClientSocket");
+  YAT_TRACE("yat::ClientSocket::~ClientSocket");
 
-  this->close();
+  try
+  {
+    this->close();
+  }
+  catch (...)
+  { 
+    //- ignore any error
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -72,7 +79,7 @@ ClientSocket::~ClientSocket ()
 void ClientSocket::bind (size_t _p)
   throw (SocketException)
 {
-  YAT_TRACE("ClientSocket::bind");
+  YAT_TRACE("yat::ClientSocket::bind");
 
   this->Socket::bind(_p);
 }
@@ -80,12 +87,22 @@ void ClientSocket::bind (size_t _p)
 // ----------------------------------------------------------------------------
 // ClientSocket::connect
 // ----------------------------------------------------------------------------
-void ClientSocket::connect (const Address & _addr)
+void ClientSocket::connect (const Address & _a)
   throw (SocketException)
 {
-  YAT_TRACE("ClientSocket::connect");
+  YAT_TRACE("yat::ClientSocket::connect");
 
-  this->Socket::connect(_addr);
+  try
+  {
+    this->Socket::connect(_a);
+  }
+  catch (...)
+  {
+    this->m_connection_status = ClientSocket::CONNECTED_NO;
+    throw;
+  }
+
+  this->m_connection_status = ClientSocket::CONNECTED_YES;
 }
 
 // ----------------------------------------------------------------------------
@@ -94,9 +111,19 @@ void ClientSocket::connect (const Address & _addr)
 void ClientSocket::disconnect ()
   throw (SocketException)
 {
-  YAT_TRACE("ClientSocket::disconnect");
+  YAT_TRACE("yat::ClientSocket::disconnect");
 
-  this->close();
+  try
+  {
+    this->close();
+  }
+  catch (...)
+  {
+    this->m_connection_status = ClientSocket::CONNECTED_NO;
+    throw;
+  }
+
+  this->m_connection_status = ClientSocket::CONNECTED_NO;
 }
 
 // ----------------------------------------------------------------------------
@@ -105,7 +132,7 @@ void ClientSocket::disconnect ()
 bool ClientSocket::can_read_without_blocking ()
   throw (SocketException)
 {
-  YAT_TRACE("ClientSocket::can_read_without_blocking");
+  YAT_TRACE("yat::ClientSocket::can_read_without_blocking");
 
   return this->select(0);
 }
@@ -116,7 +143,7 @@ bool ClientSocket::can_read_without_blocking ()
 bool ClientSocket::wait_input_data (size_t _tmo, bool _throw)
   throw (SocketException)
 {
-  YAT_TRACE("ClientSocket::wait_input_data");
+  YAT_TRACE("yat::ClientSocket::wait_input_data");
  
   if (! this->select(_tmo))
   {
@@ -125,7 +152,7 @@ bool ClientSocket::wait_input_data (size_t _tmo, bool _throw)
 
     throw yat::SocketException("SOCKET_ERROR", 
                                SocketException::get_error_text(SoErr_TimeOut), 
-                               "ClientSocket::wait_input_data", 
+                               "yat::ClientSocket::wait_input_data", 
                                SocketException::yat_to_native_error(SoErr_TimeOut)); 
   } 
   

@@ -165,6 +165,9 @@ SocketError SocketException::native_to_yat_error (int _os_err_code)
   switch (_os_err_code)
   {
 #ifdef WIN32
+    case 0:
+      os_native_err = SoErr_NoError; 
+      break;
     case WSAEACCES:
       os_native_err = SoErr_PrivilegedPort; 
       break;

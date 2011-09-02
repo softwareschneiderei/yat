@@ -245,11 +245,7 @@ protected:
 
   //! Instanciate the underlying OS socket descriptor.
   //! Called from Socket::Socket (ctor).
-  //!
-  //! \param p The associated protocol.
-  //!
-  //! \remarks This method allows to change the associated protocol at runtime.
-  void open (Protocol p)
+  void open ()
     throw (SocketException);
 
   //! Close the underlying OS socket descriptor.
@@ -296,6 +292,9 @@ protected:
   int option_level (Option o) const;
 
 private:
+  //! The associated protocol
+  Protocol m_protocol;
+
   //! The underlying OS socket descriptor.
   OSDescriptor m_os_desc;
 
@@ -311,7 +310,7 @@ private:
 
   //! Default read buffer size
   static size_t m_default_rd_buffer_size;
-
+ 
   //! Not implemented private member
   Socket (const Socket&);
   //! Not implemented private member
