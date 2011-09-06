@@ -77,15 +77,15 @@ namespace yat
   
   typedef __int64          int64;
   typedef unsigned __int64 uint64;
-}
 
-/**
- * Simulation of Posix types
-*/
-typedef int  mode_t;
-typedef long uid_t;
-typedef long gid_t;
-typedef int  fsid_t;
+ /**
+   * Simulation of Posix types
+   */
+  typedef int  mode_t;
+  typedef long uid_t;
+  typedef long gid_t;
+  typedef int  fsid_t;
+}
 
 /**
  *  Disable some annoying warnings
