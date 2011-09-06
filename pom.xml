@@ -72,16 +72,24 @@
                         <specificConfiguration>
                             <id>YAT win32 shared</id>
                             <activation>
-                                <os>Windows</os>
-                                <libraryType>shared</libraryType>
-                                <!--cppDebug>true</cppDebug-->
+                              <os>Windows</os>
+                              <libraryType>shared</libraryType>
+                              <!--cppDebug>true</cppDebug-->
                             </activation>
                             <cpp>
-                                <defines>
-                                    <define>YAT_DLL</define>
-                                    <define>YAT_BUILD</define>
-                                </defines>
+                              <defines>
+                                <define>YAT_DLL</define>
+                                <define>YAT_BUILD</define>
+                               </defines>
                             </cpp>
+                            <linker>
+                    	      <sysLibs>
+                                <sysLib>
+                                  <name>shell32</name>
+                                  <type>shared</type>
+                                </sysLib>
+                              </sysLibs>
+                           </linker>
                         </specificConfiguration>
                         <specificConfiguration>
                             <id>YAT Linux</id>
