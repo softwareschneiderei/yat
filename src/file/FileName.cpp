@@ -549,9 +549,9 @@ void CfgFile::load() throw(Exception)
 				m_dictSection[m_strSection].m_vecSingleValues.push_back(strLine);
 		}
 	}
-	catch (Exception &e)
+	catch (Exception &)
 	{
-		throw ;
+		throw;
 	}
 	// Set cursor on default section
 	m_strSection = "default";
