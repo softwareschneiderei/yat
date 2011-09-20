@@ -148,7 +148,11 @@ public:
   std::string to_string () const
   //---------------------------------------------
   {
+#if defined(WIN32) && _HAS_CPP0X
+    std::bitset<_n> bs(static_cast<int>(m_value));
+#else
     std::bitset<_n> bs(static_cast<unsigned long>(m_value));
+#endif
 
 #if ! defined(WIN32) && (__GNUC__ < 4)
 #warning "BitsSet<_n, T>.to_string() doesn't compile properly using gcc 3.x - will print out <xxxxxxxxxxxxxxxx>"
