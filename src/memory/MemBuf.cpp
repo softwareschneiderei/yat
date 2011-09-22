@@ -357,7 +357,7 @@ uint32 crc( const byte *pBuf, uint32 uiLen, uint32 *pulInitValue )
     ulVal = 0xffffffffL;
 
   // Main loop : under Visual C++, use assembly language
-  #if defined(_MSC_VER)
+  #if defined(_MSC_VER) && defined(_M_IX86)
       _asm 
       {
         mov   ecx, uiLen

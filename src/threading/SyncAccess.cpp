@@ -37,6 +37,7 @@
 //=============================================================================
 // DEPENDENCIES
 //=============================================================================
+#include <iostream>
 #include <yat/threading/SyncAccess.h>
 
 namespace yat
@@ -47,11 +48,11 @@ namespace yat
 	int max_obj_count = 0;
 	int max_thr_count = 0;
 	int thr_count = 0;
-	#define DEBUG_LOG(t) cout << t;
+	#define DEBUG_LOG(t) std::cout << t;
 	#define LOCK_STAT_MAX_COUNT(n) { if( n > max_lock ) max_lock = n; }
 	#define LOCK_STAT_OBJ_COUNT(map) { if( map.size() > max_obj_count ) max_obj_count = map.size(); }
 	#define THREAD_COUNT_STAT(map) {thr_count++; if( map.size() > max_thr_count ) max_thr_count = map.size(); }
-	#define SHOW_STATS { cout << "thr count: " << thr_count << "\n" << "max simultaneous thr: " << \
+	#define SHOW_STATS { std::cout << "thr count: " << thr_count << "\n" << "max simultaneous thr: " << \
 	                     max_thr_count << "\n" << "max locks: " << max_lock << "\n" << \
 						 "max obj locked: " << max_obj_count << "\n"; }
 #else

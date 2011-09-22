@@ -121,7 +121,7 @@ void Endianness::swap_2_array (const char* orig, char* target, size_t n)
     asm( "rol $16, %1"   : "=r" (b) : "0" (b) );
     *reinterpret_cast<unsigned int*>(target) = a;
     *reinterpret_cast<unsigned int*>(target + 4) = b;
-# elif defined(_MSC_VER)
+# elif defined(_MSC_VER) && defined(_M_IX86)
     __asm mov ecx, orig;
     __asm mov edx, target;
     __asm mov eax, [ecx];
@@ -156,7 +156,7 @@ void Endianness::swap_2_array (const char* orig, char* target, size_t n)
     asm( "shrl $16, %1" : "=r" (b) : "0" (b) );
     *reinterpret_cast<unsigned short*>(target + 0) = (unsigned short)(a & 0xffff);
     *reinterpret_cast<unsigned short*>(target + 4) = (unsigned short)(b & 0xffff);
-# elif defined(_MSC_VER)
+# elif defined(_MSC_VER) && defined(_M_IX86)
     __asm mov ecx, orig;
     __asm mov edx, target;
     __asm mov eax, [ecx];
@@ -223,7 +223,7 @@ void Endianness::swap_4_array (const char* orig, char* target, size_t n)
     *reinterpret_cast<unsigned int*>(target + 4) = b;
     *reinterpret_cast<unsigned int*>(target + 8) = c;
     *reinterpret_cast<unsigned int*>(target + 12) = d;
-# elif defined(_MSC_VER) 
+# elif defined(_MSC_VER) && defined(_M_IX86)
     __asm mov eax, orig
     __asm mov esi, target
     __asm mov edx, [eax]

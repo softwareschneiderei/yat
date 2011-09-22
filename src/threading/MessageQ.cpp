@@ -345,7 +345,7 @@ yat::Message * MessageQ::next_message (size_t _tmo_msecs)
     YAT_LOG("MessageQ::next_message::tmo expired [MessageQ::wait_not_empty_i returned false]");
     
     //- is it time to return a periodic message?
-    if (this->enable_periodic_msg_ && this->periodic_tmo_expired_i(_tmo_msecs))
+    if (this->enable_periodic_msg_ && this->periodic_tmo_expired_i(static_cast<double>(_tmo_msecs)))
     {
       this->last_returned_msg_periodic_ = true;
       this->periodic_msg_timer_.restart();
@@ -412,7 +412,7 @@ yat::Message * MessageQ::next_message (size_t _tmo_msecs)
   if (
        this->enable_periodic_msg_ 
          && 
-       this->periodic_tmo_expired_i (_tmo_msecs) 
+       this->periodic_tmo_expired_i (static_cast<double>(_tmo_msecs))
          && 
        this->last_returned_msg_periodic_ == false
      )

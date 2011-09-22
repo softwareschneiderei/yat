@@ -155,11 +155,11 @@ bool SysUtils::exec(const char* pszCmdLine, const char *pszDefDir, int bBackgrou
   if( !bBackground && bIsExecutable)
   {
     // Waiting for the process is done
-    uint32 uiReturnCode;
+    DWORD uiReturnCode;
     ::WaitForSingleObject( aProcessInformation.hProcess, INFINITE);
     ::GetExitCodeProcess(aProcessInformation.hProcess, &uiReturnCode);
     if( puiReturnCode )
-      *puiReturnCode = uiReturnCode;
+      *puiReturnCode = static_cast<int>(uiReturnCode);
     return true;
   }
 
