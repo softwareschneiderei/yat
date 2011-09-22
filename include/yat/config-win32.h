@@ -141,7 +141,7 @@ namespace yat
 /**
  *  Endianness related stuffs
  */
-# if (_M_IX86 > 400)
+# if (_M_IX86 > 400) || defined (_M_X64)
 #  define YAT_HAS_PENTIUM 1
 #  define YAT_LITTLE_ENDIAN_PLATFORM 1
 # else

@@ -48,7 +48,7 @@ Endianness::swap_2 (const char *orig, char* target)
     unsigned short a = *reinterpret_cast<const unsigned short*>(orig);
     asm( "rolw $8, %0" : "=r" (a) : "0" (a) );
     *reinterpret_cast<unsigned short*>(target) = a;
-# elif defined(_MSC_VER) 
+# elif defined(_MSC_VER) && defined(_M_IX86)
     __asm mov ebx, orig;
     __asm mov ecx, target;
     __asm mov ax, [ebx];
@@ -69,7 +69,7 @@ Endianness::swap_4 (const char* orig, char* target)
     register unsigned int j = *reinterpret_cast<const unsigned int*>(orig);
     asm ("bswap %1" : "=r" (j) : "0" (j));
     *reinterpret_cast<unsigned int*>(target) = j;
-# elif defined(_MSC_VER) 
+# elif defined(_MSC_VER) && defined(_M_IX86)
     __asm mov ebx, orig;
     __asm mov ecx, target;
     __asm mov eax, [ebx];
@@ -93,7 +93,7 @@ Endianness::swap_8 (const char* orig, char* target)
    asm ("bswap %1" : "=r" (j) : "0" (j));
    *reinterpret_cast<unsigned int*>(target + 4) = i;
    *reinterpret_cast<unsigned int*>(target) = j;
-# elif defined(_MSC_VER) 
+# elif defined(_MSC_VER) && defined(_M_IX86)
    __asm mov ecx, orig;
    __asm mov edx, target;
    __asm mov eax, [ecx];

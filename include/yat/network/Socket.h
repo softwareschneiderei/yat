@@ -62,7 +62,11 @@ class YAT_DECL Socket
 
 public:
   //! OS socket descriptor.
+#if defined(YAT_WIN32)
+  typedef unsigned int OSDescriptor;
+#else
   typedef int OSDescriptor;
+#endif
 
   //! Create a dedicated type for Socket I/O data.
   typedef Buffer<char> Data;
