@@ -81,6 +81,13 @@ namespace yat
 #define YAT_HAS_PTHREAD_YIELD 0
 
 /**
+ *  GCC only!
+ */
+#if ! defined (__GNUC__)
+# error Sorry but there is currently no support for this compiler - use GCC complier
+#endif
+
+/**
  *  <sstream> library related stuffs
  */
 #undef YAT_HAS_SSTREAM
@@ -104,10 +111,16 @@ namespace yat
 #  error "no support for this processor"
 #endif
 
-# if !defined(__GNUC__) && !defined(__GNUG__)
-#  error "no support for this compiler - GCC compiler required"
-# else
-#  define YAT_HAS_STATIC_OBJ_MANAGER 0
-# endif 
+/**
+ *  ASM related stuffs
+ */
+#if (defined (YAT_HAS_PENTIUM) || defined (__amd64__) || defined (__x86_64__))
+# define YAT_HAS_INTEL_ASSEMBLY
+#endif
+
+/**
+ *  Object manager
+ */
+#define YAT_HAS_STATIC_OBJ_MANAGER 0
 
 #endif

@@ -54,7 +54,7 @@ typedef uint32_t yat_uint32_t;
 namespace yat
 {
   typedef uint8_t  uint8;
-  typedef uint8_t  byte;  // another name for 8-bit integer
+  typedef uint8_t  byte; 
   typedef int16_t  int16;
   typedef uint16_t uint16;
   typedef int32_t  int32;
@@ -71,6 +71,13 @@ namespace yat
 #define YAT_DECL
 
 /**
+ *  GCC only!
+ */
+#if ! defined (__GNUC__)
+# error Sorry but there is currently no support for this compiler
+#endif
+
+/**
  *  <sstream> library related stuffs
  */
 #undef YAT_HAS_SSTREAM
@@ -85,24 +92,38 @@ namespace yat
 #endif
 
 /**
- *  pthread related stuffs
+ *  Pthread related stuffs
  */
 #define YAT_HAS_PTHREAD_YIELD 1
 
 /**
  *  Endianness related stuffs
  */
-# if defined(i386) || defined(__i386__) || defined(__amd64__)
+# if defined(i386) || defined(__i386__) || defined(__amd64__) || defined (__x86_64__)
 #  define YAT_HAS_PENTIUM 1
 #  define YAT_LITTLE_ENDIAN_PLATFORM 1
 # else
 #  error "no support for this processor"
 # endif
 
-# if !defined(__GNUG__)
-#  error "no support for this compiler - GCC compiler required"
-# else
-#  define YAT_HAS_STATIC_OBJ_MANAGER 0
-# endif 
+/**
+ *  ASM related stuffs
+ */
+#if defined (YAT_HAS_PENTIUM) || defined (__amd64__) || defined (__x86_64__)
+# define YAT_HAS_INTEL_ASSEMBLY
+#endif
+
+/**
+ *  Bytes swapping related stuffs
+ */
+#define YAT_HAS_BYTESWAP_H
+#define YAT_HAS_BSWAP_16
+#define YAT_HAS_BSWAP_32
+#define YAT_HAS_BSWAP_64
+
+/**
+ *  Object manager
+ */
+#define YAT_HAS_STATIC_OBJ_MANAGER 0
 
 #endif

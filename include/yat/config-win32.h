@@ -37,6 +37,41 @@
 
 #define YAT_WIN32
 
+#if defined (_WIN64) || defined (WIN64)
+# define YAT_WIN64
+#endif
+
+/**
+ *  MSVC++ only!
+ */
+#if ! defined (_MSC_VER)
+# error Sorry but there is currently no support for this compiler - use Microsoft Visual C++
+#endif
+
+/**
+ *  Check MSVC++ version
+ */
+#if (_MSC_VER < 1310)
+#  error "Microsoft Visual C++ >= 7.0 required"
+#elif (_MSC_VER >= 1600)
+  //-> config-win32-msvc-10
+# define YAT_HAS_INTRINSIC_BYTESWAP
+#elif (_MSC_VER >= 1500)
+  //-> config-win32-msvc-9
+# define YAT_HAS_INTRINSIC_BYTESWAP
+#elif (_MSC_VER >= 1400)
+  //-> config-win32-msvc-8
+# define YAT_HAS_INTRINSIC_BYTESWAP
+#elif (_MSC_VER >= 1310)
+  //-> config-win32-msvc-7
+# define YAT_HAS_INTRINSIC_BYTESWAP
+#else
+# error This version of Microsoft Visual C++ is not supported.
+#endif
+
+/**
+ *  Win32 base types
+ */
 #include <Basetsd.h>
 
 /**
@@ -75,7 +110,7 @@ namespace yat
     typedef unsigned long uint32;
   #endif
   
-  typedef __int64          int64;
+  typedef __int64 int64;
   typedef unsigned __int64 uint64;
 
  /**
@@ -148,12 +183,9 @@ namespace yat
 #  error "no support for this processor"
 # endif
 
-# if !defined(_MSC_VER)
-#  error "no support for this WIN32 compiler - MSVC++ compiler required"
-# elif (_MSC_VER < 1200)
-#  error "microsoft visual C++ >= 6.0 required"
-# else
-#  define YAT_HAS_STATIC_OBJ_MANAGER 0
-# endif
+/**
+ *  Object manager
+ */
+#define YAT_HAS_STATIC_OBJ_MANAGER 0
 
 #endif

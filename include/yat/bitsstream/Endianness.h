@@ -87,7 +87,7 @@ public:
     LONG_ALIGN = 4,
     LONGLONG_ALIGN = 8,
     LONGDOUBLE_ALIGN = 8,
-    MAX_ALIGNMENT = 8,
+    MAX_ALIGNMENT = 8
   };
 
   //- host bytes ordering
