@@ -39,6 +39,7 @@
 
 #if defined (_WIN64) || defined (WIN64)
 # define YAT_WIN64
+# define YAT_NO_INLINE_ASM
 #endif
 
 /**
@@ -83,7 +84,7 @@ typedef unsigned char yat_uint8_t;
 typedef short yat_int16_t;
 typedef unsigned short yat_uint16_t;
 
-#if defined(_WIN64)
+#if defined (_WIN64) || defined (WIN64)
   typedef int yat_int32_t;
   typedef unsigned int yat_uint32_t;
 #else
@@ -102,7 +103,7 @@ namespace yat
   typedef short int16;
   typedef unsigned short uint16;
 
-  #if defined(_WIN64)
+  #if defined (_WIN64) || defined (WIN64)
     typedef int int32;
     typedef unsigned int uint32;
   #else

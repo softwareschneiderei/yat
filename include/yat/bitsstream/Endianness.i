@@ -47,8 +47,8 @@ namespace yat
 
 //- the number of bytes in a long
 #include <limits.h>
-#if !defined (YAT_SIZEOF_LONG)
-# if (ULONG_MAX) == 65535UL
+#if ! defined (YAT_SIZEOF_LONG)
+# if ((ULONG_MAX) == 65535UL)
 #   define YAT_SIZEOF_LONG 2
 # elif ((ULONG_MAX) == 4294967295UL)
 #   define YAT_SIZEOF_LONG 4
