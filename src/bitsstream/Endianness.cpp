@@ -46,25 +46,11 @@
 //=============================================================================
 // DEPENDENCIES
 //=============================================================================
-#include <limits.h>
 #include <yat/bitsstream/Endianness.h>
 
 #if !defined (YAT_INLINE_IMPL)
 # include <yat/bitsstream/Endianness.i>
 #endif // YAT_INLINE_IMPL
-
-//- the number of bytes in a long
-#if !defined (YAT_SIZEOF_LONG)
-# if (ULONG_MAX) == 65535UL
-#   define YAT_SIZEOF_LONG 2
-# elif ((ULONG_MAX) == 4294967295UL)
-#   define YAT_SIZEOF_LONG 4
-# elif ((ULONG_MAX) == 18446744073709551615UL)
-#   define YAT_SIZEOF_LONG 8
-# else
-#   error: unsupported long size, must be updated for this platform!
-# endif
-#endif
 
 namespace yat 
 {
@@ -198,21 +184,21 @@ void Endianness::swap_2_array (const char* orig, char* target, size_t n)
 
           * reinterpret_cast<unsigned long*> (target) = a;
 #else
-          register YAT_UINT32 a =
-            * reinterpret_cast<const YAT_UINT32*> (orig);
-          register YAT_UINT32 b =
-            * reinterpret_cast<const YAT_UINT32*> (orig + 4);
+          register yat::uint32 a =
+            * reinterpret_cast<const yat::uint32*> (orig);
+          register yat::uint32 b =
+            * reinterpret_cast<const yat::uint32*> (orig + 4);
 
-          register YAT_UINT32 a1 = (a & 0x00ff00ffU) << 8;
-          register YAT_UINT32 b1 = (b & 0x00ff00ffU) << 8;
-          register YAT_UINT32 a2 = (a & 0xff00ff00U) >> 8;
-          register YAT_UINT32 b2 = (b & 0xff00ff00U) >> 8;
+          register yat::uint32 a1 = (a & 0x00ff00ffU) << 8;
+          register yat::uint32 b1 = (b & 0x00ff00ffU) << 8;
+          register yat::uint32 a2 = (a & 0xff00ff00U) >> 8;
+          register yat::uint32 b2 = (b & 0xff00ff00U) >> 8;
 
           a = (a1 | a2);
           b = (b1 | b2);
 
-          * reinterpret_cast<YAT_UINT32*> (target) = a;
-          * reinterpret_cast<YAT_UINT32*> (target + 4) = b;
+          * reinterpret_cast<yat::uint32*> (target) = a;
+          * reinterpret_cast<yat::uint32*> (target + 4) = b;
 #endif
           orig += 8;
           target += 8;
@@ -265,51 +251,51 @@ void Endianness::swap_2_array (const char* orig, char* target, size_t n)
 
           a = (a1 | a2);
 
-          YAT_UINT16 b1 = static_cast<YAT_UINT16> (a >> 48);
-          YAT_UINT16 b2 = static_cast<YAT_UINT16> ((a >> 32) & 0xffff);
-          YAT_UINT16 b3 = static_cast<YAT_UINT16> ((a >> 16) & 0xffff);
-          YAT_UINT16 b4 = static_cast<YAT_UINT16> (a & 0xffff);
+          yat::uint16 b1 = static_cast<yat::uint16> (a >> 48);
+          yat::uint16 b2 = static_cast<yat::uint16> ((a >> 32) & 0xffff);
+          yat::uint16 b3 = static_cast<yat::uint16> ((a >> 16) & 0xffff);
+          yat::uint16 b4 = static_cast<yat::uint16> (a & 0xffff);
 
 #if defined(YAT_LITTLE_ENDIAN)
-          * reinterpret_cast<YAT_UINT16*> (target) = b4;
-          * reinterpret_cast<YAT_UINT16*> (target + 2) = b3;
-          * reinterpret_cast<YAT_UINT16*> (target + 4) = b2;
-          * reinterpret_cast<YAT_UINT16*> (target + 6) = b1;
+          * reinterpret_cast<yat::uint16*> (target) = b4;
+          * reinterpret_cast<yat::uint16*> (target + 2) = b3;
+          * reinterpret_cast<yat::uint16*> (target + 4) = b2;
+          * reinterpret_cast<yat::uint16*> (target + 6) = b1;
 #else
-          * reinterpret_cast<YAT_UINT16*> (target) = b1;
-          * reinterpret_cast<YAT_UINT16*> (target + 2) = b2;
-          * reinterpret_cast<YAT_UINT16*> (target + 4) = b3;
-          * reinterpret_cast<YAT_UINT16*> (target + 6) = b4;
+          * reinterpret_cast<yat::uint16*> (target) = b1;
+          * reinterpret_cast<yat::uint16*> (target + 2) = b2;
+          * reinterpret_cast<yat::uint16*> (target + 4) = b3;
+          * reinterpret_cast<yat::uint16*> (target + 6) = b4;
 #endif
 #else
-          register YAT_UINT32 a =
-            * reinterpret_cast<const YAT_UINT32*> (orig);
-          register YAT_UINT32 b =
-            * reinterpret_cast<const YAT_UINT32*> (orig + 4);
+          register yat::uint32 a =
+            * reinterpret_cast<const yat::uint32*> (orig);
+          register yat::uint32 b =
+            * reinterpret_cast<const yat::uint32*> (orig + 4);
 
-          register YAT_UINT32 a1 = (a & 0x00ff00ff) << 8;
-          register YAT_UINT32 b1 = (b & 0x00ff00ff) << 8;
-          register YAT_UINT32 a2 = (a & 0xff00ff00) >> 8;
-          register YAT_UINT32 b2 = (b & 0xff00ff00) >> 8;
+          register yat::uint32 a1 = (a & 0x00ff00ff) << 8;
+          register yat::uint32 b1 = (b & 0x00ff00ff) << 8;
+          register yat::uint32 a2 = (a & 0xff00ff00) >> 8;
+          register yat::uint32 b2 = (b & 0xff00ff00) >> 8;
 
           a = (a1 | a2);
           b = (b1 | b2);
 
-          YAT_UINT32 c1 = static_cast<YAT_UINT16> (a >> 16);
-          YAT_UINT32 c2 = static_cast<YAT_UINT16> (a & 0xffff);
-          YAT_UINT32 c3 = static_cast<YAT_UINT16> (b >> 16);
-          YAT_UINT32 c4 = static_cast<YAT_UINT16> (b & 0xffff);
+          yat::uint32 c1 = static_cast<yat::uint16> (a >> 16);
+          yat::uint32 c2 = static_cast<yat::uint16> (a & 0xffff);
+          yat::uint32 c3 = static_cast<yat::uint16> (b >> 16);
+          yat::uint32 c4 = static_cast<yat::uint16> (b & 0xffff);
 
 #if defined(YAT_LITTLE_ENDIAN)
-          * reinterpret_cast<YAT_UINT16*> (target) = c2;
-          * reinterpret_cast<YAT_UINT16*> (target + 2) = c1;
-          * reinterpret_cast<YAT_UINT16*> (target + 4) = c4;
-          * reinterpret_cast<YAT_UINT16*> (target + 6) = c3;
+          * reinterpret_cast<yat::uint16*> (target) = c2;
+          * reinterpret_cast<yat::uint16*> (target + 2) = c1;
+          * reinterpret_cast<yat::uint16*> (target + 4) = c4;
+          * reinterpret_cast<yat::uint16*> (target + 6) = c3;
 #else
-          * reinterpret_cast<YAT_UINT16*> (target) = c1;
-          * reinterpret_cast<YAT_UINT16*> (target + 2) = c2;
-          * reinterpret_cast<YAT_UINT16*> (target + 4) = c3;
-          * reinterpret_cast<YAT_UINT16*> (target + 6) = c4;
+          * reinterpret_cast<yat::uint16*> (target) = c1;
+          * reinterpret_cast<yat::uint16*> (target + 2) = c2;
+          * reinterpret_cast<yat::uint16*> (target + 4) = c3;
+          * reinterpret_cast<yat::uint16*> (target + 6) = c4;
 #endif
 #endif
           orig += 8;
@@ -344,7 +330,7 @@ void Endianness::swap_4_array (const char* orig, char* target, size_t n)
 #if YAT_SIZEOF_LONG == 8
   // Later, we read from *orig in 64 bit chunks,
   // so make sure we don't generate unaligned readings.
-  char const * const o8 = YAT_ptr_align_binary (orig, 8);
+  char const * const o8 = PTR_ALIGN_BINARY (orig, 8);
   // The mismatch can only be by 4.
   if (orig != o8)
     {
@@ -371,7 +357,7 @@ void Endianness::swap_4_array (const char* orig, char* target, size_t n)
 #if YAT_SIZEOF_LONG == 8
   // 64 bits architecture.
   // See if we can write in 8 byte chunks.
-  if (target == YAT_ptr_align_binary (target, 8))
+  if (target == PTR_ALIGN_BINARY (target, 8))
     {
       while (orig < end)
         {
@@ -435,21 +421,21 @@ void Endianness::swap_4_array (const char* orig, char* target, size_t n)
           b = (b84 | b73 | b62 | b51);
 #endif
 
-          YAT_UINT32 c1 = static_cast<YAT_UINT32> (a >> 32);
-          YAT_UINT32 c2 = static_cast<YAT_UINT32> (a & 0xffffffff);
-          YAT_UINT32 c3 = static_cast<YAT_UINT32> (b >> 32);
-          YAT_UINT32 c4 = static_cast<YAT_UINT32> (b & 0xffffffff);
+          yat::uint32 c1 = static_cast<yat::uint32> (a >> 32);
+          yat::uint32 c2 = static_cast<yat::uint32> (a & 0xffffffff);
+          yat::uint32 c3 = static_cast<yat::uint32> (b >> 32);
+          yat::uint32 c4 = static_cast<yat::uint32> (b & 0xffffffff);
 
 #if defined (YAT_LITTLE_ENDIAN)
-          * reinterpret_cast<YAT_UINT32*> (target + 0) = c2;
-          * reinterpret_cast<YAT_UINT32*> (target + 4) = c1;
-          * reinterpret_cast<YAT_UINT32*> (target + 8) = c4;
-          * reinterpret_cast<YAT_UINT32*> (target + 12) = c3;
+          * reinterpret_cast<yat::uint32*> (target + 0) = c2;
+          * reinterpret_cast<yat::uint32*> (target + 4) = c1;
+          * reinterpret_cast<yat::uint32*> (target + 8) = c4;
+          * reinterpret_cast<yat::uint32*> (target + 12) = c3;
 #else
-          * reinterpret_cast<YAT_UINT32*> (target + 0) = c1;
-          * reinterpret_cast<YAT_UINT32*> (target + 4) = c2;
-          * reinterpret_cast<YAT_UINT32*> (target + 8) = c3;
-          * reinterpret_cast<YAT_UINT32*> (target + 12) = c4;
+          * reinterpret_cast<yat::uint32*> (target + 0) = c1;
+          * reinterpret_cast<yat::uint32*> (target + 4) = c2;
+          * reinterpret_cast<yat::uint32*> (target + 8) = c3;
+          * reinterpret_cast<yat::uint32*> (target + 12) = c4;
 #endif
           orig += 16;
           target += 16;
@@ -494,14 +480,14 @@ void Endianness::swap_4_array (const char* orig, char* target, size_t n)
     __asm mov 8[esi], ebx
     __asm mov 12[esi], eax
 #else
-    register YAT_UINT32 a =
-      * reinterpret_cast<const YAT_UINT32*> (orig);
-    register YAT_UINT32 b =
-      * reinterpret_cast<const YAT_UINT32*> (orig + 4);
-    register YAT_UINT32 c =
-      * reinterpret_cast<const YAT_UINT32*> (orig + 8);
-    register YAT_UINT32 d =
-      * reinterpret_cast<const YAT_UINT32*> (orig + 12);
+    register yat::uint32 a =
+      * reinterpret_cast<const yat::uint32*> (orig);
+    register yat::uint32 b =
+      * reinterpret_cast<const yat::uint32*> (orig + 4);
+    register yat::uint32 c =
+      * reinterpret_cast<const yat::uint32*> (orig + 8);
+    register yat::uint32 d =
+      * reinterpret_cast<const yat::uint32*> (orig + 12);
 
     // Expect the optimizer reordering this A LOT.
     // We leave it this way for clarity.
@@ -510,10 +496,10 @@ void Endianness::swap_4_array (const char* orig, char* target, size_t n)
     c = (c << 24) | ((c & 0xff00) << 8) | ((c & 0xff0000) >> 8) | (c >> 24);
     d = (d << 24) | ((d & 0xff00) << 8) | ((d & 0xff0000) >> 8) | (d >> 24);
 
-    * reinterpret_cast<YAT_UINT32*> (target) = a;
-    * reinterpret_cast<YAT_UINT32*> (target + 4) = b;
-    * reinterpret_cast<YAT_UINT32*> (target + 8) = c;
-    * reinterpret_cast<YAT_UINT32*> (target + 12) = d;
+    * reinterpret_cast<yat::uint32*> (target) = a;
+    * reinterpret_cast<yat::uint32*> (target + 4) = b;
+    * reinterpret_cast<yat::uint32*> (target + 8) = c;
+    * reinterpret_cast<yat::uint32*> (target + 12) = d;
 #endif
       orig += 16;
       target += 16;

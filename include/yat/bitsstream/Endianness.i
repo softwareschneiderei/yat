@@ -45,6 +45,20 @@ namespace yat
 # include <byteswap.h>
 #endif
 
+//- the number of bytes in a long
+#include <limits.h>
+#if !defined (YAT_SIZEOF_LONG)
+# if (ULONG_MAX) == 65535UL
+#   define YAT_SIZEOF_LONG 2
+# elif ((ULONG_MAX) == 4294967295UL)
+#   define YAT_SIZEOF_LONG 4
+# elif ((ULONG_MAX) == 18446744073709551615UL)
+#   define YAT_SIZEOF_LONG 8
+# else
+#   error: unsupported long size, must be updated for this platform!
+# endif
+#endif
+
 //=============================================================================
 // Endianness::swap_2
 //=============================================================================
@@ -70,8 +84,8 @@ Endianness::swap_2 (const char *orig, char* target)
   __asm rol ax, 8;
   __asm mov [ecx], ax;
 #else
-  register yat::uint16_t usrc = * reinterpret_cast<const yat::uint16_t*> (orig);
-  register yat::uint16_t* udst = reinterpret_cast<yat::uint16_t*> (target);
+  register yat::uint16 usrc = * reinterpret_cast<const yat::uint16*> (orig);
+  register yat::uint16* udst = reinterpret_cast<yat::uint16*> (target);
   *udst = (usrc << 8) | (usrc >> 8);
 #endif
 }
@@ -102,9 +116,9 @@ Endianness::swap_4 (const char* orig, char* target)
   __asm bswap eax;
   __asm mov [ecx], eax;
 #else
-  register yat::uint32_t x = * reinterpret_cast<const yat::uint32_t*> (orig);
+  register yat::uint32 x = * reinterpret_cast<const yat::uint32*> (orig);
   x = (x << 24) | ((x & 0xff00) << 8) | ((x & 0xff0000) >> 8) | (x >> 24);
-  * reinterpret_cast<yat::uint32_t*> (target) = x;
+  * reinterpret_cast<yat::uint32*> (target) = x;
 #endif
 }
 
@@ -156,14 +170,14 @@ Endianness::swap_8 (const char* orig, char* target)
   x = (x << 32) | (x >> 32);
   *reinterpret_cast<unsigned long*> (target) = x;
 #else
-  register yat::uint32_t x =
-    * reinterpret_cast<const yat::uint32_t*> (orig);
-  register yat::uint32_t y =
-    * reinterpret_cast<const yat::uint32_t*> (orig + 4);
+  register yat::uint32 x =
+    * reinterpret_cast<const yat::uint32*> (orig);
+  register yat::uint32 y =
+    * reinterpret_cast<const yat::uint32*> (orig + 4);
   x = (x << 24) | ((x & 0xff00) << 8) | ((x & 0xff0000) >> 8) | (x >> 24);
   y = (y << 24) | ((y & 0xff00) << 8) | ((y & 0xff0000) >> 8) | (y >> 24);
-  * reinterpret_cast<yat::uint32_t*> (target) = y;
-  * reinterpret_cast<yat::uint32_t*> (target + 4) = x;
+  * reinterpret_cast<yat::uint32*> (target) = y;
+  * reinterpret_cast<yat::uint32*> (target + 4) = x;
 #endif
 }
 
