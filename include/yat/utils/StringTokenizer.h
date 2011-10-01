@@ -44,6 +44,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <string>
+#include "yat/CommonHeader.h"
 
 namespace yat 
 {
@@ -51,7 +52,7 @@ namespace yat
 // ============================================================================
 // StringTokenizer class
 // ============================================================================
-class StringTokenizer
+class YAT_DECL StringTokenizer
 {
 public:
   StringTokenizer (const std::string & str, const std::string & delim);

@@ -154,6 +154,35 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\bitsstream\BitsStream.cpp" />
+    <ClCompile Include="..\..\src\bitsstream\Endianness.cpp" />
+    <ClCompile Include="..\..\src\Exception.cpp" />
+    <ClCompile Include="..\..\src\file\FileName.cpp" />
+    <ClCompile Include="..\..\src\file\Win32FileImpl.cpp" />
+    <ClCompile Include="..\..\src\memory\MemBuf.cpp" />
+    <ClCompile Include="..\..\src\network\Address.cpp" />
+    <ClCompile Include="..\..\src\network\ClientSocket.cpp" />
+    <ClCompile Include="..\..\src\network\Socket.cpp" />
+    <ClCompile Include="..\..\src\network\SocketException.cpp" />
+    <ClCompile Include="..\..\src\plugin\PlugIn.cpp" />
+    <ClCompile Include="..\..\src\plugin\PlugInManager.cpp" />
+    <ClCompile Include="..\..\src\plugin\PlugInUnix.cpp" />
+    <ClCompile Include="..\..\src\plugin\PlugInWin32.cpp" />
+    <ClCompile Include="..\..\src\system\Win32SysUtilsImpl.cpp" />
+    <ClCompile Include="..\..\src\threading\Barrier.cpp" />
+    <ClCompile Include="..\..\src\threading\Message.cpp" />
+    <ClCompile Include="..\..\src\threading\MessageQ.cpp" />
+    <ClCompile Include="..\..\src\threading\SharedObject.cpp" />
+    <ClCompile Include="..\..\src\threading\SyncAccess.cpp" />
+    <ClCompile Include="..\..\src\threading\Task.cpp" />
+    <ClCompile Include="..\..\src\threading\WinNtThreadingImpl.cpp" />
+    <ClCompile Include="..\..\src\time\Time.cpp" />
+    <ClCompile Include="..\..\src\utils\Logging.cpp" />
+    <ClCompile Include="..\..\src\utils\String.cpp" />
+    <ClCompile Include="..\..\src\utils\StringTemplate.cpp" />
+    <ClCompile Include="..\..\src\utils\StringTokenizer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include="..\..\include\yat\any\Any.h" />
     <ClInclude Include="..\..\include\yat\any\GenericContainer.h" />
     <ClInclude Include="..\..\include\yat\bitsstream\BitsRecord.h" />
@@ -189,6 +218,7 @@
     <ClInclude Include="..\..\include\yat\threading\Barrier.h" />
     <ClInclude Include="..\..\include\yat\threading\Condition.h" />
     <ClInclude Include="..\..\include\yat\threading\Implementation.h" />
+    <ClInclude Include="..\..\include\yat\threading\impl\PosixThreadingImpl.h" />
     <ClInclude Include="..\..\include\yat\threading\impl\WinNtThreadingImpl.h" />
     <ClInclude Include="..\..\include\yat\threading\Message.h" />
     <ClInclude Include="..\..\include\yat\threading\MessageQ.h" />
@@ -243,6 +273,21 @@
     <None Include="..\..\include\yat\threading\Barrier.i">
       <FileType>Document</FileType>
     </None>
+    <None Include="..\..\include\yat\threading\impl\PosixConditionImpl.i">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\include\yat\threading\impl\PosixMutexImpl.i">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\include\yat\threading\impl\PosixSemaphoreImpl.i">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\include\yat\threading\impl\PosixThreadImpl.i">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="..\..\include\yat\threading\impl\PosixThreadingImpl.i">
+      <FileType>Document</FileType>
+    </None>
     <None Include="..\..\include\yat\threading\impl\WinNtConditionImpl.i">
       <FileType>Document</FileType>
     </None>
@@ -267,35 +312,6 @@
     <None Include="..\..\include\yat\threading\Task.i">
       <FileType>Document</FileType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\src\bitsstream\BitsStream.cpp" />
-    <ClCompile Include="..\..\src\bitsstream\Endianness.cpp" />
-    <ClCompile Include="..\..\src\Exception.cpp" />
-    <ClCompile Include="..\..\src\file\FileName.cpp" />
-    <ClCompile Include="..\..\src\file\Win32FileImpl.cpp" />
-    <ClCompile Include="..\..\src\memory\MemBuf.cpp" />
-    <ClCompile Include="..\..\src\network\Address.cpp" />
-    <ClCompile Include="..\..\src\network\ClientSocket.cpp" />
-    <ClCompile Include="..\..\src\network\Socket.cpp" />
-    <ClCompile Include="..\..\src\network\SocketException.cpp" />
-    <ClCompile Include="..\..\src\plugin\PlugIn.cpp" />
-    <ClCompile Include="..\..\src\plugin\PlugInManager.cpp" />
-    <ClCompile Include="..\..\src\plugin\PlugInUnix.cpp" />
-    <ClCompile Include="..\..\src\plugin\PlugInWin32.cpp" />
-    <ClCompile Include="..\..\src\system\Win32SysUtilsImpl.cpp" />
-    <ClCompile Include="..\..\src\threading\Barrier.cpp" />
-    <ClCompile Include="..\..\src\threading\Message.cpp" />
-    <ClCompile Include="..\..\src\threading\MessageQ.cpp" />
-    <ClCompile Include="..\..\src\threading\SharedObject.cpp" />
-    <ClCompile Include="..\..\src\threading\SyncAccess.cpp" />
-    <ClCompile Include="..\..\src\threading\Task.cpp" />
-    <ClCompile Include="..\..\src\threading\WinNtThreadingImpl.cpp" />
-    <ClCompile Include="..\..\src\time\Time.cpp" />
-    <ClCompile Include="..\..\src\utils\Logging.cpp" />
-    <ClCompile Include="..\..\src\utils\String.cpp" />
-    <ClCompile Include="..\..\src\utils\StringTemplate.cpp" />
-    <ClCompile Include="..\..\src\utils\StringTokenizer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
