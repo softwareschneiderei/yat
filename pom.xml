@@ -67,6 +67,9 @@
                                     <exclude>**/*Posix*.cpp</exclude>
                                     <exclude>**/*Work*.cpp</exclude>
                                 </excludes>
+                              <defines>
+                                <define>_HAS_CPP0X=0</define>
+                              </defines>
                             </cpp>
                         </specificConfiguration>
                         <specificConfiguration>
@@ -80,6 +83,7 @@
                               <defines>
                                 <define>YAT_DLL</define>
                                 <define>YAT_BUILD</define>
+                                <define>_HAS_CPP0X=0</define>
                                </defines>
                             </cpp>
                             <linker>

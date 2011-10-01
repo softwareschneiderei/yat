@@ -149,6 +149,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <ImportLibrary>x64-build\lib\shared\yatd.lib</ImportLibrary>
+      <Profile>false</Profile>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>false</SuppressStartupBanner>
