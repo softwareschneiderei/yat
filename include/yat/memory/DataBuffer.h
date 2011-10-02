@@ -59,6 +59,9 @@ template <typename T>
 class Buffer 
 {
 public:
+  //- some typedefs
+  typedef T value_type;
+  typedef std::size_t size_type;
   
   /**
    * Constructor. 

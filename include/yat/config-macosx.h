@@ -112,6 +112,13 @@ namespace yat
 #endif
 
 /**
+ *  64 bits stuffs
+ */
+#if defined (__amd64__) || defined (__x86_64__)
+# define YAT_64BITS
+#endif
+
+/**
  *  ASM related stuffs
  */
 #if (defined (YAT_HAS_PENTIUM) || defined (__amd64__) || defined (__x86_64__))

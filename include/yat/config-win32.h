@@ -185,6 +185,13 @@ namespace yat
 # endif
 
 /**
+ *  64 bits stuffs
+ */
+#if defined (__amd64__) || defined (__x86_64__)
+# define YAT_64BITS
+#endif
+
+/**
  *  Object manager
  */
 #define YAT_HAS_STATIC_OBJ_MANAGER 0

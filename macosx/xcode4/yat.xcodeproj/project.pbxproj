@@ -30,6 +30,24 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXFileReference section */
+		37D55C0E1438521200F5CC85 /* FileName.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileName.h; sourceTree = "<group>"; };
+		37D55C101438525600F5CC85 /* MemBuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemBuf.h; sourceTree = "<group>"; };
+		37D55C111438529300F5CC85 /* Time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Time.h; sourceTree = "<group>"; };
+		37D55C13143852AF00F5CC85 /* SysUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SysUtils.h; sourceTree = "<group>"; };
+		37D55C14143852E400F5CC85 /* SyncAccess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyncAccess.h; sourceTree = "<group>"; };
+		37D55C151438532B00F5CC85 /* String.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = String.h; sourceTree = "<group>"; };
+		37D55C161438532B00F5CC85 /* StringTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringTemplate.h; sourceTree = "<group>"; };
+		37D55C171438534900F5CC85 /* Logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
+		37D55C191438539F00F5CC85 /* FileName.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileName.cpp; sourceTree = "<group>"; };
+		37D55C1A1438539F00F5CC85 /* PosixFileImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PosixFileImpl.cpp; sourceTree = "<group>"; };
+		37D55C1C1438540400F5CC85 /* Logging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Logging.cpp; sourceTree = "<group>"; };
+		37D55C1D1438540400F5CC85 /* String.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = String.cpp; sourceTree = "<group>"; };
+		37D55C1E1438540400F5CC85 /* StringTemplate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringTemplate.cpp; sourceTree = "<group>"; };
+		37D55C1F1438540400F5CC85 /* StringTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringTokenizer.cpp; sourceTree = "<group>"; };
+		37D55C211438542B00F5CC85 /* Time.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Time.cpp; sourceTree = "<group>"; };
+		37D55C231438544D00F5CC85 /* PosixSysUtilsImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PosixSysUtilsImpl.cpp; sourceTree = "<group>"; };
+		37D55C251438548A00F5CC85 /* SyncAccess.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SyncAccess.cpp; sourceTree = "<group>"; };
+		37D55C27143854B500F5CC85 /* MemBuf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MemBuf.cpp; sourceTree = "<group>"; };
 		37F7D133139A150600E2A86A /* BitsStream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BitsStream.cpp; sourceTree = "<group>"; };
 		37F7D134139A150600E2A86A /* Endianness.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Endianness.cpp; sourceTree = "<group>"; };
 		37F7D137139A150600E2A86A /* common_target.opt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = common_target.opt; sourceTree = "<group>"; };
@@ -37,10 +55,10 @@
 		37F7D13A139A150600E2A86A /* common_target.opt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = common_target.opt; sourceTree = "<group>"; };
 		37F7D13B139A150600E2A86A /* tango.opt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = tango.opt; sourceTree = "<group>"; };
 		37F7D13C139A150600E2A86A /* Exception.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Exception.cpp; sourceTree = "<group>"; };
-		37F7D13D139A150600E2A86A /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
-		37F7D13F139A150600E2A86A /* Makefile.linux */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.linux; sourceTree = "<group>"; };
-		37F7D140139A150600E2A86A /* Makefile.macosx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.macosx; sourceTree = "<group>"; };
-		37F7D142139A150600E2A86A /* Makefile.vc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.vc; sourceTree = "<group>"; };
+		37F7D13D139A150600E2A86A /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makefile.am; path = ../Makefile.am; sourceTree = "<group>"; };
+		37F7D13F139A150600E2A86A /* Makefile.linux */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makefile.linux; path = ../Makefile.linux; sourceTree = "<group>"; };
+		37F7D140139A150600E2A86A /* Makefile.macosx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makefile.macosx; path = ../Makefile.macosx; sourceTree = "<group>"; };
+		37F7D142139A150600E2A86A /* Makefile.vc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makefile.vc; path = ../Makefile.vc; sourceTree = "<group>"; };
 		37F7D144139A150600E2A86A /* Address.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Address.cpp; sourceTree = "<group>"; };
 		37F7D145139A150600E2A86A /* ClientSocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientSocket.cpp; sourceTree = "<group>"; };
 		37F7D146139A150600E2A86A /* Socket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Socket.cpp; sourceTree = "<group>"; };
@@ -56,7 +74,6 @@
 		37F7D155139A150600E2A86A /* SharedObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SharedObject.cpp; sourceTree = "<group>"; };
 		37F7D156139A150600E2A86A /* Task.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Task.cpp; sourceTree = "<group>"; };
 		37F7D157139A150600E2A86A /* WinNtThreadingImpl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WinNtThreadingImpl.cpp; sourceTree = "<group>"; };
-		37F7D159139A150600E2A86A /* StringTokenizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringTokenizer.cpp; sourceTree = "<group>"; };
 		37F7D161139A155200E2A86A /* Any.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Any.h; sourceTree = "<group>"; };
 		37F7D162139A155200E2A86A /* GenericContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GenericContainer.h; sourceTree = "<group>"; };
 		37F7D164139A155200E2A86A /* BitsRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitsRecord.h; sourceTree = "<group>"; };
@@ -94,7 +111,6 @@
 		37F7D187139A155200E2A86A /* PlugInSymbols.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlugInSymbols.h; sourceTree = "<group>"; };
 		37F7D188139A155200E2A86A /* PlugInTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlugInTypes.h; sourceTree = "<group>"; };
 		37F7D189139A155200E2A86A /* Portability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Portability.h; sourceTree = "<group>"; };
-		37F7D18A139A155200E2A86A /* TargetPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TargetPlatform.h; sourceTree = "<group>"; };
 		37F7D18C139A155200E2A86A /* Barrier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Barrier.h; sourceTree = "<group>"; };
 		37F7D18D139A155200E2A86A /* Barrier.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = Barrier.i; sourceTree = "<group>"; };
 		37F7D18E139A155200E2A86A /* Condition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Condition.h; sourceTree = "<group>"; };
@@ -133,9 +149,59 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		37D55C0D1438521200F5CC85 /* file */ = {
+			isa = PBXGroup;
+			children = (
+				37D55C0E1438521200F5CC85 /* FileName.h */,
+			);
+			path = file;
+			sourceTree = "<group>";
+		};
+		37D55C12143852AF00F5CC85 /* system */ = {
+			isa = PBXGroup;
+			children = (
+				37D55C13143852AF00F5CC85 /* SysUtils.h */,
+			);
+			path = system;
+			sourceTree = "<group>";
+		};
+		37D55C181438539F00F5CC85 /* file */ = {
+			isa = PBXGroup;
+			children = (
+				37D55C191438539F00F5CC85 /* FileName.cpp */,
+				37D55C1A1438539F00F5CC85 /* PosixFileImpl.cpp */,
+			);
+			path = file;
+			sourceTree = "<group>";
+		};
+		37D55C201438542B00F5CC85 /* time */ = {
+			isa = PBXGroup;
+			children = (
+				37D55C211438542B00F5CC85 /* Time.cpp */,
+			);
+			path = time;
+			sourceTree = "<group>";
+		};
+		37D55C221438544D00F5CC85 /* system */ = {
+			isa = PBXGroup;
+			children = (
+				37D55C231438544D00F5CC85 /* PosixSysUtilsImpl.cpp */,
+			);
+			path = system;
+			sourceTree = "<group>";
+		};
+		37D55C26143854B500F5CC85 /* memory */ = {
+			isa = PBXGroup;
+			children = (
+				37D55C27143854B500F5CC85 /* MemBuf.cpp */,
+			);
+			path = memory;
+			sourceTree = "<group>";
+		};
 		37D9FC7A13995D1D007B503A = {
 			isa = PBXGroup;
 			children = (
+				37F7D135139A150600E2A86A /* build */,
 				37F7D15B139A155200E2A86A /* include */,
 				37F7D120139A150500E2A86A /* src */,
 			);
@@ -144,15 +210,14 @@
 		37F7D120139A150500E2A86A /* src */ = {
 			isa = PBXGroup;
 			children = (
-				37F7D135139A150600E2A86A /* build */,
 				37F7D132139A150600E2A86A /* bitsstream */,
 				37F7D13C139A150600E2A86A /* Exception.cpp */,
-				37F7D13D139A150600E2A86A /* Makefile.am */,
-				37F7D13F139A150600E2A86A /* Makefile.linux */,
-				37F7D140139A150600E2A86A /* Makefile.macosx */,
-				37F7D142139A150600E2A86A /* Makefile.vc */,
+				37D55C181438539F00F5CC85 /* file */,
 				37F7D143139A150600E2A86A /* network */,
+				37D55C26143854B500F5CC85 /* memory */,
 				37F7D14B139A150600E2A86A /* plugin */,
+				37D55C221438544D00F5CC85 /* system */,
+				37D55C201438542B00F5CC85 /* time */,
 				37F7D150139A150600E2A86A /* threading */,
 				37F7D158139A150600E2A86A /* utils */,
 			);
@@ -172,10 +237,15 @@
 		37F7D135139A150600E2A86A /* build */ = {
 			isa = PBXGroup;
 			children = (
+				37F7D13D139A150600E2A86A /* Makefile.am */,
+				37F7D13F139A150600E2A86A /* Makefile.linux */,
+				37F7D140139A150600E2A86A /* Makefile.macosx */,
+				37F7D142139A150600E2A86A /* Makefile.vc */,
 				37F7D136139A150600E2A86A /* linux */,
 				37F7D139139A150600E2A86A /* macosx */,
 			);
-			path = build;
+			name = build;
+			path = ../../src/build;
 			sourceTree = "<group>";
 		};
 		37F7D136139A150600E2A86A /* linux */ = {
@@ -226,6 +296,7 @@
 				37F7D153139A150600E2A86A /* MessageQ.cpp */,
 				37F7D154139A150600E2A86A /* PosixThreadingImpl.cpp */,
 				37F7D155139A150600E2A86A /* SharedObject.cpp */,
+				37D55C251438548A00F5CC85 /* SyncAccess.cpp */,
 				37F7D156139A150600E2A86A /* Task.cpp */,
 				37F7D157139A150600E2A86A /* WinNtThreadingImpl.cpp */,
 			);
@@ -235,7 +306,10 @@
 		37F7D158139A150600E2A86A /* utils */ = {
 			isa = PBXGroup;
 			children = (
-				37F7D159139A150600E2A86A /* StringTokenizer.cpp */,
+				37D55C1C1438540400F5CC85 /* Logging.cpp */,
+				37D55C1D1438540400F5CC85 /* String.cpp */,
+				37D55C1E1438540400F5CC85 /* StringTemplate.cpp */,
+				37D55C1F1438540400F5CC85 /* StringTokenizer.cpp */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -260,13 +334,14 @@
 				37F7D16B139A155200E2A86A /* config-win32.h */,
 				37F7D16C139A155200E2A86A /* Exception.h */,
 				37F7D16D139A155200E2A86A /* Exception.i */,
+				37D55C0D1438521200F5CC85 /* file */,
 				37F7D16E139A155200E2A86A /* Inline.h */,
 				37F7D16F139A155200E2A86A /* LogHelper.h */,
 				37F7D170139A155200E2A86A /* memory */,
 				37F7D178139A155200E2A86A /* network */,
 				37F7D180139A155200E2A86A /* plugin */,
 				37F7D189139A155200E2A86A /* Portability.h */,
-				37F7D18A139A155200E2A86A /* TargetPlatform.h */,
+				37D55C12143852AF00F5CC85 /* system */,
 				37F7D18B139A155200E2A86A /* threading */,
 				37F7D1A8139A155200E2A86A /* time */,
 				37F7D1AA139A155200E2A86A /* utils */,
@@ -303,6 +378,7 @@
 				37F7D174139A155200E2A86A /* DataBuffer.h */,
 				37F7D175139A155200E2A86A /* DataBuffer.i */,
 				37F7D176139A155200E2A86A /* DataBuffer.tpp */,
+				37D55C101438525600F5CC85 /* MemBuf.h */,
 				37F7D177139A155200E2A86A /* SharedPtr.h */,
 			);
 			path = memory;
@@ -340,6 +416,7 @@
 		37F7D18B139A155200E2A86A /* threading */ = {
 			isa = PBXGroup;
 			children = (
+				37D55C14143852E400F5CC85 /* SyncAccess.h */,
 				37F7D18C139A155200E2A86A /* Barrier.h */,
 				37F7D18D139A155200E2A86A /* Barrier.i */,
 				37F7D18E139A155200E2A86A /* Condition.h */,
@@ -382,6 +459,7 @@
 		37F7D1A8139A155200E2A86A /* time */ = {
 			isa = PBXGroup;
 			children = (
+				37D55C111438529300F5CC85 /* Time.h */,
 				37F7D1A9139A155200E2A86A /* Timer.h */,
 			);
 			path = time;
@@ -390,6 +468,9 @@
 		37F7D1AA139A155200E2A86A /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				37D55C171438534900F5CC85 /* Logging.h */,
+				37D55C151438532B00F5CC85 /* String.h */,
+				37D55C161438532B00F5CC85 /* StringTemplate.h */,
 				37F7D1AB139A155200E2A86A /* Callback.h */,
 				37F7D1AC139A155200E2A86A /* NonCopyable.h */,
 				37F7D1AD139A155200E2A86A /* ReferenceCounter.h */,

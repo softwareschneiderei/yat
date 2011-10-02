@@ -67,6 +67,11 @@
   #include <direct.h>
   #include <errno.h>
   #include <windows.h>
+#elif defined YAT_MACOSX 
+  #include <errno.h>
+  #include <sys/stat.h>
+  #include <sys/param.h>
+  #include <sys/mount.h>
 #endif
 
 #include <map>
@@ -227,25 +232,25 @@ public:
   // File system types
   enum FSType
   {
-    // Defaut value for Microsoft partition type
-    MS = 0,
-
-    // Microsoft partitions types
+    //- Defaut value for Microsoft partition type
+    MS    = 0,
+    //- Microsoft partitions types
     FAT16 = 0x04,
     FAT32 = 0x0B,
-    IFS = 0x07,
-    
-    // Unix file system types
-    AFFS = 0xADFF,
-    EFS = 0x00414A53,
-    EXT = 0x137D,
-    EXT2 = 0xEF53,
-    HPFS = 0xF995E849,
+    IFS   = 0x07,
+    //- Unix file system types
+    AFFS  = 0xADFF,
+    EFS   = 0x00414A53,
+    EXT   = 0x137D,
+    EXT2  = 0xEF53,
+    HPFS  = 0xF995E849,
     ISOFS = 0x9660,
     MSDOS = 0x4d44,
-    NFS = 0x6969,
-    PROC = 0x9fa0,
-    SMB = 0x517B
+    NFS   = 0x6969,
+    PROC  = 0x9fa0,
+    SMB   = 0x517B,
+    //- Apple filesystem types
+    HFS   = 0x0000
   };
 
 private:
@@ -445,7 +450,7 @@ protected:
   int m_bErrorOnLastFind;
   bool m_bFirst;
 #else
-  DIR *m_dirDir;
+  DIR * m_dirDir;
 #endif
 
   /// Path
@@ -460,7 +465,7 @@ public:
   ~FileEnum();
 
   ///-------------------------------------------------------------------------
-  /// @group Méthodes standards
+  /// @group Methodes standards
   ///-------------------------------------------------------------------------
 
   /// Initializing search mask

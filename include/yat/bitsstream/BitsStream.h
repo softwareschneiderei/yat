@@ -338,7 +338,7 @@ private:
 // operator>> for bitset<n>'s with [0...32] bits
 //=============================================================================
 // Specialization of template operator>> bitset<>'s for bitset<n> with <n> 
-// less than or equal to 32 this gives larger code size if there are justa 
+// less than or equal to 32 this gives larger code size if there are just a 
 // few bitset<n>'s, but smaller code size if all BitsStream >> bitset<0>; ...
 // BitsStream >> bitset<32>; have been instantiated.
 //-----------------------------------------------------------------------------
@@ -363,6 +363,18 @@ inline BitsStream& operator>> (BitsStream& _source, BitsSet<_n, _T>& _dest) \
                              reinterpret_cast<char*>(&tmp)); \
         } \
         break; \
+      case Endianness::LONGLONG_SIZE:  \
+        { \
+          Endianness::swap_8(reinterpret_cast<const char*>(&tmp), \
+                             reinterpret_cast<char*>(&tmp)); \
+        } \
+        break; \
+      case Endianness::LONGDOUBLE_SIZE:  \
+        { \
+          Endianness::swap_16(reinterpret_cast<const char*>(&tmp), \
+                              reinterpret_cast<char*>(&tmp)); \
+        } \
+        break; \
     } \
   } \
   _dest.value() = static_cast<_T>(tmp); \
@@ -374,8 +386,19 @@ _IBSTREAM_READFUNC( 8, char)
 _IBSTREAM_READFUNC( 8, unsigned char)
 _IBSTREAM_READFUNC(16, short)
 _IBSTREAM_READFUNC(16, unsigned short)
+_IBSTREAM_READFUNC(32, int)
+_IBSTREAM_READFUNC(32, unsigned int)
+#if ! defined(YAT_64BITS)
 _IBSTREAM_READFUNC(32, long)
 _IBSTREAM_READFUNC(32, unsigned long)
+_IBSTREAM_READFUNC(64, long long)
+_IBSTREAM_READFUNC(64, unsigned long long)
+#else
+_IBSTREAM_READFUNC(64, long)
+_IBSTREAM_READFUNC(64, unsigned long)
+_IBSTREAM_READFUNC(128, long long)
+_IBSTREAM_READFUNC(128, unsigned long long)
+#endif
 
 //=============================================================================
 // operator>> for an array of elements
@@ -387,46 +410,6 @@ BitsStream& operator>> (BitsStream& _source, T _dest[])
     _source >> _dest[i];
   return _source;
 }
-
-//=============================================================================
-// operator>> for bitset<n>'s with n > 32 bits (TO BE COMPLETED)
-//=============================================================================
-/*
-template <size_t _n, typename _T>
-BitsStream& operator>>(BitsStream& _source, BitsSet<_n, _T>& _dest)
-{
-  //- reset all bits in destination to 0 (see doc. of std::bitset class)
-  _dest.reset();
-  //- number of bits to be read (we could use _dest.size() instead of _n)
-  size_t needed = _n;
-  //- tmp buffer for bits reading
-  unsigned long tmp;
-  //- read <needed> bits from _source
-  do
-  {
-    //- num of actual num of bits to read for the current loop iteration
-    size_t bits_to_read = (sizeof(tmp) < needed ? sizeof(tmp) : needed);
-    //- actual reading...
-    if (_source.read_bits(bits_to_read, tmp))
-    {
-      //- ok, got bits from _source, transfer them into _dest
-      _dest |= tmp;
-      //- compute remaining num of bits to read
-      needed -= bits_to_read;
-      //- shift all bits by <sizeof(tmp)> or <needed> positions to the left
-      _dest <<= (needed > sizeof(tmp) ? sizeof(tmp) : needed);
-    }
-    else 
-    { 
-      //- ko, EOF reached
-      break;
-    }
-  } while (needed != 0);
-#error TODO ADD BYTES SWAPPING HERE
-  //- return the <stateful> stream
-  return _source;
-}
-*/
 
 } //- namespace
 

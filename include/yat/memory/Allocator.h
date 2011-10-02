@@ -64,7 +64,7 @@ public:
   //- memory allocation - can't allocate more than sizeof(T)
   virtual T * malloc ();
 
-  //- memory release - <p> must have beeb allocated by <this> CachedAllocator
+  //- memory release - <p> must have been allocated by <this> CachedAllocator
   virtual void free (T * p);
 };
 

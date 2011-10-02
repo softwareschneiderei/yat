@@ -25,26 +25,33 @@ BEGIN_BITS_RECORD(TestRecord)
   MEMBER(bool_6, 1, bool)
   MEMBER(bool_7, 1, bool)
   //- 1 byte members
-  MEMBER(neg_signed_char, 8, char)
-  MEMBER(mid_signed_char, 8, char)
-  MEMBER(pos_signed_char, 8, char)
-  MEMBER(min_unsigned_char, 8, unsigned char)
-  MEMBER(mid_unsigned_char, 8, unsigned char)
-  MEMBER(max_unsigned_char, 8, unsigned char)
+  MEMBER(neg_signed_char, sizeof(char) * 8, char)
+  MEMBER(mid_signed_char, sizeof(char) * 8, char)
+  MEMBER(pos_signed_char, sizeof(char) * 8, char)
+  MEMBER(min_unsigned_char, sizeof(unsigned char) * 8, unsigned char)
+  MEMBER(mid_unsigned_char, sizeof(unsigned char) * 8, unsigned char)
+  MEMBER(max_unsigned_char, sizeof(unsigned char) * 8, unsigned char)
   //- 2 bytes members
-  MEMBER(neg_signed_short, 16, short)
-  MEMBER(mid_signed_short, 16, short)
-  MEMBER(pos_signed_short, 16, short)
-  MEMBER(min_unsigned_short, 16, unsigned short)
-  MEMBER(mid_unsigned_short, 16, unsigned short)
-  MEMBER(max_unsigned_short, 16, unsigned short)
+  MEMBER(neg_signed_short, sizeof(short) * 8, short)
+  MEMBER(mid_signed_short, sizeof(short) * 8, short)
+  MEMBER(pos_signed_short, sizeof(short) * 8, short)
+  MEMBER(min_unsigned_short, sizeof(unsigned short) * 8, unsigned short)
+  MEMBER(mid_unsigned_short, sizeof(unsigned short) * 8, unsigned short)
+  MEMBER(max_unsigned_short, sizeof(unsigned short) * 8, unsigned short)
   //- 4 bytes members
-  MEMBER(neg_signed_long, 32, long)
-  MEMBER(mid_signed_long, 32, long)
-  MEMBER(pos_signed_long, 32, long)
-  MEMBER(min_unsigned_long, 32, unsigned long)
-  MEMBER(mid_unsigned_long, 32, unsigned long)
-  MEMBER(max_unsigned_long, 32, unsigned long)
+  MEMBER(neg_signed_int, sizeof(int) * 8, int)
+  MEMBER(mid_signed_int, sizeof(int) * 8, int)
+  MEMBER(pos_signed_int, sizeof(int) * 8, int)
+  MEMBER(min_unsigned_int, sizeof(unsigned int) * 8, unsigned int)
+  MEMBER(mid_unsigned_int, sizeof(unsigned int) * 8, unsigned int)
+  MEMBER(max_unsigned_int, sizeof(unsigned int) * 8, unsigned int)
+  //- 8 bytes members
+  MEMBER(neg_signed_long, sizeof(long) * 8, long)
+  MEMBER(mid_signed_long, sizeof(long) * 8, long)
+  MEMBER(pos_signed_long, sizeof(long) * 8, long)
+  MEMBER(min_unsigned_long, sizeof(unsigned long) * 8, unsigned long)
+  MEMBER(mid_unsigned_long, sizeof(unsigned long) * 8, unsigned long)
+  MEMBER(max_unsigned_long, sizeof(unsigned long) * 8, unsigned long)
 END_BITS_RECORD(TestRecord)
 
 BEGIN_BITS_RECORD_EXTRACTOR(TestRecord)
@@ -68,6 +75,12 @@ BEGIN_BITS_RECORD_EXTRACTOR(TestRecord)
   EXTRACT_MEMBER(min_unsigned_short)
   EXTRACT_MEMBER(mid_unsigned_short)
   EXTRACT_MEMBER(max_unsigned_short)
+  EXTRACT_MEMBER(neg_signed_int)
+  EXTRACT_MEMBER(mid_signed_int)
+  EXTRACT_MEMBER(pos_signed_int)
+  EXTRACT_MEMBER(min_unsigned_int)
+  EXTRACT_MEMBER(mid_unsigned_int)
+  EXTRACT_MEMBER(max_unsigned_int)
   EXTRACT_MEMBER(neg_signed_long)
   EXTRACT_MEMBER(mid_signed_long)
   EXTRACT_MEMBER(pos_signed_long)
@@ -97,6 +110,12 @@ BEGIN_BITS_RECORD_DUMP(TestRecord)
   DUMP_MEMBER(min_unsigned_short)
   DUMP_MEMBER(mid_unsigned_short)
   DUMP_MEMBER(max_unsigned_short)
+  DUMP_MEMBER(neg_signed_int)
+  DUMP_MEMBER(mid_signed_int)
+  DUMP_MEMBER(pos_signed_int)
+  DUMP_MEMBER(min_unsigned_int)
+  DUMP_MEMBER(mid_unsigned_int)
+  DUMP_MEMBER(max_unsigned_int)
   DUMP_MEMBER(neg_signed_long)
   DUMP_MEMBER(mid_signed_long)
   DUMP_MEMBER(pos_signed_long)
@@ -116,11 +135,11 @@ void fill_buffers (yat::Buffer<unsigned char>& leb, yat::Buffer<unsigned char>& 
 int main (int argc, char* argv[])
 {
   std::cout << "------------------------------------" << std::endl; 
-  std::cout << "size of bool........" << sizeof(bool) * 8 << " bits" << std::endl;
-  std::cout << "size of char........" << sizeof(char) * 8 << " bits" << std::endl;
-  std::cout << "size of short......." << sizeof(short) * 8 << " bits" << std::endl;
-  std::cout << "size of int........." << sizeof(int) * 8 << " bits" << std::endl;
-  std::cout << "size of long........" << sizeof(long) * 8 << " bits" << std::endl;
+  std::cout << "size of bool...." << sizeof(bool)  * 8 << " bits" << std::endl;
+  std::cout << "size of char...." << sizeof(char)  * 8 << " bits" << std::endl;
+  std::cout << "size of short..." << sizeof(short) * 8 << " bits" << std::endl;
+  std::cout << "size of int....." << sizeof(int)   * 8 << " bits" << std::endl;
+  std::cout << "size of long...." << sizeof(long)  * 8 << " bits" << std::endl;
   std::cout << "------------------------------------" << std::endl;
 
   try
@@ -135,7 +154,7 @@ int main (int argc, char* argv[])
     //- each buffer will be filled according to its byte ordering
     //- this will allow to test the yat::BitsStream byte reordering
     fill_buffers(little_endian_buffer, big_endian_buffer);
-  
+    
     //--------------------------------------------------------------------
     // LITTLE ENDIAN TEST
     //--------------------------------------------------------------------
@@ -168,11 +187,8 @@ int main (int argc, char* argv[])
 	return 0;  
 }
 
-
-
-
 //-----------------------------------------------------------------------------
-// //- dump_val
+// dump_val
 //-----------------------------------------------------------------------------
 template <typename _T> void dump_val (const char * _txt, const _T& _v)
 {
@@ -223,6 +239,20 @@ void fill_buffers (yat::Buffer<unsigned char>& leb, yat::Buffer<unsigned char>& 
     std::numeric_limits<unsigned short>::max()
   }; 
 
+  int ints[num_val_per_type] = 
+  { 
+    std::numeric_limits<int>::min(), 
+    std::numeric_limits<int>::max() / 2,
+    std::numeric_limits<int>::max()
+  }; 
+  
+  unsigned int uints[num_val_per_type] = 
+  { 
+    std::numeric_limits<unsigned int>::min(),
+    std::numeric_limits<unsigned int>::max() / 2,
+    std::numeric_limits<unsigned int>::max()
+  }; 
+  
   long longs[num_val_per_type] = 
   { 
     std::numeric_limits<long>::min(), 
@@ -242,115 +272,212 @@ void fill_buffers (yat::Buffer<unsigned char>& leb, yat::Buffer<unsigned char>& 
                            + sizeof(uchars)
                            + sizeof(shorts)
                            + sizeof(ushorts)
+                           + sizeof(ints)
+                           + sizeof(uints)
                            + sizeof(longs)
                            + sizeof(ulongs);
 
   leb.capacity(buffer_size);
   leb.force_length(buffer_size);
+  
   beb.capacity(buffer_size);
   beb.force_length(buffer_size);
 
   size_t offset = 0;
 
   ::memcpy(leb.base() + offset, &bools, sizeof(bools));
-  //- dump_val("leb[bools]= ", static_cast<int>(bools));
+  
+  dump_val("leb[bools]= ", static_cast<int>(bools));
 
   ::memcpy(beb.base() + offset, &bools, sizeof(bools));
-  //- dump_val("beb[bools]= ", static_cast<int>(bools));
+  
+  dump_val("beb[bools]= ", static_cast<int>(bools));
 
   offset += sizeof(bools);
 
   ::memcpy(leb.base() + offset, chars, sizeof(chars));
+  
   char * cp = reinterpret_cast<char*>(leb.base() + offset);
-  //- dump_val("leb[char:0]= ", static_cast<int>(*(cp + 0)));
-  //- dump_val("leb[char:1]= ", static_cast<int>(*(cp + 1)));
-  //- dump_val("leb[char:2]= ", static_cast<int>(*(cp + 2)));
+  
+  dump_val("leb[char:0]= ", static_cast<char>(*(cp + 0)));
+  dump_val("leb[char:1]= ", static_cast<char>(*(cp + 1)));
+  dump_val("leb[char:2]= ", static_cast<char>(*(cp + 2)));
 
   ::memcpy(beb.base() + offset, chars, sizeof(chars));
+  
   cp = reinterpret_cast<char*>(beb.base() + offset);
-  //- dump_val("beb[char:0]= ", static_cast<int>(*(cp + 0)));
-  //- dump_val("beb[char:1]= ", static_cast<int>(*(cp + 1)));
-  //- dump_val("beb[char:2]= ", static_cast<int>(*(cp + 2)));
+  
+  dump_val("beb[char:0]= ", static_cast<char>(*(cp + 0)));
+  dump_val("beb[char:1]= ", static_cast<char>(*(cp + 1)));
+  dump_val("beb[char:2]= ", static_cast<char>(*(cp + 2)));
 
-  offset += num_val_per_type * sizeof(char);
+  offset += sizeof(chars);
 
   ::memcpy(leb.base() + offset, uchars, sizeof(uchars));
+  
   unsigned char * ucp = reinterpret_cast<unsigned char*>(leb.base() + offset);
-  //- dump_val("leb[uchar:0]= ", static_cast<unsigned int>(*(ucp + 0)));
-  //- dump_val("leb[uchar:1]= ", static_cast<unsigned int>(*(ucp + 1)));
-  //- dump_val("leb[uchar:2]= ", static_cast<unsigned int>(*(ucp + 2)));
+  
+  dump_val("leb[uchar:0]= ", static_cast<unsigned char>(*(ucp + 0)));
+  dump_val("leb[uchar:1]= ", static_cast<unsigned char>(*(ucp + 1)));
+  dump_val("leb[uchar:2]= ", static_cast<unsigned char>(*(ucp + 2)));
 
   ::memcpy(beb.base() + offset, uchars, sizeof(uchars));
+  
   ucp = reinterpret_cast<unsigned char*>(beb.base() + offset);
-  //- dump_val("beb[char:0]= ", static_cast<int>(*(ucp + 0)));
-  //- dump_val("beb[char:1]= ", static_cast<int>(*(ucp + 1)));
-  //- dump_val("beb[char:2]= ", static_cast<int>(*(ucp + 2)));
+  
+  dump_val("beb[char:0]= ", static_cast<unsigned char>(*(ucp + 0)));
+  dump_val("beb[char:1]= ", static_cast<unsigned char>(*(ucp + 1)));
+  dump_val("beb[char:2]= ", static_cast<unsigned char>(*(ucp + 2)));
 
-  offset += num_val_per_type * sizeof(unsigned char);
+  offset += sizeof(uchars);
 
   ::memcpy(leb.base() + offset, shorts, sizeof(shorts));
+  
   short * sp = reinterpret_cast<short*>(leb.base() + offset);
-  //- dump_val("leb[shorts:0]= ", *(sp + 0));
-  //- dump_val("leb[shorts:1]= ", *(sp + 1));
-  //- dump_val("leb[shorts:2]= ", *(sp + 2));
+  
+  dump_val("leb[shorts:0]= ", *(sp + 0));
+  dump_val("leb[shorts:1]= ", *(sp + 1));
+  dump_val("leb[shorts:2]= ", *(sp + 2));
 
   ::memcpy(beb.base() + offset, shorts, sizeof(shorts));
+  
   sp = reinterpret_cast<short*>(beb.base() + offset);
+  
   yat::Endianness::swap_2_array(reinterpret_cast<char*>(sp), 
                                 reinterpret_cast<char*>(sp), 
                                 num_val_per_type);
-  //- dump_val("beb[shorts:0]= ", *(sp + 0));
-  //- dump_val("beb[shorts:1]= ", *(sp + 1));
-  //- dump_val("beb[shorts:1]= ", *(sp + 2));
+  
+  dump_val("beb[shorts:0]= ", *(sp + 0));
+  dump_val("beb[shorts:1]= ", *(sp + 1));
+  dump_val("beb[shorts:1]= ", *(sp + 2));
 
-  offset += num_val_per_type * sizeof(short);
+  offset += sizeof(shorts);
 
   ::memcpy(leb.base() + offset, ushorts, sizeof(ushorts));
+  
   unsigned short * usp = reinterpret_cast<unsigned short*>(leb.base() + offset);
-  //- dump_val("leb[unsigned shorts:0]= ", *(usp + 0));
-  //- dump_val("leb[unsigned shorts:1]= ", *(usp + 1));
-  //- dump_val("leb[unsigned shorts:2]= ", *(usp + 2));
+  
+  dump_val("leb[unsigned shorts:0]= ", *(usp + 0));
+  dump_val("leb[unsigned shorts:1]= ", *(usp + 1));
+  dump_val("leb[unsigned shorts:2]= ", *(usp + 2));
 
   ::memcpy(beb.base() + offset, ushorts, sizeof(ushorts));
+  
   usp = reinterpret_cast<unsigned short*>(beb.base() + offset);
+  
   yat::Endianness::swap_2_array(reinterpret_cast<char*>(usp), 
                                 reinterpret_cast<char*>(usp), 
                                 num_val_per_type);
-  //- dump_val("beb[unsigned shorts:0]= ", *(usp + 0));
-  //- dump_val("beb[unsigned shorts:1]= ", *(usp + 1));
-  //- dump_val("beb[unsigned shorts:2]= ", *(usp + 2));
+  
+  dump_val("beb[unsigned shorts:0]= ", *(usp + 0));
+  dump_val("beb[unsigned shorts:1]= ", *(usp + 1));
+  dump_val("beb[unsigned shorts:2]= ", *(usp + 2));
 
-  offset += num_val_per_type * sizeof(unsigned short);
+  offset += sizeof(ushorts);
 
+  ::memcpy(leb.base() + offset, ints, sizeof(ints));
+  
+  int * ip = reinterpret_cast<int*>(leb.base() + offset);
+  
+  dump_val("leb[int:0]= ", *(ip + 0));
+  dump_val("leb[int:1]= ", *(ip + 1));
+  dump_val("leb[int:2]= ", *(ip + 2));
+  
+  ::memcpy(beb.base() + offset, ints, sizeof(ints));
+  
+  ip = reinterpret_cast<int*>(beb.base() + offset);
+  
+  if (sizeof(int) == 4)
+    yat::Endianness::swap_4_array(reinterpret_cast<char*>(ip), 
+                                  reinterpret_cast<char*>(ip), 
+                                  num_val_per_type);
+  else
+    yat::Endianness::swap_2_array(reinterpret_cast<char*>(ip), 
+                                  reinterpret_cast<char*>(ip), 
+                                  num_val_per_type);
+  
+  dump_val("beb[int:0]= ", *(ip + 0));
+  dump_val("beb[int:1]= ", *(ip + 1));
+  dump_val("beb[int:2]= ", *(ip + 2));
+  
+  offset += sizeof(ints);
+  
+  ::memcpy(leb.base() + offset, uints, sizeof(uints));
+  
+  unsigned int * uip = reinterpret_cast<unsigned int*>(leb.base() + offset);
+  
+  dump_val("leb[unsigned int:0]= ", *(uip + 0));
+  dump_val("leb[unsigned int:1]= ", *(uip + 1));
+  dump_val("leb[unsigned int:2]= ", *(uip + 2));
+  
+  ::memcpy(beb.base() + offset, uints, sizeof(uints));
+  
+  uip = reinterpret_cast<unsigned int*>(beb.base() + offset);
+  
+  if (sizeof(unsigned int) == 4)
+    yat::Endianness::swap_4_array(reinterpret_cast<char*>(uip), 
+                                  reinterpret_cast<char*>(uip), 
+                                  num_val_per_type);
+  else
+    yat::Endianness::swap_2_array(reinterpret_cast<char*>(uip), 
+                                  reinterpret_cast<char*>(uip), 
+                                  num_val_per_type);
+  
+  dump_val("beb[unsigned int:0]= ", *(uip + 0));
+  dump_val("beb[unsigned int:1]= ", *(uip + 1));
+  dump_val("beb[unsigned int:2]= ", *(uip + 2));
+  
+  offset += sizeof(uints);
+  
   ::memcpy(leb.base() + offset, longs, sizeof(longs));
+  
   long * lp = reinterpret_cast<long*>(leb.base() + offset);
-  //- dump_val("leb[long:0]= ", *(lp + 0));
-  //- dump_val("leb[long:1]= ", *(lp + 1));
-  //- dump_val("leb[long:2]= ", *(lp + 2));
+  
+  dump_val("leb[long:0]= ", *(lp + 0));
+  dump_val("leb[long:1]= ", *(lp + 1));
+  dump_val("leb[long:2]= ", *(lp + 2));
 
   ::memcpy(beb.base() + offset, longs, sizeof(longs));
+  
   lp = reinterpret_cast<long*>(beb.base() + offset);
-  yat::Endianness::swap_4_array(reinterpret_cast<char*>(lp), 
-                                reinterpret_cast<char*>(lp), 
-                                num_val_per_type);
-  //- dump_val("beb[long:0]= ", *(lp + 0));
-  //- dump_val("beb[long:1]= ", *(lp + 1));
-  //- dump_val("beb[long:2]= ", *(lp + 2));
-
+  
+  if (sizeof(long) == 8)
+    yat::Endianness::swap_8_array(reinterpret_cast<char*>(lp), 
+                                  reinterpret_cast<char*>(lp), 
+                                  num_val_per_type);
+  else
+    yat::Endianness::swap_4_array(reinterpret_cast<char*>(lp), 
+                                  reinterpret_cast<char*>(lp), 
+                                  num_val_per_type);
+  
+  dump_val("beb[long:0]= ", *(lp + 0));
+  dump_val("beb[long:1]= ", *(lp + 1));
+  dump_val("beb[long:2]= ", *(lp + 2));
+  
   offset += num_val_per_type * sizeof(long);
 
   ::memcpy(leb.base() + offset, ulongs, sizeof(ulongs));
+  
   unsigned long * ulp = reinterpret_cast<unsigned long*>(leb.base() + offset);
-  //- dump_val("leb[unsigned long:0]= ", *(ulp + 0));
-  //- dump_val("leb[unsigned long:1]= ", *(ulp + 1));
-  //- dump_val("leb[unsigned long:2]= ", *(ulp + 2));
+  
+  dump_val("leb[unsigned long:0]= ", *(ulp + 0));
+  dump_val("leb[unsigned long:1]= ", *(ulp + 1));
+  dump_val("leb[unsigned long:2]= ", *(ulp + 2));
 
   ::memcpy(beb.base() + offset, ulongs, sizeof(ulongs));
+  
   ulp = reinterpret_cast<unsigned long*>(beb.base() + offset);
-  yat::Endianness::swap_4_array(reinterpret_cast<char*>(ulp), 
-                                reinterpret_cast<char*>(ulp), 
-                                num_val_per_type);
-  //- dump_val("beb[unsigned long:0]= ", *(ulp + 0));
-  //- dump_val("beb[unsigned long:1]= ", *(ulp + 1));
-  //- dump_val("beb[unsigned long:2]= ", *(ulp + 2));
+  
+  if (sizeof(unsigned long) == 8)
+    yat::Endianness::swap_8_array(reinterpret_cast<char*>(ulp), 
+                                  reinterpret_cast<char*>(ulp), 
+                                  num_val_per_type);
+  else
+    yat::Endianness::swap_4_array(reinterpret_cast<char*>(ulp), 
+                                  reinterpret_cast<char*>(ulp), 
+                                  num_val_per_type);
+  
+  dump_val("beb[unsigned long:0]= ", *(ulp + 0));
+  dump_val("beb[unsigned long:1]= ", *(ulp + 1));
+  dump_val("beb[unsigned long:2]= ", *(ulp + 2));
 }
