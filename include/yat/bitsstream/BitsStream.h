@@ -391,13 +391,9 @@ _IBSTREAM_READFUNC(32, unsigned int)
 #if ! defined(YAT_64BITS)
 _IBSTREAM_READFUNC(32, long)
 _IBSTREAM_READFUNC(32, unsigned long)
-_IBSTREAM_READFUNC(64, long long)
-_IBSTREAM_READFUNC(64, unsigned long long)
 #else
 _IBSTREAM_READFUNC(64, long)
 _IBSTREAM_READFUNC(64, unsigned long)
-_IBSTREAM_READFUNC(128, long long)
-_IBSTREAM_READFUNC(128, unsigned long long)
 #endif
 
 //=============================================================================
