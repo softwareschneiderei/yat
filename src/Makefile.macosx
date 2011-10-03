@@ -117,8 +117,6 @@ include ./build/macosx/tango.opt
 SVC_OBJS =  $(OBJ_DIR)/Exception.a.o \
             $(OBJ_DIR)/bitsstream/BitsStream.a.o \
             $(OBJ_DIR)/bitsstream/Endianness.a.o \
-#            $(OBJ_DIR)/file/FileName.a.o \
-#            $(OBJ_DIR)/file/PosixFileImpl.a.o \
             $(OBJ_DIR)/network/Address.a.o \
 					  $(OBJ_DIR)/network/Socket.a.o \
 					  $(OBJ_DIR)/network/ClientSocket.a.o \
@@ -128,18 +126,23 @@ SVC_OBJS =  $(OBJ_DIR)/Exception.a.o \
 					  $(OBJ_DIR)/plugin/PlugInUnix.a.o \
 					  $(OBJ_DIR)/plugin/PlugInManager.a.o \
             $(OBJ_DIR)/system/PosixSysUtilsImpl.a.o \
-            $(OBJ_DIR)/time/Time.a.o \
 					  $(OBJ_DIR)/threading/PosixThreadingImpl.a.o \
 					  $(OBJ_DIR)/threading/SharedObject.a.o \
 					  $(OBJ_DIR)/threading/Barrier.a.o \
 					  $(OBJ_DIR)/threading/Task.a.o \
 					  $(OBJ_DIR)/threading/Message.a.o \
 					  $(OBJ_DIR)/threading/MessageQ.a.o \
-					  $(OBJ_DIR)/threading/SyncAccess.a.o \
-            $(OBJ_DIR)/utils/Logging.a.o \
-            $(OBJ_DIR)/utils/String.a.o \
-            $(OBJ_DIR)/utils/StringTemplate.a.o \
-            $(OBJ_DIR)/utils/StringTokenizer.a.o
+
+
+# THE FOLLOWING IS NOT MACOS X READY (THIS A TO DO ITEM)
+#            $(OBJ_DIR)/threading/SyncAccess.a.o \
+#            $(OBJ_DIR)/utils/Logging.a.o \
+#            $(OBJ_DIR)/utils/StringTemplate.a.o \
+#            $(OBJ_DIR)/utils/StringTokenizer.a.o 
+#            $(OBJ_DIR)/utils/String.a.o \
+#            $(OBJ_DIR)/time/Time.a.o \
+#            $(OBJ_DIR)/file/FileName.a.o \
+#            $(OBJ_DIR)/file/PosixFileImpl.a.o \
 
 #=============================================================================
 # VERBOSE - comment the following line if you want a verbose compilation

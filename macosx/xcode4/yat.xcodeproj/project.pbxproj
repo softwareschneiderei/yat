@@ -30,6 +30,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXFileReference section */
+		375B88E31439C56E00DB8C76 /* BitsStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitsStream.h; sourceTree = "<group>"; };
 		37D55C0E1438521200F5CC85 /* FileName.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileName.h; sourceTree = "<group>"; };
 		37D55C101438525600F5CC85 /* MemBuf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemBuf.h; sourceTree = "<group>"; };
 		37D55C111438529300F5CC85 /* Time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Time.h; sourceTree = "<group>"; };
@@ -77,13 +78,11 @@
 		37F7D161139A155200E2A86A /* Any.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Any.h; sourceTree = "<group>"; };
 		37F7D162139A155200E2A86A /* GenericContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GenericContainer.h; sourceTree = "<group>"; };
 		37F7D164139A155200E2A86A /* BitsRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitsRecord.h; sourceTree = "<group>"; };
-		37F7D165139A155200E2A86A /* BitsStream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitsStream.h; sourceTree = "<group>"; };
 		37F7D166139A155200E2A86A /* Endianness.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Endianness.h; sourceTree = "<group>"; };
-		37F7D167139A155200E2A86A /* Endianness.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = Endianness.i; sourceTree = "<group>"; };
 		37F7D168139A155200E2A86A /* CommonHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommonHeader.h; sourceTree = "<group>"; };
-		37F7D169139A155200E2A86A /* config-linux.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "config-linux.h"; sourceTree = "<group>"; };
-		37F7D16A139A155200E2A86A /* config-macosx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "config-macosx.h"; sourceTree = "<group>"; };
-		37F7D16B139A155200E2A86A /* config-win32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "config-win32.h"; sourceTree = "<group>"; };
+		37F7D169139A155200E2A86A /* config-linux.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "config-linux.h"; path = "../../include/yat/config-linux.h"; sourceTree = "<group>"; };
+		37F7D16A139A155200E2A86A /* config-macosx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "config-macosx.h"; path = "../../include/yat/config-macosx.h"; sourceTree = "<group>"; };
+		37F7D16B139A155200E2A86A /* config-win32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "config-win32.h"; path = "../../include/yat/config-win32.h"; sourceTree = "<group>"; };
 		37F7D16C139A155200E2A86A /* Exception.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Exception.h; sourceTree = "<group>"; };
 		37F7D16D139A155200E2A86A /* Exception.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; path = Exception.i; sourceTree = "<group>"; };
 		37F7D16E139A155200E2A86A /* Inline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Inline.h; sourceTree = "<group>"; };
@@ -149,6 +148,16 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		375B88E11439B99800DB8C76 /* config */ = {
+			isa = PBXGroup;
+			children = (
+				37F7D169139A155200E2A86A /* config-linux.h */,
+				37F7D16A139A155200E2A86A /* config-macosx.h */,
+				37F7D16B139A155200E2A86A /* config-win32.h */,
+			);
+			name = config;
+			sourceTree = "<group>";
+		};
 		37D55C0D1438521200F5CC85 /* file */ = {
 			isa = PBXGroup;
 			children = (
@@ -201,6 +210,7 @@
 		37D9FC7A13995D1D007B503A = {
 			isa = PBXGroup;
 			children = (
+				375B88E11439B99800DB8C76 /* config */,
 				37F7D135139A150600E2A86A /* build */,
 				37F7D15B139A155200E2A86A /* include */,
 				37F7D120139A150500E2A86A /* src */,
@@ -329,9 +339,6 @@
 				37F7D160139A155200E2A86A /* any */,
 				37F7D163139A155200E2A86A /* bitsstream */,
 				37F7D168139A155200E2A86A /* CommonHeader.h */,
-				37F7D169139A155200E2A86A /* config-linux.h */,
-				37F7D16A139A155200E2A86A /* config-macosx.h */,
-				37F7D16B139A155200E2A86A /* config-win32.h */,
 				37F7D16C139A155200E2A86A /* Exception.h */,
 				37F7D16D139A155200E2A86A /* Exception.i */,
 				37D55C0D1438521200F5CC85 /* file */,
@@ -361,10 +368,9 @@
 		37F7D163139A155200E2A86A /* bitsstream */ = {
 			isa = PBXGroup;
 			children = (
+				375B88E31439C56E00DB8C76 /* BitsStream.h */,
 				37F7D164139A155200E2A86A /* BitsRecord.h */,
-				37F7D165139A155200E2A86A /* BitsStream.h */,
 				37F7D166139A155200E2A86A /* Endianness.h */,
-				37F7D167139A155200E2A86A /* Endianness.i */,
 			);
 			path = bitsstream;
 			sourceTree = "<group>";

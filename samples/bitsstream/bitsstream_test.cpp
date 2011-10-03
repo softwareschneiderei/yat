@@ -1,7 +1,7 @@
 /*!
  * \file     
  * \brief    A yat::BitsStream example.
- * \author   N. Leclercq, J. Malik - Synchrotron SOLEIL
+ * \author   N. Leclercq - Synchrotron SOLEIL
  */
 
 

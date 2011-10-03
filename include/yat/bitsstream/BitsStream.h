@@ -53,6 +53,7 @@
 
 namespace yat 
 {
+  
 //=============================================================================
 // A table of masks to ease 0 to 32 bits masking
 //=============================================================================
@@ -119,7 +120,7 @@ public:
     m_value &= _src.m_value;
     return *this;
   }
-  //------------------------------BitsSet<_n, T>---------------
+  //---------------------------------------------
   BitsSet<_n, T> & operator&= (const T& _src)
   //---------------------------------------------
   {
@@ -335,13 +336,8 @@ private:
 };
 
 //=============================================================================
-// operator>> for bitset<n>'s with [0...32] bits
+// specialization of operator>> for bitset<n> with [0...{sizeof(long)*8}] bits 
 //=============================================================================
-// Specialization of template operator>> bitset<>'s for bitset<n> with <n> 
-// less than or equal to 32 this gives larger code size if there are just a 
-// few bitset<n>'s, but smaller code size if all BitsStream >> bitset<0>; ...
-// BitsStream >> bitset<32>; have been instantiated.
-//-----------------------------------------------------------------------------
 #define _IBSTREAM_READFUNC(_n, _T) \
 inline BitsStream& operator>> (BitsStream& _source, BitsSet<_n, _T>& _dest) \
 {\
@@ -351,35 +347,38 @@ inline BitsStream& operator>> (BitsStream& _source, BitsSet<_n, _T>& _dest) \
   { \
     switch (sizeof(_T)) \
     { \
-      case Endianness::SHORT_SIZE: \
-        { \
-          Endianness::swap_2(reinterpret_cast<const char*>(&tmp), \
-                             reinterpret_cast<char*>(&tmp)); \
-        } \
-        break; \
-      case Endianness::LONG_SIZE:  \
-        { \
-          Endianness::swap_4(reinterpret_cast<const char*>(&tmp), \
-                             reinterpret_cast<char*>(&tmp)); \
-        } \
-        break; \
-      case Endianness::LONGLONG_SIZE:  \
-        { \
-          Endianness::swap_8(reinterpret_cast<const char*>(&tmp), \
-                             reinterpret_cast<char*>(&tmp)); \
-        } \
-        break; \
-      case Endianness::LONGDOUBLE_SIZE:  \
-        { \
-          Endianness::swap_16(reinterpret_cast<const char*>(&tmp), \
-                              reinterpret_cast<char*>(&tmp)); \
-        } \
-        break; \
+      case 2: \
+      { \
+        Endianness::swap_2(reinterpret_cast<const char*>(&tmp), \
+                           reinterpret_cast<char*>(&tmp)); \
+      } \
+      break; \
+      case 4: \
+      { \
+        Endianness::swap_4(reinterpret_cast<const char*>(&tmp), \
+                           reinterpret_cast<char*>(&tmp)); \
+      } \
+      break; \
+      case 8: \
+      { \
+        Endianness::swap_8(reinterpret_cast<const char*>(&tmp), \
+                           reinterpret_cast<char*>(&tmp)); \
+      } \
+      break; \
+      case 16: \
+      { \
+        Endianness::swap_16(reinterpret_cast<const char*>(&tmp), \
+                            reinterpret_cast<char*>(&tmp)); \
+      } \
+      break; \
     } \
   } \
   _dest.value() = static_cast<_T>(tmp); \
   return _source ; \
 } 
+  
+//-----------------------------------------------------------------------------
+// specializations
 //-----------------------------------------------------------------------------
 _IBSTREAM_READFUNC( 1, bool)
 _IBSTREAM_READFUNC( 8, char)
@@ -395,7 +394,7 @@ _IBSTREAM_READFUNC(32, unsigned long)
 _IBSTREAM_READFUNC(64, long)
 _IBSTREAM_READFUNC(64, unsigned long)
 #endif
-
+  
 //=============================================================================
 // operator>> for an array of elements
 //=============================================================================
@@ -406,7 +405,7 @@ BitsStream& operator>> (BitsStream& _source, T _dest[])
     _source >> _dest[i];
   return _source;
 }
-
+  
 } //- namespace
 
 #endif //- _BITS_STREAM_H_
