@@ -187,7 +187,7 @@ namespace yat
 /**
  *  64 bits stuffs
  */
-#if defined (__amd64__) || defined (__x86_64__)
+#if defined (_M_X64)
 # define YAT_64BITS
 #endif
 

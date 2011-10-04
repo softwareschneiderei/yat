@@ -53,11 +53,24 @@
 
 namespace yat 
 {
-  
+
 //=============================================================================
-// A table of masks to ease 0 to 32 bits masking
+// BitsStorage type
 //=============================================================================
-extern YAT_DECL unsigned long bit_masks[33];
+#if defined(YAT_64BITS)
+  typedef yat::uint64 BitsStorage;
+#else
+  typedef yat::uint32 BitsStorage;
+#endif
+
+//=============================================================================
+// A table of masks to ease 0 to {32 or 64} bits masking
+//=============================================================================
+#if defined(YAT_64BITS)
+  extern YAT_DECL BitsStorage bit_masks[65];
+#else
+  extern YAT_DECL BitsStorage bit_masks[33];
+#endif
 
 //=============================================================================
 // class: BitsStream 
@@ -150,7 +163,11 @@ public:
   //---------------------------------------------
   {
 #if defined(WIN32) && _HAS_CPP0X
+# if defined (YAT_64BITS)
+    std::bitset<_n> bs(static_cast<_ULONGLONG>(m_value));
+# else
     std::bitset<_n> bs(static_cast<int>(m_value));
+# endif
 #else
     std::bitset<_n> bs(static_cast<unsigned long>(m_value));
 #endif
@@ -173,7 +190,6 @@ private:
 class YAT_DECL BitsStream
 {
 public:
-
   BitsStream (unsigned char * _data = 0, 
               size_t _size = 0,
               const Endianness::ByteOrder& _endianness = Endianness::BO_LITTLE_ENDIAN);
@@ -195,7 +211,7 @@ public:
   }
 
   //-------------------------------------------------------------------------
-  bool read_bits (unsigned int _num_bits, unsigned long & _bits)
+  bool read_bits (unsigned int _num_bits, yat::BitsStorage & _bits)
   //-------------------------------------------------------------------------
   {
     _bits = 0;
@@ -224,7 +240,7 @@ public:
         if (m_ibuffer_ptr != m_ibuffer_size)
         {
           m_current_byte <<= 8;
-          m_current_byte |= static_cast<unsigned long>(m_ibuffer[m_ibuffer_ptr++]);
+          m_current_byte |= static_cast<yat::BitsStorage>(m_ibuffer[m_ibuffer_ptr++]);
           m_bits_in_current_byte += 8;
         }
         else 
@@ -265,7 +281,7 @@ public:
 private:
 
   //- the <tmp> input buffer (use internally for bits reading)
-  unsigned long m_current_byte;
+  yat::BitsStorage m_current_byte;
   
   //- the current number of bits in m_current_byte
   unsigned int m_bits_in_current_byte;
@@ -279,12 +295,12 @@ private:
   //- the current idx in the data buffer 
   size_t m_ibuffer_ptr;
 
-  //- is the input stream big endian?
+  //- is the input stream big or little endian?
   const Endianness::ByteOrder m_endianness;
 
   //- this is how to extract the bits, or skip the bits if bits == 0
   //-------------------------------------------------------------------------
-  bool read_bits_i (unsigned int _num_bits, unsigned long * _bits)
+  inline bool read_bits_i (unsigned int _num_bits, yat::BitsStorage * _bits)
   //-------------------------------------------------------------------------
   {
     //**********************************************************************
@@ -307,7 +323,7 @@ private:
 
         if (m_ibuffer_ptr != m_ibuffer_size)
         {
-          m_current_byte = static_cast<unsigned long>(m_ibuffer[m_ibuffer_ptr++]);
+          m_current_byte = static_cast<yat::BitsStorage>(m_ibuffer[m_ibuffer_ptr++]);
           m_bits_in_current_byte = 8;
         }
         else
@@ -341,7 +357,7 @@ private:
 #define _IBSTREAM_READFUNC(_n, _T) \
 inline BitsStream& operator>> (BitsStream& _source, BitsSet<_n, _T>& _dest) \
 {\
-  unsigned long tmp = 0; \
+  yat::BitsStorage tmp = 0; \
   _source.read_bits(_n, tmp); \
   if (_source.endianness() == Endianness::BO_LITTLE_ENDIAN) \
   { \
@@ -390,6 +406,11 @@ _IBSTREAM_READFUNC(32, unsigned int)
 #if ! defined(YAT_64BITS)
 _IBSTREAM_READFUNC(32, long)
 _IBSTREAM_READFUNC(32, unsigned long)
+#elif defined(YAT_WIN64) 
+_IBSTREAM_READFUNC(32, long)
+_IBSTREAM_READFUNC(32, unsigned long)
+_IBSTREAM_READFUNC(64, __int64)
+_IBSTREAM_READFUNC(64, unsigned __int64)
 #else
 _IBSTREAM_READFUNC(64, long)
 _IBSTREAM_READFUNC(64, unsigned long)

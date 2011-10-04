@@ -45,13 +45,22 @@ BEGIN_BITS_RECORD(TestRecord)
   MEMBER(min_unsigned_int, sizeof(unsigned int) * 8, unsigned int)
   MEMBER(mid_unsigned_int, sizeof(unsigned int) * 8, unsigned int)
   MEMBER(max_unsigned_int, sizeof(unsigned int) * 8, unsigned int)
-  //- 8 bytes members
+  //- 4 or 8 bytes members (sizeof(long) is 4 on Windows-64 and 8 on Linux/MacOSX-64)
   MEMBER(neg_signed_long, sizeof(long) * 8, long)
   MEMBER(mid_signed_long, sizeof(long) * 8, long)
   MEMBER(pos_signed_long, sizeof(long) * 8, long)
   MEMBER(min_unsigned_long, sizeof(unsigned long) * 8, unsigned long)
   MEMBER(mid_unsigned_long, sizeof(unsigned long) * 8, unsigned long)
   MEMBER(max_unsigned_long, sizeof(unsigned long) * 8, unsigned long)
+#if defined(YAT_64BITS) && defined(WIN64)
+  //- 8 bytes members
+  MEMBER(neg_signed_int64, sizeof(__int64) * 8, __int64)
+  MEMBER(mid_signed_int64, sizeof(__int64) * 8, __int64)
+  MEMBER(pos_signed_int64, sizeof(__int64) * 8, __int64)
+  MEMBER(min_unsigned_int64, sizeof(unsigned __int64) * 8, unsigned __int64)
+  MEMBER(mid_unsigned_int64, sizeof(unsigned __int64) * 8, unsigned __int64)
+  MEMBER(max_unsigned_int64, sizeof(unsigned __int64) * 8, unsigned __int64)
+#endif
 END_BITS_RECORD(TestRecord)
 
 BEGIN_BITS_RECORD_EXTRACTOR(TestRecord)
@@ -87,6 +96,14 @@ BEGIN_BITS_RECORD_EXTRACTOR(TestRecord)
   EXTRACT_MEMBER(min_unsigned_long)
   EXTRACT_MEMBER(mid_unsigned_long)
   EXTRACT_MEMBER(max_unsigned_long)
+#if defined(YAT_64BITS) && defined(WIN64)
+  EXTRACT_MEMBER(neg_signed_int64)
+  EXTRACT_MEMBER(mid_signed_int64)
+  EXTRACT_MEMBER(pos_signed_int64)
+  EXTRACT_MEMBER(min_unsigned_int64)
+  EXTRACT_MEMBER(mid_unsigned_int64)
+  EXTRACT_MEMBER(max_unsigned_int64)
+#endif
 END_BITS_RECORD_EXTRACTOR(TestRecord)
 
 BEGIN_BITS_RECORD_DUMP(TestRecord)
@@ -122,6 +139,14 @@ BEGIN_BITS_RECORD_DUMP(TestRecord)
   DUMP_MEMBER(min_unsigned_long)
   DUMP_MEMBER(mid_unsigned_long)
   DUMP_MEMBER(max_unsigned_long)
+#if defined(YAT_64BITS) && defined(WIN64)
+  DUMP_MEMBER(neg_signed_int64)
+  DUMP_MEMBER(mid_signed_int64)
+  DUMP_MEMBER(pos_signed_int64)
+  DUMP_MEMBER(min_unsigned_int64)
+  DUMP_MEMBER(mid_unsigned_int64)
+  DUMP_MEMBER(max_unsigned_int64)
+#endif
 END_BITS_RECORD_DUMP(TestRecord)
 
 //-----------------------------------------------------------------------------
@@ -135,11 +160,14 @@ void fill_buffers (yat::Buffer<unsigned char>& leb, yat::Buffer<unsigned char>& 
 int main (int argc, char* argv[])
 {
   std::cout << "------------------------------------" << std::endl; 
-  std::cout << "size of bool...." << sizeof(bool)  * 8 << " bits" << std::endl;
-  std::cout << "size of char...." << sizeof(char)  * 8 << " bits" << std::endl;
-  std::cout << "size of short..." << sizeof(short) * 8 << " bits" << std::endl;
-  std::cout << "size of int....." << sizeof(int)   * 8 << " bits" << std::endl;
-  std::cout << "size of long...." << sizeof(long)  * 8 << " bits" << std::endl;
+  std::cout << "size of bool...." << sizeof(bool)    * 8 << " bits" << std::endl;
+  std::cout << "size of char...." << sizeof(char)    * 8 << " bits" << std::endl;
+  std::cout << "size of short..." << sizeof(short)   * 8 << " bits" << std::endl;
+  std::cout << "size of int....." << sizeof(int)     * 8 << " bits" << std::endl;
+  std::cout << "size of long...." << sizeof(long)    * 8 << " bits" << std::endl;
+#if defined(YAT_64BITS) && defined(WIN64)
+  std::cout << "size of int64..." << sizeof(__int64) * 8 << " bits" << std::endl;
+#endif
   std::cout << "------------------------------------" << std::endl;
 
   try
@@ -184,6 +212,9 @@ int main (int argc, char* argv[])
     std::cout << "Unknown exception caught" << std::endl;
   }
 
+  unsigned int dummy;
+  std::cin >> dummy;
+
 	return 0;  
 }
 
@@ -192,7 +223,7 @@ int main (int argc, char* argv[])
 //-----------------------------------------------------------------------------
 template <typename _T> void dump_val (const char * _txt, const _T& _v)
 {
-  std::bitset<8 * sizeof(_T)> _v_bs(static_cast<unsigned long>(_v));
+  std::bitset<8 * sizeof(_T)> _v_bs(static_cast<_ULonglong>(_v));
   std::cout << _txt 
             << _v
             << " ["
@@ -267,15 +298,41 @@ void fill_buffers (yat::Buffer<unsigned char>& leb, yat::Buffer<unsigned char>& 
     std::numeric_limits<unsigned long>::max()
   }; 
 
-  const size_t buffer_size = sizeof(bools)
-                           + sizeof(chars)
-                           + sizeof(uchars)
-                           + sizeof(shorts)
-                           + sizeof(ushorts)
-                           + sizeof(ints)
-                           + sizeof(uints)
-                           + sizeof(longs)
-                           + sizeof(ulongs);
+#if defined(YAT_64BITS) && defined(WIN64)
+  __int64 int64s[num_val_per_type] = 
+  { 
+    std::numeric_limits<__int64>::min(), 
+    std::numeric_limits<__int64>::max() / 2,
+    std::numeric_limits<__int64>::max()
+  }; 
+
+  for (size_t i =0; i < num_val_per_type; i++)
+    std::cout << int64s[i] << std::endl;
+
+  unsigned __int64 uint64s[num_val_per_type] = 
+  { 
+    std::numeric_limits<unsigned __int64>::min(), 
+    std::numeric_limits<unsigned __int64>::max() / 2,
+    std::numeric_limits<unsigned __int64>::max()
+  }; 
+
+  for (size_t i =0; i < num_val_per_type; i++)
+    std::cout << uint64s[i] << std::endl;
+#endif
+
+ size_t buffer_size = sizeof(bools)
+                    + sizeof(chars)
+                    + sizeof(uchars)
+                    + sizeof(shorts)
+                    + sizeof(ushorts)
+                    + sizeof(ints)
+                    + sizeof(uints)
+                    + sizeof(longs)
+                    + sizeof(ulongs);
+
+#if defined(YAT_64BITS) && defined(WIN64)
+  buffer_size += sizeof(int64s) + sizeof(uint64s);
+#endif
 
   leb.capacity(buffer_size);
   leb.force_length(buffer_size);
@@ -480,4 +537,50 @@ void fill_buffers (yat::Buffer<unsigned char>& leb, yat::Buffer<unsigned char>& 
   dump_val("beb[unsigned long:0]= ", *(ulp + 0));
   dump_val("beb[unsigned long:1]= ", *(ulp + 1));
   dump_val("beb[unsigned long:2]= ", *(ulp + 2));
+
+#if defined(YAT_64BITS) && defined(WIN64)
+  offset += num_val_per_type * sizeof(unsigned long);
+
+  ::memcpy(leb.base() + offset, int64s, sizeof(int64s));
+  
+  __int64 * i64p = reinterpret_cast<__int64*>(leb.base() + offset);
+
+  dump_val("leb[__int64:0]= ", *(i64p + 0));
+  dump_val("leb[__int64:1]= ", *(i64p + 1));
+  dump_val("leb[__int64:2]= ", *(i64p + 2));
+
+  ::memcpy(beb.base() + offset, int64s, sizeof(int64s));
+
+  i64p = reinterpret_cast<__int64*>(beb.base() + offset);
+
+  yat::Endianness::swap_8_array(reinterpret_cast<char*>(i64p), 
+                                reinterpret_cast<char*>(i64p), 
+                                num_val_per_type);
+
+  dump_val("beb[__int64:0]= ", *(i64p + 0));
+  dump_val("beb[__int64:1]= ", *(i64p + 1));
+  dump_val("beb[__int64:2]= ", *(i64p + 2));
+
+  offset += num_val_per_type * sizeof(__int64);
+
+  ::memcpy(leb.base() + offset, uint64s, sizeof(uint64s));
+  
+  unsigned __int64 * ui64p = reinterpret_cast<unsigned __int64*>(leb.base() + offset);
+
+  dump_val("leb[unsigned __int64:0]= ", *(ui64p + 0));
+  dump_val("leb[unsigned __int64:1]= ", *(ui64p + 1));
+  dump_val("leb[unsigned __int64:2]= ", *(ui64p + 2));
+
+  ::memcpy(beb.base() + offset, uint64s, sizeof(uint64s));
+  
+  ui64p = reinterpret_cast<unsigned __int64*>(beb.base() + offset);
+  
+  yat::Endianness::swap_8_array(reinterpret_cast<char*>(ui64p), 
+                                reinterpret_cast<char*>(ui64p), 
+                                num_val_per_type);
+
+  dump_val("beb[unsigned __int64:0]= ", *(ui64p + 0));
+  dump_val("beb[unsigned __int64:1]= ", *(ui64p + 1));
+  dump_val("beb[unsigned __int64:2]= ", *(ui64p + 2));
+#endif
 }
