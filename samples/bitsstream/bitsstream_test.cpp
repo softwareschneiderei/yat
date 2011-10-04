@@ -212,9 +212,6 @@ int main (int argc, char* argv[])
     std::cout << "Unknown exception caught" << std::endl;
   }
 
-  unsigned int dummy;
-  std::cin >> dummy;
-
 	return 0;  
 }
 
@@ -223,7 +220,7 @@ int main (int argc, char* argv[])
 //-----------------------------------------------------------------------------
 template <typename _T> void dump_val (const char * _txt, const _T& _v)
 {
-  std::bitset<8 * sizeof(_T)> _v_bs(static_cast<_ULonglong>(_v));
+  std::bitset<8 * sizeof(_T)> _v_bs(static_cast<yat::BitsStorage>(_v));
   std::cout << _txt 
             << _v
             << " ["
