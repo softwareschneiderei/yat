@@ -21,4 +21,17 @@ libyat_la_SOURCES = \
 	threading/Task.cpp \
 	threading/Message.cpp \
 	threading/MessageQ.cpp \
-	utils/StringTokenizer.cpp
+	threading/SyncAccess.cpp \
+	file/FileName.cpp \
+	file/PosixFileImpl.cpp \
+	memory/MemBuf.cpp \
+  system/PosixSysUtilsImpl.cpp \
+  time/Time.cpp \
+	utils/String.cpp \
+	utils/StringTemplate.cpp \
+	utils/Logging.cpp
+
+
+ 
+ 
+ 

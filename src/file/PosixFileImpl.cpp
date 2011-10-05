@@ -129,7 +129,7 @@ void FileName::set_full_name(pcsz pszFileName)
   {
     // relative name: add current working directory
     char cbuf[_MAX_PATH];
-    getcwd(cbuf, _MAX_PATH);
+    char * ignored = getcwd(cbuf, _MAX_PATH);
     m_strFile = String::str_format("%s/%s", cbuf, PSZ(strFileName));
   }
 
@@ -214,14 +214,15 @@ void FileName::convert_separators(String *pstr)
 //----------------------------------------------------------------------------
 // FileName::mkdir
 //----------------------------------------------------------------------------
-void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const throw( Exception )
+void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const
+  throw( Exception )
 {
   String str = path();
   if( str.empty() )
     return;
 
-  char   *p;
-  p = strchr(PSZ(str), SEP_PATH);
+  char *p;
+  p = ::strchr(const_cast<char*>(PSZ(str)), SEP_PATH);
 
   if( !p )
   {

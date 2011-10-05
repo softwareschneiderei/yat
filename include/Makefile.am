@@ -14,7 +14,7 @@ nobase_include_HEADERS =  \
 	yat/bitsstream/BitsRecord.h \
 	yat/bitsstream/BitsStream.h \
 	yat/bitsstream/Endianness.h \
-	yat/bitsstream/Endianness.i \
+	yat/file/FileName.h \
 	yat/memory/Allocator.h \
 	yat/memory/Allocator.i \
 	yat/memory/Allocator.tpp \
@@ -22,6 +22,7 @@ nobase_include_HEADERS =  \
 	yat/memory/DataBuffer.i \
 	yat/memory/DataBuffer.tpp \
 	yat/memory/SharedPtr.h \
+	yat/memory/MemBuf.h \
 	yat/network/Address.h \
 	yat/network/Address.i \
 	yat/network/ClientSocket.h \
@@ -37,6 +38,7 @@ nobase_include_HEADERS =  \
 	yat/plugin/PlugInManager.h \
 	yat/plugin/PlugInSymbols.h \
 	yat/plugin/PlugInTypes.h \
+	yat/system/SysUtils.h \
 	yat/threading/Barrier.h \
 	yat/threading/Barrier.i \
 	yat/threading/Condition.h \
@@ -64,11 +66,16 @@ nobase_include_HEADERS =  \
 	yat/threading/Task.i \
 	yat/threading/Thread.h \
 	yat/threading/Utilities.h \
+	yat/threading/SyncAccess.h \
 	yat/time/Timer.h \
-  	yat/utils/Callback.h \
-  	yat/utils/NonCopyable.h \
-  	yat/utils/XString.h \
+	yat/time/Time.h \
+  yat/utils/Callback.h \
+  yat/utils/NonCopyable.h \
+  yat/utils/XString.h \
 	yat/utils/Signal.h \
 	yat/utils/Singleton.h \
-	yat/utils/StringTokenizer.h
+	yat/utils/StringTokenizer.h \
+	yat/utils/String.h \
+	yat/utils/StringTemplate.h
+
 
