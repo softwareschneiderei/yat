@@ -146,7 +146,8 @@ public:
   } 
 
   //! reset (Y must be T convertible)
-  template <typename Y> void reset (Y * p)
+  template <typename Y> 
+  void reset (Y * p)
   {
     ThisType(p).swap(*this);
   } 
@@ -185,6 +186,13 @@ public:
     return this->m_data ? false : true;
   }
 
+  //! internal impl of the '<' operator
+  template<class Y> 
+  bool less_than (SharedPtr<Y> const & s) const
+  {
+    return m_data < s.m_data;
+  }
+
 private:
   //! release underlying data if ref. counter reaches 0
   void release ()
@@ -197,11 +205,21 @@ private:
       this->m_ref_count = 0;
     }
   }
+
   //- pointed data
   T * m_data;
   //- reference counter
   ThisTypeRefCnt * m_ref_count;
 };
+
+// ============================================================================
+// The SharedObjectPtr class 
+// ============================================================================
+template <typename T, typename U> 
+inline bool operator<(SharedPtr<T> const & a, SharedPtr<U> const & b)
+{
+ return a.less_than(b);
+}
 
 // ============================================================================
 //! The SharedObjectPtr class 
