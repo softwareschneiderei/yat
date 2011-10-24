@@ -218,4 +218,12 @@ YAT_INLINE const MessageQ::Statistics & Task::msgq_statistics ()
   return this->msg_q_.statistics();
 }
 
+// ============================================================================
+// Task::throw_on_post_msg_timeout
+// ============================================================================
+YAT_INLINE void Task::throw_on_post_msg_timeout (bool _strategy)
+{
+  this->msg_q_.throw_on_post_msg_timeout(_strategy);	
+}
+
 } //- namespace

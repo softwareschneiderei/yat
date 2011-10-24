@@ -207,10 +207,13 @@ public:
   
   //- MsgQ high water mark accessor (MsgQ unit dependent)
   size_t msgq_hi_wm () const;
-  
+
   //- MsgQ high water mark accessor (MsgQ unit dependent)
   const MessageQ::Statistics & msgq_statistics ();
   
+  //- Should the underlying MsgQ throw an exception on post msg tmo expiration?
+  void throw_on_post_msg_timeout (bool _strategy);
+
 protected:
   //- run_undetached
   virtual Thread::IOArg run_undetached (Thread::IOArg);
