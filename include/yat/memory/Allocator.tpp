@@ -104,6 +104,18 @@ T * NewAllocator<T>::malloc ()
   return (T *) new char[chunk_size];
 }
 
+// ============================================================================
+// NewAllocator::free
+// ============================================================================
+template <typename T>
+void NewAllocator<T>::free (T * p)
+{
+  YAT_TRACE("NewAllocator<T>::free");
+
+  //- used the generic byte type (i.e. char) to allocate space so...
+  delete[] (char *)p;
+}
+
 #else  //- ! defined(USE_NEW_OPERATOR_IN_ALLOCATOR)
 
 // ============================================================================
@@ -121,8 +133,6 @@ T * NewAllocator<T>::malloc ()
   return new T[1];
 }
 
-#endif  //- ! defined(USE_NEW_OPERATOR_IN_ALLOCATOR)
-
 // ============================================================================
 // NewAllocator::free
 // ============================================================================
@@ -131,10 +141,11 @@ void NewAllocator<T>::free (T * p)
 {
   YAT_TRACE("NewAllocator<T>::free");
 
-  //- used the generic byte type (i.e. char) to allocate space so...
-  delete[] (char *)p;
-
+  //- used <new T[1]> to allocate space so...
+  delete[] p;
 }
+
+#endif  //- ! defined(USE_NEW_OPERATOR_IN_ALLOCATOR)
 
 // ============================================================================
 // CachedAllocator::CachedAllocator
@@ -189,7 +200,7 @@ T * CachedAllocator<T,L>::malloc ()
   yat::AutoMutex<L> guard(this->m_lock);
   
   //- do we have something in the cache?
-  if (! m_cache.empty())
+  if (! m_cache.empty() )
   {
 #if defined (YAT_DEBUG)
     YAT_LOG("CachedAllocator<T,L>::malloc::returning chunk from cache [" 

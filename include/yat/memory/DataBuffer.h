@@ -306,7 +306,7 @@ protected:
 //!
 // ============================================================================
 template <typename T> 
-class SharedBuffer : public Buffer<T>, private SharedObject
+class SharedBuffer : public Buffer<T>, public SharedObject
 {
 protected:
   /**
@@ -317,7 +317,7 @@ protected:
   SharedBuffer (size_t capacity = 0)
     throw (Exception);
  
-  /*
+  /**
    * Memory copy constructor. Memory is copied from base to base + length * sizeof(T).
    * @param  length the number of elements of type T to be copied into the buffer. 
    * @param  base address of the block to copy.
