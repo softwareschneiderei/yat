@@ -186,11 +186,11 @@ CachedAllocator<T,L>::~CachedAllocator ()
   yat::AutoMutex<L> guard(this->m_lock);
   
   //- release objects
-#if ! defined(YAT_MACOSX)
-  CacheImpl::iterator it = this->m_cache.begin();
+  typename CacheImpl::iterator it = this->m_cache.begin();
   for (; it != this->m_cache.end(); ++it)
     NewAllocator<T>::free(*it);
-#else
+
+#if 0 //- backuped code - to be removed
   size_t n = this->m_cache.size();
   for (size_t i = 0; i < n; ++i)
     NewAllocator<T>::free(this->m_cache[i]);
