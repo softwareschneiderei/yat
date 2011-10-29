@@ -92,7 +92,7 @@ MyClass::Allocator * MyClass::cache = 0;
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-  size_t n = 40000000;
+  size_t n = 10000000;
   
   yat::Timer t;
   
