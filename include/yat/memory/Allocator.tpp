@@ -189,12 +189,6 @@ CachedAllocator<T,L>::~CachedAllocator ()
   typename CacheImpl::iterator it = this->m_cache.begin();
   for (; it != this->m_cache.end(); ++it)
     NewAllocator<T>::free(*it);
-
-#if 0 //- backuped code - to be removed
-  size_t n = this->m_cache.size();
-  for (size_t i = 0; i < n; ++i)
-    NewAllocator<T>::free(this->m_cache[i]);
-#endif
 }
   
 // ============================================================================
