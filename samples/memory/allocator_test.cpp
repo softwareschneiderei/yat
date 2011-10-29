@@ -42,10 +42,10 @@ public:
   }
   
   //- init allocator
-  static void init (size_t n = 100000)
+  static void init (size_t nb = 1, size_t bs = 1000)
   {
 #if USE_YAT_CACHED_ALLOCATOR
-  	cache = new Allocator(n);
+  	cache = new Allocator(nb, bs);
 #else
     cache = new Allocator;
 #endif
@@ -92,8 +92,10 @@ MyClass::Allocator * MyClass::cache = 0;
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
-  size_t n = 10000000;
-  
+  size_t nb = 10;
+  size_t bs = 1000000;
+  size_t tt = nb * bs;
+
   yat::Timer t;
   
 #if USE_YAT_ALLOCATOR
@@ -101,14 +103,14 @@ int main(int argc, char* argv[])
 #if USE_YAT_CACHED_ALLOCATOR
   
   std::cout << "preallocating " 
-            << n
+            << nb * bs
             << " instances"
             << std::endl;
   
   t.restart();
 #endif
   
-  MyClass::init(n);
+  MyClass::init(nb, bs);
   
 #if USE_YAT_CACHED_ALLOCATOR
   
@@ -126,23 +128,23 @@ int main(int argc, char* argv[])
   
     t.restart();
     
-    for (size_t i = 0; i < n; ++i)
+    for (size_t i = 0; i < bs; ++i)
       objs_repository.push_back(new MyClass);
   
     std::cout << "new/push took " 
-              << t.elapsed_usec() / n
+              << t.elapsed_usec() / tt
               << " usec/instance"
               << std::endl;
   
     t.restart();
   
-    for (size_t i = 0; i < n; ++i)
+    for (size_t i = 0; i < bs; ++i)
       delete objs_repository[i];
     
     objs_repository.clear();
   
     std::cout << "delete took " 
-              << t.elapsed_usec() / n
+              << t.elapsed_usec() / tt
               << " usec/instance"
               << std::endl;
   }

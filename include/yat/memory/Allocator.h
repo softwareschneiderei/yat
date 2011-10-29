@@ -101,7 +101,7 @@ class CachedAllocator : public NewAllocator<T>
 
 public: 
   //- Ctor - preallocates <nb_preallocated_objs> 
-  CachedAllocator (size_t nb_preallocated_objs = 0);
+  CachedAllocator (size_t nb_bunches = 0, size_t nb_objs_per_bunch = 0);
 
   //- Dtor
   virtual ~CachedAllocator();
@@ -115,6 +115,9 @@ public:
 protected:
   //- locking (i.e. thread safety) strategy
   L m_lock;
+
+  //- number T instance per bunch
+  size_t m_nb_objs_per_bunch;
 
   //- the memory cache (i.e. memory pool) 
   CacheImpl m_cache;

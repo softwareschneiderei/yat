@@ -40,6 +40,7 @@
 // ============================================================================
 // DEPENDENCIES
 // ============================================================================
+#include  <iostream>
 #include  <yat/memory/Allocator.h>
 
 #if !defined (YAT_INLINE_IMPL)
@@ -93,8 +94,6 @@ union yat_max_align_info
 template <typename T>
 T * NewAllocator<T>::malloc ()
 {
-  YAT_TRACE("NewAllocator<T>::malloc");
-
   //- use the generic byte type (i.e. char) to allocate space
   //- in this case we have to take care of alignment. the space
   //- required is >= sizeof (T). using the ACE lib trick, it gives...
@@ -110,8 +109,6 @@ T * NewAllocator<T>::malloc ()
 template <typename T>
 void NewAllocator<T>::free (T * p)
 {
-  YAT_TRACE("NewAllocator<T>::free");
-
   //- used the generic byte type (i.e. char) to allocate space so...
   delete[] (char *)p;
 }
@@ -124,8 +121,6 @@ void NewAllocator<T>::free (T * p)
 template <typename T>
 T * NewAllocator<T>::malloc ()
 {
-  YAT_TRACE("NewAllocator<T>::malloc");
-
   //- use default new "array" operator - infinite loop otherwise!
   //- that's the C++ trick os this class guys! ACE impl. made me understand!
   //- the compiler will take care of alignment for us.
@@ -139,8 +134,6 @@ T * NewAllocator<T>::malloc ()
 template <typename T>
 void NewAllocator<T>::free (T * p)
 {
-  YAT_TRACE("NewAllocator<T>::free");
-
   //- used <new T[1]> to allocate space so...
   delete[] p;
 }
@@ -151,23 +144,15 @@ void NewAllocator<T>::free (T * p)
 // CachedAllocator::CachedAllocator
 // ============================================================================
 template <typename T, typename L> 
-CachedAllocator<T,L>::CachedAllocator (size_t nb_preallocated_objs)
+CachedAllocator<T,L>::CachedAllocator (size_t nb_bunches, size_t nb_objs_per_bunch)
+  : m_nb_objs_per_bunch(nb_objs_per_bunch)
 {
-#if defined (YAT_DEBUG)
-  YAT_LOG("CachedAllocator<T,L>::ctor::preallocating " 
-          << nb_preallocated_objs
-          << " objs");
-#endif
-
-  //- prealloc objects
-  this->m_cache.clear();
+  //- total num of objs to preallocate
+  size_t nb_preallocated_objs = nb_bunches * nb_objs_per_bunch;
   
   //- prealloc objects
   for (size_t i = 0; i < nb_preallocated_objs; i++)
-  {
-    T * t = NewAllocator<T>::malloc(); 
-    m_cache.push_back(t);
-  }
+    m_cache.push_back( NewAllocator<T>::malloc() );
 }
 
 // ============================================================================
@@ -175,16 +160,10 @@ CachedAllocator<T,L>::CachedAllocator (size_t nb_preallocated_objs)
 // ============================================================================
 template <typename T, typename L> 
 CachedAllocator<T,L>::~CachedAllocator () 
-{
-#if defined (YAT_DEBUG)
-  YAT_LOG("CachedAllocator<T,L>::dtor::"
-          << this->m_cache.size() 
-          << " objs in cache");
-#endif
-    
+{   
   //- enter critical section
   yat::AutoMutex<L> guard(this->m_lock);
-  
+
   //- release objects
   typename CacheImpl::iterator it = this->m_cache.begin();
   for (; it != this->m_cache.end(); ++it)
@@ -197,19 +176,19 @@ CachedAllocator<T,L>::~CachedAllocator ()
 template <typename T, typename L> 
 T * CachedAllocator<T,L>::malloc ()
 { 
-  YAT_TRACE("CachedAllocator<T,L>::malloc");
-  
   //- enter critical section
   yat::AutoMutex<L> guard(this->m_lock);
   
-  //- do we have something in the cache?
-  if (! m_cache.empty())
+  //- reallocate a bunch of T in case the cache is empty
+  if ( m_cache.empty() && m_nb_objs_per_bunch )
   {
-#if defined (YAT_DEBUG)
-    YAT_LOG("CachedAllocator<T,L>::malloc::returning chunk from cache [" 
-            << this->m_cache.size() 
-            << "]");
-#endif
+    for (size_t i = 0; i < m_nb_objs_per_bunch; i++)
+      m_cache.push_back( NewAllocator<T>::malloc() );
+  }
+  
+  //- return first available T in cache
+  if ( ! m_cache.empty() )
+  {
     //- get ref. to the first available chunk of memory
     T * p = m_cache.front();
     //- remove chunk for list of available 
@@ -217,12 +196,8 @@ T * CachedAllocator<T,L>::malloc ()
     //- return storage to caller
     return p;
   }
-  
-#if defined (YAT_DEBUG)
-  YAT_LOG("CachedAllocator<T,L>::malloc::returning chunk from heap");
-#endif
 
-  //- allocate a chunk of memory
+  //- cache empty && m_nb_objs_per_bunch == 0
   return NewAllocator<T>::malloc();
 }
 
@@ -232,19 +207,11 @@ T * CachedAllocator<T,L>::malloc ()
 template <typename T, typename L> 
 void CachedAllocator<T,L>::free (T * p)
 {   
-  YAT_TRACE("CachedAllocator<T,L>::free");
-  
   //- enter critical section
   yat::AutoMutex<L> guard(this->m_lock);
   
-  //- push chunk back into the cache
+  //- push T back into the cache
   this->m_cache.push_back(p);
-  
-#if defined (YAT_DEBUG)
-  YAT_LOG("CachedAllocator<T,L>::malloc::pushed chunk back into the cache [" 
-          << this->m_cache.size() 
-          << "]");
-#endif
 }
   
 } // namespace 
