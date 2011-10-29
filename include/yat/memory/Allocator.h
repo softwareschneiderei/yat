@@ -42,6 +42,7 @@
 // DEPENDENCIES
 // ============================================================================
 #include <deque>
+#include <yat/threading/Mutex.h>
 #include <yat/CommonHeader.h>
 
 namespace yat 
@@ -96,7 +97,7 @@ template <typename T, typename L = yat::NullMutex>
 class CachedAllocator : public NewAllocator<T>
 {
   //- memory pool (or cache) implementation
-  typedef std::deque<T*> Cache; 
+  typedef std::deque<T*> CacheImpl; 
 
 public: 
   //- Ctor - preallocates <nb_preallocated_objs> 
@@ -116,7 +117,7 @@ protected:
   L m_lock;
 
   //- the memory cache (i.e. memory pool) 
-  Cache m_cache;
+  CacheImpl m_cache;
 };
 
 } // namespace

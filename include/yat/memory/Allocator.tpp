@@ -165,7 +165,7 @@ CachedAllocator<T,L>::CachedAllocator (size_t nb_preallocated_objs)
   //- prealloc objects
   for (size_t i = 0; i < nb_preallocated_objs; i++)
   {
-    T * t = NewAllocator::malloc(); 
+    T * t = NewAllocator<T>::malloc(); 
     m_cache.push_back(t);
   }
 }
@@ -182,10 +182,19 @@ CachedAllocator<T,L>::~CachedAllocator ()
           << " objs in cache");
 #endif
     
+  //- enter critical section
+  yat::AutoMutex<L> guard(this->m_lock);
+  
   //- release objects
-  Cache::iterator it = this->m_cache.begin();
+#if ! defined(YAT_MACOSX)
+  CacheImpl::iterator it = this->m_cache.begin();
   for (; it != this->m_cache.end(); ++it)
-    NewAllocator::free(*it);
+    NewAllocator<T>::free(*it);
+#else
+  size_t n = this->m_cache.size();
+  for (size_t i = 0; i < n; ++i)
+    NewAllocator<T>::free(this->m_cache[i]);
+#endif
 }
   
 // ============================================================================
@@ -200,7 +209,7 @@ T * CachedAllocator<T,L>::malloc ()
   yat::AutoMutex<L> guard(this->m_lock);
   
   //- do we have something in the cache?
-  if (! m_cache.empty() )
+  if (! m_cache.empty())
   {
 #if defined (YAT_DEBUG)
     YAT_LOG("CachedAllocator<T,L>::malloc::returning chunk from cache [" 
