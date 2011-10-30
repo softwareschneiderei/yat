@@ -1,11 +1,10 @@
 /*!
  * \file     
- * \brief    An example of yat::Task (and related classes) usage. .
- * \author   N. Leclercq, J. Malik - Synchrotron SOLEIL
+ * \brief    An advanced yat example
+ * \author   N. Leclercq - Synchrotron SOLEIL
  */
 
-#ifndef _MY_TASK_H_
-#define _MY_TASK_H_
+#pragma once
 
 // ============================================================================
 // DEPENDENCIES
@@ -16,12 +15,7 @@
 // ============================================================================
 // SOME USER DEFINED MESSAGES
 // ============================================================================
-#define kDUMMY_MSG (yat::FIRST_USER_MSG + 1000)
 
-// ============================================================================
-// SOME USER DEFINED MESSAGE PRIORITIES
-// ============================================================================
-#define kDUMMY_MSG_PRIORITY adtb::MAX_USER_PRIORITY
 
 // ============================================================================
 // class: Consumer
@@ -31,7 +25,7 @@ class Consumer: public yat::Task
 public:
 
 	//- ctor ---------------------------------
-	Consumer (size_t lo_wm, size_t hi_wm);
+	Consumer ();
 
 	//- dtor ---------------------------------
 	virtual ~Consumer (void);
@@ -42,20 +36,5 @@ protected:
 		throw (yat::Exception);
 
 private:
-  //- num of ctrl msg received
-  unsigned long ctrl_msg_counter;
-  //- num of user msg received
-  unsigned long user_msg_counter;
-
-#if defined (YAT_DEBUG)
-  //- id of the last received msg
-  yat::Message::MessageID last_msg_id;
-  //- num of lost msg 
-  unsigned long lost_msg_counter;
-  //- num msg received in wrong order
-  unsigned long wrong_order_msg_counter;
-#endif
-
+  size_t index;
 };
-
-#endif // _MY_TASK_H_

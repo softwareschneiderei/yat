@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
   
   YAT_LOG_STATIC("Instanciating Task...");
 	
-  MyTask * dt = new MyTask(kLO_WATER_MARK, kHI_WATER_MARK);
+  Consumer * dt = new Consumer(kLO_WATER_MARK, kHI_WATER_MARK);
   
   YAT_LOG_STATIC("Starting Task...");
 	

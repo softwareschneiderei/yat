@@ -68,9 +68,35 @@ NewAllocator<T>::~NewAllocator ()
   //- noop
 }
 
-#define USE_NEW_OPERATOR_IN_ALLOCATOR
+#define USE_NEW_OPERATOR 1
 
-#if ! defined(USE_NEW_OPERATOR_IN_ALLOCATOR)
+#if USE_NEW_OPERATOR
+
+// ============================================================================
+// NewAllocator::malloc
+// ============================================================================
+template <typename T>
+T * NewAllocator<T>::malloc ()
+{
+  //- use default new "array" operator - infinite loop otherwise!
+  //- that's the C++ trick os this class guys! ACE impl. made me understand!
+  //- the compiler will take care of alignment for us.
+   
+  return new T[1];
+}
+
+// ============================================================================
+// NewAllocator::free
+// ============================================================================
+template <typename T>
+void NewAllocator<T>::free (T * p)
+{
+  //- used <new T[1]> to allocate space so...
+  delete[] p;
+}
+
+#else //- USE_NEW_OPERATOR
+  
 // ============================================================================
 // VERY NICE TRICK STOLEN FROM THE ACE LIB FOR OBJS MEMORY SPACE ALLOCATION 
 // TAKING INTO ACCOUNT THAT MEMORY IS ALLOCATED USING <char> WHILE OBJ STORAGE
@@ -98,7 +124,7 @@ T * NewAllocator<T>::malloc ()
   //- in this case we have to take care of alignment. the space
   //- required is >= sizeof (T). using the ACE lib trick, it gives...
   
-  size_t chunk_size = sizeof (T);
+  size_t chunk_size = sizeof(T);
   chunk_size = ROUNDUP(chunk_size, sizeof(yat_max_align_info));
   return (T *) new char[chunk_size];
 }
@@ -113,32 +139,7 @@ void NewAllocator<T>::free (T * p)
   delete[] (char *)p;
 }
 
-#else  //- ! defined(USE_NEW_OPERATOR_IN_ALLOCATOR)
-
-// ============================================================================
-// NewAllocator::malloc
-// ============================================================================
-template <typename T>
-T * NewAllocator<T>::malloc ()
-{
-  //- use default new "array" operator - infinite loop otherwise!
-  //- that's the C++ trick os this class guys! ACE impl. made me understand!
-  //- the compiler will take care of alignment for us.
-   
-  return new T[1];
-}
-
-// ============================================================================
-// NewAllocator::free
-// ============================================================================
-template <typename T>
-void NewAllocator<T>::free (T * p)
-{
-  //- used <new T[1]> to allocate space so...
-  delete[] p;
-}
-
-#endif  //- ! defined(USE_NEW_OPERATOR_IN_ALLOCATOR)
+#endif  //- USE_NEW_OPERATOR
 
 // ============================================================================
 // CachedAllocator::CachedAllocator
@@ -149,7 +150,7 @@ CachedAllocator<T,L>::CachedAllocator (size_t nb_bunches, size_t nb_objs_per_bun
 {
   //- total num of objs to preallocate
   size_t nb_preallocated_objs = nb_bunches * nb_objs_per_bunch;
-  
+
   //- prealloc objects
   for (size_t i = 0; i < nb_preallocated_objs; i++)
     m_cache.push_back( NewAllocator<T>::malloc() );
@@ -196,7 +197,7 @@ T * CachedAllocator<T,L>::malloc ()
     //- return storage to caller
     return p;
   }
-
+    
   //- cache empty && m_nb_objs_per_bunch == 0
   return NewAllocator<T>::malloc();
 }
@@ -209,7 +210,7 @@ void CachedAllocator<T,L>::free (T * p)
 {   
   //- enter critical section
   yat::AutoMutex<L> guard(this->m_lock);
-  
+
   //- push T back into the cache
   this->m_cache.push_back(p);
 }

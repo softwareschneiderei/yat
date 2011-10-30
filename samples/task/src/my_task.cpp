@@ -10,9 +10,9 @@
 #include "my_task.h"
 
 // ============================================================================
-// MyTask::MyTask
+// Consumer::Consumer
 // ============================================================================
-MyTask::MyTask (size_t _lo_wm, size_t _hi_wm)
+Consumer::Consumer (size_t _lo_wm, size_t _hi_wm)
   : yat::Task(Config(true,     //- enable timeout msg
                      1000,     //- every second (i.e. 1000 msecs)
                      false,    //- disable periodic msgs
@@ -30,31 +30,31 @@ MyTask::MyTask (size_t _lo_wm, size_t _hi_wm)
     , wrong_order_msg_counter (0)
 #endif
 {
-	YAT_TRACE("MyTask::MyTask");
+	YAT_TRACE("Consumer::Consumer");
 }
 
 // ======================================================================
-// MyTask::~MyTask
+// Consumer::~Consumer
 // ======================================================================
-MyTask::~MyTask (void)
+Consumer::~Consumer (void)
 {
-	YAT_TRACE("MyTask::~MyTask");
+	YAT_TRACE("Consumer::~Consumer");
 	
 #if defined (YAT_DEBUG)
-  YAT_LOG("MyTask::statistics::ctrl msg:: " << this->ctrl_msg_counter);
-  YAT_LOG("MyTask::statistics::user msg:: " << this->user_msg_counter);
-  YAT_LOG("MyTask::statistics::lost msg:: " << this->lost_msg_counter);
-  YAT_LOG("MyTask::statistics::wrong order msg:: " << this->wrong_order_msg_counter);
+  YAT_LOG("Consumer::statistics::ctrl msg:: " << this->ctrl_msg_counter);
+  YAT_LOG("Consumer::statistics::user msg:: " << this->user_msg_counter);
+  YAT_LOG("Consumer::statistics::lost msg:: " << this->lost_msg_counter);
+  YAT_LOG("Consumer::statistics::wrong order msg:: " << this->wrong_order_msg_counter);
 #endif
 }
 
 // ============================================================================
-// MyTask::handle_message
+// Consumer::handle_message
 // ============================================================================
-void MyTask::handle_message (yat::Message& _msg)
+void Consumer::handle_message (yat::Message& _msg)
 	throw (yat::Exception)
 {
-	//- YAT_TRACE("MyTask::handle_message");
+	//- YAT_TRACE("Consumer::handle_message");
 
 	//- handle msg
   switch (_msg.type())
@@ -63,7 +63,7 @@ void MyTask::handle_message (yat::Message& _msg)
 	  case yat::TASK_INIT:
 	    {
   	    //- "initialization" code goes here
-  	    YAT_LOG("MyTask::handle_message::TASK_INIT::task is starting up");
+  	    YAT_LOG("Consumer::handle_message::TASK_INIT::task is starting up");
         this->ctrl_msg_counter++;
       } 
 		  break;
@@ -71,7 +71,7 @@ void MyTask::handle_message (yat::Message& _msg)
 		case yat::TASK_EXIT:
 		  {
   			//- "release" code goes here
-  			YAT_LOG("MyTask::handle_message::TASK_EXIT::task is quitting");
+  			YAT_LOG("Consumer::handle_message::TASK_EXIT::task is quitting");
         this->ctrl_msg_counter++;
       }
 			break;
@@ -79,20 +79,20 @@ void MyTask::handle_message (yat::Message& _msg)
 		case yat::TASK_PERIODIC:
 		  {
   		  //- code relative to the task's periodic job goes here
-  		  YAT_LOG("MyTask::handle_message::handling TASK_PERIODIC msg");
+  		  YAT_LOG("Consumer::handle_message::handling TASK_PERIODIC msg");
       }
 		  break;
 		//- TASK_TIMEOUT -------------------
 		case yat::TASK_TIMEOUT:
 		  {
   		  //- code relative to the task's tmo handling goes here
-  		  YAT_LOG("MyTask::handle_message::handling TASK_TIMEOUT msg");
+  		  YAT_LOG("Consumer::handle_message::handling TASK_TIMEOUT msg");
       }
 		  break;
 		//- USER_DEFINED_MSG -----------------
 		case kDUMMY_MSG:
 		  {
-  		  //- YAT_LOG("MyTask::handle_message::handling kDUMMY_MSG user msg");
+  		  //- YAT_LOG("Consumer::handle_message::handling kDUMMY_MSG user msg");
         this->user_msg_counter++;
 #if defined (YAT_DEBUG)
         if (_msg.id() < last_msg_id)
@@ -105,7 +105,7 @@ void MyTask::handle_message (yat::Message& _msg)
   		}
   		break;
   	default:
-  		YAT_LOG("MyTask::handle_message::unhandled msg type received");
+  		YAT_LOG("Consumer::handle_message::unhandled msg type received");
   		break;
 	}
 #if defined (YAT_DEBUG)

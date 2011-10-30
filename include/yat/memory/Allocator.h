@@ -100,18 +100,43 @@ class CachedAllocator : public NewAllocator<T>
   typedef std::deque<T*> CacheImpl; 
 
 public: 
-  //- Ctor - preallocates <nb_preallocated_objs> 
+  //- Ctor - preallocates <nb_bunches * nb_objs_per_bunch> 
+  //- A bunch of <nb_objs_per_bunch> instances of T will be preallocated each time the cache gets empty
   CachedAllocator (size_t nb_bunches = 0, size_t nb_objs_per_bunch = 0);
 
   //- Dtor
   virtual ~CachedAllocator();
   
-  //- memory allocation - can't allocate more than sizeof(T)
+  //- allocates an instance of T
   virtual T * malloc ();
 
-  //- memory release - <p> must have beeb allocated by <this> CachedAllocator
+  //- releases an instance of T - <p> must have been allocated by <this> allocator
   virtual void free (T * p);
+  
+  //- returns the number of T instances currently stored into the cache
+  inline size_t length () const 
+  {
+    return m_cache.size();
+  }
 
+  //- returns the number of bytes currently stored into the cache
+  inline size_t size () const 
+  {
+    return m_cache.size() * sizeof(T);
+  }
+  
+  //- returns the number of T instances (pre)allocated each time the cache gets empty 
+  inline size_t bunch_length () const 
+  {
+    return m_nb_objs_per_bunch;
+  }
+  
+  //- sets the number of T instances (pre)allocated each time the cache gets empty 
+  inline void bunch_length (size_t n) 
+  {
+    m_nb_objs_per_bunch = n;
+  }
+  
 protected:
   //- locking (i.e. thread safety) strategy
   L m_lock;
