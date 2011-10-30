@@ -1,13 +1,13 @@
 /*!
  * \file     
- * \brief    An example of yat::Task (and related classes) usage. .
- * \author   N. Leclercq, J. Malik - Synchrotron SOLEIL
+ * \brief    An example of yat::any usage.
+ * \author   N. Leclercq - Synchrotron SOLEIL
  */
 
 #include <yat/threading/Mutex.h>
 #include <yat/threading/Condition.h>
 #include <yat/threading/Message.h>
-#include <yat/Any.h>
+#include <yat/any/Any.h>
 #include <iostream>
 
 int main(int argc, char* argv[])

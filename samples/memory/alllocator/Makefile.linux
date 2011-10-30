@@ -1,17 +1,17 @@
 #==============================================================================
-# Makefile to generate the YAT Test - NL & JM - SOLEIL
+# Makefile to generate the YAT Test - NL - SOLEIL
 #============================================================================== 
 
 #==============================================================================
 # INCLUDE DIRS
 #==============================================================================
-INCLUDE_DIRS = -I. -I../../include 
+INCLUDE_DIRS = -I. -I../../../include 
 
 #==============================================================================
 # LIB DIRS
 #==============================================================================
-#LIB_DIRS = -L../../target/nar/lib/i386-Linux-g++/static
-LIB_DIRS = -L../../src/.libs
+LIB_DIRS  = -L../../../target/nar/lib/i386-Linux-g++/static
+LIB_DIRS += -L../../../src/.libs
 
 #==============================================================================
 # COMP$(CC)ILER/LINKER OPTIONS for GNU/LINUX
@@ -33,9 +33,7 @@ LIBS = -lyat -lpthread -lstdc++ -ldl
 #------------------------------------------------------------------------------
 # OBJS FILES
 #------------------------------------------------------------------------------
-SP_SRC_OBJS = ./sharedptr_test.o
-SO_SRC_OBJS = ./shared_object_ptr_test.o
-ALLOC_SRC_OBJS = ./allocator_test.o	
+ALLOC_SRC_OBJS = ./src/allocator_test.o	
 	 			 	 	 
 #------------------------------------------------------------------------------
 # RULE for .cpp files
@@ -47,17 +45,11 @@ ALLOC_SRC_OBJS = ./allocator_test.o
 #------------------------------------------------------------------------------
 # RULE: all
 #------------------------------------------------------------------------------
-all: build_so build_sp build_alloc
+all: build_alloc
 
 #------------------------------------------------------------------------------
 # RULE: build
 #------------------------------------------------------------------------------
-build_so: $(SO_SRC_OBJS)
-	$(LD) -o sharedobjectptrtest $(LDFLAGS) $(SO_SRC_OBJS) $(LIB_DIRS) $(LIBS) 
-
-build_sp: $(SP_SRC_OBJS)
-	$(LD) -o sharedptrtest $(LDFLAGS) $(SP_SRC_OBJS) $(LIB_DIRS) $(LIBS) 
-
 build_alloc: $(ALLOC_SRC_OBJS)
 	$(LD) -o allocatortest $(LDFLAGS) $(ALLOC_SRC_OBJS) $(LIB_DIRS) $(LIBS) 
 
@@ -65,9 +57,9 @@ build_alloc: $(ALLOC_SRC_OBJS)
 # RULE: clean
 #------------------------------------------------------------------------------
 clean:
-	rm -f *.o
-	rm -f *~
-	rm -f ./sharedobjectptrtest ./sharedptrtest ./allocatortest
+	rm -f ./src/*.o
+	rm -f ./src/*~
+	rm -f ./allocatortest
 
 
 

@@ -6,7 +6,7 @@
 
 #include <iostream>
 #include <math.h>
-#include <yat/Timer.h>
+#include <yat/time/Timer.h>
 #include <yat/threading/Thread.h> 
                 
 //-----------------------------------------------------------------------------

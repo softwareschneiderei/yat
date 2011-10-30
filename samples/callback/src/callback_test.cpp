@@ -5,7 +5,7 @@
  */
 
 #include <iostream>
-#include <yat/Callback.h>
+#include <yat/utils/Callback.h>
 
 /*
  * The member and the static member of this class will be registered as callbacks
