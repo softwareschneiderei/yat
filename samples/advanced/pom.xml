@@ -7,11 +7,11 @@
        <version>RELEASE</version>
    </parent>
    <groupId>fr.soleil.device</groupId>
-   <artifactId>yat-allocator-test-${aol}-${mode}</artifactId>
+   <artifactId>yat-advanced-test-${aol}-${mode}</artifactId>
    <version>1.0.0-SNAPSHOT</version>
    <packaging>nar</packaging>
-   <name>AllocatorTester</name>
-   <description>a yat::Allocators test</description>
+   <name>AdvancedTest</name>
+   <description>a yat advanced test</description>
    <build>
        <plugins>
            <plugin>
