@@ -21,7 +21,8 @@ class Consumer;
 // ============================================================================
 // forward declarations
 // ============================================================================
-#define NEW_DATA_AVAILABLE_MSG 10000
+#define NEW_DATA_AVAILABLE_MSG      10000
+#define RESET_INDEX_MSG             10001
   
 // ============================================================================
 // typedefs
@@ -34,10 +35,10 @@ typedef std::vector<yat::Task*> ConsumersRepository;
 // ============================================================================
 struct Context
 {   
-  static void init ()
+  static void init (size_t nb = 10, size_t bs = 1000)
   {
     //- initialize the object memory cache
-    Object::init();
+    Object::init(nb, bs);
     //- instanciate the context singleton
     Context::singleton = new Context;
   }

@@ -35,21 +35,33 @@ void Producer::handle_message (yat::Message& _msg)
 {
 	//- YAT_TRACE("Producer::handle_message");
 
+  static size_t tt_no = 0;
+  
 	//- handle msg
   switch (_msg.type())
 	{
 	  //- TASK_INIT ----------------------
 	  case yat::TASK_INIT:
 	    {
-  	    //- "initialization" code goes here
+        //- produce some objects every ms
+        size_t p = 1;
         this->enable_periodic_msg(true);
-        this->set_periodic_msg_period(10);
+        this->set_periodic_msg_period(p);
+        std::cout << "Producer::"
+                  << this
+                  << "::init"
+                  << std::endl;
       } 
 		  break;
 		//- TASK_EXIT ----------------------
 		case yat::TASK_EXIT:
 		  {
-  			//- "release" code goes here
+        std::cout << "Producer::"
+                  << this
+                  << "::exit::produced " 
+                  << tt_no
+                  << " objs" 
+                  << std::endl;
       }
 			break;
 		//- TASK_PERIODIC ------------------
@@ -58,11 +70,20 @@ void Producer::handle_message (yat::Message& _msg)
   		  //- code relative to the task's periodic job goes here
   		  //- produce some data, push it into the global repository
   		  const size_t no = 1000;
-        std::cout << "Producer::handle_message::producing " << no << " objects" << std::endl;
+        /*
+        std::cout << "Producer::"
+                  << this
+                  << "::handle_message::producing " 
+                  << no 
+                  << " objs" 
+                  << std::endl;
+        */
         for (size_t i = 0; i < no; i++)
           Context::instance().data.push_back( Object::instanciate() );
+        //- inc tt_no
+        tt_no += no;
         //- tell the consumers how many new objects are available 
-        std::cout << "Producer::handle_message::notifying the consumers" << std::endl;
+        //- std::cout << "Producer::handle_message::notifying the consumers" << std::endl;
         const size_t nc = Context::instance().consumers.size();
         yat::Message * m = new yat::Message(NEW_DATA_AVAILABLE_MSG);
         m->attach_data(no);

@@ -16,12 +16,12 @@
 int main(int argc, char* argv[])
 {
   //- initialize the context
-  Context::init();
+  Context::init(10, 10000);
   
   //- num of consumers to instanciate
-  size_t nc = 4;
+  size_t nc = 2;
   
-  //- instanciate the objects consumers 
+  //- instanciate/start the objects consumers 
   for (size_t i = 0; i < nc; i++)
   {
     Consumer * c = new Consumer ();
@@ -29,12 +29,19 @@ int main(int argc, char* argv[])
     c->go();
   }
   
-  //- instanciate the objects producer 
+  //- instanciate/start the objects producer 
   Producer * p = new Producer (); 
   p->go();
   
   //- give producer/consumers some time to run
-  yat::Thread::sleep(30000);
+  yat::Thread::sleep(20000);
+  
+  //- ask consumers to reset their parsing index
+  for (size_t i = 0; i < nc; i++)
+    Context::instance().consumers[i]->post(RESET_INDEX_MSG);
+  
+  //- give producer/consumers some time to run
+  yat::Thread::sleep(20000);
   
   //- ask producer to exit
   p->exit();

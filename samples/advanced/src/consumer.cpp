@@ -43,12 +43,21 @@ void Consumer::handle_message (yat::Message& _msg)
 	    {
   	    //- "initialization" code goes here
   	    this->index = 0;
-      } 
+        std::cout << "Consumer::"
+                  << this
+                  << "::init"
+                  << std::endl;
+      }
 		  break;
 		//- TASK_EXIT ----------------------
 		case yat::TASK_EXIT:
 		  {
-  			//- "release" code goes here
+        std::cout << "Consumer::"
+                  << this
+                  << "::exit::parsed " 
+                  << this->index
+                  << " objs" 
+                  << std::endl;
       }
 			break;
     //- NEW_DATA_AVAILABLE_MSG
@@ -56,26 +65,17 @@ void Consumer::handle_message (yat::Message& _msg)
       {
         //- get data associated with the message 
         size_t no = _msg.get_data<size_t>();
-        std::cout << "Consumer::"
-                  << this
-                  << "::handle_message" 
-                  << "::receiving <new objects> notification - " 
-                  << no
-                  << " new objects in repository" 
-                  << std::endl;
-        //- parse new objects
-        const size_t max = this->index + no;
-        std::cout << "Consumer::"
-                  << this
-                  << "::handle_message" 
-                  << "::parsing objs in {" 
-                  << Context::instance().data[this->index]->inst_id
-                  << ","
-                  << Context::instance().data[max - 1]->inst_id
-                  << "}" 
-                  << std::endl;
-        for (; this->index < max;)
-          Context::instance().data[this->index++];
+        //- parse last <no> objects in repository
+        this->parse_objects( no );
+      }
+      break;
+    //- DATA_REPOSITORY_RESETED_MSG
+    case RESET_INDEX_MSG:
+      {
+        //- reset index
+        this->index = 0;
+        //- parse all objects in repository
+        this->parse_objects( Context::instance().data.size() );
       }
       break;
   	default:
@@ -83,3 +83,26 @@ void Consumer::handle_message (yat::Message& _msg)
 	}
 }
 
+// ============================================================================
+// Consumer::parse_objects
+// ============================================================================
+void Consumer::parse_objects (size_t no)
+  throw (yat::Exception)
+{
+  //- parse new objects
+  const size_t max = this->index + no;
+  
+  /*
+  std::cout << "Consumer::"
+            << this
+            << "::parse_objects::parsing objs {" 
+            << Context::instance().data[this->index]->inst_id
+            << ","
+            << Context::instance().data[max - 1]->inst_id
+            << "}" 
+            << std::endl;
+  */
+
+  for (; this->index < max;)
+    Context::instance().data[this->index++];
+}

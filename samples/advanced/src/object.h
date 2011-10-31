@@ -26,6 +26,7 @@ public:
   {
     cache = new yat::CachedAllocator<Object>(nb, bs);
     std::cout << "Object::init::cache contains " << cache->length() << " objects" << std::endl;
+    std::cout << "Object::init::cache contains " << cache->size() / (1024. * 1024.) << " Mb" << std::endl;
   }
   
   //- overwrites the new operator
@@ -42,10 +43,11 @@ public:
     cache->free(p);
   }
   
-  //- release the underlying allocator
+  //- release the underlying memory cache
   static void fini ()
   {
     std::cout << "Object::fini::cache contains " << cache->length() << " objects" << std::endl;
+    std::cout << "Object::init::cache contains " << cache->size() / (1024. * 1024.) << " Mb" << std::endl;
     delete cache;
     cache = 0;
   }
@@ -66,6 +68,12 @@ private:
   {
     //- std::cout << "Object::dtor" << std::endl;
   }
+  
+  //-------------------------------------------------
+  // Add some bytes to the Object memory footprint
+  //-------------------------------------------------
+  unsigned char uc[512];
+  double db[512];
   
   //-------------------------------------------------
   // ObjectAllocator
