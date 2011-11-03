@@ -108,17 +108,38 @@ public:
   //- dtor
   virtual ~Task ();
 
-  //- starts the task
+  //- starts the task (same as go_synchronously - backward compatibility)
   virtual void go (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
     throw (Exception);
     
-  //- starts the task 
+  //- starts the task (same as go_synchronously - backward compatibility)
   //- an exception is thrown in case the specified message:
   //-   * is not of type TASK_INIT
   //-   * is not "waitable"
   virtual void go (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
     throw (Exception);
   
+  //- starts the task synchronously (i.e. wait for the INIT msg to be handled)
+  virtual void go_synchronously (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
+    throw (Exception);
+    
+  //- starts the task synchronously (i.e. wait for the INIT msg to be handled) 
+  //- an exception is thrown in case the specified message:
+  //-   * is not of type TASK_INIT
+  //-   * is not "waitable"
+  virtual void go_synchronously (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
+    throw (Exception);
+
+  //- starts the task asynchronously (i.e. does NOT wait for the INIT msg to be handled)
+  virtual void go_asynchronously (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
+    throw (Exception);
+    
+  //- starts the task asynchronously (i.e.  does NOT wait for the INIT msg to be handled) 
+  //- an exception is thrown in case the specified message:
+  //-   * is not of type TASK_INIT
+  virtual void go_asynchronously (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
+    throw (Exception);
+
   //! aborts the task (join with the underlying thread before returning).
   //! provides an implementation to the Thread::exit pure virtual method.
   virtual void exit ()

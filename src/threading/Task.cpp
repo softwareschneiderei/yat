@@ -154,6 +154,17 @@ Task::~Task ()
 }
   
 // ============================================================================
+// Task::go_synchronously
+// ============================================================================
+void Task::go_synchronously (size_t _tmo_ms) 
+  throw (Exception)
+{
+  YAT_TRACE("Task::go_synchronously");
+ 
+  this->go(_tmo_ms); 
+}
+
+// ============================================================================
 // Task::go
 // ============================================================================
 void Task::go (size_t _tmo_ms) 
@@ -180,6 +191,17 @@ void Task::go (size_t _tmo_ms)
 }
 
 // ============================================================================
+// Task::go_synchronously
+// ============================================================================
+void Task::go_synchronously (Message * _msg, size_t _tmo_ms) 
+  throw (Exception)
+{
+  YAT_TRACE("Task::go_synchronously");
+ 
+  this->go(_msg, _tmo_ms); 
+}
+
+// ============================================================================
 // Task::go
 // ============================================================================
 void Task::go (Message * _msg, size_t _tmo_ms) 
@@ -202,6 +224,55 @@ void Task::go (Message * _msg, size_t _tmo_ms)
 
   this->wait_msg_handled (_msg, _tmo_ms);
 }
+
+// ============================================================================
+// Task::go_asynchronously
+// ============================================================================
+void Task::go_asynchronously (size_t _tmo_ms) 
+  throw (Exception)
+{
+  YAT_TRACE("Task::go_asynchronously");
+ 
+  this->start_undetached();
+
+  Message * msg = 0;
+  try
+  {
+    msg = Message::allocate (TASK_INIT, INIT_MSG_PRIORITY, true);
+  }
+  catch (Exception& ex)
+  {
+    RETHROW_YAT_ERROR(ex, 
+                      "OUT_OF_MEMORY", 
+                      "Message allocation failed", 
+                      "Task::go");
+  }
+
+  this->post(msg, _tmo_ms);
+}
+
+// ============================================================================
+// Task::go_asynchronously
+// ============================================================================
+void Task::go_asynchronously (Message * _msg, size_t _tmo_ms) 
+  throw (Exception)
+{
+  YAT_TRACE("Task::go_asynchronously");
+ 
+  this->start_undetached();
+
+  if ( 
+         (_msg == 0)
+      || 
+         (_msg->type() != TASK_INIT)
+     )
+     THROW_YAT_ERROR("PROGRAMMING_ERROR",
+                     "invalid INIT message [null, wrong type or not waitable]",
+                     "Task::go");
+
+  this->post(_msg, _tmo_ms); 
+}
+
 
 // ============================================================================
 // Task::run_undetached
