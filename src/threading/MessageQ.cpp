@@ -37,6 +37,7 @@
 // ============================================================================
 // DEPENDENCIES
 // ============================================================================
+#include <cstring>
 #include <iostream>
 #include <math.h>
 #include <algorithm>
@@ -545,4 +546,49 @@ void MessageQ::insert_i (Message * _msg)
   }
 }
 
+// ============================================================================
+// MessageQ::reset_statistics
+// ============================================================================
+void MessageQ::reset_statistics ()
+{
+  //- lock 
+  MutexLock guard(this->lock_);
+  //- reset
+  ::memset(&this->stats_, 0, sizeof(MessageQ::Statistics));
+}  
+    
+// ============================================================================
+// MessageQ::clear_pending_message
+// ============================================================================
+size_t MessageQ::clear_pending_messages (size_t msg_type)
+{
+  //- lock 
+  MutexLock guard(this->lock_);
+  //- any pending msg?
+  if ( this->msg_q_.empty() )
+    return 0;
+  //- copy msgQ
+  MessageQImpl copy = this->msg_q_;
+  //- parse content and remove msgs of type <msg_type>
+  MessageQImpl::iterator cit = copy.begin();
+  MessageQImpl::iterator  it = this->msg_q_.begin();
+  MessageQImpl::iterator end = this->msg_q_.end();
+  //- num of msgs removed from msgQ
+  size_t cnt = 0;
+  //- parse...
+  for (; it != end; ++it, ++cit)
+  {
+    if ( (*it)->type() == msg_type )
+    {
+      (*it)->release();
+      copy.erase(cit);
+      cnt++;
+    }
+  }
+  //- copy back to msgq
+  this->msg_q_ = copy;
+  //- return num of removed msgs
+  return cnt;
+}
+  
 } // namespace

@@ -597,4 +597,28 @@ void Task::wait_msg_handled (Message * _msg, size_t _tmo_ms)
                   "Task::wait_msg_handled");
 }
 
+// ======================================================================
+// Task::reset_msgq_statistics
+// ======================================================================
+void Task::reset_msgq_statistics ()
+{
+  this->msg_q_.reset_statistics ();
+}
+
+// ======================================================================
+// Task::clear_pending_messages
+// ======================================================================
+size_t Task::clear_pending_messages ()
+{
+  return this->msg_q_.clear();
+}
+
+// ======================================================================
+// Task::clear_pending_messages
+// ======================================================================
+size_t Task::clear_pending_messages (size_t msg_type)
+{
+  return this->msg_q_.clear_pending_messages(msg_type);
+}
+
 } // namespace

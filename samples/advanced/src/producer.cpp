@@ -92,6 +92,10 @@ void Producer::handle_message (yat::Message& _msg)
           Context::instance().consumers[i]->post(m->duplicate());
         //- release our msg reference
         m->release();
+        //- test
+        for (size_t i = 0; i < nc; i++)
+          std::cout << Context::instance().consumers[i]->clear_pending_messages(NEW_DATA_AVAILABLE_MSG)
+                    << std::endl;
       }
 		  break;
   	default:

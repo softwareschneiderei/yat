@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
   p->go();
   
   //- give producer/consumers some time to run
-  yat::Thread::sleep(20000);
+  yat::Thread::sleep(10000);
   
   //- ask consumers to reset their parsing index
   for (size_t i = 0; i < nc; i++)

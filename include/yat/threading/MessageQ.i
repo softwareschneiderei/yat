@@ -97,13 +97,13 @@ YAT_INLINE void MessageQ::throw_on_post_msg_timeout (bool _strategy)
 // ============================================================================
 // MessageQ::clear
 // ============================================================================
-YAT_INLINE void MessageQ::clear ()
+YAT_INLINE size_t MessageQ::clear ()
 {
   YAT_TRACE("MessageQ::clear");
 
   yat::AutoMutex<> guard(this->lock_);
 
-  this->clear_i();
+  return this->clear_i();
 }
 
 // ============================================================================

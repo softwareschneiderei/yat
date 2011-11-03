@@ -154,16 +154,11 @@ public:
     throw (Exception);
 
   //- posts the specified data to the task then returns immediately (asynchronous approach)
-  template <typename T> void post (size_t msg_type, 
-                                   T * data, 
-                                   bool transfer_ownership = true,  
-                                   size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
+  template <typename T> void post (size_t msg_type, T * data, bool transfer_ownership, size_t tmo_msecs)
     throw (Exception);
 
   //- posts the specified data to the task then returns immediately (asynchronous approach)
-  template <typename T> void post (size_t msg_type,  
-                                   const T & data,  
-                                   size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
+  template <typename T> void post (size_t msg_type, const T & data, size_t tmo_msecs)
     throw (Exception);
 
   //- posts the specified msg to the task then waits for this message to be handled (synchronous approach)
@@ -175,16 +170,11 @@ public:
     throw (Exception);
 
   //- posts the specified data to the task then waits for the associated message to be handled (synchronous approach)
-  template <typename T> void wait_msg_handled (size_t msg_type, 
-                                               T * data, 
-                                               bool transfer_ownership = true,  
-                                               size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
+  template <typename T> void wait_msg_handled (size_t msg_type, T * data, bool transfer_ownership, size_t tmo_msecs)
     throw (Exception);
 
   //- posts the specified data to the task then waits for the associated message to be handled (synchronous approach)
-  template <typename T> void wait_msg_handled (size_t msg_type,  
-                                               const T & data,  
-                                               size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
+  template <typename T> void wait_msg_handled (size_t msg_type, const T & data, size_t tmo_msecs)
     throw (Exception);
 
   //- timeout msg period mutator
@@ -229,12 +219,21 @@ public:
   //- MsgQ high water mark accessor (MsgQ unit dependent)
   size_t msgq_hi_wm () const;
 
-  //- MsgQ high water mark accessor (MsgQ unit dependent)
+  //- MsgQ statistics accessor
   const MessageQ::Statistics & msgq_statistics ();
+  
+  //- resets the MsgQ statistics
+  void reset_msgq_statistics ();
   
   //- Should the underlying MsgQ throw an exception on post msg tmo expiration?
   void throw_on_post_msg_timeout (bool _strategy);
 
+  //- Clears all pending messages
+  size_t clear_pending_messages ();
+
+  //- Clears pending messages of type <msg_type> 
+  size_t clear_pending_messages (size_t msg_type);
+  
 protected:
   //- run_undetached
   virtual Thread::IOArg run_undetached (Thread::IOArg);
