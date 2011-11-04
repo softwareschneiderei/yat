@@ -170,7 +170,7 @@ MessageQ::~MessageQ ()
 
   this->state_ = MessageQ::CLOSED;
 
-  this->clear_i();
+  this->clear_i(false);
 }
 
 // ============================================================================
@@ -188,7 +188,7 @@ void MessageQ::close ()
 // ============================================================================
 // MessageQ::clear_i
 // ============================================================================
-size_t MessageQ::clear_i ()
+size_t MessageQ::clear_i (bool notify_waiters)
 {
   size_t num_msg_in_q = this->msg_q_.size();
 
@@ -200,6 +200,18 @@ size_t MessageQ::clear_i ()
   }
   
   this->pending_charge_ = 0;
+
+  //- messageQ is obviously unsaturated!
+  if ( this->saturated_ )
+  {
+    //- compute stats 
+    this->stats_.has_been_unsaturated_++;
+    //- no more saturated
+    this->saturated_ = false;
+    //- this will work since if we under critical section (caller locked the associated mutex)*
+    if ( notify_waiters )
+      this->msg_producer_sync_.broadcast();
+  }
 
   return num_msg_in_q;
 }
@@ -580,13 +592,30 @@ size_t MessageQ::clear_pending_messages (size_t msg_type)
   {
     if ( (*it)->type() == msg_type )
     {
+      this->pending_charge_ -= (this->wm_unit_ == NUM_OF_MSGS)
+                             ? 1
+                             : (*it)->size_in_bytes();
       (*it)->release();
       copy.erase(cit);
       cnt++;
     }
   }
+
   //- copy back to msgq
   this->msg_q_ = copy;
+
+  //- is the messageQ unsaturated?
+  if ( this->saturated_ && this->pending_charge_ <= this->lo_wm_ )
+  {
+    YAT_LOG("MessageQ::next_message::**** UNSATURATED ****");
+    //- compute stats 
+    this->stats_.has_been_unsaturated_++;
+    //- no more saturated
+    this->saturated_ = false;
+    //- this will work since we are still under critical section
+    this->msg_producer_sync_.broadcast();
+  }
+
   //- return num of removed msgs
   return cnt;
 }

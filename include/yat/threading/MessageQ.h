@@ -41,7 +41,7 @@
 // DEPENDENCIES
 // ============================================================================
 #include <yat/CommonHeader.h>
-#include <deque>
+#include <list>
 #if defined (YAT_WIN32)
 # include <sys/timeb.h>
 #else
@@ -74,7 +74,7 @@ class YAT_DECL MessageQ
 {
   friend class Task;
 
-  typedef std::deque<yat::Message *> MessageQImpl;
+  typedef std::list<yat::Message *> MessageQImpl;
 
 public:
   //- MessageQ has a state
@@ -182,7 +182,7 @@ private:
 	bool periodic_tmo_expired_i (double _tmo_msecs);
   
   //- clears msgQ content (returns num of trashed messages)
-  size_t clear_i();
+  size_t clear_i (bool notify_waiters = true);
 
   //- waits for the msQ to contain at least one msg
   //- returns false if tmo expired, true otherwise.
