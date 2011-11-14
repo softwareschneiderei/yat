@@ -588,7 +588,6 @@ private:
 	Time      m_tmDirModTime;        // Last modification time of the directory
 	Time      m_tmLocalModTime;      // Last time the the directory's modification time has changfes
 	bool      m_bDirectoryHasChanged;
-	FileName  m_fnDir;               // Directory path
 	WatchMode m_eMode;
 	
 	bool priv_has_changed(bool bReset);
