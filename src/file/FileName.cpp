@@ -635,14 +635,14 @@ DirectoryWatcher::Entry::Entry(const String &strFullName)
 //-----------------------------------------------------------------------------
 DirectoryWatcher::DirectoryWatcher(const String &strDirectoryPath, WatchMode eMode) throw(Exception)
 {
-	m_fnDir.set(strDirectoryPath);
+	set(strDirectoryPath);
 	m_tmDirModTime.set_long_unix(0);
 	m_bDirectoryHasChanged = false;
 	m_eMode = eMode;
 	
 	if( ENUM_FIRST == eMode )
 	{
-		FileEnum fe(m_fnDir.full_name(), FileEnum::ENUM_ALL);
+		FileEnum fe(full_name(), FileEnum::ENUM_ALL);
 		while( fe.find() )
 			m_mapEntry[fe.full_name().hash64()] = new Entry(fe.full_name());
 	}
@@ -655,7 +655,7 @@ bool DirectoryWatcher::priv_has_changed(bool bReset)
 {
 	CurrentTime tmCur;
 	Time tmModTime;
-	m_fnDir.mod_time(&tmModTime);
+	mod_time(&tmModTime);
 	
 	if( m_tmDirModTime.is_empty() && NO_FIRST_ENUM == m_eMode )
 	{ 	// First call
@@ -670,6 +670,7 @@ bool DirectoryWatcher::priv_has_changed(bool bReset)
 		m_tmDirModTime = tmModTime;
 		return false;
 	}
+        // The change is considered at least 1 second after its first observation
 	else if( m_bDirectoryHasChanged && tmCur.double_unix() - m_tmLocalModTime.double_unix() > 1.0 )
 	{
 		if( bReset )
@@ -704,7 +705,8 @@ void DirectoryWatcher::get_changes(FileNamePtrVector *pvecNewFilesPtr,
 {
 	Time tmModTimeDir;
 	
-	if( priv_has_changed(true) )
+  // File modifications does not affect the last modification time of its parent directory
+	if( pvecChangedFileNamePtr || priv_has_changed(true) )
 	{
 		if( pvecRemovedFileNamePtr )
 		{
@@ -713,7 +715,7 @@ void DirectoryWatcher::get_changes(FileNamePtrVector *pvecNewFilesPtr,
 				it->second->bRemoved = true;
 		}
 
-		FileEnum fe(m_fnDir.full_name(), FileEnum::ENUM_ALL);
+		FileEnum fe(full_name(), FileEnum::ENUM_ALL);
 		while( fe.find() )
 		{
 			uint64 hashFile = fe.full_name().hash64();
@@ -728,8 +730,8 @@ void DirectoryWatcher::get_changes(FileNamePtrVector *pvecNewFilesPtr,
 				{
 					Time tmModTime;
 					fe.mod_time(&tmModTime);
-					
-					if( ptrEntry->tmLastModTime !=tmModTime )
+
+					if( ptrEntry->tmLastModTime != tmModTime )
 					{
 						ptrEntry->tmLastModTime = tmModTime;
 						pvecChangedFileNamePtr->push_back(ptrEntry->ptrFile);
