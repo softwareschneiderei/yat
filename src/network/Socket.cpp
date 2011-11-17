@@ -81,8 +81,7 @@
     int yat_err_code = SocketException::native_to_yat_error(C); \
     OSStream _err_oss; \
     _err_oss << T \
-             << " [" << SocketException::get_error_text(yat_err_code) << "]" \
-             << std::ends; \
+             << " [" << SocketException::get_error_text(yat_err_code) << "]"; \
     throw yat::SocketException("SOCKET_ERROR", _err_oss.str().c_str(), O, C); \
 // ----------------------------------------------------------------------------
 #define CHECK_SOCK_DESC(OP) \
@@ -280,14 +279,58 @@ Address Socket::get_address () const
 }
 
 // ----------------------------------------------------------------------------
-// Socket::accept
+// Socket::bind
 // ----------------------------------------------------------------------------
-Socket::OSDescriptor Socket::accept ()
+void Socket::bind (size_t _port)
   throw (SocketException)
 {
-  YAT_TRACE("yat::Socket::accept");
+  YAT_TRACE("yat::Socket::bind");
 
-  CHECK_SOCK_DESC("yat::Socket::accept");
+  CHECK_SOCK_DESC("yat::Socket::bind");
+
+  struct sockaddr_in sa;
+  ::memset(&sa, 0, sizeof(sa));
+  sa.sin_family = AF_INET;
+  sa.sin_port = htons((unsigned short)_port);
+  sa.sin_addr.s_addr = htonl(INADDR_ANY);
+  ::memset(&sa.sin_zero, 0, 8);
+  
+  if (::bind(this->m_os_desc, reinterpret_cast<sockaddr*>(&sa), sizeof(sa))) 
+  {
+    OSStream oss;
+    oss << "OS <bind> call failed for port "
+        << _port;
+    THROW_SOCKET_ERROR(err_no, oss.str().c_str(), "yat::Socket::bind");
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Socket::listen_to_incoming_connections
+// ----------------------------------------------------------------------------
+void Socket::listen_to_incoming_connections (size_t n)
+  throw (SocketException)
+{
+  YAT_TRACE("yat::Socket::listen_to_incoming_connections");
+
+  CHECK_SOCK_DESC("yat::Socket::listen_to_incoming_connections");
+
+  if (::listen(this->m_os_desc, (int)n))
+  {
+    OSStream oss;
+    oss << "OS <listen> call failed";
+    THROW_SOCKET_ERROR(err_no, oss.str().c_str(), "yat::Socket::listen_to_incoming_connections");
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Socket::accept_incoming_connections
+// ----------------------------------------------------------------------------
+Socket::OSDescriptor Socket::accept_incoming_connections ()
+  throw (SocketException)
+{
+  YAT_TRACE("yat::Socket::accept_incoming_connections");
+
+  CHECK_SOCK_DESC("yat::Socket::accept_incoming_connections");
 
   struct sockaddr_in sa;
   socklen_t l = sizeof(sa);
@@ -299,36 +342,10 @@ Socket::OSDescriptor Socket::accept ()
   {
     THROW_SOCKET_ERROR(err_no,  
                        "OS <accept> call failed", 
-                       "yat::Socket::accept");
+                       "yat::Socket::accept_incoming_connections");
   }
 
   return d;
-}
-
-// ----------------------------------------------------------------------------
-// Socket::bind
-// ----------------------------------------------------------------------------
-void Socket::bind (size_t _port)
-  throw (SocketException)
-{
-  YAT_TRACE("yat::Socket::bind");
-
-  CHECK_SOCK_DESC("yat::Socket::bind");
-
-  struct sockaddr_in sa;
-  sa.sin_family = AF_INET;
-  sa.sin_port = htons((unsigned short)_port);
-  sa.sin_addr.s_addr = htonl(INADDR_ANY);
-  ::memset(&sa.sin_zero, 0, 8);
-  
-  if (::bind(this->m_os_desc, reinterpret_cast<sockaddr*>(&sa), sizeof(sa))) 
-  {
-    OSStream oss;
-    oss << "OS <bind> call failed for port "
-        << _port
-        << std::ends;
-    THROW_SOCKET_ERROR(err_no, oss.str().c_str(), "yat::Socket::bind");
-  }
 }
 
 // ----------------------------------------------------------------------------
@@ -356,8 +373,7 @@ void Socket::connect (const Address & _addr)
     oss << "OS <connect> call failed for host "
         << _addr.get_ip_address()
         << ":"
-        << _addr.get_port_number()
-        << std::ends;
+        << _addr.get_port_number();
 
     THROW_SOCKET_ERROR(err_no, oss.str().c_str(), "yat::Socket::connect");
   }
@@ -670,8 +686,8 @@ size_t Socket::receive (char * ib, size_t nb)
 
   CHECK_SOCK_DESC("yat::Socket::receive");
 
-  size_t rb = 0;
-  size_t total_rb = 0;
+  ssize_t rb = 0;
+  ssize_t total_rb = 0;
   bool was_interrupted = false;
   
   do
@@ -692,10 +708,9 @@ size_t Socket::receive (char * ib, size_t nb)
       if (this->current_op_is_blocking())
       {
         THROW_SOCKET_ERROR(SoErr_WouldBlock, 
-                               "OS <recv> call failed", 
-                               "yat::Socket::receive");
+                           "OS <recv> call failed", 
+                           "yat::Socket::receive");
       }
-      
 #if ! defined(WIN32)
       if (errno == EINTR)
       {
@@ -722,7 +737,7 @@ size_t Socket::receive (char * ib, size_t nb)
   
   YAT_LOG("yat::Socket::receive::got " << rb << " bytes from peer");
   
-  return total_rb;
+  return static_cast<size_t>(total_rb);
 }
 
 // ----------------------------------------------------------------------------
