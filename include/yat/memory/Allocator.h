@@ -110,14 +110,24 @@ public:
   //- allocates an instance of T
   virtual T * malloc ();
 
-  //- releases an instance of T - <p> must have been allocated by <this> allocator
+  //- releases an instance of T 
+  //- <p> must have been allocated by <this> allocator
+  //- <p> returns to the cache 
   virtual void free (T * p);
+  
+  //- releases an instance of T
+  //- <p> must have been allocated by <this> allocator
+  //- <p> does NOT return to the cache
+  virtual void release (T * p);
   
   //- returns the number of T instances currently stored into the cache
   inline size_t length () const 
   {
     return m_cache.size();
   }
+
+  //- release <p> % of the cache
+  inline void clear (const double p = 100.);
 
   //- returns the number of bytes currently stored into the cache
   inline size_t size () const 

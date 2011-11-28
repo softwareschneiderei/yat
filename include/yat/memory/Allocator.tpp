@@ -161,13 +161,7 @@ CachedAllocator<T,L>::CachedAllocator (size_t nb_bunches, size_t nb_objs_per_bun
 template <typename T, typename L> 
 CachedAllocator<T,L>::~CachedAllocator () 
 {   
-  //- enter critical section
-  yat::AutoMutex<L> guard(this->m_lock);
-
-  //- release objects
-  typename CacheImpl::iterator it = this->m_cache.begin();
-  for (; it != this->m_cache.end(); ++it)
-    NewAllocator<T>::free(*it);
+   this->clear(100.);
 }
   
 // ============================================================================
@@ -214,6 +208,47 @@ void CachedAllocator<T,L>::free (T * p)
   this->m_cache.push_back(p);
 }
   
+// ============================================================================
+// CachedAllocator::release
+// ============================================================================
+template <typename T, typename L> 
+void CachedAllocator<T,L>::release (T * p)
+{   
+  //- enter critical section
+  yat::AutoMutex<L> guard(this->m_lock);
+
+  //- free p
+  NewAllocator<T>::free(p);
+}
+
+// ============================================================================
+// CachedAllocator::clear
+// ============================================================================
+template <typename T, typename L> 
+void CachedAllocator<T,L>::clear (const double p)
+{   
+  //- enter critical section
+  yat::AutoMutex<L> guard(this->m_lock);
+
+  if ( p < 0. ||  this->m_cache.empty() )
+	return;
+
+  size_t n = 0;
+  
+  if ( p >= 100. )
+    n = this->m_cache.size();
+  else
+    n = static_cast<size_t>( (p / 100.) * this->m_cache.size() );
+
+  //- release objects
+  for (size_t i = 0 ; i < n; i++)
+  {
+    T * o = m_cache.front();
+    m_cache.pop_front();
+    NewAllocator<T>::free(o);
+  }
+}
+
 } // namespace 
 
 #endif // _ALLOCATOR_TPP_
