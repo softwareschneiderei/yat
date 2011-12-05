@@ -256,8 +256,12 @@ protected:
   void close ()
     throw (SocketException);
 
+  //! Listen to incoming connection.
+  void listen_to_incoming_connections (size_t n = 1)
+    throw (SocketException);
+
   //! Accept connection on bound port.
-  OSDescriptor accept ()
+  OSDescriptor accept_incoming_connections ()
     throw (SocketException);
       
   //! Connect to peer socket.
