@@ -12,7 +12,7 @@
 
     <groupId>fr.soleil.lib</groupId>
     <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
-    <version>1.7.3</version>
+    <version>1.7.3-SNAPSHOT</version>
 
     <packaging>nar</packaging>
 
