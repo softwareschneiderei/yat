@@ -37,14 +37,14 @@
 #ifndef _YAT_PORTABILITY_H_
 #define _YAT_PORTABILITY_H_
 
-
 #if (defined WIN32 || defined _WIN32)
 # include <float.h>
 # include <yat/config-win32.h>
 #elif (defined _linux_ || defined __linux__)
-# include <yat/math.h>
+# include <math.h>
 # include <yat/config-linux.h>
 #elif (defined __APPLE__)
+# include <math.h>
 # include <yat/config-macosx.h>
 #else
 # error "unknown/unsupported platform - sorry!"
@@ -55,7 +55,7 @@
 //---------------------------------------------------------------------------
 namespace yat
 {
-  extern double NAN; 
+  extern double IEEE_NAN; 
 
   template <typename T> 
   bool is_nan ( const T & v )
@@ -133,5 +133,7 @@ namespace yat
       }
     };
   }
+#endif
+
 #endif
 
