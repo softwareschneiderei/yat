@@ -50,3 +50,4 @@
 #endif
 
 #endif // __INLINE_H_
+

@@ -102,7 +102,7 @@ bool URI::check_value(const String& value, const String &accepted_chars, const S
 //----------------------------------------------------------------------------
 bool URI::check(URI::Part part, const String& value, bool throw_exception) throw ( Exception )
 {
-  switch( part )
+  switch ( part )
   {
     case URI::SCHEME:
       return check_value(value, ALPHA + DIGIT + "+-.", PSZ_FMT("Bad scheme syntax: %s.", PSZ(value)), throw_exception);
@@ -132,6 +132,11 @@ bool URI::check(URI::Part part, const String& value, bool throw_exception) throw
     case URI::FRAGMENT:
       return check_value(value, UNRESERVED + PCT_ENCODED + SUB_DELIMS + ":@/?", "fragment", throw_exception);
   }
+
+  if( throw_exception )
+    throw Exception(uri_syntax_error, "invalid URI::Part specified", "URI::check_value");
+  
+  return false;
 }
 
 //----------------------------------------------------------------------------

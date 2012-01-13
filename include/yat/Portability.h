@@ -37,15 +37,36 @@
 #ifndef _YAT_PORTABILITY_H_
 #define _YAT_PORTABILITY_H_
 
+
 #if (defined WIN32 || defined _WIN32)
-#  include <yat/config-win32.h>
+# include <float.h>
+# include <yat/config-win32.h>
 #elif (defined _linux_ || defined __linux__)
-#  include <yat/config-linux.h>
+# include <yat/math.h>
+# include <yat/config-linux.h>
 #elif (defined __APPLE__)
-#  include <yat/config-macosx.h>
+# include <yat/config-macosx.h>
 #else
 # error "unknown/unsupported platform - sorry!"
 #endif
+
+//----------------------------------------------------------------------------
+// yat::NAN
+//---------------------------------------------------------------------------
+namespace yat
+{
+  extern double NAN; 
+
+  template <typename T> 
+  bool is_nan ( const T & v )
+  {
+#if (defined WIN32 || defined _WIN32)
+    return _isnan(static_cast<double>(v));
+#else
+    return isnan(static_cast<double>(v));
+#endif
+  }
+}
 
 /**
  *  Define portable string streams
@@ -114,4 +135,3 @@
   }
 #endif
 
-#endif
