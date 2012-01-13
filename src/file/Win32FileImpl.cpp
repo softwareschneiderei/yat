@@ -39,6 +39,7 @@
 //=============================================================================
 #include <yat/time/Time.h>
 #include <yat/file/FileName.h>
+#include <yat/threading/SyncAccess.h>
 
 #include <fcntl.h>
 #include <stdlib.h>
@@ -143,8 +144,12 @@ void FileName::set_full_name(pcsz pszFileName)
   }
   else
   {
-    _getcwd(g_acScratchBuf, _MAX_PATH);
-    String strDir = g_acScratchBuf;
+    String strDir;
+    {
+      LOCK(&g_acScratchBuf)
+      _getcwd(g_acScratchBuf, _MAX_PATH);
+      strDir = g_acScratchBuf;
+    }
 
     // Convert path into full name in windows format.
     // 3 cases :
