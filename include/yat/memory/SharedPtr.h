@@ -43,48 +43,62 @@
 // ============================================================================
 #include <yat/utils/ReferenceCounter.h>
 #include <iostream>
+#include <map>
 
+    
 namespace yat
 {
 
 // ============================================================================
+// forward declaration class: WeakPtr
+// ============================================================================
+template <typename T, typename L = yat::NullMutex> class WeakPtr;
+
+// ============================================================================
 // class: SharedPtr
 // ============================================================================
-template <typename T, typename L = yat::NullMutex> class SharedPtr
+template <typename T, typename L = yat::NullMutex>
+class SharedPtr: public SharedCounter<yat::uint32,L>::IDeleter
 {
-  typedef SharedPtr<T,L> ThisType;
-  typedef ReferenceCounter<unsigned long, L> ThisTypeRefCnt;
+  friend class WeakPtr<T,L>;
 
+  typedef SharedPtr<T,L> ThisType;
+  typedef SharedCounter<yat::uint32, L> ThisTypeRefCnt;
+  
 public:
   //! constructor
   SharedPtr () 
-    : m_data(0), m_ref_count(0) 
+    : m_data(0)
   {
+    m_ref_count.set_deleter(this);
+    PTR_DBG("SharedPtr::SharedPtr()");
   }
 
   //! constructor
   SharedPtr (T* p) 
-    : m_data(p), m_ref_count(0) 
+    : m_data(p)
   {
-    this->m_ref_count = new ThisTypeRefCnt(1);
-    YAT_ASSERT(this->m_ref_count);
+    m_ref_count.set_deleter(this);
+    PTR_DBG("SharedPtr::SharedPtr(" << std::hex << (void*)p << ")");
   }
 
   //! copy constructor
   SharedPtr (const ThisType & s) 
     : m_data(s.m_data), m_ref_count(s.m_ref_count) 
   {
-    if( m_data )
-    {
-      YAT_ASSERT(this->m_ref_count);
-      this->m_ref_count->increment();
-    }
+    m_ref_count.set_deleter(this);
+    PTR_DBG("SharedPtr::SharedPtr(const ThisType & s) - m_data: " << std::hex << (void*)m_data << ")");
+    PTR_DBG("SharedPtr::SharedPtr(const ThisType & s) - use_count: " << use_count());
   }
+
+  //! constructor from WeakPtr
+  SharedPtr (const WeakPtr<T,L>& s);
 
   //! destructor
   ~SharedPtr()
   {
-    this->release();    
+    PTR_DBG("SharedPtr::~SharedPtr()");
+    m_ref_count.release();    
   }
 
   //! operator=
@@ -92,14 +106,10 @@ public:
   {
     if (this != &s)
     {
-      this->release();
-      this->m_data = s.m_data;
-      this->m_ref_count = s.m_ref_count;
-      if( m_data )
-      {
-        YAT_ASSERT(this->m_ref_count);
-        this->m_ref_count->increment();
-      }
+      PTR_DBG("SharedPtr::operator=(const ThisType & s) - m_data: " << std::hex << (void*)m_data << ")");
+      m_ref_count = s.m_ref_count;
+      m_data = s.m_data;
+      PTR_DBG("SharedPtr::SharedPtr(const ThisType & s) - use_count: " << use_count());
     }
     return *this;
   }
@@ -107,30 +117,190 @@ public:
   //! operator=
   const ThisType& operator= (T* p)
   {
+    PTR_DBG("SharedPtr::operator=(" << std::hex << (void*)p << ")");
     if (p)
-      this->reset(p);
+      reset(p);
     else
-      this->reset();
+      reset();
     return *this;
   }
 
   //! operator*
   T& operator* () const
   {
-    YAT_ASSERT(this->m_data);
-    return *this->m_data;
+    YAT_ASSERT(m_data);
+    return *m_data;
   }
 
   //! operator->
   T * operator-> () const
   {
-    return this->m_data;
+    return m_data;
   }
 
   //! operator->
   T * get () const
   {
-    return this->m_data;
+    return m_data;
+  }
+
+  //! reset
+  void reset ()
+  {
+    PTR_DBG("SharedPtr::reset()");
+    ThisType().swap(*this);
+  } 
+
+  //! reset
+  void reset (T * p)
+  {
+    PTR_DBG("SharedPtr::reset(" << std::hex << (void*)p << ")");
+    ThisType(p).swap(*this);
+  } 
+
+  //! reset (Y must be T convertible)
+  template <typename Y> 
+  void reset (Y * p)
+  {
+    PTR_DBG("template <typename Y>SharedPtr::reset(" << std::hex << (void*)p << ")");
+    ThisType(p).swap(*this);
+  } 
+
+  //- swap content
+  void swap (ThisType & s)
+  {
+    std::swap(m_data, s.m_data);
+    m_ref_count.swap(s.m_ref_count);
+  }
+
+  //! unique
+  bool unique () const
+  {
+    YAT_ASSERT(m_ref_count);
+    return m_ref_count->unique();
+  }
+
+  //! use count
+  unsigned long use_count () const
+  {
+    YAT_ASSERT(m_ref_count);
+    return m_ref_count.use_count();
+  }
+
+  //! implicit conversion to bool
+  typedef T* ThisType::*anonymous_bool_type;
+  operator anonymous_bool_type () const
+  {
+    return m_data == 0 ? 0 : &ThisType::m_data;
+  }
+
+  //! does this point to something?  
+  bool is_null () const
+  {
+    return m_data ? false : true;
+  }
+
+  //! internal impl of the '<' operator
+  template<class Y> 
+  bool less_than (SharedPtr<Y,L> const & s) const
+  {
+    return m_data < s.m_data;
+  }
+
+private:
+  //! deleter
+  void destroy()
+  {
+    PTR_DBG("SharedPtr::destroy() - m_data: " << std::hex << (void*)m_data << ")");
+    try { delete m_data; } catch (...) {};
+    m_data = 0;
+  }
+
+  //- pointed data
+  T * m_data;
+  //- reference counter
+  ThisTypeRefCnt m_ref_count;
+};
+
+
+//! comparison operator
+template <typename T, typename U, typename L> 
+inline bool operator<(SharedPtr<T, L> const & a, SharedPtr<U, L> const & b)
+{
+ return a.less_than(b);
+}
+
+// ============================================================================
+// class: WeakPtr
+// ============================================================================
+template <typename T, typename L> class WeakPtr
+{
+  typedef WeakPtr<T,L> ThisType;
+  typedef WeakCounter<yat::uint32, L> ThisTypeRefCnt;
+  
+public:
+  //! constructor
+  WeakPtr () 
+    : m_data(0)
+  {
+  }
+
+  //! copy constructor
+  template <typename Y>
+  WeakPtr (const WeakPtr<Y,L> & s) 
+    : m_data(s.m_data), m_ref_count(s.m_ref_count) 
+  {
+    PTR_DBG("WeakPtr::WeakPtr(const ThisType & s) - m_data: " << std::hex << (void*)m_data << ")");
+    PTR_DBG("WeakPtr::WeakPtr(const ThisType & s) - use_count: " << use_count());
+  }
+
+  //! constructor
+  template <typename Y>
+  WeakPtr (const SharedPtr<Y,L> & s) 
+    : m_data(s.m_data), m_ref_count(s.m_ref_count) 
+  {
+    PTR_DBG("WeakPtr::WeakPtr(const ThisType & s) - m_data: " << std::hex << (void*)m_data << ")");
+    PTR_DBG("WeakPtr::WeakPtr(const ThisType & s) - use_count: " << use_count());
+  }
+
+  //! destructor
+  ~WeakPtr()
+  {
+    m_ref_count.release();
+    PTR_DBG("WeakPtr::~WeakPtr()");
+  }
+
+  //! operator=
+  //! Y must be T-compatible !
+  template <class Y>
+  const WeakPtr<Y,L>& operator= (const WeakPtr<Y,L>& s)
+  {
+    if (this != &s)
+    {
+      PTR_DBG("WeakPtr::operator=(const WeakPtr<Y,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
+      m_ref_count = s.m_ref_count;
+      m_data = s.m_data;
+      if( m_data )
+      {
+        PTR_DBG("WeakPtr::operator=(const WeakPtr<Y,L> & s) - use_count: " << use_count());
+      }
+    }
+    return *this;
+  }
+  template <class Y>
+  const WeakPtr<Y,L>& operator= (const SharedPtr<Y,L>& s)
+  {
+    if (this != &s)
+    {
+      PTR_DBG("WeakPtr::operator=(const SharedPtr<Y,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
+      m_ref_count = s.m_ref_count;
+      m_data = s.m_data;
+      if( m_data )
+      {
+        PTR_DBG("WeakPtr::operator=(const SharedPtr<Y,L> & s) - use_count: " << use_count());
+      }
+    }
+    return *this;
   }
 
   //! reset
@@ -139,86 +309,84 @@ public:
     ThisType().swap(*this);
   } 
 
-  //! reset
-  void reset (T * p)
-  {
-    ThisType(p).swap(*this);
-  } 
-
-  //! reset (Y must be T convertible)
-  template <typename Y> 
-  void reset (Y * p)
-  {
-    ThisType(p).swap(*this);
-  } 
-
   //- swap content
   void swap (ThisType & s)
   {
-    std::swap(this->m_data, s.m_data);
-    std::swap(this->m_ref_count, s.m_ref_count);
-  }
-
-  //! unique
-  bool unique () const
-  {
-    YAT_ASSERT(this->m_ref_count);
-    return this->m_ref_count->unique();
+    std::swap(m_data, s.m_data);
+    std::swap(m_ref_count, s.m_ref_count);
   }
 
   //! use count
   unsigned long use_count () const
   {
-    YAT_ASSERT(this->m_ref_count);
-    return this->m_ref_count->use_count();
+    YAT_ASSERT(m_ref_count);
+    return m_ref_count.use_count();
   }
 
+  //! safe access only
+  SharedPtr<T,L> lock() const
+  {
+    PTR_DBG("WeakPtr::lock()");      
+    // Returns a sharedptr in order to get access to the pointed object
+    return SharedPtr<T,L>(*this);
+  }
+  
   //! implicit conversion to bool
   typedef T* ThisType::*anonymous_bool_type;
   operator anonymous_bool_type () const
   {
-    return this->m_data == 0 ? 0 : &ThisType::m_data;
+    return m_data == 0 || expired() ? 0 : &ThisType::m_data;
   }
 
   //! does this point to something?  
   bool is_null () const
   {
-    return this->m_data ? false : true;
+    return m_data ? false : true;
+  }
+
+  //! does this point to a valid reference?  
+  bool expired () const
+  {
+    return m_ref_count.use_count() == 0;
   }
 
   //! internal impl of the '<' operator
   template<class Y> 
-  bool less_than (SharedPtr<Y> const & s) const
+  bool less_than (WeakPtr<Y,L> const & s) const
   {
     return m_data < s.m_data;
-  }
-
-private:
-  //! release underlying data if ref. counter reaches 0
-  void release ()
-  {
-    if (this->m_data && this->m_ref_count->decrement() == 0)
-    {
-      try { delete this->m_data; } catch (...) {};
-      this->m_data = 0;
-      try { delete this->m_ref_count; } catch (...) {};
-      this->m_ref_count = 0;
-    }
   }
 
   //- pointed data
   T * m_data;
   //- reference counter
-  ThisTypeRefCnt * m_ref_count;
+  ThisTypeRefCnt m_ref_count;
 };
 
-// ============================================================================
-// The SharedObjectPtr class 
-// ============================================================================
-template <typename T, typename U> 
-inline bool operator<(SharedPtr<T> const & a, SharedPtr<U> const & b)
+//! comparison operator
+template <typename T, typename U, typename L> 
+inline bool operator<(WeakPtr<T, L> const & a, WeakPtr<U, L> const & b)
 {
  return a.less_than(b);
+}
+
+// ============================================================================
+//! SharedPtr class 
+// ============================================================================
+//! constructor from WeakPtr
+template <class T, class L> SharedPtr<T,L>::SharedPtr(const WeakPtr<T,L>& s): m_ref_count(s.m_ref_count)
+{
+  PTR_DBG("SharedPtr::SharedPtr(const WeakPtr<T,L>&) - use_count: " << use_count());
+  if( m_ref_count.use_count() == 0 )
+  { // pointer has expired -> returns a null pointer
+    m_data = 0;
+  }
+  else
+  {
+    m_data = s.m_data;
+    m_ref_count.set_deleter(this);
+  }
+  PTR_DBG("Use_count: " << use_count());
 }
 
 // ============================================================================
@@ -253,7 +421,7 @@ public:
    */
   ~SharedObjectPtr()
   {
-    this->reset();
+    reset();
   }
 
   /**
