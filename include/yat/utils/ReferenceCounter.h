@@ -49,8 +49,7 @@ namespace yat
 {
 
 #define PTR_DBG(s)
-//#define PTR_DBG(s) \
-    std::cout << std::hex << "[" << yat::ThreadingUtilities::self() << "][" << (void*)(this) << "] - " << std::dec << s << std::endl;
+//#define PTR_DBG(s) std::cout << std::hex << "[" << yat::ThreadingUtilities::self() << "][" << (void*)(this) << "] - " << std::dec << s << std::endl;
 
 // ============================================================================
 // class: CountImpl 
