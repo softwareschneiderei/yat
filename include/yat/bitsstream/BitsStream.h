@@ -214,7 +214,7 @@ public:
   bool read_bits (unsigned int _num_bits, yat::BitsStorage & _bits)
   //-------------------------------------------------------------------------
   {
-    _bits = 0;
+    ::memset(&_bits, 0, sizeof(_bits));
     return read_bits_i (_num_bits, &_bits);
   }
 
@@ -310,9 +310,9 @@ private:
     //**********************************************************************
     bool retval = true;
 
-    if (m_ibuffer != 0) 
+    if ( m_ibuffer != 0 ) 
     {
-      while (_num_bits > m_bits_in_current_byte)
+      while ( _num_bits > m_bits_in_current_byte )
       {
         if (_bits)
         {
@@ -321,7 +321,7 @@ private:
 
         _num_bits -= m_bits_in_current_byte;
 
-        if (m_ibuffer_ptr != m_ibuffer_size)
+        if ( m_ibuffer_ptr != m_ibuffer_size )
         {
           m_current_byte = static_cast<yat::BitsStorage>(m_ibuffer[m_ibuffer_ptr++]);
           m_bits_in_current_byte = 8;
@@ -347,6 +347,7 @@ private:
         m_bits_in_current_byte -= _num_bits;
       }
     }
+
     return retval;
   }
 };

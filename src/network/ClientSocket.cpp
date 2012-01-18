@@ -145,7 +145,7 @@ bool ClientSocket::wait_input_data (size_t _tmo, bool _throw)
 {
   YAT_TRACE("yat::ClientSocket::wait_input_data");
  
-  if (! this->select(_tmo))
+  if ( ! this->select(_tmo) )
   {
     if (! _throw)
       return false;

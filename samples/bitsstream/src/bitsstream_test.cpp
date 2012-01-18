@@ -149,6 +149,202 @@ BEGIN_BITS_RECORD_DUMP(TestRecord)
 #endif
 END_BITS_RECORD_DUMP(TestRecord)
 
+
+// ============================================================================
+// BITS RECORD: SPI STATUS (16 BITS WORD PROCESSING HELPER)
+// ============================================================================
+BEGIN_BITS_RECORD(SpiStatusWord)
+  MEMBER(ignored_00, 1, bool);
+  MEMBER(ignored_01, 1, bool);
+  MEMBER(ignored_02, 1, bool);
+  MEMBER(ignored_03, 1, bool);
+  MEMBER(ignored_04, 1, bool);
+  MEMBER(gap_defined, 1, bool); 
+  MEMBER(ignored_06, 1, bool);
+  MEMBER(ignored_07, 1, bool);
+  MEMBER(mode_manual_sw_trig_enabled, 1, bool); 
+  MEMBER(mode_manual_hw_trig_enabled, 1, bool); 
+  MEMBER(mode_gap_enabled, 1, bool); 
+  MEMBER(mode_ibp_enabled, 1, bool); 
+  MEMBER(ignored_12, 1, bool);
+  MEMBER(ignored_13, 1, bool);
+  MEMBER(ignored_14, 1, bool);
+  MEMBER(ignored_15, 1, bool);
+  MEMBER(ignored_16, 1, bool);
+  MEMBER(ignored_17, 1, bool);
+  MEMBER(ignored_18, 1, bool);
+  MEMBER(ignored_19, 1, bool);
+  MEMBER(ignored_20, 1, bool);
+  MEMBER(ignored_21, 1, bool);  
+  MEMBER(ignored_22, 1, bool);
+  MEMBER(ignored_23, 1, bool);
+  MEMBER(ignored_24, 1, bool);
+  MEMBER(ignored_25, 1, bool);
+  MEMBER(ignored_26, 1, bool);  
+  MEMBER(ignored_27, 1, bool);
+  MEMBER(ignored_28, 1, bool);
+  MEMBER(gap_table_uploaded, 1, bool); 
+  MEMBER(slow_ibp_table_uploaded, 1, bool); 
+  MEMBER(fast_ibp_table_uploaded, 1, bool); 
+END_BITS_RECORD(SpiStatusWord)
+//-----------------------------------------------------------------------------
+BEGIN_BITS_RECORD_EXTRACTOR(SpiStatusWord)
+  EXTRACT_MEMBER(ignored_00);
+  EXTRACT_MEMBER(ignored_01);
+  EXTRACT_MEMBER(ignored_02);
+  EXTRACT_MEMBER(ignored_03);
+  EXTRACT_MEMBER(ignored_04);
+  EXTRACT_MEMBER(gap_defined);  
+  EXTRACT_MEMBER(ignored_06);
+  EXTRACT_MEMBER(ignored_07);
+  EXTRACT_MEMBER(mode_manual_sw_trig_enabled); 
+  EXTRACT_MEMBER(mode_manual_hw_trig_enabled); 
+  EXTRACT_MEMBER(mode_gap_enabled); 
+  EXTRACT_MEMBER(mode_ibp_enabled); 
+  EXTRACT_MEMBER(ignored_12);
+  EXTRACT_MEMBER(ignored_13);
+  EXTRACT_MEMBER(ignored_14);
+  EXTRACT_MEMBER(ignored_15);
+  EXTRACT_MEMBER(ignored_16);
+  EXTRACT_MEMBER(ignored_17);
+  EXTRACT_MEMBER(ignored_18);
+  EXTRACT_MEMBER(ignored_19);
+  EXTRACT_MEMBER(ignored_20);
+  EXTRACT_MEMBER(ignored_21);
+  EXTRACT_MEMBER(ignored_22);
+  EXTRACT_MEMBER(ignored_23);
+  EXTRACT_MEMBER(ignored_24);
+  EXTRACT_MEMBER(ignored_25);
+  EXTRACT_MEMBER(ignored_26);  
+  EXTRACT_MEMBER(ignored_27);
+  EXTRACT_MEMBER(ignored_28);
+  EXTRACT_MEMBER(gap_table_uploaded); 
+  EXTRACT_MEMBER(slow_ibp_table_uploaded); 
+  EXTRACT_MEMBER(fast_ibp_table_uploaded); 
+END_BITS_RECORD_EXTRACTOR(SpiStatusWord)
+//-----------------------------------------------------------------------------
+BEGIN_BITS_RECORD_DUMP(SpiStatusWord)
+  DUMP_MEMBER(ignored_00);
+  DUMP_MEMBER(ignored_01);
+  DUMP_MEMBER(ignored_02);
+  DUMP_MEMBER(ignored_03);
+  DUMP_MEMBER(ignored_04);
+  DUMP_MEMBER(gap_defined); 
+  DUMP_MEMBER(ignored_06);
+  DUMP_MEMBER(ignored_07);
+  DUMP_MEMBER(mode_manual_sw_trig_enabled); 
+  DUMP_MEMBER(mode_manual_hw_trig_enabled); 
+  DUMP_MEMBER(mode_gap_enabled); 
+  DUMP_MEMBER(mode_ibp_enabled); 
+  DUMP_MEMBER(ignored_13);
+  DUMP_MEMBER(ignored_14);
+  DUMP_MEMBER(ignored_15);
+  DUMP_MEMBER(ignored_16);
+  DUMP_MEMBER(ignored_17);
+  DUMP_MEMBER(ignored_18);
+  DUMP_MEMBER(ignored_19);
+  DUMP_MEMBER(ignored_20);
+  DUMP_MEMBER(ignored_21);
+  DUMP_MEMBER(ignored_22);
+  DUMP_MEMBER(ignored_23);
+  DUMP_MEMBER(ignored_24);
+  DUMP_MEMBER(ignored_25);
+  DUMP_MEMBER(ignored_26);  
+  DUMP_MEMBER(ignored_27);
+  DUMP_MEMBER(ignored_28);
+  DUMP_MEMBER(gap_table_uploaded); 
+  DUMP_MEMBER(slow_ibp_table_uploaded); 
+  DUMP_MEMBER(fast_ibp_table_uploaded); 
+END_BITS_RECORD_DUMP(SpiStatusWord)
+//-----------------------------------------------------------------------------
+//- CLASS: SpiStatus (humanly usable mapping for SpiStatusWord)
+//-----------------------------------------------------------------------------
+class SpiStatus : public SpiStatusWord
+{
+public:
+  typedef enum
+  {
+    AUTO_GAP,
+    AUTO_IBP,
+    MANUAL_IBP_SW_TRIG,
+    MANUAL_IBP_HW_TRIG,
+    UNKNOWN,
+  } Mode_t;
+
+  //- ctor 
+  SpiStatus ()
+  { 
+    //-noop ctor 
+  }
+  
+  //- ctor 
+  SpiStatus (const SpiStatus& src)
+    : SpiStatusWord(src)
+  { 
+    *this = src;
+  }
+  
+  //- ctor 
+  const SpiStatus& operator= (const SpiStatus& src)
+  { 
+    if (&src == this)
+      return *this;
+    ::memcpy(this, &src, sizeof(SpiStatus));  
+    return *this;
+  }
+  
+  //- dtor 
+  virtual ~SpiStatus ()
+  { 
+    //-noop dtor 
+  }
+
+  //- are all tables uploaded on SPI? 
+  inline bool all_tables_uploaded () const
+  { 
+    return this->gap_table_uploaded()
+        && this->slow_ibp_table_uploaded()
+        && this->fast_ibp_table_uploaded(); 
+  }
+
+  //- manual mode enabled?
+  inline bool manual_mode_enabled () const 
+  {
+    return this->mode_manual_sw_trig_enabled()
+        || this->mode_manual_hw_trig_enabled(); 
+  }
+
+  //- current mode? (as value)
+  inline SpiStatus::Mode_t mode () const 
+  {
+    SpiStatus::Mode_t m = UNKNOWN; 
+    if ( this->mode_manual_sw_trig_enabled() )
+      m = MANUAL_IBP_SW_TRIG;
+    else if ( this->mode_manual_hw_trig_enabled() )
+      m = MANUAL_IBP_HW_TRIG;
+    else if ( this->mode_gap_enabled() )
+      m = AUTO_GAP;
+    else if ( this->mode_ibp_enabled() )
+      m = AUTO_IBP;
+    return m;
+  }
+
+  //- current mode? (as string)
+  inline const std::string & mode_str () const 
+  {
+    static std::string _mode_str_("UNKNOWN"); 
+    if ( this->mode_manual_sw_trig_enabled() )
+      _mode_str_ = "MANUAL_IBP_SW_TRIG";
+    else if ( this->mode_manual_hw_trig_enabled() )
+      _mode_str_ = "MANUAL_IBP_HW_TRIG";
+    else if ( this->mode_gap_enabled() )
+      _mode_str_ = "AUTO_GAP";
+    else if ( this->mode_ibp_enabled() )
+      _mode_str_ = "AUTO_IBP";
+    return _mode_str_;
+  }
+};
+
 //-----------------------------------------------------------------------------
 // forward declaration
 //-----------------------------------------------------------------------------
@@ -206,6 +402,18 @@ int main (int argc, char* argv[])
     TestRecord big_endian_tr;
     big_endian_bs >> big_endian_tr;
     std::cout << big_endian_tr << std::endl;
+
+    //--------------------------------------------------------------------
+    // 
+    //--------------------------------------------------------------------
+    unsigned long ui32 = 0xAAFF5500;
+    yat::BitsStream ui32_bs(reinterpret_cast<unsigned char *>(&ui32),
+                            sizeof(unsigned long),
+                            yat::Endianness::BO_LITTLE_ENDIAN);
+    //- push BitsStream content into a SpiStatus then dump the result 
+    SpiStatus ui32_tr;
+    ui32_bs >> ui32_tr;
+    std::cout << ui32_tr << std::endl;
   }
   catch (...)
   {

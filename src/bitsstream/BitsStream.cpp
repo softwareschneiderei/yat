@@ -91,7 +91,8 @@ BitsStream::BitsStream (unsigned char * _data,
    m_ibuffer_ptr (0),
    m_endianness (_endianness)
 { 
-  //- noop ctor
+   if ( m_ibuffer )
+     m_current_byte = static_cast<yat::BitsStorage>(m_ibuffer[m_ibuffer_ptr++]);
 }
 
 //=============================================================================
