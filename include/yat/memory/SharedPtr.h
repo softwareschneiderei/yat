@@ -92,6 +92,8 @@ public:
     PTR_DBG("SharedPtr::SharedPtr(const ThisType & s) - use_count: " << use_count());
   }
 
+  //! copy constructor
+  //! Throw an exception si Y is not compatible with T
   template<typename Y>
   SharedPtr (const SharedPtr<Y,L> & s) 
   {
@@ -119,6 +121,7 @@ public:
   }
 
   //! constructor from WeakPtr<Y,L>
+  //! Throw an exception si Y is not compatible with T
   template<typename Y>
   SharedPtr(const WeakPtr<Y,L>& s)
   {
@@ -360,7 +363,7 @@ public:
   }
 
   //! operator=
-  //! Y must be T-compatible !
+  //! Throw an exception si Y is not compatible with T
   template <class Y>
   const WeakPtr<T,L>& operator= (const WeakPtr<Y,L>& s)
   {
@@ -375,6 +378,8 @@ public:
     return *this;
   }
 
+  //! operator=
+  //! Throw an exception si Y is not compatible with T
   const WeakPtr<T,L>& operator= (const SharedPtr<T,L>& s)
   {
     PTR_DBG("WeakPtr::operator=(const SharedPtr<T,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
@@ -387,6 +392,8 @@ public:
     return *this;
   }
 
+  //! operator=
+  //! Throw an exception si Y is not compatible with T
   template <class Y>
   const WeakPtr<T,L>& operator= (const SharedPtr<Y,L>& s)
   {
@@ -461,6 +468,7 @@ private:
   //- reference counter
   ThisTypeRefCnt m_ref_count;
 
+  //- try to copy foreign data pointer
   template<typename Y>
   void cast_copy_data(Y* data)
   {
