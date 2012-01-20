@@ -64,6 +64,12 @@ public:
   
   CountImpl() : m_use_count(1), m_weak_count(0)
   {
+    PTR_DBG("CountImpl::CountImpl");
+  }
+  
+  ~CountImpl()
+  {
+    PTR_DBG("CountImpl::~CountImpl");
   }
   
   const T add_ref()
@@ -101,13 +107,13 @@ public:
     return m_weak_count;
   }
   
-  const T use_count()
+  T & use_count()
   {
     yat::AutoMutex<L> guard(this->m_lock);
     return m_use_count;
   }
 
-  const T weak_count()
+  const T & weak_count()
   {
     yat::AutoMutex<L> guard(this->m_lock);
     return m_weak_count;
@@ -169,6 +175,7 @@ public:
   //! constructor
   SharedCounter()
   {
+    PTR_DBG("SharedCounter::SharedCounter()");
     this->m_count = new CountImpl<T,L>();
     this->m_deleter = 0;
   }
@@ -177,6 +184,7 @@ public:
   virtual ~SharedCounter()
   {
     PTR_DBG("SharedCounter::~SharedCounter()");
+    release();
   };
 
   //! deleter affectation
@@ -186,11 +194,22 @@ public:
   }
   
   //! copy constructor
-  SharedCounter (const WeakCounter<T,L>& cnt);
+  SharedCounter (const WeakCounter<T,L>& cnt)
+  {
+    PTR_DBG("SharedCounter::SharedCounter(const WeakCounter<T,L>&)");
+    cnt.m_count->lock();
+    if( cnt.m_count->use_count() > 0 )
+    {
+      this->m_count = cnt.m_count;
+      this->m_count->add_ref();
+    }
+    cnt.m_count->unlock();
+  }
 
   //! copy constructor
   SharedCounter (const ThisType& cnt)
   {
+    PTR_DBG("SharedCounter::SharedCounter(const ThisType&)");
     this->m_count = cnt.m_count;
     this->m_count->add_ref();    
   }
@@ -239,7 +258,7 @@ public:
   
   //! swap content
   void swap (ThisType& s)
-  {      
+  {
     std::swap(this->m_count, s.m_count);
   }
 
@@ -250,9 +269,9 @@ public:
   }
 
   //! use count
-  const T & use_count () const
+  const T use_count () const
   {
-    return this->m_count->use_count();
+    return this->m_count ? this->m_count->use_count() : 0;
   }
 
   //- implicit conversion to bool
@@ -293,7 +312,7 @@ public:
   {
     PTR_DBG("WeakCounter::WeakCounter(const ThisType&)");
     this->m_count = cnt.m_count;
-    this->m_count->add_ref();    
+    this->m_count->add_weak_ref();    
   }
 
   //! copy constructor
@@ -308,6 +327,7 @@ public:
   virtual ~WeakCounter()
   {
     PTR_DBG("WeakCounter::~WeakCounter()");
+    release();
   };
 
   //! copy operator
@@ -352,7 +372,7 @@ public:
   }
 
   //! use count
-  const T & use_count () const
+  const T use_count () const
   {
     return this->m_count ? this->m_count->use_count() : 0;
   }
@@ -367,20 +387,6 @@ public:
 private:
   CountImpl<T,L>* m_count; // The shared counter
 };
-
-//! copy constructor
-template <class T, class L>
-SharedCounter<T, L>::SharedCounter (const WeakCounter<T,L>& cnt)
-{
-  PTR_DBG("SharedCounter::SharedCounter(const WeakCounter<T,L>&)");
-  this->m_count->lock();
-  if( cnt.m_count->use_count() > 0 )
-  {
-    this->m_count = cnt.m_count;
-    this->m_count->add_ref();
-  }
-  this->m_count->unlock();
-}
 
 } // namespace
 

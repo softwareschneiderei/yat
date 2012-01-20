@@ -60,7 +60,8 @@ template <typename T, typename L = yat::NullMutex> class WeakPtr;
 template <typename T, typename L = yat::NullMutex>
 class SharedPtr: public SharedCounter<yat::uint32,L>::IDeleter
 {
-  friend class WeakPtr<T,L>;
+  template<typename U, typename V> friend class WeakPtr;
+  template<typename U, typename V> friend class SharedPtr;
 
   typedef SharedPtr<T,L> ThisType;
   typedef SharedCounter<yat::uint32, L> ThisTypeRefCnt;
@@ -91,14 +92,54 @@ public:
     PTR_DBG("SharedPtr::SharedPtr(const ThisType & s) - use_count: " << use_count());
   }
 
-  //! constructor from WeakPtr
-  SharedPtr (const WeakPtr<T,L>& s);
+  template<typename Y>
+  SharedPtr (const SharedPtr<Y,L> & s) 
+  {
+    cast_copy_data(s.m_data);
+    m_ref_count = s.m_ref_count;
+    m_ref_count.set_deleter(this);
+    PTR_DBG("SharedPtr::SharedPtr(const SharedPtr<Y,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
+    PTR_DBG("SharedPtr::SharedPtr(const SharedPtr<Y,L> & s) - use_count: " << use_count());
+  }
+
+  //! constructor from WeakPtr<T,L>
+  SharedPtr(const WeakPtr<T,L>& s): m_ref_count(s.m_ref_count)
+  {
+    PTR_DBG("SharedPtr::SharedPtr(const WeakPtr<T,L>&) - use_count: " << use_count());
+    if( m_ref_count.use_count() == 0 )
+    { // pointer has expired -> returns a null pointer
+      m_data = 0;
+    }
+    else
+    {
+      m_data = s.m_data;
+      m_ref_count.set_deleter(this);
+    }
+    PTR_DBG("Use_count: " << use_count());
+  }
+
+  //! constructor from WeakPtr<Y,L>
+  template<typename Y>
+  SharedPtr(const WeakPtr<Y,L>& s)
+  {
+    PTR_DBG("SharedPtr::SharedPtr(const WeakPtr<Y,L>&) - use_count: " << use_count());
+    if( s.m_ref_count.use_count() == 0 )
+    { // pointer has expired -> returns a null pointer
+      m_data = 0;
+    }
+    else
+    {
+      copy_cast_data(s.m_data);
+      m_ref_count = s.m_ref_count;
+      m_ref_count.set_deleter(this);
+    }
+    PTR_DBG("Use_count: " << use_count());
+  }
 
   //! destructor
   ~SharedPtr()
   {
     PTR_DBG("SharedPtr::~SharedPtr()");
-    m_ref_count.release();    
   }
 
   //! operator=
@@ -176,14 +217,12 @@ public:
   //! unique
   bool unique () const
   {
-    YAT_ASSERT(m_ref_count);
     return m_ref_count->unique();
   }
 
   //! use count
   unsigned long use_count () const
   {
-    YAT_ASSERT(m_ref_count);
     return m_ref_count.use_count();
   }
 
@@ -208,7 +247,20 @@ public:
   }
 
 private:
-  //! deleter
+
+  // Try to copy data pointer of foreign type
+  template<typename Y>
+  void cast_copy_data(Y* data)
+  {
+    PTR_DBG("SharedPtr::cast_copy_data()");
+    m_data = dynamic_cast<T*>(data);
+    if( data != m_data )
+    {
+      throw Exception("BAD_CAST", "Trying to cast SharedPtr<T,L> to a uncompatible SharedPtr<Y,L>", "SharedPtr::cast_copy_data");
+    }
+  }
+
+  // deleter
   void destroy()
   {
     PTR_DBG("SharedPtr::destroy() - m_data: " << std::hex << (void*)m_data << ")");
@@ -237,17 +289,38 @@ template <typename T, typename L> class WeakPtr
 {
   typedef WeakPtr<T,L> ThisType;
   typedef WeakCounter<yat::uint32, L> ThisTypeRefCnt;
-  
+
+  template<class U, class V> friend class WeakPtr;
+  template<class U, class V> friend class SharedPtr;
+
 public:
   //! constructor
   WeakPtr () 
     : m_data(0)
   {
+    PTR_DBG("WeakPtr::WeakPtr()");
+  }
+
+  //! copy constructor
+  WeakPtr (const WeakPtr<T,L> & s) 
+    : m_data(s.m_data), m_ref_count(s.m_ref_count) 
+  {
+    PTR_DBG("WeakPtr::WeakPtr(const ThisType & s) - m_data: " << std::hex << (void*)m_data << ")");
+    PTR_DBG("WeakPtr::WeakPtr(const ThisType & s) - use_count: " << use_count());
   }
 
   //! copy constructor
   template <typename Y>
   WeakPtr (const WeakPtr<Y,L> & s) 
+  {
+    cast_copy_data(s.m_data);
+    m_ref_count = s.m_ref_count;
+    PTR_DBG("WeakPtr::WeakPtr(const WeakPtr<Y,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
+    PTR_DBG("WeakPtr::WeakPtr(const WeakPtr<Y,L> & s) - use_count: " << use_count());
+  }
+
+  //! constructor
+  WeakPtr (const SharedPtr<T,L> & s) 
     : m_data(s.m_data), m_ref_count(s.m_ref_count) 
   {
     PTR_DBG("WeakPtr::WeakPtr(const ThisType & s) - m_data: " << std::hex << (void*)m_data << ")");
@@ -257,48 +330,73 @@ public:
   //! constructor
   template <typename Y>
   WeakPtr (const SharedPtr<Y,L> & s) 
-    : m_data(s.m_data), m_ref_count(s.m_ref_count) 
   {
-    PTR_DBG("WeakPtr::WeakPtr(const ThisType & s) - m_data: " << std::hex << (void*)m_data << ")");
-    PTR_DBG("WeakPtr::WeakPtr(const ThisType & s) - use_count: " << use_count());
+    cast_copy_data(s.m_data);
+    m_ref_count = s.m_ref_count;
+    PTR_DBG("WeakPtr::WeakPtr(const SharedPtr<Y,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
+    PTR_DBG("WeakPtr::WeakPtr(const SharedPtr<Y,L> & s) - use_count: " << use_count());
   }
 
   //! destructor
   ~WeakPtr()
   {
-    m_ref_count.release();
     PTR_DBG("WeakPtr::~WeakPtr()");
+  }
+
+  //! operator=
+  const WeakPtr<T,L>& operator= (const WeakPtr<T,L>& s)
+  {
+    if (this != &s)
+    {
+      PTR_DBG("WeakPtr::operator=(const WeakPtr<T,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
+      m_ref_count = s.m_ref_count;
+      m_data = s.m_data;
+      if( m_data )
+      {
+        PTR_DBG("WeakPtr::operator=(const WeakPtr<T,L> & s) - use_count: " << use_count());
+      }
+    }
+    return *this;
   }
 
   //! operator=
   //! Y must be T-compatible !
   template <class Y>
-  const WeakPtr<Y,L>& operator= (const WeakPtr<Y,L>& s)
+  const WeakPtr<T,L>& operator= (const WeakPtr<Y,L>& s)
   {
-    if (this != &s)
+    PTR_DBG("WeakPtr::operator=(const WeakPtr<Y,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
+    cast_copy_data(s.m_data);
+    m_ref_count = s.m_ref_count;
+    PTR_DBG("WeakPtr::operator=(const WeakPtr<Y,L> & s) ref counter copied");
+    if( m_data )
     {
-      PTR_DBG("WeakPtr::operator=(const WeakPtr<Y,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
-      m_ref_count = s.m_ref_count;
-      m_data = s.m_data;
-      if( m_data )
-      {
-        PTR_DBG("WeakPtr::operator=(const WeakPtr<Y,L> & s) - use_count: " << use_count());
-      }
+      PTR_DBG("WeakPtr::operator=(const WeakPtr<Y,L> & s) - use_count: " << use_count());
     }
     return *this;
   }
-  template <class Y>
-  const WeakPtr<Y,L>& operator= (const SharedPtr<Y,L>& s)
+
+  const WeakPtr<T,L>& operator= (const SharedPtr<T,L>& s)
   {
-    if (this != &s)
+    PTR_DBG("WeakPtr::operator=(const SharedPtr<T,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
+    m_data = s.m_data;
+    m_ref_count = s.m_ref_count;
+    if( m_data )
     {
-      PTR_DBG("WeakPtr::operator=(const SharedPtr<Y,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
-      m_ref_count = s.m_ref_count;
-      m_data = s.m_data;
-      if( m_data )
-      {
-        PTR_DBG("WeakPtr::operator=(const SharedPtr<Y,L> & s) - use_count: " << use_count());
-      }
+      PTR_DBG("WeakPtr::operator=(const SharedPtr<T,L> & s) - use_count: " << use_count());
+    }
+    return *this;
+  }
+
+  template <class Y>
+  const WeakPtr<T,L>& operator= (const SharedPtr<Y,L>& s)
+  {
+    PTR_DBG("WeakPtr::operator=(const SharedPtr<Y,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
+    cast_copy_data(s.m_data);
+    m_ref_count = s.m_ref_count;
+    PTR_DBG("WeakPtr::operator=(const SharedPtr<Y,L> & s) ref counter copied");
+    if( m_data )
+    {
+      PTR_DBG("WeakPtr::operator=(const SharedPtr<Y,L> & s) - use_count: " << use_count());
     }
     return *this;
   }
@@ -306,6 +404,7 @@ public:
   //! reset
   void reset ()
   {
+    PTR_DBG("WeakPtr::reset()");
     ThisType().swap(*this);
   } 
 
@@ -319,7 +418,6 @@ public:
   //! use count
   unsigned long use_count () const
   {
-    YAT_ASSERT(m_ref_count);
     return m_ref_count.use_count();
   }
 
@@ -357,10 +455,23 @@ public:
     return m_data < s.m_data;
   }
 
+private:
   //- pointed data
   T * m_data;
   //- reference counter
   ThisTypeRefCnt m_ref_count;
+
+  template<typename Y>
+  void cast_copy_data(Y* data)
+  {
+    PTR_DBG("WeakPtr::cast_copy_data()");
+    m_data = dynamic_cast<T*>(data);
+    PTR_DBG("WeakPtr::cast_copy_data(): copied");
+    if( data != m_data )
+    {
+      throw Exception("BAD_CAST", "Trying to cast WeakPtr<T,L> to a uncompatible WeakPtr<Y,L>", "WeakPtr::cast_copy_data");
+    }
+  }
 };
 
 //! comparison operator
@@ -368,25 +479,6 @@ template <typename T, typename U, typename L>
 inline bool operator<(WeakPtr<T, L> const & a, WeakPtr<U, L> const & b)
 {
  return a.less_than(b);
-}
-
-// ============================================================================
-//! SharedPtr class 
-// ============================================================================
-//! constructor from WeakPtr
-template <class T, class L> SharedPtr<T,L>::SharedPtr(const WeakPtr<T,L>& s): m_ref_count(s.m_ref_count)
-{
-  PTR_DBG("SharedPtr::SharedPtr(const WeakPtr<T,L>&) - use_count: " << use_count());
-  if( m_ref_count.use_count() == 0 )
-  { // pointer has expired -> returns a null pointer
-    m_data = 0;
-  }
-  else
-  {
-    m_data = s.m_data;
-    m_ref_count.set_deleter(this);
-  }
-  PTR_DBG("Use_count: " << use_count());
 }
 
 // ============================================================================
