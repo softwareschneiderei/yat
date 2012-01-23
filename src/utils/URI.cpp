@@ -205,12 +205,12 @@ bool URI::check_authority(const String& authority, URI::Fields* fields_ptr, bool
 void URI::parse(const String& uri) throw ( Exception )
 {
   URI::Fields fields;
-  String all = uri, scheme, authority, query, fragment, userinfo, host, port;
+  String all = uri, authority, query, fragment, userinfo, host, port;
   
   // Scheme part is mandatory
   all.extract_token(':', &fields.scheme);
-  scheme.to_lower();
-  check(URI::SCHEME, scheme, true);
+  fields.scheme.to_lower();
+  check(URI::SCHEME, fields.scheme, true);
   
   // Hierarchical part (authority or path) is mandatory
   // This part ends with first '?' or '#'
@@ -235,6 +235,7 @@ void URI::parse(const String& uri) throw ( Exception )
   if( hierarchical_part.match("//*") )
   {
     // There is an authority
+    hierarchical_part = hierarchical_part.substr(2);
     String authority;
     hierarchical_part.extract_token('/', &authority);
     check_authority(authority, &fields, true);
