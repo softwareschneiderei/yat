@@ -140,20 +140,6 @@ bool URI::check(URI::Part part, const String& value, bool throw_exception) throw
 }
 
 //----------------------------------------------------------------------------
-// URI::check_path
-//----------------------------------------------------------------------------
-bool URI::check_path(const String& path, bool throw_exception) throw ( Exception )
-{
-  if( !path.empty() && !path.match("/*") )
-  {
-    if( throw_exception )
-      throw Exception(uri_syntax_error, String::str_format("Bad 'path' syntax: %s.", PSZ(path)), "URI::check_path");
-    return false;
-  }
-  return true;
-}
-
-//----------------------------------------------------------------------------
 // URI::split_authority
 //----------------------------------------------------------------------------
 void URI::split_authority(const String& authority, String* userinfo_ptr, String* host_ptr, String* port_ptr)
@@ -245,8 +231,6 @@ void URI::parse(const String& uri) throw ( Exception )
   }
   else
   {
-    if( !hierarchical_part.match("/*") )
-      throw Exception(uri_syntax_error, "Path part must begin with a '/'", "URI::parse");
     fields.path = hierarchical_part;
   }
 
@@ -355,6 +339,14 @@ void URI::set(URI::Part part, const String &value) throw ( Exception )
     check(part, value, true);
     m_part[part] = value;
   }
+}
+
+//----------------------------------------------------------------------------
+// URI::set
+//----------------------------------------------------------------------------
+void URI::set(const String &value) throw ( Exception )
+{
+  parse(value);
 }
 
 } //- namespace yat
