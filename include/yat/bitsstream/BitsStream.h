@@ -43,6 +43,7 @@
 //=============================================================================
 #include <streambuf>
 #include <iostream>
+#include <iomanip>
 #include <bitset>
 #if defined(WIN32) && ! defined(NOMINMAX)
 # define NOMINMAX
@@ -61,15 +62,6 @@ namespace yat
   typedef yat::uint64 BitsStorage;
 #else
   typedef yat::uint32 BitsStorage;
-#endif
-
-//=============================================================================
-// A table of masks to ease 0 to {32 or 64} bits masking
-//=============================================================================
-#if defined(YAT_64BITS)
-  extern YAT_DECL BitsStorage bit_masks[65];
-#else
-  extern YAT_DECL BitsStorage bit_masks[33];
 #endif
 
 //=============================================================================
@@ -162,22 +154,8 @@ public:
   std::string to_string () const
   //---------------------------------------------
   {
-#if defined(WIN32) && _HAS_CPP0X
-# if defined (YAT_64BITS)
-    std::bitset<_n> bs(static_cast<_ULONGLONG>(m_value));
-# else
-    std::bitset<_n> bs(static_cast<int>(m_value));
-# endif
-#else
-    std::bitset<_n> bs(static_cast<unsigned long>(m_value));
-#endif
-
-#if ! defined(WIN32) && (__GNUC__ < 4)
-#warning "BitsSet<_n, T>.to_string() doesn't compile properly using gcc 3.x - will print out <xxxxxxxxxxxxxxxx>"
-    return "xxxxxxxx";
-#else
+    std::bitset<_n> bs(static_cast<BitsStorage>(m_value));
     return bs.to_string();
-#endif
   }
 
 private:
@@ -214,7 +192,7 @@ public:
   bool read_bits (unsigned int _num_bits, yat::BitsStorage & _bits)
   //-------------------------------------------------------------------------
   {
-    ::memset(&_bits, 0, sizeof(_bits));
+    _bits = 0;
     return read_bits_i (_num_bits, &_bits);
   }
 
@@ -223,38 +201,6 @@ public:
   //-------------------------------------------------------------------------
   {
     return read_bits_i (_num_bits, 0);
-  }
-
-  //-------------------------------------------------------------------------
-  bool peek (unsigned char& _bits) // TODO make const and inbbits mutable ?
-  //-------------------------------------------------------------------------
-  {
-    _bits = 0;
-
-    bool retval = true;
-
-    if (m_ibuffer != 0)
-    {
-      if (8 > m_bits_in_current_byte)
-      {
-        if (m_ibuffer_ptr != m_ibuffer_size)
-        {
-          m_current_byte <<= 8;
-          m_current_byte |= static_cast<yat::BitsStorage>(m_ibuffer[m_ibuffer_ptr++]);
-          m_bits_in_current_byte += 8;
-        }
-        else 
-        {
-          m_current_byte = 0;
-          m_bits_in_current_byte = 0;
-          retval = false;
-        }
-      }
-
-      if (retval)
-        _bits = static_cast<unsigned char>(m_current_byte >> (m_bits_in_current_byte - 8));
-    }
-    return retval;
   }
 
   //-------------------------------------------------------------------------
@@ -284,7 +230,7 @@ private:
   yat::BitsStorage m_current_byte;
   
   //- the current number of bits in m_current_byte
-  unsigned int m_bits_in_current_byte;
+  int m_bits_in_current_byte;
 
   //- the data buffer
   unsigned char * m_ibuffer;
@@ -292,38 +238,46 @@ private:
   //- the data buffer size
   size_t m_ibuffer_size;
 
-  //- the current idx in the data buffer 
+  //- the current byte index in the data buffer 
   size_t m_ibuffer_ptr;
 
   //- is the input stream big or little endian?
   const Endianness::ByteOrder m_endianness;
 
-  //- this is how to extract the bits, or skip the bits if bits == 0
-  //-------------------------------------------------------------------------
-  inline bool read_bits_i (unsigned int _num_bits, yat::BitsStorage * _bits)
-  //-------------------------------------------------------------------------
+  //- print out <v> in binary representation
+  template <typename T> void binary_dump (const std::string & n, const T & v )
   {
-    //**********************************************************************
-    //                          IMPORTANT NOTE 
-    //----------------------------------------------------------------------
-    // WHATEVER IS THE INPUT ENDIANESS, THIS ALGO. PRODUCES BIG ENDIAN DATA 
-    //**********************************************************************
+    yat::BitsSet<8 * sizeof(T), T> bs(v);
+    std::cout << "- " 
+              << std::setw(25)
+              << std::left
+              << std::setfill('.')
+              << n 
+              << bs.to_string() 
+              << std::right
+              << std::endl;
+  }
+  
+  //- this extracts _num_bits bits or skips _num_bits if bits == 0
+  inline bool read_bits_i (int _num_bits, yat::BitsStorage * _bits)
+  {
     bool retval = true;
-
+    
     if ( m_ibuffer != 0 ) 
     {
+      //- this part of the algorithm extracts full byte(s)
       while ( _num_bits > m_bits_in_current_byte )
       {
-        if (_bits)
+        if ( _bits )
         {
-          *_bits |= m_current_byte << (_num_bits - m_bits_in_current_byte);
+          *_bits |= m_current_byte << ( _num_bits - m_bits_in_current_byte );
         }
 
         _num_bits -= m_bits_in_current_byte;
 
         if ( m_ibuffer_ptr != m_ibuffer_size )
         {
-          m_current_byte = static_cast<yat::BitsStorage>(m_ibuffer[m_ibuffer_ptr++]);
+          m_current_byte = m_ibuffer[m_ibuffer_ptr++];
           m_bits_in_current_byte = 8;
         }
         else
@@ -334,96 +288,79 @@ private:
           break;
         }
       }
-
-      if (_num_bits > 0 && retval)
+      
+      //- this part of the algorithm extracts individual bit
+      if ( _num_bits > 0 && retval )
       {
-        if (_bits)
+        if ( _bits )
         {
-          *_bits |= m_current_byte >> (m_bits_in_current_byte - _num_bits);
+          yat::BitsStorage bit_mask = 0x01;
+          for ( int i = 1; i < _num_bits; i++ )
+          {
+            bit_mask = ( bit_mask << 1 ) | static_cast<yat::BitsStorage>(0x01);
+          }
+          *_bits |= m_current_byte & bit_mask;
         }
-
-        m_current_byte &= yat::bit_masks[m_bits_in_current_byte - _num_bits];
-
+   
+        m_current_byte = m_current_byte >> _num_bits;
+        
         m_bits_in_current_byte -= _num_bits;
       }
     }
-
+    
     return retval;
   }
 };
 
 //=============================================================================
-// specialization of operator>> for bitset<n> with [0...{sizeof(long)*8}] bits 
+// operator>> - extracts _n bits from source then puts result into dest.value
 //=============================================================================
-#define _IBSTREAM_READFUNC(_n, _T) \
-inline BitsStream& operator>> (BitsStream& _source, BitsSet<_n, _T>& _dest) \
-{\
-  yat::BitsStorage tmp = 0; \
-  _source.read_bits(_n, tmp); \
-  if (_source.endianness() == Endianness::BO_LITTLE_ENDIAN) \
-  { \
-    switch (sizeof(_T)) \
-    { \
-      case 2: \
-      { \
-        Endianness::swap_2(reinterpret_cast<const char*>(&tmp), \
-                           reinterpret_cast<char*>(&tmp)); \
-      } \
-      break; \
-      case 4: \
-      { \
-        Endianness::swap_4(reinterpret_cast<const char*>(&tmp), \
-                           reinterpret_cast<char*>(&tmp)); \
-      } \
-      break; \
-      case 8: \
-      { \
-        Endianness::swap_8(reinterpret_cast<const char*>(&tmp), \
-                           reinterpret_cast<char*>(&tmp)); \
-      } \
-      break; \
-      case 16: \
-      { \
-        Endianness::swap_16(reinterpret_cast<const char*>(&tmp), \
-                            reinterpret_cast<char*>(&tmp)); \
-      } \
-      break; \
-    } \
-  } \
-  _dest.value() = static_cast<_T>(tmp); \
-  return _source ; \
-} 
-  
-//-----------------------------------------------------------------------------
-// specializations
-//-----------------------------------------------------------------------------
-_IBSTREAM_READFUNC( 1, bool)
-_IBSTREAM_READFUNC( 8, char)
-_IBSTREAM_READFUNC( 8, unsigned char)
-_IBSTREAM_READFUNC(16, short)
-_IBSTREAM_READFUNC(16, unsigned short)
-_IBSTREAM_READFUNC(32, int)
-_IBSTREAM_READFUNC(32, unsigned int)
-#if ! defined(YAT_64BITS)
-_IBSTREAM_READFUNC(32, long)
-_IBSTREAM_READFUNC(32, unsigned long)
-#elif defined(YAT_WIN64) 
-_IBSTREAM_READFUNC(32, long)
-_IBSTREAM_READFUNC(32, unsigned long)
-_IBSTREAM_READFUNC(64, __int64)
-_IBSTREAM_READFUNC(64, unsigned __int64)
-#else
-_IBSTREAM_READFUNC(64, long)
-_IBSTREAM_READFUNC(64, unsigned long)
-#endif
-  
-//=============================================================================
-// operator>> for an array of elements
-//=============================================================================
-template <typename T>
-BitsStream& operator>> (BitsStream& _source, T _dest[])
+template <size_t _n, typename _T>
+BitsStream& operator>> (BitsStream& source, BitsSet<_n, _T>& dest)
 {
-  for (size_t i = 0; i < sizeof(_dest)/sizeof(_dest[0]); ++i)
+  yat::BitsStorage tmp = 0;
+  source.read_bits(_n, tmp);
+  if ( source.endianness() == Endianness::BO_BIG_ENDIAN )
+  {
+    switch (sizeof(_T))
+    {
+      case 2:
+      {
+        Endianness::swap_2(reinterpret_cast<const char*>(&tmp),
+                           reinterpret_cast<char*>(&tmp));
+      }
+      break;
+      case 4:
+      {
+        Endianness::swap_4(reinterpret_cast<const char*>(&tmp),
+                           reinterpret_cast<char*>(&tmp));
+      }
+      break;
+      case 8:
+      {
+        Endianness::swap_8(reinterpret_cast<const char*>(&tmp),
+                           reinterpret_cast<char*>(&tmp));
+      }
+      break;
+      case 16:
+      {
+        Endianness::swap_16(reinterpret_cast<const char*>(&tmp),
+                            reinterpret_cast<char*>(&tmp));
+      }
+      break;
+    }
+  } 
+  dest.value() = static_cast<_T>(tmp);
+  return source;
+} 
+
+//=============================================================================
+// operator>> for array of elements of type T
+//=============================================================================
+template <typename _T>
+BitsStream& operator>> (BitsStream& _source, const _T _dest[])
+{
+  for (size_t i = 0; i < sizeof(_dest)/sizeof(_T); ++i)
     _source >> _dest[i];
   return _source;
 }

@@ -11,10 +11,10 @@
 #include <yat/bitsstream/BitsRecord.h>
 #include <yat/memory/DataBuffer.h>
 
-//-----------------------------------------------------------------------------
-// BITS_RECORD: TestRecord
-//-----------------------------------------------------------------------------
-BEGIN_BITS_RECORD(TestRecord)
+// ============================================================================
+// BITS RECORD: TestRecord
+// ============================================================================
+YAT_BEGIN_BR(TestRecord)
   //- 1 bit members
   MEMBER(bool_0, 1, bool)
   MEMBER(bool_1, 1, bool)
@@ -61,9 +61,9 @@ BEGIN_BITS_RECORD(TestRecord)
   MEMBER(mid_unsigned_int64, sizeof(unsigned __int64) * 8, unsigned __int64)
   MEMBER(max_unsigned_int64, sizeof(unsigned __int64) * 8, unsigned __int64)
 #endif
-END_BITS_RECORD(TestRecord)
-
-BEGIN_BITS_RECORD_EXTRACTOR(TestRecord)
+YAT_END_BR(TestRecord)
+//-----------------------------------------------------------------------------
+YAT_BEGIN_BR_EXTRACTOR(TestRecord)
   EXTRACT_MEMBER(bool_0)
   EXTRACT_MEMBER(bool_1)
   EXTRACT_MEMBER(bool_2)
@@ -104,9 +104,9 @@ BEGIN_BITS_RECORD_EXTRACTOR(TestRecord)
   EXTRACT_MEMBER(mid_unsigned_int64)
   EXTRACT_MEMBER(max_unsigned_int64)
 #endif
-END_BITS_RECORD_EXTRACTOR(TestRecord)
-
-BEGIN_BITS_RECORD_DUMP(TestRecord)
+YAT_END_BR_EXTRACTOR(TestRecord)
+//-----------------------------------------------------------------------------
+YAT_BEGIN_BR_DUMP(TestRecord)
   DUMP_MEMBER(bool_0)
   DUMP_MEMBER(bool_1)
   DUMP_MEMBER(bool_2)
@@ -147,203 +147,247 @@ BEGIN_BITS_RECORD_DUMP(TestRecord)
   DUMP_MEMBER(mid_unsigned_int64)
   DUMP_MEMBER(max_unsigned_int64)
 #endif
-END_BITS_RECORD_DUMP(TestRecord)
-
-
+YAT_END_BR_DUMP(TestRecord)
 // ============================================================================
-// BITS RECORD: SPI STATUS (16 BITS WORD PROCESSING HELPER)
+// BITS RECORD: 32 BITS STATUS WORD
 // ============================================================================
-BEGIN_BITS_RECORD(SpiStatusWord)
-  MEMBER(ignored_00, 1, bool);
-  MEMBER(ignored_01, 1, bool);
-  MEMBER(ignored_02, 1, bool);
-  MEMBER(ignored_03, 1, bool);
-  MEMBER(ignored_04, 1, bool);
-  MEMBER(gap_defined, 1, bool); 
-  MEMBER(ignored_06, 1, bool);
-  MEMBER(ignored_07, 1, bool);
-  MEMBER(mode_manual_sw_trig_enabled, 1, bool); 
-  MEMBER(mode_manual_hw_trig_enabled, 1, bool); 
-  MEMBER(mode_gap_enabled, 1, bool); 
-  MEMBER(mode_ibp_enabled, 1, bool); 
-  MEMBER(ignored_12, 1, bool);
-  MEMBER(ignored_13, 1, bool);
-  MEMBER(ignored_14, 1, bool);
-  MEMBER(ignored_15, 1, bool);
-  MEMBER(ignored_16, 1, bool);
-  MEMBER(ignored_17, 1, bool);
-  MEMBER(ignored_18, 1, bool);
-  MEMBER(ignored_19, 1, bool);
-  MEMBER(ignored_20, 1, bool);
-  MEMBER(ignored_21, 1, bool);  
-  MEMBER(ignored_22, 1, bool);
-  MEMBER(ignored_23, 1, bool);
-  MEMBER(ignored_24, 1, bool);
-  MEMBER(ignored_25, 1, bool);
-  MEMBER(ignored_26, 1, bool);  
-  MEMBER(ignored_27, 1, bool);
-  MEMBER(ignored_28, 1, bool);
-  MEMBER(gap_table_uploaded, 1, bool); 
-  MEMBER(slow_ibp_table_uploaded, 1, bool); 
-  MEMBER(fast_ibp_table_uploaded, 1, bool); 
-END_BITS_RECORD(SpiStatusWord)
+YAT_BEGIN_BR(StatusWord32To32Bool)
+  MEMBER(bit_00, 1, bool);
+  MEMBER(bit_01, 1, bool);
+  MEMBER(bit_02, 1, bool);
+  MEMBER(bit_03, 1, bool);
+  MEMBER(bit_04, 1, bool);
+  MEMBER(bit_05, 1, bool); 
+  MEMBER(bit_06, 1, bool);
+  MEMBER(bit_07, 1, bool);
+  MEMBER(bit_08, 1, bool); 
+  MEMBER(bit_09, 1, bool); 
+  MEMBER(bit_10, 1, bool); 
+  MEMBER(bit_11, 1, bool); 
+  MEMBER(bit_12, 1, bool);
+  MEMBER(bit_13, 1, bool);
+  MEMBER(bit_14, 1, bool);
+  MEMBER(bit_15, 1, bool);
+  MEMBER(bit_16, 1, bool);
+  MEMBER(bit_17, 1, bool);
+  MEMBER(bit_18, 1, bool);
+  MEMBER(bit_19, 1, bool);
+  MEMBER(bit_20, 1, bool);
+  MEMBER(bit_21, 1, bool);  
+  MEMBER(bit_22, 1, bool);
+  MEMBER(bit_23, 1, bool);
+  MEMBER(bit_24, 1, bool);
+  MEMBER(bit_25, 1, bool);
+  MEMBER(bit_26, 1, bool);  
+  MEMBER(bit_27, 1, bool);
+  MEMBER(bit_28, 1, bool);
+  MEMBER(bit_29, 1, bool); 
+  MEMBER(bit_30, 1, bool); 
+  MEMBER(bit_31, 1, bool); 
+YAT_END_BR(StatusWord32To32Bool)
 //-----------------------------------------------------------------------------
-BEGIN_BITS_RECORD_EXTRACTOR(SpiStatusWord)
-  EXTRACT_MEMBER(ignored_00);
-  EXTRACT_MEMBER(ignored_01);
-  EXTRACT_MEMBER(ignored_02);
-  EXTRACT_MEMBER(ignored_03);
-  EXTRACT_MEMBER(ignored_04);
-  EXTRACT_MEMBER(gap_defined);  
-  EXTRACT_MEMBER(ignored_06);
-  EXTRACT_MEMBER(ignored_07);
-  EXTRACT_MEMBER(mode_manual_sw_trig_enabled); 
-  EXTRACT_MEMBER(mode_manual_hw_trig_enabled); 
-  EXTRACT_MEMBER(mode_gap_enabled); 
-  EXTRACT_MEMBER(mode_ibp_enabled); 
-  EXTRACT_MEMBER(ignored_12);
-  EXTRACT_MEMBER(ignored_13);
-  EXTRACT_MEMBER(ignored_14);
-  EXTRACT_MEMBER(ignored_15);
-  EXTRACT_MEMBER(ignored_16);
-  EXTRACT_MEMBER(ignored_17);
-  EXTRACT_MEMBER(ignored_18);
-  EXTRACT_MEMBER(ignored_19);
-  EXTRACT_MEMBER(ignored_20);
-  EXTRACT_MEMBER(ignored_21);
-  EXTRACT_MEMBER(ignored_22);
-  EXTRACT_MEMBER(ignored_23);
-  EXTRACT_MEMBER(ignored_24);
-  EXTRACT_MEMBER(ignored_25);
-  EXTRACT_MEMBER(ignored_26);  
-  EXTRACT_MEMBER(ignored_27);
-  EXTRACT_MEMBER(ignored_28);
-  EXTRACT_MEMBER(gap_table_uploaded); 
-  EXTRACT_MEMBER(slow_ibp_table_uploaded); 
-  EXTRACT_MEMBER(fast_ibp_table_uploaded); 
-END_BITS_RECORD_EXTRACTOR(SpiStatusWord)
+YAT_BEGIN_BR_EXTRACTOR(StatusWord32To32Bool)
+  EXTRACT_MEMBER(bit_00);
+  EXTRACT_MEMBER(bit_01);
+  EXTRACT_MEMBER(bit_02);
+  EXTRACT_MEMBER(bit_03);
+  EXTRACT_MEMBER(bit_04);
+  EXTRACT_MEMBER(bit_05);  
+  EXTRACT_MEMBER(bit_06);
+  EXTRACT_MEMBER(bit_07);
+  EXTRACT_MEMBER(bit_08); 
+  EXTRACT_MEMBER(bit_09); 
+  EXTRACT_MEMBER(bit_10); 
+  EXTRACT_MEMBER(bit_11); 
+  EXTRACT_MEMBER(bit_12);
+  EXTRACT_MEMBER(bit_13);
+  EXTRACT_MEMBER(bit_14);
+  EXTRACT_MEMBER(bit_15);
+  EXTRACT_MEMBER(bit_16);
+  EXTRACT_MEMBER(bit_17);
+  EXTRACT_MEMBER(bit_18);
+  EXTRACT_MEMBER(bit_19);
+  EXTRACT_MEMBER(bit_20);
+  EXTRACT_MEMBER(bit_21);
+  EXTRACT_MEMBER(bit_22);
+  EXTRACT_MEMBER(bit_23);
+  EXTRACT_MEMBER(bit_24);
+  EXTRACT_MEMBER(bit_25);
+  EXTRACT_MEMBER(bit_26);  
+  EXTRACT_MEMBER(bit_27);
+  EXTRACT_MEMBER(bit_28);
+  EXTRACT_MEMBER(bit_29); 
+  EXTRACT_MEMBER(bit_30); 
+  EXTRACT_MEMBER(bit_31); 
+YAT_END_BR_EXTRACTOR(StatusWord32To32Bool)
 //-----------------------------------------------------------------------------
-BEGIN_BITS_RECORD_DUMP(SpiStatusWord)
-  DUMP_MEMBER(ignored_00);
-  DUMP_MEMBER(ignored_01);
-  DUMP_MEMBER(ignored_02);
-  DUMP_MEMBER(ignored_03);
-  DUMP_MEMBER(ignored_04);
-  DUMP_MEMBER(gap_defined); 
-  DUMP_MEMBER(ignored_06);
-  DUMP_MEMBER(ignored_07);
-  DUMP_MEMBER(mode_manual_sw_trig_enabled); 
-  DUMP_MEMBER(mode_manual_hw_trig_enabled); 
-  DUMP_MEMBER(mode_gap_enabled); 
-  DUMP_MEMBER(mode_ibp_enabled); 
-  DUMP_MEMBER(ignored_13);
-  DUMP_MEMBER(ignored_14);
-  DUMP_MEMBER(ignored_15);
-  DUMP_MEMBER(ignored_16);
-  DUMP_MEMBER(ignored_17);
-  DUMP_MEMBER(ignored_18);
-  DUMP_MEMBER(ignored_19);
-  DUMP_MEMBER(ignored_20);
-  DUMP_MEMBER(ignored_21);
-  DUMP_MEMBER(ignored_22);
-  DUMP_MEMBER(ignored_23);
-  DUMP_MEMBER(ignored_24);
-  DUMP_MEMBER(ignored_25);
-  DUMP_MEMBER(ignored_26);  
-  DUMP_MEMBER(ignored_27);
-  DUMP_MEMBER(ignored_28);
-  DUMP_MEMBER(gap_table_uploaded); 
-  DUMP_MEMBER(slow_ibp_table_uploaded); 
-  DUMP_MEMBER(fast_ibp_table_uploaded); 
-END_BITS_RECORD_DUMP(SpiStatusWord)
+YAT_BEGIN_BR_DUMP(StatusWord32To32Bool)
+  DUMP_MEMBER(bit_00);
+  DUMP_MEMBER(bit_01);
+  DUMP_MEMBER(bit_02);
+  DUMP_MEMBER(bit_03);
+  DUMP_MEMBER(bit_04);
+  DUMP_MEMBER(bit_05); 
+  DUMP_MEMBER(bit_06);
+  DUMP_MEMBER(bit_07);
+  DUMP_MEMBER(bit_08); 
+  DUMP_MEMBER(bit_09); 
+  DUMP_MEMBER(bit_10); 
+  DUMP_MEMBER(bit_11); 
+  DUMP_MEMBER(bit_13);
+  DUMP_MEMBER(bit_14);
+  DUMP_MEMBER(bit_15);
+  DUMP_MEMBER(bit_16);
+  DUMP_MEMBER(bit_17);
+  DUMP_MEMBER(bit_18);
+  DUMP_MEMBER(bit_19);
+  DUMP_MEMBER(bit_20);
+  DUMP_MEMBER(bit_21);
+  DUMP_MEMBER(bit_22);
+  DUMP_MEMBER(bit_23);
+  DUMP_MEMBER(bit_24);
+  DUMP_MEMBER(bit_25);
+  DUMP_MEMBER(bit_26);  
+  DUMP_MEMBER(bit_27);
+  DUMP_MEMBER(bit_28);
+  DUMP_MEMBER(bit_29); 
+  DUMP_MEMBER(bit_30); 
+  DUMP_MEMBER(bit_31); 
+YAT_END_BR_DUMP(StatusWord32To32Bool)
+// ============================================================================
+// BITS RECORD: 32 BITS STATUS WORD
+// ============================================================================
+YAT_BEGIN_BR(StatusWord32To04Bytes)
+  MEMBER(byte_00, 8, unsigned char);
+  MEMBER(byte_01, 8, unsigned char);
+  MEMBER(byte_02, 8, unsigned char);
+  MEMBER(byte_03, 8, unsigned char);
+YAT_END_BR(StatusWord32To04Bytes)
 //-----------------------------------------------------------------------------
-//- CLASS: SpiStatus (humanly usable mapping for SpiStatusWord)
+YAT_BEGIN_BR_EXTRACTOR(StatusWord32To04Bytes)
+  EXTRACT_MEMBER(byte_00);
+  EXTRACT_MEMBER(byte_01);
+  EXTRACT_MEMBER(byte_02);
+  EXTRACT_MEMBER(byte_03);
+YAT_END_BR_EXTRACTOR(StatusWord32To04Bytes)
 //-----------------------------------------------------------------------------
-class SpiStatus : public SpiStatusWord
-{
-public:
-  typedef enum
-  {
-    AUTO_GAP,
-    AUTO_IBP,
-    MANUAL_IBP_SW_TRIG,
-    MANUAL_IBP_HW_TRIG,
-    UNKNOWN,
-  } Mode_t;
-
-  //- ctor 
-  SpiStatus ()
-  { 
-    //-noop ctor 
-  }
-  
-  //- ctor 
-  SpiStatus (const SpiStatus& src)
-    : SpiStatusWord(src)
-  { 
-    *this = src;
-  }
-  
-  //- ctor 
-  const SpiStatus& operator= (const SpiStatus& src)
-  { 
-    if (&src == this)
-      return *this;
-    ::memcpy(this, &src, sizeof(SpiStatus));  
-    return *this;
-  }
-  
-  //- dtor 
-  virtual ~SpiStatus ()
-  { 
-    //-noop dtor 
-  }
-
-  //- are all tables uploaded on SPI? 
-  inline bool all_tables_uploaded () const
-  { 
-    return this->gap_table_uploaded()
-        && this->slow_ibp_table_uploaded()
-        && this->fast_ibp_table_uploaded(); 
-  }
-
-  //- manual mode enabled?
-  inline bool manual_mode_enabled () const 
-  {
-    return this->mode_manual_sw_trig_enabled()
-        || this->mode_manual_hw_trig_enabled(); 
-  }
-
-  //- current mode? (as value)
-  inline SpiStatus::Mode_t mode () const 
-  {
-    SpiStatus::Mode_t m = UNKNOWN; 
-    if ( this->mode_manual_sw_trig_enabled() )
-      m = MANUAL_IBP_SW_TRIG;
-    else if ( this->mode_manual_hw_trig_enabled() )
-      m = MANUAL_IBP_HW_TRIG;
-    else if ( this->mode_gap_enabled() )
-      m = AUTO_GAP;
-    else if ( this->mode_ibp_enabled() )
-      m = AUTO_IBP;
-    return m;
-  }
-
-  //- current mode? (as string)
-  inline const std::string & mode_str () const 
-  {
-    static std::string _mode_str_("UNKNOWN"); 
-    if ( this->mode_manual_sw_trig_enabled() )
-      _mode_str_ = "MANUAL_IBP_SW_TRIG";
-    else if ( this->mode_manual_hw_trig_enabled() )
-      _mode_str_ = "MANUAL_IBP_HW_TRIG";
-    else if ( this->mode_gap_enabled() )
-      _mode_str_ = "AUTO_GAP";
-    else if ( this->mode_ibp_enabled() )
-      _mode_str_ = "AUTO_IBP";
-    return _mode_str_;
-  }
-};
+YAT_BEGIN_BR_DUMP(StatusWord32To04Bytes)
+  DUMP_MEMBER(byte_00);
+  DUMP_MEMBER(byte_01);
+  DUMP_MEMBER(byte_02);
+  DUMP_MEMBER(byte_03);
+YAT_END_BR_DUMP(StatusWord32To04Bytes)
+// ============================================================================
+// BITS RECORD: 16 BITS STATUS WORD
+// ============================================================================
+YAT_BEGIN_BR(StatusWord16To16Bool)
+  MEMBER(bit_00, 1, bool);
+  MEMBER(bit_01, 1, bool);
+  MEMBER(bit_02, 1, bool);
+  MEMBER(bit_03, 1, bool);
+  MEMBER(bit_04, 1, bool);
+  MEMBER(bit_05, 1, bool); 
+  MEMBER(bit_06, 1, bool);
+  MEMBER(bit_07, 1, bool);
+  MEMBER(bit_08, 1, bool); 
+  MEMBER(bit_09, 1, bool); 
+  MEMBER(bit_10, 1, bool); 
+  MEMBER(bit_11, 1, bool); 
+  MEMBER(bit_12, 1, bool);
+  MEMBER(bit_13, 1, bool);
+  MEMBER(bit_14, 1, bool);
+  MEMBER(bit_15, 1, bool);
+YAT_END_BR(StatusWord16To16Bool)
+//-----------------------------------------------------------------------------
+YAT_BEGIN_BR_EXTRACTOR(StatusWord16To16Bool)
+  EXTRACT_MEMBER(bit_00);
+  EXTRACT_MEMBER(bit_01);
+  EXTRACT_MEMBER(bit_02);
+  EXTRACT_MEMBER(bit_03);
+  EXTRACT_MEMBER(bit_04);
+  EXTRACT_MEMBER(bit_05);  
+  EXTRACT_MEMBER(bit_06);
+  EXTRACT_MEMBER(bit_07);
+  EXTRACT_MEMBER(bit_08); 
+  EXTRACT_MEMBER(bit_09); 
+  EXTRACT_MEMBER(bit_10); 
+  EXTRACT_MEMBER(bit_11); 
+  EXTRACT_MEMBER(bit_12);
+  EXTRACT_MEMBER(bit_13);
+  EXTRACT_MEMBER(bit_14);
+  EXTRACT_MEMBER(bit_15);
+YAT_END_BR_EXTRACTOR(StatusWord16To16Bool)
+//-----------------------------------------------------------------------------
+YAT_BEGIN_BR_DUMP(StatusWord16To16Bool)
+  DUMP_MEMBER(bit_00);
+  DUMP_MEMBER(bit_01);
+  DUMP_MEMBER(bit_02);
+  DUMP_MEMBER(bit_03);
+  DUMP_MEMBER(bit_04);
+  DUMP_MEMBER(bit_05); 
+  DUMP_MEMBER(bit_06);
+  DUMP_MEMBER(bit_07);
+  DUMP_MEMBER(bit_08); 
+  DUMP_MEMBER(bit_09); 
+  DUMP_MEMBER(bit_10); 
+  DUMP_MEMBER(bit_11); 
+  DUMP_MEMBER(bit_12);
+  DUMP_MEMBER(bit_13);
+  DUMP_MEMBER(bit_14);
+  DUMP_MEMBER(bit_15);
+YAT_END_BR_DUMP(StatusWord16To16Bool)
+// ============================================================================
+// BITS RECORD: 16 BITS STATUS WORD
+// ============================================================================
+YAT_BEGIN_BR(StatusWord16To02Bytes)
+  MEMBER(m1, 8, unsigned char);
+  MEMBER(m2, 8, unsigned char);
+YAT_END_BR(StatusWord16To02Bytes)
+//-----------------------------------------------------------------------------
+YAT_BEGIN_BR_EXTRACTOR(StatusWord16To02Bytes)
+  EXTRACT_MEMBER(m1);
+  EXTRACT_MEMBER(m2);
+YAT_END_BR_EXTRACTOR(StatusWord16To02Bytes)
+//-----------------------------------------------------------------------------
+YAT_BEGIN_BR_DUMP(StatusWord16To02Bytes)
+  DUMP_MEMBER(m1);
+  DUMP_MEMBER(m2);
+YAT_END_BR_DUMP(StatusWord16To02Bytes)
+// ============================================================================
+// BITS RECORD: 16 BITS STATUS WORD
+// ============================================================================
+YAT_BEGIN_BR(StatusWord32ToNbits)
+  MEMBER(m1, 1, bool);
+  MEMBER(m2, 2, unsigned short);
+  MEMBER(m3, 3, unsigned short);
+  MEMBER(m4, 4, unsigned short);
+  MEMBER(m5, 5, unsigned short);
+  MEMBER(m6, 6, unsigned short); 
+  MEMBER(m7, 7, unsigned short);
+  IGNORE_MEMBER(none, 1, none);
+YAT_END_BR(StatusWord32ToNbits)
+//-----------------------------------------------------------------------------
+YAT_BEGIN_BR_EXTRACTOR(StatusWord32ToNbits)
+  EXTRACT_MEMBER(m1);
+  EXTRACT_MEMBER(m2);
+  EXTRACT_MEMBER(m3);
+  EXTRACT_MEMBER(m4);
+  EXTRACT_MEMBER(m5);
+  EXTRACT_MEMBER(m6);  
+  EXTRACT_MEMBER(m7);
+  SKIP_BITS(1);
+YAT_END_BR_EXTRACTOR(StatusWord32ToNbits)
+//-----------------------------------------------------------------------------
+YAT_BEGIN_BR_DUMP(StatusWord32ToNbits)
+  DUMP_MEMBER(m1);
+  DUMP_MEMBER(m2);
+  DUMP_MEMBER(m3);
+  DUMP_MEMBER(m4);
+  DUMP_MEMBER(m5);
+  DUMP_MEMBER(m6); 
+  DUMP_MEMBER(m7);
+  DUMP_SKIP_BITS(1);
+YAT_END_BR_DUMP(StatusWord32ToNbits)
 
 //-----------------------------------------------------------------------------
 // forward declaration
@@ -353,7 +397,7 @@ void fill_buffers (yat::Buffer<unsigned char>& leb, yat::Buffer<unsigned char>& 
 //-----------------------------------------------------------------------------
 // MAIN
 //-----------------------------------------------------------------------------
-int main (int argc, char* argv[])
+int main (int, char**)
 {
   std::cout << "------------------------------------" << std::endl; 
   std::cout << "size of bool...." << sizeof(bool)    * 8 << " bits" << std::endl;
@@ -361,9 +405,6 @@ int main (int argc, char* argv[])
   std::cout << "size of short..." << sizeof(short)   * 8 << " bits" << std::endl;
   std::cout << "size of int....." << sizeof(int)     * 8 << " bits" << std::endl;
   std::cout << "size of long...." << sizeof(long)    * 8 << " bits" << std::endl;
-#if defined(YAT_64BITS) && defined(WIN64)
-  std::cout << "size of int64..." << sizeof(__int64) * 8 << " bits" << std::endl;
-#endif
   std::cout << "------------------------------------" << std::endl;
 
   try
@@ -378,7 +419,6 @@ int main (int argc, char* argv[])
     //- each buffer will be filled according to its byte ordering
     //- this will allow to test the yat::BitsStream byte reordering
     fill_buffers(little_endian_buffer, big_endian_buffer);
-    
     //--------------------------------------------------------------------
     // LITTLE ENDIAN TEST
     //--------------------------------------------------------------------
@@ -390,7 +430,6 @@ int main (int argc, char* argv[])
     TestRecord little_endian_tr;
     little_endian_bs >> little_endian_tr;
     std::cout << little_endian_tr << std::endl;
-
     //--------------------------------------------------------------------
     // BIG ENDIAN TEST
     //--------------------------------------------------------------------
@@ -402,18 +441,49 @@ int main (int argc, char* argv[])
     TestRecord big_endian_tr;
     big_endian_bs >> big_endian_tr;
     std::cout << big_endian_tr << std::endl;
-
     //--------------------------------------------------------------------
     // 
     //--------------------------------------------------------------------
-    unsigned long ui32 = 0xAAFF5500;
+    unsigned long ui32 = 0xAA00FF55;
     yat::BitsStream ui32_bs(reinterpret_cast<unsigned char *>(&ui32),
-                            sizeof(unsigned long),
-                            yat::Endianness::BO_LITTLE_ENDIAN);
-    //- push BitsStream content into a SpiStatus then dump the result 
-    SpiStatus ui32_tr;
+                            sizeof(unsigned long));
+    StatusWord32To32Bool ui32_tr;
     ui32_bs >> ui32_tr;
     std::cout << ui32_tr << std::endl;
+    //--------------------------------------------------------------------
+    // 
+    //--------------------------------------------------------------------
+    yat::BitsStream ui32_bs2(reinterpret_cast<unsigned char *>(&ui32),
+                             sizeof(unsigned long));
+    StatusWord32To04Bytes ui32_tr2;
+    ui32_bs2 >> ui32_tr2;
+    std::cout << ui32_tr2 << std::endl;
+    //--------------------------------------------------------------------
+    // 
+    //--------------------------------------------------------------------
+    unsigned short ui16 = 0xAA55;
+    yat::BitsStream ui16_bs(reinterpret_cast<unsigned char *>(&ui16),
+                            sizeof(unsigned short));
+    StatusWord16To16Bool ui16_tr;
+    ui16_bs >> ui16_tr;
+    std::cout << ui16_tr << std::endl;
+    //--------------------------------------------------------------------
+    // 
+    //--------------------------------------------------------------------
+    yat::BitsStream ui16_bs2(reinterpret_cast<unsigned char *>(&ui16),
+                             sizeof(unsigned short));
+    StatusWord16To02Bytes ui16_tr2;
+    ui16_bs2 >> ui16_tr2;
+    std::cout << ui16_tr2 << std::endl;
+    //--------------------------------------------------------------------
+    // 
+    //--------------------------------------------------------------------
+    yat::uint32 ui32_3 = 0xFFFFFFFF;
+    yat::BitsStream ui32_bs3(reinterpret_cast<unsigned char *>(&ui32_3),
+                             sizeof(yat::uint32));
+    StatusWord32ToNbits ui32_tr3;
+    ui32_bs3 >> ui32_tr3;
+    std::cout << ui32_tr3 << std::endl;
   }
   catch (...)
   {
@@ -432,6 +502,10 @@ template <typename _T> void dump_val (const char * _txt, const _T& _v)
   std::cout << _txt 
             << _v
             << " ["
+            << std::hex
+            << _v
+            << std::dec
+            << "] ["
             << _v_bs.to_string()
             << "]"
             << std::endl;
@@ -444,7 +518,7 @@ template <typename _T> void dump_val (const char * _txt, const _T& _v)
 void fill_buffers (yat::Buffer<unsigned char>& leb, yat::Buffer<unsigned char>& beb)
 {
   const size_t num_val_per_type = 3;
-
+ 
   const unsigned char bools(0xAA);
 
   char chars[num_val_per_type] = 

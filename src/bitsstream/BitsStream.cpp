@@ -48,36 +48,6 @@ namespace yat
 //=============================================================================
 YAT_DECL size_t kINDENT_COUNTER = 0;
 
-#if defined(YAT_64BITS)
-//=============================================================================
-// structure to aid in masking bits (0 to 64 bits mask)
-//=============================================================================
-YAT_DECL yat::BitsStorage bit_masks[65] =
-{
-    0x00, 
-    0x01,              0x03,              0x07,              0x0f,              0x1f,               0x3f,               0x7f,               0xff,
-    0x1ff,             0x3ff,             0x7ff,             0xfff,             0x1fff,             0x3fff,             0x7fff,             0xffff,
-    0x1ffff,           0x3ffff,           0x7ffff,           0xfffff,           0x1fffff,           0x3fffff,           0x7fffff,           0xffffff, 
-    0x1ffffff,         0x3ffffff,         0x7ffffff,         0xfffffff,         0x1fffffff,         0x3fffffff,         0x7fffffff,         0xffffffff,
-    0x1ffffffff,       0x3ffffffff,       0x7ffffffff,       0xfffffffff,       0x1fffffffff,       0x3fffffffff,       0x7fffffffff,       0xffffffffff,
-    0x1ffffffffff,     0x3ffffffffff,     0x7ffffffffff,     0xfffffffffff,     0x1fffffffffff,     0x3fffffffffff,     0x7fffffffffff,     0xffffffffffff,
-    0x1ffffffffffff,   0x3ffffffffffff,   0x7ffffffffffff,   0xfffffffffffff,   0x1fffffffffffff,   0x3fffffffffffff,   0x7fffffffffffff,   0xffffffffffffff,
-    0x1ffffffffffffff, 0x3ffffffffffffff, 0x7ffffffffffffff, 0xfffffffffffffff, 0x1fffffffffffffff, 0x3fffffffffffffff, 0x7fffffffffffffff, 0xffffffffffffffff
-};
-#else
-//=============================================================================
-// structure to aid in masking bits (0 to 32 bits mask)
-//=============================================================================
-YAT_DECL yat::BitsStorage bit_masks[33] =
-{
-    0x00,   
-    0x01,      0x03,      0x07,      0x0f,     0x1f,      0x3f,      0x7f,      0xff,
-    0x1ff,     0x3ff,     0x7ff,     0xfff,    0x1fff,    0x3fff,    0x7fff,    0xffff,
-    0x1ffff,   0x3ffff,   0x7ffff,   0xfffff,  0x1fffff,  0x3fffff,  0x7fffff,  0xffffff, 
-    0x1ffffff, 0x3ffffff, 0x7ffffff, 0xfffffff,0x1fffffff,0x3fffffff,0x7fffffff,0xffffffff
-};
-#endif
-
 //=============================================================================
 // BitsStream::BitsStream
 //=============================================================================
@@ -90,9 +60,8 @@ BitsStream::BitsStream (unsigned char * _data,
    m_ibuffer_size (_size),
    m_ibuffer_ptr (0),
    m_endianness (_endianness)
-{ 
-   if ( m_ibuffer )
-     m_current_byte = static_cast<yat::BitsStorage>(m_ibuffer[m_ibuffer_ptr++]);
+{
+  //- noop ctor
 }
 
 //=============================================================================
@@ -102,6 +71,99 @@ BitsStream::~BitsStream ()
 {
   //- noop dtor
 }
+
+/* 
+//-------------------------------------------------------------------------
+  BACKUP OF THE VERBOSE VERSION OF <read_bits_i> FOR DEBUG PURPOSE
+//-------------------------------------------------------------------------
+inline bool read_bits_i (int _num_bits, yat::BitsStorage * _bits)
+{
+  bool retval = true;
+      
+  std::cout << "-------------------------------------" << std::endl;
+  std::cout << "> initial bits............." << *_bits << std::endl;
+  std::cout << "> initial num_bits........." << _num_bits << std::endl;
+  binary_dump("current-byte", m_current_byte);
+  
+  if ( m_ibuffer != 0 ) 
+  {
+    //- this while loop extracts full bytes
+    while ( _num_bits > m_bits_in_current_byte )
+    {
+      std::cout << "> num_bits > bits_in_current_byte" << std::endl;
+
+      if ( _bits )
+      {
+        int shift = _num_bits - m_bits_in_current_byte;
+        std::cout << "> doing: *bits |= m_current_byte << " << shift << std::endl; 
+        binary_dump("bits", *_bits);
+        *_bits |= m_current_byte << shift;
+        binary_dump("shifted-current-byte", m_current_byte << shift);
+        binary_dump("bits", *_bits);
+      }
+      
+      std::cout << "- num_bits................." << _num_bits << std::endl;
+      std::cout << "- bits_in_current_byte....." << m_bits_in_current_byte << std::endl;
+      _num_bits -= m_bits_in_current_byte;
+      std::cout << "> consumed " << m_bits_in_current_byte << " bits of the current byte" << std::endl; 
+      std::cout << "- num_bits................." << _num_bits << std::endl;
+
+      if ( m_ibuffer_ptr != m_ibuffer_size )
+      {
+        std::cout << "> moving to next byte in buffer" << std::endl;
+        m_current_byte = m_ibuffer[m_ibuffer_ptr++];
+        binary_dump("current-byte", m_current_byte);
+        m_bits_in_current_byte = 8;
+        std::cout << "- bits_in_current_byte....." << m_bits_in_current_byte << std::endl;
+      }
+      else
+      {
+        std::cout << "> reached end of buffer" << std::endl;
+        m_bits_in_current_byte = 0;
+        m_current_byte = 0;
+        retval = false;
+        break;
+      }
+    }
+
+    if ( _num_bits > 0 && retval )
+    {
+      std::cout << "> num_bits > 0 && retval is true" << std::endl;
+      
+      if ( _bits )
+      {
+        yat::BitsStorage bit_mask = 0x0001;
+        for ( int i = 1; i < _num_bits; i++ )
+          bit_mask = ( bit_mask << 1 ) | 0x0001;
+
+        std::cout << "> doing: *bits |= current_byte & bit_mask" << std::endl; 
+        binary_dump("current-byte", m_current_byte);
+        binary_dump("bit_mask", bit_mask);
+        binary_dump("current_byte & bit_mask", m_current_byte & bit_mask);
+        binary_dump("bits", *_bits);
+        *_bits |= m_current_byte & bit_mask;
+        binary_dump("bits", *_bits);
+      }
+      
+      std::cout << "> doing: current_byte = current_byte >> " << _num_bits << std::endl; 
+      m_current_byte = m_current_byte >> _num_bits;
+      binary_dump("current-byte", m_current_byte);
+        
+      std::cout << "> doing: bits_in_current_byte -= num_bits" << std::endl; 
+      std::cout << "- num_bits................." << _num_bits << std::endl;
+      std::cout << "- bits_in_current_byte....." << m_bits_in_current_byte << std::endl;
+      
+      m_bits_in_current_byte -= _num_bits;
+      
+      std::cout << "- bits_in_current_byte....." << m_bits_in_current_byte << std::endl;
+    }
+  }
+
+  std::cout << "> returning " << retval << std::endl;
+
+  return retval;
+}
+*/
 
 } //- namespace
 

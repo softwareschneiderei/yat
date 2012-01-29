@@ -88,9 +88,9 @@ extern YAT_DECL size_t kINDENT_COUNTER;
   INDENT_STREAM << "-------------------------------------------------------------";
 
 //=============================================================================
-// MACRO: BEGIN_BITS_RECORD_DUMP
+// MACRO: YAT_BEGIN_BR_DUMP
 //=============================================================================
-#define BEGIN_BITS_RECORD_DUMP(_CLASS_NAME_) \
+#define YAT_BEGIN_BR_DUMP(_CLASS_NAME_) \
   inline std::ostream& operator<< (std::ostream& _os, const _CLASS_NAME_& _c) \
   { \
     _os << #_CLASS_NAME_ << std::endl; \
@@ -124,9 +124,9 @@ extern YAT_DECL size_t kINDENT_COUNTER;
                 << std::endl;
 
 //=============================================================================
-// MACRO: END_BITS_RECORD_DUMP
+// MACRO: YAT_END_BR_DUMP
 //=============================================================================
-#define END_BITS_RECORD_DUMP(_CLASS_NAME_) \
+#define YAT_END_BR_DUMP(_CLASS_NAME_) \
     DUMP_DEC_INDENT; \
     DUMP_END \
     DUMP_DEC_INDENT; \
@@ -139,7 +139,14 @@ extern YAT_DECL size_t kINDENT_COUNTER;
 //=============================================================================
 inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<8,unsigned char>& _brm)
 {
-  _os << static_cast<unsigned int>(_brm()) << " [" << _brm.to_string() << "]";
+  _os << static_cast<unsigned int>(_brm()) 
+      << " [" 
+      << std::hex
+      << static_cast<unsigned int>(_brm.value())
+      << std::dec
+      << "] [" 
+      << _brm.to_string() 
+      << "]";
   return _os;
 }
 
@@ -148,7 +155,14 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<8,unsigne
 //=============================================================================
 inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<8,char>& _brm)
 {
-  _os << static_cast<int>(_brm()) << " [" << _brm.to_string() << "]";
+  _os << static_cast<int>(_brm()) 
+      << " [" 
+      << std::hex
+      << static_cast<int>(_brm.value())
+      << std::dec
+      << "] [" 
+      << _brm.to_string() 
+      << "]";
   return _os;
 }
 
@@ -158,14 +172,21 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<8,char>& 
 template <size_t _n, typename _T> 
 inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<_n,_T>& _brm)
 {
-  _os << _brm() << " [" << _brm.to_string() << "]";
+  _os << _brm() 
+      << " [" 
+      << std::hex
+      << _brm.value()
+      << std::dec
+      << "] [" 
+      << _brm.to_string() 
+      << "]";
   return _os;
 }
 
 //=============================================================================
-// MACRO: BEGIN_BITS_RECORD
+// MACRO: YAT_BEGIN_BR
 //=============================================================================
-#define BEGIN_BITS_RECORD(_CLASS_NAME_) \
+#define YAT_BEGIN_BR(_CLASS_NAME_) \
   class _CLASS_NAME_ \
   { \
     friend std::ostream& operator<< (std::ostream&, const _CLASS_NAME_&); \
@@ -177,9 +198,9 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<_n,_T>& _
     }
 
 //=============================================================================
-// MACRO: END_BITS_RECORD
+// MACRO: YAT_END_BR
 //=============================================================================
-#define END_BITS_RECORD(_CLASS_NAME_) \
+#define YAT_END_BR(_CLASS_NAME_) \
   };
    
 //=============================================================================
@@ -194,9 +215,9 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<_n,_T>& _
 #define IGNORE_MEMBER(_MEMBER_NAME_, _BITS_, _CPP_TYPE_)
 
 //=============================================================================
-// MACRO: BEGIN_BITS_RECORD_EXTRACTOR
+// MACRO: YAT_BEGIN_BR_EXTRACTOR
 //=============================================================================
-#define BEGIN_BITS_RECORD_EXTRACTOR(_CLASS_NAME_) \
+#define YAT_BEGIN_BR_EXTRACTOR(_CLASS_NAME_) \
   inline void operator>> (yat::BitsStream& _bs, _CLASS_NAME_& _br) \
   { \
 
@@ -213,13 +234,13 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<_n,_T>& _
   _bs.skip_bits(_BITS_TO_SKIP_);
 
 //=============================================================================
-// MACRO: END_BITS_RECORD_EXTRACTOR
+// MACRO: YAT_END_BR_EXTRACTOR
 //=============================================================================
-#define END_BITS_RECORD_EXTRACTOR(_CLASS_NAME_) \
+#define YAT_END_BR_EXTRACTOR(_CLASS_NAME_) \
   }
 
 } //- namespace 
    
-#endif //- _BITS_RECORD_H_
+#endif //- _YAT_BITS_RECORD_H_
 
 
