@@ -37,18 +37,6 @@
 #ifndef _YAT_COMMON_H_
 #define _YAT_COMMON_H_
 
-// ============================================================================
-// IMPL OPTION - THIS ENABLES/DISABLES THE CACHE ON THE MESSAGE CLASS 
-// ============================================================================
-// DEFINE THE FOLLOWING IS YOU WANT TO TEST THE CACHED ALLOCATOR ON THE MESSAGE 
-// CLASS. FIRST TESTS SHOW THAT THE GAIN IS NOT SIGNIFICANT ENOUGH FOR THE CACHE
-// TO BE USED. MOREOVER, THE CACHED ALLOCATOR USAGE IS QUITE TRICKY SINCE NEW AND 
-// DELETE OPERATORS MUST BE OVERLOADED FOR THE CLASS TO BE "CACHABLE" (SEE WHAT 
-// HAS BEEN DONE IN THE YAT MESSAGE TASK). ANYWAY WE NOW HAVE A CACHED-ALL0CATOR 
-// IN YAT! 
-// ============================================================================
-// #define _USE_MSG_CACHE_
-
 #if (defined (_DEBUG) || defined (DEBUG))
 # define YAT_DEBUG
 #endif

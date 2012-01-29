@@ -60,7 +60,7 @@ namespace yat
   template <typename T> 
   bool is_nan ( const T & v )
   {
-#if (defined WIN32 || defined _WIN32)
+#if defined (WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
     return _isnan(static_cast<double>(v));
 #else
     return isnan(static_cast<double>(v));
