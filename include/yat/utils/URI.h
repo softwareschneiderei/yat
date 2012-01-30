@@ -83,7 +83,6 @@ private:
   void parse(const String& URI) throw ( Exception );
   String value(Part part) const;
   static bool check_value(const String& value, const String &accepted_chars, const String& error_desc, bool throw_exception) throw ( Exception );
-  static bool check_path(const String& path, bool throw_exception) throw ( Exception );
   static void split_authority(const String& authority, String* userinfo_ptr, String* host_ptr, String* port_ptr);
   static bool check_authority(const String& authority, URI::Fields* fields_ptr, bool throw_exception) throw ( Exception );
 
@@ -114,6 +113,12 @@ public:
   /// @throw yat::Exception if ther syntax of the value is wrong
   ///
   void set(Part part, const String &value) throw ( Exception ); 
+  
+  /// Sets value
+  /// 
+  /// @param associated value
+  ///
+  void set(const String &value) throw ( Exception ); 
   
   /// Check the syntax of a value associated with a URI part
   ///
