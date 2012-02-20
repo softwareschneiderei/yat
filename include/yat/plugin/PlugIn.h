@@ -76,7 +76,6 @@ public:
     */
   IPlugInFactory* factory();
 
-private:
   typedef void *LibraryHandle;
   typedef void *Symbol;
 
@@ -87,6 +86,7 @@ private:
     */
   Symbol find_symbol( const std::string &symbol );
 
+private:
   /*! Loads the specified library.
     * \param library_file_name Name of the library to load.
     * \exception DynamicLibraryManagerException if a failure occurs while loading
