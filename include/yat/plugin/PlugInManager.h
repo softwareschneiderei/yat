@@ -48,6 +48,16 @@ namespace yat
 class YAT_DECL PlugInManager
 {
 public:
+  /*! \brief Information about a specific plug-in.
+   */
+  struct PlugInEntry
+  {
+    std::string     m_fileName;
+    PlugIn*         m_plugin;
+    IPlugInInfo*    m_info;
+    IPlugInFactory* m_factory;
+  };
+
   /*! Constructs a PlugInManager object.
    */
   PlugInManager();
@@ -66,6 +76,16 @@ public:
    */
   std::pair<IPlugInInfo*, IPlugInFactory*> load( const std::string &library_file_name );
 
+  /*! \brief Loads the specified plug-in. new version!
+   *
+   * After being loaded, the OnLoad() method is called.
+   *
+   * \param library_file_name Name of the file that contains the PlugIn.
+   * \param plugin_entry_ptr pointer to a previously allocated PlugInEntry structure
+   * \exception yat::Exception is thrown if an error occurs during loading.
+   */
+  void load( const std::string &library_file_name, PlugInEntry* entry_ptr );
+
   /*! \brief Unloads the specified plug-in.
    * \param library_file_name Name of the file that contains the TestPlugIn passed
    *                        to a previous call to load().
@@ -77,15 +97,6 @@ public:
   void unload_all( void );
 
 protected:
-  /*! \brief (INTERNAL) Information about a specific plug-in.
-   */
-  struct PlugInEntry
-  {
-    std::string     m_fileName;
-    PlugIn*         m_plugin;
-    IPlugInInfo*    m_info;
-    IPlugInFactory* m_factory;
-  };
 
   /*! Unloads the specified plug-in.
    * \param plug_in Information about the plug-in.
