@@ -99,9 +99,17 @@ bool FileName::file_exist() const
   pcsz pcszfull_name = PSZ(full_name());
 
   struct stat st;
-  return (!access(pcszfull_name, 0) &&
-         !stat(pcszfull_name, &st) &&
+  return (!access(pcszfull_name, F_OK) &&
+        !stat(pcszfull_name, &st) &&
          (st.st_mode & S_IFREG));
+}
+
+//-------------------------------------------------------------------
+// FileName::file_access
+//-------------------------------------------------------------------
+bool FileName::file_access() const
+{
+  return !access(PSZ(full_name()), F_OK);
 }
 
 //----------------------------------------------------------------------------

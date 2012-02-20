@@ -116,6 +116,14 @@ bool FileName::file_exist() const
   return (!(find.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 }
 
+//-------------------------------------------------------------------
+// FileName::file_access
+//-------------------------------------------------------------------
+bool FileName::file_access() const
+{
+  return file_exists();
+}
+
 //----------------------------------------------------------------------------
 // FileName::set_full_name
 //----------------------------------------------------------------------------
