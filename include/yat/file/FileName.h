@@ -272,6 +272,9 @@ public:
   /// Returns true if file exists
   bool file_exist() const;
 
+  /// Returns true if file is accessible
+  bool file_access() const;
+
   /// Return true if filename is a empty directory
   bool is_empty_dir() const;
   
