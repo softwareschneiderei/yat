@@ -42,83 +42,110 @@
 namespace yat
 {
 
-  PlugInManager::PlugInManager()
+//==============================================================================
+// PlugInManager::PlugInManager
+//==============================================================================
+PlugInManager::PlugInManager()
+{
+}
+
+//==============================================================================
+// PlugInManager::~PlugInManager
+//==============================================================================
+PlugInManager::~PlugInManager()
+{
+  unload_all();
+}
+
+//==============================================================================
+// PlugInManager::load
+//==============================================================================
+std::pair<IPlugInInfo*, IPlugInFactory*>
+  PlugInManager::load( const std::string &library_file_name )
+{
+  PlugInEntry entry;
+  load(library_file_name, &entry);
+  return std::make_pair(entry.m_info , entry.m_factory);
+}
+
+//==============================================================================
+// PlugInManager::load (new version)
+//==============================================================================
+void PlugInManager::load( const std::string &library_file_name, 
+                          PlugInManager::PlugInEntry* entry_ptr )
+{
+  if( !entry_ptr )
+      THROW_YAT_ERROR("NULL_POINTER",
+                      "Caller must pass a valid pointer to PlugInManager::PlugInEntry structure",
+                      "PlugInManager::load");
+
+  //- first verify that the plugin is not already loaded
+  for( PlugIns::iterator it = m_plugIns.begin(); it != m_plugIns.end(); ++it )
   {
-  }
-
-
-  PlugInManager::~PlugInManager()
-  {
-    unload_all();
-  }
-
-
-  std::pair<IPlugInInfo*, IPlugInFactory*>
-    PlugInManager::load( const std::string &library_file_name )
-  {
-    //- first verify that the plugin is not already loaded
-    for (PlugIns::iterator it = m_plugIns.begin(); it != m_plugIns.end(); ++it)
+    if( (*it).m_fileName == library_file_name )
     {
-      if ( (*it).m_fileName == library_file_name)
-        return std::make_pair((*it).m_info, (*it).m_factory);
-    }
-
-    //- ok, does not already exist : load it
-    PlugInEntry entry;
-    entry.m_fileName = library_file_name;
-    entry.m_plugin = new PlugIn( library_file_name );
-    entry.m_info = entry.m_plugin->info();
-    entry.m_factory = entry.m_plugin->factory();
-
-    m_plugIns.push_back( entry );
-
-    return std::make_pair(entry.m_info , entry.m_factory);
-  }
-
-
-  void 
-    PlugInManager::unload( const std::string &library_file_name )
-  {
-    if (m_plugIns.empty())
+      // Already loaded !
+      *entry_ptr = *it;
       return;
-    for ( PlugIns::iterator it = m_plugIns.begin(); it != m_plugIns.end(); ++it )
-    {
-      if ( (*it).m_fileName == library_file_name )
-      {
-        unload( *it );
-        m_plugIns.erase( it );
-        break;
-      }
     }
   }
 
-  void 
-    PlugInManager::unload_all( void )
+  //- ok, does not already exist : load it
+  (*entry_ptr).m_fileName = library_file_name;
+  (*entry_ptr).m_plugin = new PlugIn( library_file_name );
+  (*entry_ptr).m_info = (*entry_ptr).m_plugin->info();
+  (*entry_ptr).m_factory = (*entry_ptr).m_plugin->factory();
+
+  m_plugIns.push_back( *entry_ptr );
+}
+
+//==============================================================================
+// PlugInManager::unload
+//==============================================================================
+void PlugInManager::unload( const std::string &library_file_name )
+{
+  if( m_plugIns.empty() )
+    return;
+  for( PlugIns::iterator it = m_plugIns.begin(); it != m_plugIns.end(); ++it )
   {
-    if (m_plugIns.empty())
-      return;
-    for ( PlugIns::iterator it = m_plugIns.begin(); it != m_plugIns.end(); ++it )
+    if ( (*it).m_fileName == library_file_name )
     {
       unload( *it );
+      m_plugIns.erase( it );
+      break;
     }
   }
+}
 
-  void 
-    PlugInManager::unload( PlugInEntry &plugin_info )
+//==============================================================================
+// PlugInManager::unload_all
+//==============================================================================
+void PlugInManager::unload_all( void )
+{
+  if( m_plugIns.empty() )
+    return;
+  for( PlugIns::iterator it = m_plugIns.begin(); it != m_plugIns.end(); ++it )
   {
-    try
-    {
-      delete plugin_info.m_factory;
-      delete plugin_info.m_info;
-      delete plugin_info.m_plugin;
-    }
-    catch (...)
-    {
-      plugin_info.m_plugin = NULL;
-      throw;
-    }
+    unload( *it );
   }
+}
 
-
+//==============================================================================
+// PlugInManager::unload
+//==============================================================================
+void PlugInManager::unload( PlugInEntry &plugin_info )
+{
+  try
+  {
+    delete plugin_info.m_factory;
+    delete plugin_info.m_info;
+    delete plugin_info.m_plugin;
+  }
+  catch (...)
+  {
+    plugin_info.m_plugin = NULL;
+    throw;
+  }
+}
 
 }
