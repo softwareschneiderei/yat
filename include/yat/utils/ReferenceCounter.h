@@ -76,7 +76,6 @@ public:
   {
     PTR_DBG("CountImpl::add_ref(->" << m_use_count+1 << ")");
     yat::AutoMutex<L> guard(this->m_lock);
-    YAT_ASSERT(this->m_use_count > 0);
     ++m_use_count;
     return m_use_count;
   }
@@ -85,7 +84,6 @@ public:
   {
     PTR_DBG("CountImpl::add_weak_ref(->" << m_weak_count+1 << ")");
     yat::AutoMutex<L> guard(this->m_lock);
-    YAT_ASSERT(this->m_weak_count >= 0);
     ++m_weak_count;
     return m_weak_count;
   }
