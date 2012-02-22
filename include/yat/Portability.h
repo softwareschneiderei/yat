@@ -56,7 +56,7 @@
 //---------------------------------------------------------------------------
 namespace yat
 {
-  double ieee_nan ()
+  inline double ieee_nan ()
   {
     return std::numeric_limits<double>::quiet_NaN();
   }
