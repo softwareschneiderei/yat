@@ -121,7 +121,7 @@ bool FileName::file_exist() const
 //-------------------------------------------------------------------
 bool FileName::file_access() const
 {
-  return file_exists();
+  return this->file_exist();
 }
 
 //----------------------------------------------------------------------------

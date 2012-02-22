@@ -40,16 +40,9 @@
 #include <yat/system/SysUtils.h>
 #include <yat/threading/SyncAccess.h>
 #include <shellapi.h>
-#include <limits>
-
 
 namespace yat
 {
-
-//----------------------------------------------------------------------------
-// yat::IEEE_NAN
-//---------------------------------------------------------------------------
-double IEEE_NAN = std::numeric_limits<double>::quiet_NaN();
 
 //----------------------------------------------------------------------------
 // SysUtils::GetEnv

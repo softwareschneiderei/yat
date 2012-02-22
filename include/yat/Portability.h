@@ -49,13 +49,19 @@
 #else
 # error "unknown/unsupported platform - sorry!"
 #endif
+#include <limits>
 
 //----------------------------------------------------------------------------
 // yat::NAN
 //---------------------------------------------------------------------------
 namespace yat
 {
-  extern double IEEE_NAN; 
+  double ieee_nan ()
+  {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+
+# define IEEE_NAN yat::ieee_nan();
 
   template <typename T> 
   bool is_nan ( const T & v )
