@@ -61,7 +61,7 @@ namespace yat
     return std::numeric_limits<double>::quiet_NaN();
   }
 
-# define IEEE_NAN yat::ieee_nan();
+# define IEEE_NAN ieee_nan()
 
   template <typename T> 
   bool is_nan ( const T & v )
