@@ -204,18 +204,11 @@ void PlugIn::load_library( const std::string &library_file_name )
   {
     this->release_library();
     m_libraryHandle = this->do_load_library( library_file_name );
-    if ( m_libraryHandle == NULL )
-    {
-      THROW_YAT_ERROR("SHAREDLIBRARY_ERROR",
-                      "Unable to load the specified shared library",
-                      "PlugIn::load_library");
-    }
 
     Symbol sym = this->find_symbol(kOnLoadSymbol);
 
     OnLoadFunc_t load_func = (OnLoadFunc_t)(sym);
     load_func();
-
   }
   catch(yat::Exception& ex)
   {

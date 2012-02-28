@@ -44,33 +44,49 @@
 
 #include <dlfcn.h>
 #include <unistd.h>
+#include <iostream>
 
 namespace yat
 {
 
-  PlugIn::LibraryHandle PlugIn::do_load_library( const std::string &library_file_name )
+//-----------------------------------------------------------------------------
+// PlugIn::do_load_library
+//-----------------------------------------------------------------------------
+PlugIn::LibraryHandle PlugIn::do_load_library( const std::string &library_file_name )
+{
+  PlugIn::LibraryHandle handle = ::dlopen( library_file_name.c_str(), RTLD_NOW | RTLD_GLOBAL );
+  if( NULL == handle )
   {
-    return ::dlopen( library_file_name.c_str(), RTLD_NOW | RTLD_GLOBAL );
+    THROW_YAT_ERROR( std::string("SHAREDLIBRARY_ERROR"),
+                     std::string(::dlerror()),
+                     std::string("PlugIn::do_load_library") );
   }
+  return handle;
+}
 
+//-----------------------------------------------------------------------------
+// PlugIn::do_release_library
+//-----------------------------------------------------------------------------
+void PlugIn::do_release_library()
+{
+  ::dlclose( m_libraryHandle);
+}
 
-  void PlugIn::do_release_library()
-  {
-    ::dlclose( m_libraryHandle);
-  }
+//-----------------------------------------------------------------------------
+// PlugIn::do_find_symbol
+//-----------------------------------------------------------------------------
+PlugIn::Symbol PlugIn::do_find_symbol( const std::string &symbol )
+{
+  return ::dlsym ( m_libraryHandle, symbol.c_str() );
+}
 
-
-  PlugIn::Symbol PlugIn::do_find_symbol( const std::string &symbol )
-  {
-    return ::dlsym ( m_libraryHandle, symbol.c_str() );
-  }
-
-
-  std::string PlugIn::get_last_error_detail() const
-  {
-    return "";
-  }
-
+//-----------------------------------------------------------------------------
+// PlugIn::get_last_error_detail
+//-----------------------------------------------------------------------------
+std::string PlugIn::get_last_error_detail() const
+{
+  return ::dlerror();
+}
 
 }
 

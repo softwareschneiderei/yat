@@ -43,53 +43,64 @@
 namespace yat
 {
 
-  PlugIn::LibraryHandle 
-    PlugIn::do_load_library( const std::string &library_file_name )
+//-----------------------------------------------------------------------------
+// PlugIn::do_load_library
+//-----------------------------------------------------------------------------
+PlugIn::LibraryHandle PlugIn::do_load_library( const std::string &library_file_name )
+{
+  PlugIn::LibraryHandle h = ::LoadLibrary( library_file_name.c_str() );
+  if( NULL == h )
   {
-    return ::LoadLibrary( library_file_name.c_str() );
+    THROW_YAT_ERROR(std::string("SHAREDLIBRARY_ERROR"),
+                    get_last_error_detail(),
+                    std::("PlugIn::load_library"));
   }
+  return h;
+}
 
+//-----------------------------------------------------------------------------
+// PlugIn::do_release_library
+//-----------------------------------------------------------------------------
+void PlugIn::do_release_library()
+{
+  ::FreeLibrary( static_cast<HINSTANCE>(m_libraryHandle) );
+}
 
-  void 
-    PlugIn::do_release_library()
-  {
-    ::FreeLibrary( static_cast<HINSTANCE>(m_libraryHandle) );
-  }
+//-----------------------------------------------------------------------------
+// PlugIn::do_find_symbol
+//-----------------------------------------------------------------------------
+PlugIn::Symbol PlugIn::do_find_symbol( const std::string &symbol )
+{
+  FARPROC far_proc = ::GetProcAddress( static_cast<HINSTANCE>(m_libraryHandle), 
+                                       symbol.c_str() );
+  return static_cast<PlugIn::Symbol>(far_proc);
+}
 
+//-----------------------------------------------------------------------------
+// PlugIn::get_last_error_detail
+//-----------------------------------------------------------------------------
+std::string PlugIn::get_last_error_detail() const
+{
+  LPVOID lp_msg_buf;
+  ::FormatMessage( 
+                  FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+                  FORMAT_MESSAGE_FROM_SYSTEM | 
+                  FORMAT_MESSAGE_IGNORE_INSERTS,
+                  NULL,
+                  ::GetLastError(),
+                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+                  (LPTSTR) &lp_msg_buf,
+                  0,
+                  NULL 
+                  );
 
-  PlugIn::Symbol 
-    PlugIn::do_find_symbol( const std::string &symbol )
-  {
-    FARPROC far_proc = ::GetProcAddress( static_cast<HINSTANCE>(m_libraryHandle), 
-                                         symbol.c_str() );
-    return static_cast<PlugIn::Symbol>(far_proc);
-  }
+  std::string message = (LPCTSTR)lp_msg_buf;
 
+  // Free the buffer.
+  ::LocalFree( lp_msg_buf );
 
-  std::string 
-    PlugIn::get_last_error_detail() const
-  {
-    LPVOID lp_msg_buf;
-    ::FormatMessage( 
-                    FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-                    FORMAT_MESSAGE_FROM_SYSTEM | 
-                    FORMAT_MESSAGE_IGNORE_INSERTS,
-                    NULL,
-                    ::GetLastError(),
-                    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                    (LPTSTR) &lp_msg_buf,
-                    0,
-                    NULL 
-                    );
-
-    std::string message = (LPCTSTR)lp_msg_buf;
-
-    // Free the buffer.
-    ::LocalFree( lp_msg_buf );
-
-    return message;
-  }
-
+  return message;
+}
 
 }
 
