@@ -53,7 +53,7 @@ PlugIn::LibraryHandle PlugIn::do_load_library( const std::string &library_file_n
   {
     THROW_YAT_ERROR(std::string("SHAREDLIBRARY_ERROR"),
                     get_last_error_detail(),
-                    std::("PlugIn::load_library"));
+                    std::string("PlugIn::load_library"));
   }
   return h;
 }
