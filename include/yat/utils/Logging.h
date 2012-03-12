@@ -79,7 +79,7 @@ enum ELogLevel
 /// ILogTarget log target interface 
 ///
 //=============================================================================
-class ILogTarget
+class YAT_DECL ILogTarget
 {
 public:
   /// Log message
@@ -93,7 +93,7 @@ typedef std::stack<class ILogTarget *> LogTargetStack;
 /// Default log handler : print log on console using clog stream
 //
 //=============================================================================
-class DefaultLogHandler: public ILogTarget
+class YAT_DECL DefaultLogHandler: public ILogTarget
 {
 public:
   /// Log message
@@ -104,7 +104,7 @@ public:
 /// Logging manager class
 //
 //=============================================================================
-class LogManager
+class YAT_DECL LogManager
 {
 friend class LogCatcher;
 private:
@@ -156,7 +156,7 @@ typedef void (*pfn_log_fwd)(int iLevel, const char *pszType, const char *pszMsg)
 /// Helper class for log forwarding 
 //
 //=============================================================================
-class LogForward: public ILogTarget
+class YAT_DECL LogForward: public ILogTarget
 {
 private:
 	// Function to forward log to
@@ -177,7 +177,7 @@ public:
 /// when the first created LogCatcher is deleted messages are catched by the DefaultLogHandler
 //
 //=============================================================================
-class LogCatcher
+class YAT_DECL LogCatcher
 {
 public:
   /// Constructor : Push log target in ClogHandler stack
@@ -192,15 +192,15 @@ public:
 //
 //=============================================================================
 
-void log_result(pcsz pszType, pcsz pszFormat, ...);
-void log_verbose(pcsz pszType, pcsz pszFormat, ...);
-void log_info(pcsz pszType, pcsz pszFormat, ...);
-void log_notice(pcsz pszType, pcsz pszFormat, ...);
-void log_warning(pcsz pszType, pcsz pszFormat, ...);
-void log_error(pcsz pszType, pcsz pszFormat, ...);
-void log_critical(pcsz pszType, pcsz pszFormat, ...);
-void log_alert(pcsz pszType, pcsz pszFormat, ...);
-void log_emergency(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_result(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_verbose(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_info(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_notice(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_warning(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_error(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_critical(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_alert(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_emergency(pcsz pszType, pcsz pszFormat, ...);
 
 #define LOG_EXCEPTION(domain, e) \
   do \
