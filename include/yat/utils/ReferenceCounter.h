@@ -40,39 +40,62 @@
 // ============================================================================
 // DEPENDENCIES
 // ============================================================================
+#include <iostream>
+#include <typeinfo> 
 #include <yat/CommonHeader.h>
 #include <yat/threading/Mutex.h>
 #include <yat/threading/Utilities.h>
-#include <iostream>
- 
+
 namespace yat 
 {
 
 #define PTR_DBG(s)
 //#define PTR_DBG(s) std::cout << std::hex << "[" << yat::ThreadingUtilities::self() << "][" << (void*)(this) << "] - " << std::dec << s << std::endl;
 
+// Define the default counter type
+typedef yat::uint32 counter_t;
+
 // ============================================================================
-// class: CountImpl 
-// where the things are actually counted !
+// functor: DefaultDeleter
 // ============================================================================
-template <typename T = yat::uint32, typename L = yat::NullMutex>
-class CountImpl
+template <typename T>
+struct DefaultDeleter
 {
-  typedef CountImpl<T, L> ThisType;
-  
+  void operator()(T* object)
+  {
+    try
+    {
+      PTR_DBG( "Deleting object @" << (void*)object );
+      delete object;
+    }
+    catch(...)
+    {
+    }
+  }
+};
+
+// ============================================================================
+// class: CountBase
+// Base class for CountImpl
+// ============================================================================
+template <typename C = counter_t, typename L = yat::NullMutex>
+class CountBase
+{
 public:
-  
-  CountImpl() : m_use_count(1), m_weak_count(0)
+  CountBase() : m_use_count(1), m_weak_count(0)
   {
-    PTR_DBG("CountImpl::CountImpl");
+    PTR_DBG("CountBase::CountBase");
   }
   
-  ~CountImpl()
+  virtual ~CountBase()
   {
-    PTR_DBG("CountImpl::~CountImpl");
+    PTR_DBG("CountBase::~CountBase");
   }
-  
-  const T add_ref()
+
+  // object disposal method
+  virtual void dispose() = 0; // nothrow
+
+  const C add_ref()
   {
     PTR_DBG("CountImpl::add_ref(->" << m_use_count+1 << ")");
     yat::AutoMutex<L> guard(this->m_lock);
@@ -80,7 +103,7 @@ public:
     return m_use_count;
   }
   
-  const T add_weak_ref()
+  const C add_weak_ref()
   {
     PTR_DBG("CountImpl::add_weak_ref(->" << m_weak_count+1 << ")");
     yat::AutoMutex<L> guard(this->m_lock);
@@ -88,7 +111,7 @@ public:
     return m_weak_count;
   }
   
-  const T dec_ref()
+  const C dec_ref()
   {
     PTR_DBG("CountImpl::dec_ref(->" << m_use_count-1 << ")");
     yat::AutoMutex<L> guard(this->m_lock);
@@ -97,7 +120,7 @@ public:
     return m_use_count;
   }
   
-  const T dec_weak_ref()
+  const C dec_weak_ref()
   {
     PTR_DBG("CountImpl::dec_weak_ref(->" << m_weak_count-1 << ")");
     YAT_ASSERT(this->m_weak_count > 0);
@@ -105,13 +128,13 @@ public:
     return m_weak_count;
   }
   
-  T & use_count()
+  C & use_count()
   {
     yat::AutoMutex<L> guard(this->m_lock);
     return m_use_count;
   }
 
-  const T & weak_count()
+  const C & weak_count()
   {
     yat::AutoMutex<L> guard(this->m_lock);
     return m_weak_count;
@@ -123,16 +146,6 @@ public:
     return 0 == m_use_count && 0 == m_weak_count;
   }
   
-  const ThisType& operator= (const ThisType& s)
-  {
-    if (this != &s)
-    {
-      this->m_use_count = s.m_use_count;
-      this->m_weak_count = s.m_weak_count;
-    }
-    return *this;
-  }
-
   void lock()
   {
     m_lock.lock();
@@ -143,39 +156,68 @@ public:
     m_lock.unlock();
   }
 
-private:
-  T m_use_count;
-  T m_weak_count;
+protected:
+  C m_use_count;
+  C m_weak_count;
   L m_lock;
 };
 
-template <typename T = unsigned long, typename L = yat::NullMutex> class WeakCounter;
+// ============================================================================
+// class: CountImpl 
+// where the things are actually counted !
+// ============================================================================
+template <typename T, typename D, typename C = counter_t, typename L = yat::NullMutex>
+class CountImpl: public CountBase<C,L>
+{
+public:
+  
+  CountImpl(T* p, D d) : m_deleter(d), m_data(p)
+  {
+    PTR_DBG("CountImpl::CountImpl");
+  }
+  
+  ~CountImpl()
+  {
+    PTR_DBG("CountImpl::~CountImpl");
+  }
+
+  void dispose()
+  {
+    m_deleter(m_data);
+  }
+
+private:
+  D  m_deleter;
+  T* m_data;
+};
+
+template <typename C = counter_t, typename L = yat::NullMutex> class WeakCounter;
 
 // ============================================================================
 // class: SharedCounter
 // ============================================================================
-template <typename T = yat::uint32, typename L = yat::NullMutex>
+template <typename C = counter_t, typename L = yat::NullMutex>
 class SharedCounter
 {
-  friend class WeakCounter<T,L>;
+  friend class WeakCounter<C,L>;
 public:
 
-  typedef SharedCounter<T,L> ThisType;
+  typedef SharedCounter<C,L> ThisType;
   
-  // referenced object deletion interface
-  class IDeleter
-  {
-  public:
-    //! discard referenced object
-    virtual void destroy()=0;
-  };
-
   //! constructor
-  SharedCounter()
+  template <typename T>
+  SharedCounter(T* p)
   {
-    PTR_DBG("SharedCounter::SharedCounter()");
-    this->m_count = new CountImpl<T,L>();
-    this->m_deleter = 0;
+    PTR_DBG("SharedCounter::SharedCounter(p)");
+    this->m_count = new CountImpl<T,DefaultDeleter<T>,C,L>(p, DefaultDeleter<T>());
+  }
+
+  //! constructor with specific deleter
+  template <typename T, typename D>
+  SharedCounter(T* p, D d)
+  {
+    PTR_DBG("SharedCounter::SharedCounter(p, d)");
+    this->m_count = new CountImpl<T,D,C,L>(p, d);
   }
 
   //! destructor
@@ -185,14 +227,8 @@ public:
     release();
   };
 
-  //! deleter affectation
-  void set_deleter(IDeleter *deleter)
-  {
-    this->m_deleter = deleter;
-  }
-  
-  //! copy constructor
-  SharedCounter (const WeakCounter<T,L>& cnt)
+  //! copy constructor from weak pointer
+  explicit SharedCounter (const WeakCounter<C,L>& cnt)
   {
     PTR_DBG("SharedCounter::SharedCounter(const WeakCounter<T,L>&)");
     cnt.m_count->lock();
@@ -213,24 +249,22 @@ public:
   }
 
   //! release counter and underlying object
-  void release()
+  void release ()
   {
     PTR_DBG("SharedCounter::release()");
     m_count->dec_ref();
     if( m_count->expired() )
     {
       // No more reference to the counter object, we can destroy it
+      this->m_count->dispose();
       delete this->m_count;
       this->m_count = 0;
-      if( this->m_deleter )
-        this->m_deleter->destroy();
     }
     else if( m_count->use_count() == 0 )
     {
       // At least one weak reference remains on the counter
       // We just destroy the referenced object
-      if( this->m_deleter )
-        this->m_deleter->destroy();
+      this->m_count->dispose();
     }
   }
 
@@ -267,21 +301,20 @@ public:
   }
 
   //! use count
-  const T use_count () const
+  const C use_count () const
   {
     return this->m_count ? this->m_count->use_count() : 0;
   }
 
   //- implicit conversion to bool
-  typedef T* SharedCounter::*unspecified_bool_type;
+  typedef C* SharedCounter::*unspecified_bool_type;
   operator unspecified_bool_type() const
   {
     return this->m_count ? m_count->use_count() : 0;
   }
 
 private:
-  CountImpl<T, L>* m_count; // The shared counter
-  IDeleter *m_deleter;
+  CountBase<C, L>* m_count; // The shared counter
   L m_lock;
 };
 
@@ -289,14 +322,14 @@ private:
 // class: WeakCounter
 // This class is used by the WeakPtr pointer type
 // ============================================================================
-template <typename T, typename L>
+template <typename C, typename L>
 class WeakCounter
 {
-  friend class SharedCounter<T,L>;
+  friend class SharedCounter<C,L>;
 
 public:
 
-  typedef WeakCounter<T,L> ThisType;
+  typedef WeakCounter<C,L> ThisType;
   
   //! constructor
   WeakCounter ()
@@ -310,11 +343,11 @@ public:
   {
     PTR_DBG("WeakCounter::WeakCounter(const ThisType&)");
     this->m_count = cnt.m_count;
-    this->m_count->add_weak_ref();    
+    this->m_count->add_weak_ref();
   }
 
-  //! copy constructor
-  WeakCounter (const SharedCounter<T,L>& cnt)
+  //! copy constructor from shared pointer
+  WeakCounter (const SharedCounter<C,L>& cnt)
   {
     PTR_DBG("WeakCounter::WeakCounter(const SharedCounter<T,L>&)");
     this->m_count = cnt.m_count;
@@ -370,20 +403,20 @@ public:
   }
 
   //! use count
-  const T use_count () const
+  const C use_count () const
   {
     return this->m_count ? this->m_count->use_count() : 0;
   }
 
   //- implicit conversion to bool
-  typedef T* WeakCounter::*unspecified_bool_type;
+  typedef C* WeakCounter::*unspecified_bool_type;
   operator unspecified_bool_type() const
   {
     return this->m_count ? m_count->use_count() : 0;
   }
 
 private:
-  CountImpl<T,L>* m_count; // The shared counter
+  CountBase<C,L>* m_count; // The shared counter
 };
 
 } // namespace
