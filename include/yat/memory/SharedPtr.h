@@ -49,6 +49,7 @@
 namespace yat
 {
 
+
 // ============================================================================
 // forward declaration class: WeakPtr
 // ============================================================================
@@ -58,28 +59,34 @@ template <typename T, typename L = yat::NullMutex> class WeakPtr;
 // class: SharedPtr
 // ============================================================================
 template <typename T, typename L = yat::NullMutex>
-class SharedPtr: public SharedCounter<yat::uint32,L>::IDeleter
+class SharedPtr
 {
   template<typename U, typename V> friend class WeakPtr;
   template<typename U, typename V> friend class SharedPtr;
 
   typedef SharedPtr<T,L> ThisType;
-  typedef SharedCounter<yat::uint32, L> ThisTypeRefCnt;
-  
+  typedef SharedCounter<counter_t, L> ThisTypeRefCnt;
+
 public:
-  //! constructor
+  //! default constructor
   SharedPtr () 
-    : m_data(0)
+    : m_data(0), m_ref_count((T*)0)
   {
-    m_ref_count.set_deleter(this);
     PTR_DBG("SharedPtr::SharedPtr()");
   }
 
   //! constructor
   SharedPtr (T* p) 
-    : m_data(p)
+    : m_data(p), m_ref_count(p)
   {
-    m_ref_count.set_deleter(this);
+    PTR_DBG("SharedPtr::SharedPtr(" << std::hex << (void*)p << ")");
+  }
+
+  //! constructor
+  template <typename D>
+  SharedPtr (T* p, D d) 
+    : m_data(p), m_ref_count(p, d)
+  {
     PTR_DBG("SharedPtr::SharedPtr(" << std::hex << (void*)p << ")");
   }
 
@@ -87,25 +94,22 @@ public:
   SharedPtr (const ThisType & s) 
     : m_data(s.m_data), m_ref_count(s.m_ref_count) 
   {
-    m_ref_count.set_deleter(this);
     PTR_DBG("SharedPtr::SharedPtr(const ThisType & s) - m_data: " << std::hex << (void*)m_data << ")");
     PTR_DBG("SharedPtr::SharedPtr(const ThisType & s) - use_count: " << use_count());
   }
 
   //! copy constructor
-  //! Throw an exception si Y is not compatible with T
+  //! Throw an exception if Y is not compatible with T
   template<typename Y>
-  SharedPtr (const SharedPtr<Y,L> & s) 
+  explicit SharedPtr (const SharedPtr<Y,L> & s): m_ref_count(s.m_ref_count) 
   {
     cast_copy_data(s.m_data);
-    m_ref_count = s.m_ref_count;
-    m_ref_count.set_deleter(this);
     PTR_DBG("SharedPtr::SharedPtr(const SharedPtr<Y,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
     PTR_DBG("SharedPtr::SharedPtr(const SharedPtr<Y,L> & s) - use_count: " << use_count());
   }
 
   //! constructor from WeakPtr<T,L>
-  SharedPtr(const WeakPtr<T,L>& s): m_ref_count(s.m_ref_count)
+  explicit SharedPtr(const WeakPtr<T,L>& s): m_ref_count(s.m_ref_count)
   {
     PTR_DBG("SharedPtr::SharedPtr(const WeakPtr<T,L>&) - use_count: " << use_count());
     if( m_ref_count.use_count() == 0 )
@@ -115,7 +119,6 @@ public:
     else
     {
       m_data = s.m_data;
-      m_ref_count.set_deleter(this);
     }
     PTR_DBG("Use_count: " << use_count());
   }
@@ -134,7 +137,6 @@ public:
     {
       copy_cast_data(s.m_data);
       m_ref_count = s.m_ref_count;
-      m_ref_count.set_deleter(this);
     }
     PTR_DBG("Use_count: " << use_count());
   }
@@ -263,14 +265,6 @@ private:
     }
   }
 
-  // deleter
-  void destroy()
-  {
-    PTR_DBG("SharedPtr::destroy() - m_data: " << std::hex << (void*)m_data << ")");
-    try { delete m_data; } catch (...) {};
-    m_data = 0;
-  }
-
   //- pointed data
   T * m_data;
   //- reference counter
@@ -291,7 +285,7 @@ inline bool operator<(SharedPtr<T, L> const & a, SharedPtr<U, L> const & b)
 template <typename T, typename L> class WeakPtr
 {
   typedef WeakPtr<T,L> ThisType;
-  typedef WeakCounter<yat::uint32, L> ThisTypeRefCnt;
+  typedef WeakCounter<counter_t, L> ThisTypeRefCnt;
 
   template<class U, class V> friend class WeakPtr;
   template<class U, class V> friend class SharedPtr;
