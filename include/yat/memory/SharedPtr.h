@@ -204,12 +204,28 @@ public:
     ThisType(p).swap(*this);
   } 
 
+  //! reset
+  template <typename D> 
+  void reset (T * p, D d)
+  {
+    PTR_DBG("SharedPtr::reset(" << std::hex << (void*)p << ", d)");
+    ThisType(p, d).swap(*this);
+  } 
+
   //! reset (Y must be T convertible)
   template <typename Y> 
   void reset (Y * p)
   {
     PTR_DBG("template <typename Y>SharedPtr::reset(" << std::hex << (void*)p << ")");
     ThisType(p).swap(*this);
+  } 
+
+  //! reset (Y must be T convertible)
+  template <typename Y, typename D> 
+  void reset (Y * p, D d)
+  {
+    PTR_DBG("template <typename Y>SharedPtr::reset(" << std::hex << (void*)p << ", d)");
+    ThisType(p, d).swap(*this);
   } 
 
   //- swap content
