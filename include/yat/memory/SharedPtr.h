@@ -53,12 +53,12 @@ namespace yat
 // ============================================================================
 // forward declaration class: WeakPtr
 // ============================================================================
-template <typename T, typename L = yat::NullMutex> class WeakPtr;
+template <typename T, typename L = yat::Mutex> class WeakPtr;
 
 // ============================================================================
 // class: SharedPtr
 // ============================================================================
-template <typename T, typename L = yat::NullMutex>
+template <typename T, typename L = yat::Mutex>
 class SharedPtr
 {
   template<typename U, typename V> friend class WeakPtr;
@@ -101,7 +101,7 @@ public:
   //! copy constructor
   //! Throw an exception if Y is not compatible with T
   template<typename Y>
-  explicit SharedPtr (const SharedPtr<Y,L> & s): m_ref_count(s.m_ref_count) 
+  SharedPtr (const SharedPtr<Y,L> & s): m_ref_count(s.m_ref_count) 
   {
     cast_copy_data(s.m_data);
     PTR_DBG("SharedPtr::SharedPtr(const SharedPtr<Y,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
