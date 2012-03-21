@@ -78,7 +78,7 @@ struct DefaultDeleter
 // class: CountBase
 // Base class for CountImpl
 // ============================================================================
-template <typename C = counter_t, typename L = yat::NullMutex>
+template <typename C = counter_t, typename L = yat::Mutex>
 class CountBase
 {
 public:
@@ -166,7 +166,7 @@ protected:
 // class: CountImpl 
 // where the things are actually counted !
 // ============================================================================
-template <typename T, typename D, typename C = counter_t, typename L = yat::NullMutex>
+template <typename T, typename D, typename C = counter_t, typename L = yat::Mutex>
 class CountImpl: public CountBase<C,L>
 {
 public:
@@ -191,12 +191,12 @@ private:
   T* m_data;
 };
 
-template <typename C = counter_t, typename L = yat::NullMutex> class WeakCounter;
+template <typename C = counter_t, typename L = yat::Mutex> class WeakCounter;
 
 // ============================================================================
 // class: SharedCounter
 // ============================================================================
-template <typename C = counter_t, typename L = yat::NullMutex>
+template <typename C = counter_t, typename L = yat::Mutex>
 class SharedCounter
 {
   friend class WeakCounter<C,L>;
