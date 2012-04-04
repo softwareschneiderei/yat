@@ -640,17 +640,7 @@ void Socket::set_option (Socket::Option _opt, int _value)
       set_sock_option(this->m_os_desc, level, native_opt, _value);
       break;
     case SOCK_OPT_LINGER:
-      {
-        struct linger lp;
-#ifdef WIN32
-        lp.l_onoff = static_cast<unsigned short>(_value >= 0);
-        lp.l_linger = static_cast<unsigned short>(_value >= 0 ? _value : 0);
-#else
-        lp.l_onoff = static_cast<int>(_value >= 0);
-        lp.l_linger = static_cast<int>(_value >= 0 ? _value : 0);
-#endif
-        set_sock_option(this->m_os_desc, level, native_opt, _value);
-      }
+      set_sock_option(this->m_os_desc, level, native_opt, _value);
       break;
     case SOCK_OPT_ITIMEOUT: 
     case SOCK_OPT_OTIMEOUT:

@@ -83,8 +83,6 @@ StringTokenizer::StringTokenizer (const std::string & s, const std::string & d)
 //=============================================================================
 int StringTokenizer::count_tokens () const
 {
-  std::string::size_type prev_pos = 0;
-
   if (m_token_str.length () > 0)
   {
     int num_tokens = 0;
@@ -94,7 +92,6 @@ int StringTokenizer::count_tokens () const
       if ((current_pos = m_token_str.find (m_delim_str, current_pos)) != std::string::npos)
       {
         num_tokens++;
-        prev_pos = current_pos;
         current_pos += m_delim_str.length ();
       }
       else
