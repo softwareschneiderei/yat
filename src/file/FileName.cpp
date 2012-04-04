@@ -144,16 +144,15 @@ String FileName::dir_name() const
   String strName = String::nil;
 
   // Backward search for last separator
-  uint32 iLastSepPos = (int)m_strFile.find_last_of(SEP_PATH);
-  if( String::npos == (uint32)iLastSepPos )
+  String::size_type iLastSepPos = m_strFile.find_last_of(SEP_PATH);
+  if ( String::npos == iLastSepPos ) {
     return String::nil;
-  int iPreviousSepPos = (int)m_strFile.rfind(SEP_PATH, iLastSepPos-1);
-  if( String::npos == (uint32)iPreviousSepPos )
-    iPreviousSepPos = -1;
-
-  strName = m_strFile.substr(iPreviousSepPos + 1, iLastSepPos - iPreviousSepPos - 1);
-
-  return strName;
+  }
+  String::size_type iPreviousSepPos = m_strFile.rfind(SEP_PATH, iLastSepPos - 1);
+  if ( String::npos == iPreviousSepPos ) {
+    return m_strFile.substr(0, iLastSepPos);
+  }
+  return m_strFile.substr(iPreviousSepPos + 1, iLastSepPos - iPreviousSepPos - 1);
 }
 
 //----------------------------------------------------------------------------

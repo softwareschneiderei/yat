@@ -87,11 +87,11 @@ bool StringTemplate::substitute(String *pstrTemplate)
   while( strTmpl.size() > 0 )
   {
     // Search for a variable
-    uint32 uiFirstPos = strTmpl.find("$(");
+    String::size_type uiFirstPos = strTmpl.find("$(");
     if( String::npos != uiFirstPos )
     {
       // Search for matching ')'. Take care of nested variables
-      uint32 uiMatchPos = strTmpl.find_first_of(')', uiFirstPos + 2);
+      String::size_type uiMatchPos = strTmpl.find_first_of(')', uiFirstPos + 2);
 
       if( String::npos != uiMatchPos )
       {

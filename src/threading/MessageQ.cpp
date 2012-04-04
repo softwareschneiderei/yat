@@ -74,53 +74,53 @@ namespace yat
 // ============================================================================
 // MessageQ::Stats::dump
 // ============================================================================
-void MessageQ::Statistics::dump () const
+void MessageQ::Statistics::dump (std::ostream& out) const
 {
-  std::cout << "MessageQ::statistics::has reached hw................" 
+  out << "MessageQ::statistics::has reached hw................" 
             << this->has_been_saturated_ 
             << " times" 
             << std::endl;
             
-  std::cout << "MessageQ::statistics::has reached lw................" 
+  out << "MessageQ::statistics::has reached lw................" 
             << this->has_been_unsaturated_ 
             << " times" 
             << std::endl;
   
   if (this->wm_unit_ == NUM_OF_BYTES)
   {
-  	std::cout << "MessageQ::statistics::has contained up to..........." 
+  	out << "MessageQ::statistics::has contained up to..........." 
             	<< this->max_pending_charge_reached_ 
             	<< " bytes"
             	<< std::endl;
   }
   
-  std::cout << "MessageQ::statistics::has contained up to..........." 
+  out << "MessageQ::statistics::has contained up to..........." 
             << this->max_pending_msgs_reached_ 
             << " msgs"
             << std::endl;
             
-  std::cout << "MessageQ::statistics::immediate msg posting........." 
+  out << "MessageQ::statistics::immediate msg posting........." 
             << this->posted_without_waiting_msg_counter_ 
             << std::endl;
   
-  std::cout << "MessageQ::statistics::delayed msg posting..........." 
+  out << "MessageQ::statistics::delayed msg posting..........." 
             << this->posted_with_waiting_msg_counter_ 
             << std::endl;
   
-  std::cout << "MessageQ::statistics::trashed on post tmo..........." 
+  out << "MessageQ::statistics::trashed on post tmo..........." 
             << this->trashed_on_post_tmo_counter_ 
             << std::endl;
   
-  std::cout << "MessageQ::statistics::trashed on other criteria....." 
+  out << "MessageQ::statistics::trashed on other criteria....." 
             << this->trashed_msg_counter_ 
             << std::endl;
 
-  std::cout << "MessageQ::statistics::pending charge................." 
+  out << "MessageQ::statistics::pending charge................." 
             << this->pending_charge_
             << " bytes"
             << std::endl;
 
-  std::cout << "MessageQ::statistics::pending msgs..................." 
+  out << "MessageQ::statistics::pending msgs..................." 
             << this->pending_mgs_
             << " msgs"
             << std::endl;
@@ -130,7 +130,7 @@ void MessageQ::Statistics::dump () const
                           + this->trashed_msg_counter_
                           + this->trashed_on_post_tmo_counter_;
 
-  std::cout << "MessageQ::statistics::total msg....................." 
+  out << "MessageQ::statistics::total msg....................." 
             << total_msg 
             << std::endl;
 }

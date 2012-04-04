@@ -40,6 +40,7 @@
 // ============================================================================
 // DEPENDENCIES
 // ============================================================================
+#include <iostream>
 #include <yat/CommonHeader.h>
 #include <list>
 #if defined (YAT_WIN32)
@@ -93,12 +94,12 @@ public:
     NUM_OF_BYTES
   } WmUnit;
   
-	typedef struct Statistics
+  struct YAT_DECL Statistics
   {
     //- default ctor
     Statistics ();
     //- dump stats 
-    void dump () const;
+	void dump (std::ostream& out = std::cout) const;
     //- did the MessageQ reached the hi-water mark?
     size_t has_been_saturated_;
     //- did the MessageQ reached the low-water mark?
@@ -121,7 +122,7 @@ public:
     unsigned long pending_mgs_;
     //- messageQ unit 
     WmUnit wm_unit_;
-  } Statistics;
+  };
 
   //- ctor
   MessageQ (size_t lo_wm = kDEFAULT_LO_WATER_MARK,

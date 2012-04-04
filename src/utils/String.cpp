@@ -612,7 +612,7 @@ void String::join(const std::vector<String> &vecStr, char cSep)
 //---------------------------------------------------------------------------
 bool String::remove_item(const String &strItem, char cSep)
 {
-  uint32 uiPos = find(strItem);
+  String::size_type uiPos = find(strItem);
   if( uiPos == std::string::npos )
     return false;
 
