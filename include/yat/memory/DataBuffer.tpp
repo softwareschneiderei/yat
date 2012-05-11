@@ -69,7 +69,7 @@ Buffer<T>::Buffer (size_t _capacity, bool _clear)
 // Buffer::Buffer
 // ============================================================================
 template <typename T>
-Buffer<T>::Buffer (size_t _length, T* _base)
+Buffer<T>::Buffer (size_t _length, const T* _base)
     throw (Exception) 
  : base_(0), capacity_(0), length_(0)
 {
@@ -189,7 +189,7 @@ ImageBuffer<T>::ImageBuffer (size_t _width, size_t _height)
 // ImageBuffer::ImageBuffer
 // ======================================================================
 template <typename T>
-ImageBuffer<T>::ImageBuffer (size_t _width, size_t _height, T *base)
+ImageBuffer<T>::ImageBuffer (size_t _width, size_t _height, const T *base)
     throw (Exception) 
 : Buffer<T>(_width * _height, base),
   width_(_width),
@@ -282,7 +282,7 @@ SharedBuffer<T>::SharedBuffer (size_t _capacity)
 // SharedBuffer::SharedBuffer
 // ============================================================================
 template <typename T>
-SharedBuffer<T>::SharedBuffer(size_t _length, T* _base)
+SharedBuffer<T>::SharedBuffer(size_t _length,  const T* _base)
   throw (Exception)
   : Buffer<T>(_length, _base), SharedObject()
 {

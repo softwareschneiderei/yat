@@ -76,7 +76,7 @@ public:
    * @param length the number of elements of type T to be copied into the buffer. 
    * @param base address of the memory block to copy into the buffer.
    */
-  Buffer (size_t length, T *base)
+  Buffer (size_t length, const T *base)
     throw (Exception);
 
   /**
@@ -230,7 +230,7 @@ public:
    * @param height the height of the image in pixels
    * @param base address of the block to copy.
    */
-  ImageBuffer (size_t width, size_t height, T *base)
+  ImageBuffer (size_t width, size_t height, const T *base)
     throw (Exception);
 
   /**
@@ -322,7 +322,7 @@ protected:
    * @param  length the number of elements of type T to be copied into the buffer. 
    * @param  base address of the block to copy.
    */
-  SharedBuffer (size_t length, T *base)
+  SharedBuffer (size_t length, const T *base)
     throw (Exception);
 
   /**
