@@ -42,11 +42,25 @@
  *  Deprecated. Use new definitions below
  */
 #include <stdint.h>
-typedef uint8_t yat_uint8_t;
-typedef int16_t  yat_int16_t;
-typedef uint16_t yat_uint16_t;
-typedef int32_t yat_int32_t;
-typedef uint32_t yat_uint32_t;
+typedef uint8_t yat_uint8_t;             //CORBA::Char
+typedef int16_t yat_int16_t;             //CORBA::Short
+typedef uint16_t yat_uint16_t;           //CORBA::UShort
+#if __WORDSIZE == 64
+typedef int yat_int32_t;                //CORBA::Long
+typedef unsigned int yat_uint32_t;      //CORBA::ULong
+#else
+typedef long yat_int32_t;                //CORBA::Long
+typedef unsigned long yat_uint32_t;      //CORBA::ULong
+#endif
+
+//yat_{u}int64_t;
+#if __WORDSIZE == 64
+typedef long yat_int64_t;                //CORBA::LongLong
+typedef unsigned long yat_uint64_t;      //CORBA::ULongLong
+#else
+typedef long long yat_int64_t;           //CORBA::LongLong
+typedef unsigned long long yat_uint64_t; //CORBA::ULongLong
+#endif
 
 /**
  * New type definitions

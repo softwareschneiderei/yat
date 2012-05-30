@@ -91,7 +91,13 @@ typedef unsigned short yat_uint16_t;
   typedef long yat_int32_t;
   typedef unsigned long yat_uint32_t;
 #endif
-
+#if defined (_WIN64) || defined (WIN64)
+  typedef long yat_int64_t;
+  typedef unsigned long yat_uint64_t;
+#else
+  typedef long long yat_int64_t;
+  typedef unsigned long long yat_uint64_t;
+#endif
 /**
  * New type definitions
  */
@@ -132,7 +138,7 @@ namespace yat
 #pragma warning(disable:4786) 
 //- 'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2' 
 #pragma warning(disable:4251) 
-//- non – DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier' 
+//- non ï¿½ DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier' 
 #pragma warning(disable:4275) 
 //- C++ exception specification ignored except to indicate a function is not __declspec(nothrow)
 #pragma warning(disable:4290)

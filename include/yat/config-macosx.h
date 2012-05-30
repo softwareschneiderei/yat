@@ -52,6 +52,8 @@ typedef int16_t  yat_int16_t;
 typedef uint16_t yat_uint16_t;
 typedef int32_t  yat_int32_t;
 typedef uint32_t yat_uint32_t;
+typedef int64_t  yat_int64_t;
+typedef uint64_t yat_uint64_t;
 
 /**
  * New type definitions
