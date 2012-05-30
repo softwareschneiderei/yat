@@ -60,6 +60,8 @@ namespace yat
       UINT16,
       INT32,
       UINT32,
+      INT64,
+      UINT64,
       FLOAT,
       DOUBLE,
       STRING
@@ -105,6 +107,8 @@ namespace yat
       UINT16,
       INT32,
       UINT32,
+      INT64,
+      UINT64,
       FLOAT,
       DOUBLE,
       STRING,
@@ -113,6 +117,8 @@ namespace yat
       UINT16_VECTOR,
       INT32_VECTOR,
       UINT32_VECTOR,
+      INT64_VECTOR,
+      UINT64_VECTOR,
       FLOAT_VECTOR,
       DOUBLE_VECTOR
     };
