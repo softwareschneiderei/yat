@@ -320,7 +320,7 @@ BitsStream& operator>> (BitsStream& source, BitsSet<_n, _T>& dest)
 {
   yat::BitsStorage tmp = 0;
   source.read_bits(_n, tmp);
-  if ( source.endianness() == Endianness::BO_BIG_ENDIAN )
+  if ( source.endianness() != yat::Endianness::host_endianness )
   {
     switch (sizeof(_T))
     {
