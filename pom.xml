@@ -89,6 +89,9 @@
                 <os>Linux</os>
               </activation>
               <cpp>
+                <defines>
+                  <define>_FILE_OFFSET_BITS=64</define>
+                </defines>
                 <excludes>
                   <exclude>**/*WinNt*.cpp</exclude>
                   <exclude>**/*Win32*.cpp</exclude>
