@@ -72,7 +72,7 @@ BitsStream::~BitsStream ()
   //- noop dtor
 }
 
-/* 
+/*
 //-------------------------------------------------------------------------
   BACKUP OF THE VERBOSE VERSION OF <read_bits_i> FOR DEBUG PURPOSE
 //-------------------------------------------------------------------------

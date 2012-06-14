@@ -257,7 +257,7 @@ private:
               << std::right
               << std::endl;
   }
-  
+
   //- this extracts _num_bits bits or skips _num_bits if bits == 0
   inline bool read_bits_i (int _num_bits, yat::BitsStorage * _bits)
   {
@@ -319,38 +319,44 @@ template <size_t _n, typename _T>
 BitsStream& operator>> (BitsStream& source, BitsSet<_n, _T>& dest)
 {
   yat::BitsStorage tmp = 0;
+
   source.read_bits(_n, tmp);
+
+  _T t = static_cast<_T>(tmp);
+
   if ( source.endianness() != yat::Endianness::host_endianness )
   {
-    switch (sizeof(_T))
+    switch ( sizeof(_T) )
     {
       case 2:
       {
-        Endianness::swap_2(reinterpret_cast<const char*>(&tmp),
-                           reinterpret_cast<char*>(&tmp));
+        Endianness::swap_2(reinterpret_cast<const char*>(&t),
+                             reinterpret_cast<char*>(&t));
       }
       break;
       case 4:
       {
-        Endianness::swap_4(reinterpret_cast<const char*>(&tmp),
-                           reinterpret_cast<char*>(&tmp));
+        Endianness::swap_4(reinterpret_cast<const char*>(&t),
+                           reinterpret_cast<char*>(&t));
       }
       break;
       case 8:
       {
-        Endianness::swap_8(reinterpret_cast<const char*>(&tmp),
-                           reinterpret_cast<char*>(&tmp));
+        Endianness::swap_8(reinterpret_cast<const char*>(&t),
+                           reinterpret_cast<char*>(&t));
       }
       break;
       case 16:
       {
-        Endianness::swap_16(reinterpret_cast<const char*>(&tmp),
-                            reinterpret_cast<char*>(&tmp));
+        Endianness::swap_16(reinterpret_cast<const char*>(&t),
+                            reinterpret_cast<char*>(&t));
       }
       break;
     }
-  } 
-  dest.value() = static_cast<_T>(tmp);
+  }
+
+  dest.value() = t; 
+
   return source;
 } 
 
