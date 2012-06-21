@@ -37,8 +37,6 @@
 #ifndef _YAT_INLINE_H_
 #define _YAT_INLINE_H_
 
-#include <yat/CommonHeader.h>
-
 #if !defined(YAT_DEBUG)
 # define YAT_INLINE_IMPL
 #endif

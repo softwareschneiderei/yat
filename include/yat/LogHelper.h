@@ -37,8 +37,6 @@
 #ifndef _YAT_LOGHELPER_H_
 #define _YAT_LOGHELPER_H_
 
-#include <yat/CommonHeader.h>
-
 /*!
  *  Define the YAT_LOG & YAT_TRACE helper macro depending on the YAT_ENABLE_LOG macro
  *  These macros can be used by yat users to log in their applications
