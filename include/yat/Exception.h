@@ -42,7 +42,6 @@
 // ============================================================================
 #include <string>
 #include <vector>
-#include <yat/CommonHeader.h>
 
 namespace yat 
 {
