@@ -55,90 +55,107 @@
 
 namespace yat {
 
-// ----------------------------------------------------------------------------
-//! <YAT_SEMAPHORE>::try_wait may return one of the following SemaphoreState
-// ----------------------------------------------------------------------------
+// ============================================================================
+//! \enum yat::SemaphoreState 
+//! \brief Semaphore state enumeration.
+//!
+//! The Semaphore::try_wait() may return one of the SemaphoreState value.
+// ============================================================================
 typedef enum
 {
-  //! semaphore is currently "decrementable"
+  //! semaphore is currently "decrementable".
   SEMAPHORE_DEC,
-  //! no resource available (semaphore value is 0)
+  //! no resource available (semaphore value is 0).
   SEMAPHORE_NO_RSC,
 } SemaphoreState;
 
-// ----------------------------------------------------------------------------
-//! The YAT Semaphore class
-// ----------------------------------------------------------------------------
+// ============================================================================
+//! \class Semaphore
+//! \brief The YAT basic semaphore implementation.
+//!
+//! This class is not supposed to be derived.
+// ============================================================================
 class YAT_DECL Semaphore
 {
-  //! This is the yat Semaphore class.
-  //!
-  //! This class is not supposed to be derived.
 
 public:
-  //! Constructor (may throw an Exception)
+  //! \brief Constructor (may throws an Exception).
+  //! \param initial Initial semaphore value.
   Semaphore (unsigned int initial = 1);
 
-  //! Destructor.
+  //! \brief Destructor.
   ~Semaphore ();
 
-  //! If semaphore value is > 0 then decrement it and carry on. 
-  //! If it's already 0 then block untill the semaphore is either "signaled" 
-  //! or "broascasted" (see post, signal and broadcast members below).
+  //! \brief Waits for semaphore to be signaled.
+  //!
+  //! If semaphore value is > 0 then decrements it and carries on. 
+  //! If semaphore value is already 0 then blocks until the semaphore 
+  //! is "signaled" by another thread (with Semaphore::post() function).
   void wait ();
 
-  //! If semaphore value is > 0 then decrements it and returns true. Returns 
-  //! "false" in case the specified timeout expired before the semaphore
-  //! has been "signaled" or "broascasted" by another thread.
+  //! \brief Waits for semaphore to be signaled until specified timeout elapses.
+  //!
+  //! If semaphore value is > 0 then decrements it and returns "true". 
+  //! Returns "false" in case the specified timeout expired before the semaphore
+  //! has been "signaled" by another thread.
+  //! \param tmo_msecs Timeout in ms.
   bool timed_wait (unsigned long tmo_msecs);
 
-  //! If the current semaphore value is > 0, then crements it and returns 
-  //! SEMAPHORE_DEC. In case the semaphore has reached its maximum value,
+  //! \brief Gets semaphore if it is signaled or gives up.
+  //! 
+  //! If the current semaphore value is > 0, then decrements it and returns 
+  //! SEMAPHORE_DEC. In case the semaphore value is already 0, 
   //! this method does not block and "immediately" returns SEMAPHORE_NO_RSC.
   SemaphoreState try_wait ();
 
-  //! If any threads are blocked in wait(), wake one of them up. 
+  //! \brief Signals the semaphore to other threads.
+  //!
+  //! If any threads are blocked in wait(), wakes one of them up. 
   //! Otherwise increments the value of the semaphore. 
   void post ();
 
 private:
-  //! Not implemented private member
+  //- Not implemented private member
   Semaphore (const Semaphore&);
-  //! Not implemented private member
+  
+  //- Not implemented private member
   Semaphore & operator= (const Semaphore&);
   
   //- platform specific implementation
   YAT_SEMAPHORE_IMPLEMENTATION;
 };
 
-// ----------------------------------------------------------------------------
-//! The YAT "auto semaphore" class
-// ----------------------------------------------------------------------------
+// ============================================================================
+//! \class AutoSemaphore
+//! \brief The YAT "auto semaphore" class.
+//!
+//! An "auto semaphore" providing an auto wait/post mechanism implemented in the
+//! object construction and destruction functions.
+// ============================================================================
 class YAT_DECL AutoSemaphore
 {
-  //! An "auto semaphore" providing an auto wait/post mechanism.
-
 public:
-  //! Constructor (wait on the associated Semaphore)
+  //! \brief Constructor (waits on the associated Semaphore).
   AutoSemaphore (Semaphore & _sem)
     : m_sem (_sem)
   {
     m_sem.wait();
   }
 
-  //! Destructor (post the associated Semaphore)
+  //! \brief Destructor (posts the associated Semaphore).
   ~AutoSemaphore ()
   {
     m_sem.post();
   }
 
 private:
-  //! The associated Mutex
+  //- The associated Mutex
   Semaphore & m_sem;
 
-  //! Not implemented private member
+  //- Not implemented private member
   AutoSemaphore (const AutoSemaphore&);
-  //! Not implemented private member
+  
+  //- Not implemented private member
   AutoSemaphore & operator= (const AutoSemaphore&);
 };
 

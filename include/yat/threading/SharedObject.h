@@ -47,55 +47,59 @@ namespace yat
 {
 
 // ============================================================================
-//! A reference counted object abstraction.
-// ============================================================================
+//! \class SharedObject
+//! \brief A reference counted object abstraction.
 //!
-//! Base class for any reference counted object (i.e. shared) object.
-//!
+//! Base class for any reference counted (i.e. shared) object.
 // ============================================================================
 class YAT_DECL SharedObject
 {
 public:
 
+  //! \brief Constructor.
   SharedObject ();
-  // Constructor.
-
+  
+  //! \brief Destructor.
   virtual ~SharedObject ();
-  // Destructor.
-
+  
+  //! \brief Returns a "shallow" copy of the shared object (avoids deep copy).
+  //!
+  //! Increments the shared reference count by 1.
   SharedObject * duplicate ();
-  // Return a "shallow" copy. Increment the reference count by 1
-  // to avoid deep copies.
 
+  //! \brief Decreases the shared reference count by 1. 
+  //! 
+  //! If the reference count equals to 0 and \<commit_suicide\> is true, 
+  //! then delete *this* and return 0. Returns 1 otherwise. 
+  //! \param commit_suicide Indicates if object is to be deleted if
+  //! no one uses it.
+  //! \remark Behaviour is undefined if reference count < 0.
   int release (bool commit_suicide = true);
-  // Decrease the shared reference count by 1.  If the reference count
-  // equals 0 and <commit_suicide> is true, then delete <this> and return 0.
-  // Return 1 otherwise. Behavior is undefinedif reference count < 0.
 
+  //! \brief Returns the current reference count.
   int reference_count () const;
-  // Returns the current reference count.
-
+  
+  //! \brief Locks the underlying mutex.
   void lock ();
-  // Locks the underlying Mutex
-
+  
+  //! \brief Unlocks the underlying mutex.
   void unlock ();
-  // Unlocks the underlying Mutex
 
+  //! \brief Returns the underlying synchronization object (mutex).
   Mutex & mutex ();
-  // Returns the underlying synch. object
-
+  
 protected:
-  // a mutex to protect the data against race conditions
+  //! \brief Mutex to protect the data during any operation on them.
   Mutex lock_;
 
 private:
-  // internal release implementation
+  //- Internal release implementation.
   SharedObject * release_i ();
 
-  //- reference count for (used to avoid deep copies)
+  //- Reference count for "shallow" copies (used to avoid deep copies).
   int reference_count_;
 
-  // = Disallow these operations.
+  //- Disallow these operations.
   //--------------------------------------------
   SharedObject & operator= (const SharedObject &);
   SharedObject (const SharedObject &);

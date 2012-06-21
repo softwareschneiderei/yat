@@ -49,23 +49,31 @@ namespace yat
 {
 
 // ============================================================================
-//! The NewAllocator class 
-// ============================================================================
-//!  
+//! \class NewAllocator 
+//! \brief Managed memory allocation class of \<T\> type objects.
+//!
+//! The NewAllocator class is a template class that provides memory allocation 
+//! management of specified \<T\> type objects.
 // ============================================================================
 template <typename T> class NewAllocator
 {
 public:
-  //- Ctor
+  //! \brief Default constructor.
   NewAllocator ();
 
-  //- Dtor
+  //! \brief Destructor.
   virtual ~NewAllocator ();
   
-  //- memory allocation - can't allocate more than sizeof(T)
+  //! \brief Allocates memory for a \<T\> type object.
+  //!
+  //! Returns a pointer to the allocated memory.
+  //! \remark Can't allocate more than sizeof(T)
   virtual T * malloc ();
 
-  //- memory release - <p> must have been allocated by <this> CachedAllocator
+  //! \brief Releases memory pointed by \<p\>.
+  //!
+  //! \param p Pointer to the allocated memory to release
+  //! \remark \<p\> must have been allocated by *this* malloc() function.
   virtual void free (T * p);
 };
 
@@ -88,73 +96,106 @@ public:
 */
 
 // ============================================================================
-//! The CachedAllocator class  
-// ============================================================================
-//! Implements an unbounded memory pool of T with selectable locking strategy 
-//! ok... for "cachable" classes only!
+//! \class CachedAllocator 
+//! \brief Memory pool of \<T\> type objects.
+//!
+//! This class inherits from NewAllocator class. It implements an unbounded 
+//! memory pool (cache) of \<T\> type objects with selectable locking strategy.\n
+//!
+//! If object lock is not necessary, use a yat::NullMutex type (default value in 
+//! the template definition), for example : 
+//! \verbatim myAllocator = new CachedAllocator<mySimpleObjectType>(10, 20); // defines a "simple" object pool \endverbatim
+//! 
+//! If object lock is necessary, use a mutex type, for example :
+//! \verbatim myAllocator = new CachedAllocator<mySharedObjectType, yat::Mutex>(10, 20); // defines a shared object pool \endverbatim
+//! 
 // ============================================================================
 template <typename T, typename L = yat::NullMutex> 
 class CachedAllocator : public NewAllocator<T>
 {
-  //- memory pool (or cache) implementation
+  //! Memory pool (or cache) implementation.
   typedef std::deque<T*> CacheImpl; 
 
 public: 
-  //- Ctor - preallocates <nb_bunches * nb_objs_per_bunch> 
-  //- A bunch of <nb_objs_per_bunch> instances of T will be preallocated each time the cache gets empty
+  //! \brief Constructor.
+  //!
+  //! Preallocates \<nb_bunches * nb_objs_per_bunch\> slots of \<T\> type objects in a memory cache.
+  //! \param nb_bunches Number of bunches in the cache.
+  //! \param nb_objs_per_bunch Number of \<T\> type objects per bunch.
+  //!
+  //! \remark A bunch of \<nb_objs_per_bunch\> instances of \<T\> type object will be preallocated 
+  //! each time the cache gets empty.
+  //! \remark If \<nb_bunches * nb_objs_per_bunch\> is null, the CachedAllocator class works as 
+  //! a single NewAllocator class.
   CachedAllocator (size_t nb_bunches = 0, size_t nb_objs_per_bunch = 0);
 
-  //- Dtor
+  //! \brief Destructor.
+  //!
+  //! Releases all allocated slots in memory cache.
   virtual ~CachedAllocator();
   
-  //- allocates an instance of T
+  //! \brief Allocates an instance of \<T\> type object in the cache.
+  //!
+  //! Gets an instance of \<T\> type object from the cache and returns pointer to 
+  //! this instance.
+  //! \remark Reallocates a bunch of \<T\> type objects in case the cache is empty.
   virtual T * malloc ();
 
-  //- releases an instance of T 
-  //- <p> must have been allocated by <this> allocator
-  //- <p> returns to the cache 
+  //! \brief Releases an instance of \<T\> type object.
+  //!
+  //! \param p Pointer to the instance to release
+  //! \remark <p> must have been allocated by *this* malloc() function.
+  //! \remark <p> returns to the cache.
   virtual void free (T * p);
   
-  //- releases an instance of T
-  //- <p> must have been allocated by <this> allocator
-  //- <p> does NOT return to the cache
+  //! \brief Releases an instance of \<T\> type object.
+  //!
+  //! \param p Pointer to the instance to release
+  //! \remark \<p\> must have been allocated by *this* malloc() function.
+  //! \remark \<p\> does NOT return to the cache.
   virtual void release (T * p);
   
-  //- returns the number of T instances currently stored into the cache
+  //! \brief Returns the number of \<T\> type object instances currently stored into the cache.
   inline size_t length () const 
   {
     return m_cache.size();
   }
 
-  //- release <p> % of the cache
+  //! \brief Releases the specified percentage of the cache.
+  //!
+  //! \param p Percentage of the cache to be released.
   inline void clear (const double p = 100.);
 
-  //- returns the number of bytes currently stored into the cache
+  //! \brief Returns the number of bytes currently stored into the cache.
   inline size_t size () const 
   {
     return m_cache.size() * sizeof(T);
   }
   
-  //- returns the number of T instances (pre)allocated each time the cache gets empty 
+  //! \brief Returns the number of instances of \<T\> type object (pre)allocated each 
+  //! time the cache gets empty.
   inline size_t bunch_length () const 
   {
     return m_nb_objs_per_bunch;
   }
   
-  //- sets the number of T instances (pre)allocated each time the cache gets empty 
+  //! \brief Sets the number of instances of \<T\> type object (pre)allocated each time 
+  //! the cache gets empty.
+  //!
+  //! \param n Number of \<T\> type objects per bunch
   inline void bunch_length (size_t n) 
   {
     m_nb_objs_per_bunch = n;
   }
   
 protected:
-  //- locking (i.e. thread safety) strategy
+  //! \brief Locking (i.e. thread safety) strategy.
   L m_lock;
 
-  //- number T instance per bunch
+  //! \brief Number of instances of \<T\> type object per bunch.
   size_t m_nb_objs_per_bunch;
 
-  //- the memory cache (i.e. memory pool) 
+  //! \brief The memory cache (i.e. memory pool).
   CacheImpl m_cache;
 };
 

@@ -63,29 +63,41 @@ namespace yat {
   typedef unsigned long ThreadUID;
 #endif
   
-// ----------------------------------------------------------------------------
-//! The YAT threading utilities
-// ----------------------------------------------------------------------------
+// ============================================================================
+//! \class ThreadingUtilities 
+//! \brief The YAT threading utilities.
+//!
+//! This class provides threading utilities such as thread Id and time management
+//! functions.
+// ============================================================================
 class YAT_DECL ThreadingUtilities
 {
 public:
-   //! Returns the calling thread identifier.
+   //! \brief Returns the calling thread identifier.
   static ThreadUID self ();
 
-  //! Causes the caller to sleep for the given time.
+  //! \brief Causes the caller to sleep for the given time.
+  //! \param secs Time in seconds.
+  //! \param nanosecs Nanoseconds precision of time.
   static void sleep (unsigned long secs, unsigned long nanosecs = 0);
 
-  //! Calculates an absolute time in seconds and nanoseconds, suitable for
-  //! use in timed_waits, which is the current time plus the given relative 
-  //! offset.
+  //! \brief Calculates an absolute time in seconds and nanoseconds, suitable for
+  //! use in timed waits (ex: Condition, Semaphore), which is the current 
+  //! time plus the given relative offset.
+  //! \param abs_sec Absolute time in seconds.
+  //! \param abs_nsec Nanoseconds precision of absolute time.
+  //! \param offset_sec Offset in seconds.
+  //! \param offset_nsec Nanoseconds precision of offset.
   static void get_time (unsigned long & abs_sec,
                         unsigned long & abs_nsec,
                         unsigned long offset_sec = 0,
                         unsigned long offset_nsec = 0);
 
-  //! Calculates an absolute time in seconds and nanoseconds, suitable for
-  //! use in timed_waits, which is the current time plus the given relative 
-  //! offset.
+  //! \brief Calculates an absolute time in seconds and nanoseconds, suitable for
+  //! use in timed waits (ex: Condition, Semaphore), which is the current time 
+  //! plus the given relative offset.
+  //! \param abs_time Absolute time.
+  //! \param offset_msecs Offset in milliseconds.
   static void get_time (Timespec & abs_time, unsigned long offset_msecs);
 
 private:

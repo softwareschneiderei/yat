@@ -45,9 +45,9 @@
 
 namespace yat {
 
-// ----------------------------------------------------------------------------
+// ============================================================================
 //! \class Barrier
-//! \brief The YAT "a la Boost" Barrier class.
+//! \brief The YAT "Boost type" Barrier class.
 //!
 //! An object of class barrier is a synchronization primitive used to cause a 
 //! set of threads to wait until they each perform a certain function or each 
@@ -59,7 +59,8 @@ namespace yat {
 //! of the waiting threads to be woken up. The Nth call will also "reset" 
 //! the barrier such that, if an additional N+1th call is made to \link wait 
 //! wait \endlink, it will be as though this were the first call to \link wait 
-//! wait \endlink; in other words, the N+1th to 2N-1th calls to \link wait wait
+//! wait \endlink. \n
+//! In other words, the N+1th to 2N-1th calls to \link wait wait
 //! \endlink will cause their threads to be blocked, and the 2Nth call to \link 
 //! wait wait\endlink will allow all of the waiting threads, including the 2Nth 
 //! thread, to be woken up and reset the Barrier. This functionality allows the 
@@ -69,11 +70,11 @@ namespace yat {
 //! \remarks
 //! While its destructor is virtual, this class is not supposed to be derived.\n
 //! Be sure to clearly understand the internal behaviour before trying to do so.
-// ----------------------------------------------------------------------------
+// ============================================================================
 class YAT_DECL Barrier
 {
 public:
-  //! Constructor.
+  //! \brief Constructor.
   //!
   //! Constructs a Barrier object that will cause \a count threads to block 
   //! on a call to \link wait wait \endlink.
@@ -81,13 +82,13 @@ public:
   //! \param count The number of threads to synchronize.
   Barrier (size_t count);
 
-  //! Destructor.
+  //! \brief Destructor.
   //!
   //! If threads are still blocking in a \link wait wait \endlink operation, 
   //! the behavior for these threads is undefined.
   virtual ~Barrier ();
 
-  //! Wait until N threads call \link wait wait \endlink, where N equals the 
+  //! \brief Waits until N threads call \link wait wait \endlink, where N equals the 
   //! count provided to the constructor for the Barrier object. 
   //!
   //! \remarks 
@@ -96,21 +97,22 @@ public:
   void wait ();
 
 private:
-  //! The number of threads to synchronize (involved threads).
+  //- The number of threads to synchronize (involved threads).
   size_t m_thread_count;
 
-  //! The mutex associated with m_condition
+  //- The mutex associated with m_condition.
   Mutex m_mutex;
 
-  //! The condition variable used to synchronized the involved threads.
+  //- The condition variable used to synchronized the involved threads.
   Condition m_condition;
 
-  //! The number of threads currently waiting on the Barrier
+  //- The number of threads currently waiting on the Barrier.
   size_t m_waiters_count;
 
-  //! Not implemented private member
+  //- Not implemented private member.
   Barrier (const Barrier&);
-  //! Not implemented private member
+
+  //- Not implemented private member.
   Barrier & operator= (const Barrier&);
 };
 

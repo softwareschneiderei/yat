@@ -43,13 +43,29 @@
 namespace yat
 {
 
-// CRC computation
+//! \brief 32 bits CRC calculation.
+//!
+//! This function offers two usages :
+//! - pulInitValue set to NULL value : CRC is calculated for the input buffer,
+//! - pulInitValue NOT set to NULL : CRC is calculated for a set of buffers. 
+//! For example, with p1 & p2 two buffer pointers :
+//! \verbatim
+//!    uint32 ulCrc = 0xFFFFFFFFL;
+//!    ulCrc = crc( p1, uiP1Len, &ulCrc );
+//!    ulCrc = crc( p2, uiP2Len, &ulCrc );
+//!    ulCrc = ulCrc ^ 0xFFFFFFFFL; 
+//! \endverbatim
+//! \param pBuf Input buffer pointer.
+//! \param uiLen Size of inputr buffer, in bytes.
+//! \param pulInitValue Initial crc value.
 uint32 crc( const byte *pBuf, uint32 uiLen, uint32 *pulInitValue = NULL );
 
 //===========================================================================
 // endian management
 //===========================================================================
 
+//! \brief Short value inversion : AB --\> BA
+//! \param pS Short value to invert (in/out).
 inline void invert_short(short *pS)
 {
   // AB -> BA
@@ -59,6 +75,8 @@ inline void invert_short(short *pS)
   *(p+1) = c;
 }
 
+//! \brief Long value inversion : ABCD --\> DCBA
+//! \param pL Long value to invert (in/out).
 inline void invert_long(long *pL)
 {
   // ABCD -> DCBA
@@ -71,12 +89,16 @@ inline void invert_long(long *pL)
   *(p+2) = c;
 }
 
+//! \brief Float value inversion : ABCD --\> DCBA
+//! \param pF Float value to invert (in/out).
 inline void invert_float(float *pF)
 {
   // ABCD -> DCBA
   invert_long((long*)pF);
 }
 
+//! \brief Double value inversion : ABCDEFGH --\> HGFEDCBA
+//! \param pD Double value to invert (in/out).
 inline void invert_double(double *pD)
 {
   // ABCDEFGH -> HGFEDCBA
@@ -98,6 +120,8 @@ inline void invert_double(double *pD)
   *(p+4) = c;
 }
 
+//! \brief Integer64 value inversion : ABCDEFGH --\> HGFEDCBA
+//! \param pi64 Integer64 value to invert (in/out).
 inline void invert_int64(int64 *pi64)
 {
   // ABCDEFGH -> HGFEDCBA
@@ -116,138 +140,290 @@ inline void invert_int64(int64 *pi64)
   (int)&(((type*)NULL)->field)
 
 //===========================================================================
-// Class MemBuf
-//
-// Auto-sized binary buffer with cryptographic capabilities
+//! \class MemBuf 
+//! \brief Auto-sized binary buffer with cryptographic capabilities.
+//!
+//! This class provides a managed buffer with :
+//! - auto memory re-allocation in case used binary blocs length exceeds the current 
+//! buffer capacity,
+//! - insertion functions (including streaming functions) to fill the buffer,
+//! - extraction functions (including streaming functions) to read the buffer,
+//! - CRC calculation function.
 //===========================================================================
 class YAT_DECL MemBuf
 {
-private:
-  uint32  m_uiPos;             ///< Position (for reading)
-  uint32  m_uiLen;             ///< Buffer size
-  uint32  m_uiLenBuf;          ///< Allocated size
-  char* m_pBuf;             ///< The buffer!
-  bool  m_bOwner;            ///< if true the instance own the buffer
-
-  // Re-allocation
-  void realloc_with_margin(uint32 uiNewSize) ;
-
 public:
-  /// Constructor
+  //! \brief Constructor.
+  //!
+  //! \param uiLenBuf Buffer capacity in bytes.
   MemBuf(uint32 uiLenBuf=0) ;
+
+  //! \brief Copy Constructor.
+  //!
+  //! \param buf The source buffer.
   MemBuf(const MemBuf& buf) ;
-  /// Destructor
+
+  //! \brief Destructor
+  //!
+  //! Releases memory only if buffer is owned by this instance.
   ~MemBuf() ;
 
-  /// Copy operator
+  //! \brief Operator=.
+  //!
+  //! \param buf The source buffer.
   MemBuf& operator=(const MemBuf& buf);
 
-  // Comparaison operator
+  //! \brief Comparison operator.
+  //!
+  //! Returns true if buffers are equal, false otherwise.
+  //! \param mb The source buffer.
   bool operator==(const MemBuf &mb) const;
   
-  /// Attachment from a external buffer
-  ///
-  /// @param pBuf memory area to attach
-  /// @param uiLen area size
-  /// @param bOwner if true this instance will own the buffer
-  ///
+  //! \brief Attachment from an external buffer.
+  //!
+  //! \param pBuf Pointer to memory area to attach.
+  //! \param uiLen Memory area size.
+  //! \param bOwner If set to true, this instance will own the buffer.
   void attach(char* pBuf, uint32 uiLen, bool bOwner = false);
 
-  /// Length
+  //! \brief Returns the size of used binary blocks in the buffer, in bytes.
   uint32 len() const  { return m_uiLen; }
 
-  /// Is empty ?
+  //! \brief Returns true if the buffer has no used binary block.
   int is_empty() const { return m_uiLen==0; }
 
-  // Buffer size
+  //! \brief Returns the buffer capacity in bytes (size of allocated storage space).
   uint32 buf_len() const { return m_uiLenBuf; }
 
-  /// buffer pointer
+  //! \brief Returns the buffer pointer.
   char* buf() const   { return m_pBuf; }
 
-  /// buffer pointer in *bytes* data type
+  //! \brief Returns the buffer pointer in *bytes* data type.
   byte *bytes() const { return (byte *)m_pBuf; }
    
-  /// Position in buffer
+  //! \brief Returns the current read position of the buffer.
   uint32 pos() const    { return m_uiPos; }
 
-  /// Set length
+  //! \brief Sets new buffer capacity in bytes.
+  //!
+  //! \param ui New buffer capacity in bytes.
+  //! \remark If the specified capacity is greater than current capacity, memory is 
+  //! reallocated for the buffer.
   void set_len(uint32 ui);
 
-  /// reallocation
+  //! \brief Reallocates the specified memory size for the buffer.
+  //!
+  //! \param uiNewLenBuf New buffer capacity in bytes.
+  //! \remark If the specified capacity is smaller than the size of
+  //! used binary blocks in the buffer, this function makes nothing.
   void realloc(uint32 uiNewLenBuf);
 
-  /// Add a binary bloc
+  //! \brief Adds a binary block in the buffer.
+  //!
+  //! Inserts a binary block of data at the end of the buffer.
+  //! \param p Pointer to the binary block to add.
+  //! \param uiNb Size of the binary block in bytes.
+  //! \remark If the block size is greater than the remaining capacity of the buffer, 
+  //! memory is reallocated and the buffer capacity increased.
   void put_bloc(const void* p, uint32 uiNb);
 
-  /// Get a binary bloc from the buffer
+  //! \brief Gets a binary block from the buffer.
+  //!
+  //! Reads the specified number of bytes from the current read position.\n
+  //! If the number of bytes to read is greater than the size of the
+  //! remaining binary blocks in buffer, returns (1) and does not fill \<p\>.
+  //! Returns (0) otherwise.
+  //! \param p Pointer to the binary block read from the buffer.
+  //! \param uiNb Number of bytes to read from the buffer.
+  //! \remark \<p\> must have been allocated before using this function.
   int get_bloc(void* p, uint32 uiNb);
 
-  /// Insert a binary bloc at given offset
+  //! \brief Inserts a binary block in the buffer at given offset.
+  //! 
+  //! Inserts a binary block of data at the specified position. The current data
+  //! at the specified position are moved after inserted data.
+  //! \param p Pointer to the binary block to insert.
+  //! \param uiNb Size of the binary block in bytes.
+  //! \param uiPos Position in bytes.
+  //! \remark If the block size is greater than the remaining capacity of the buffer, 
+  //! memory is reallocated and the buffer capacity increased.
   void insert_bloc(const void* p, uint32 uiNb, uint32 uiPos);
 
-  /// Move a part of the buffer
+  //! \brief Moves a part of the buffer.
+  //!
+  //! Copies a block of data from one position of the buffer to another.
+  //! \param uiDst Destination position in the buffer, in bytes.
+  //! \param uiSrc Source position in the buffer, in bytes.
+  //! \param uiSize Block size, in bytes.
   void move_bloc(uint32 uiDst, uint32 uiSrc, uint32 uiSize);
 
-  /// Set current read point to the begining
+  //! \brief Sets current read position to the beginning of the buffer.
   void rewind()  { m_uiPos = 0; }
 
-  /// Set the current read point
+  //! \brief Sets the current read position to specified offset.
+  //!
+  //! \param ui Read position in bytes.
   void set_pos(uint32 ui)
     {
 //##      ASSERT(ui <= m_uiLen)
       m_uiPos = ui;
     }
 
-  /// Reset without free buffer memory
+  //! \brief Resets buffer without freeing memory.
   void empty()
   {
     m_uiPos = 0 ;
     m_uiLen = 0 ;
   }
 
-  /// Give buffer ownership to *this* instance
+  //! \brief Gives buffer ownership to *this* instance.
+  //!
+  //! \param bOwner If set to true, gives ownership to *this* instance.
   void set_owner(bool bOwner) { m_bOwner = bOwner; }
 
-  /// Give buffer ownership to another instance
+  //! \brief Gives buffer ownership to another instance.
+  //!
+  //! The ownership transfer is possible only if *this* instance owns the buffer.
+  //! Returns (-1) if *this* instance does not own the buffer, (0) otherwise.
+  //! \param pToHaveOwnership Pointer to the instance which gains the buffer ownership.
   int give_ownership(MemBuf* pToHaveOwnership);
 
-  /// Reset with memory freeing
+  //! \brief Resets buffer with memory freeing.
+  //!
+  //! \remark Memory is deallocated if *this* instance owns the buffer.
   void reset();
 
-  /// Compute CRC
+  //! \brief Computes CRC on used binary blocks of the buffer.
+  //!
+  //! Returns a 32 bits CRC value.
   uint32 get_crc() const;
 
-  /// Pointer to current position
+  //! \brief Gets pointer to current position.
   char *cur_pointer() const  { return (m_pBuf + m_uiPos); }
 
-  /// Stream methods
+  //! \brief Input stream function for a boolean value.
+  //! \param b Boolean value to add in buffer.
   MemBuf& operator<<(bool b);
+
+  //! \brief Output stream function for a boolean value.
+  //! \param b Boolean value read from buffer.
   MemBuf& operator>>(bool &b);
+
+  //! \brief Input stream function for a character value.
+  //! \param c Character value to add in buffer.
   MemBuf& operator<<(char c);
+  
+  //! \brief Output stream function for a character value.
+  //! \param c Character value read from buffer.
   MemBuf& operator>>(char &c);
+
+  //! \brief Input stream function for a byte value.
+  //! \param uc Byte value to add in buffer.
   MemBuf& operator<<(byte uc);
+
+  //! \brief Output stream function for a byte value.
+  //! \param uc Byte value read from buffer.
   MemBuf& operator>>(byte &uc);
+
+  //! \brief Input stream function for an integer16 value.
+  //! \param s Integer16 value to add in buffer.
   MemBuf& operator<<(int16 s);
+
+  //! \brief Output stream function for an integer16 value.
+  //! \param s Integer16 value read from buffer.
   MemBuf& operator>>(int16 &s);
+
+  //! \brief Input stream function for an unsigned integer16 value.
+  //! \param us Unsigned integer16 value to add in buffer.
   MemBuf& operator<<(uint16 us);
+
+  //! \brief Output stream function for an unsigned integer16 value.
+  //! \param us Unsigned integer16 value read from buffer.
   MemBuf& operator>>(uint16 &us);
+
+  //! \brief Input stream function for an integer32 value.
+  //! \param l Integer32 value to add in buffer.
   MemBuf& operator<<(int32 l);
+
+  //! \brief Output stream function for an integer32 value.
+  //! \param l Integer32 value read from buffer.
   MemBuf& operator>>(int32 &l);
+
+  //! \brief Input stream function for an unsigned integer32 value.
+  //! \param ul Unsigned integer32 value to add in buffer.
   MemBuf& operator<<(uint32 ul);
+
+  //! \brief Output stream function for an unsigned integer32 value.
+  //! \param ul Unsigned integer32 value read from buffer.
   MemBuf& operator>>(uint32 &ul);
+
+  //! \brief Input stream function for an integer64 value.
+  //! \param i64 Integer64 value to add in buffer.
   MemBuf& operator<<(int64 i64);
+
+  //! \brief Output stream function for an integer64 value.
+  //! \param i64 Integer64 value read from buffer.
   MemBuf& operator>>(int64 &i64);
+
+  //! \brief Input stream function for an unsigned integer64 value.
+  //! \param i64 Unsigned integer64 value to add in buffer.
   MemBuf& operator<<(uint64 i64);
+
+  //! \brief Output stream function for an unsigned integer64 value.
+  //! \param i64 Unsigned integer64 value read from buffer.
   MemBuf& operator>>(uint64 &i64);
+
+  //! \brief Input stream function for a float value.
+  //! \param f Float value to add in buffer.
   MemBuf& operator<<(float f);
+
+  //! \brief Output stream function for a float value.
+  //! \param f Float value read from buffer.
   MemBuf& operator>>(float &f);
+
+  //! \brief Input stream function for a double value.
+  //! \param d Double value to add in buffer.
   MemBuf& operator<<(double d);
+
+  //! \brief Output stream function for a double value.
+  //! \param d Double value read from buffer.
   MemBuf& operator>>(double &d);
+
+  //! \brief Input stream function for a binary buffer.
+  //! \param psz Pointer to binary buffer to add in buffer.
   MemBuf& operator<<(const char* psz);
+
+  //! \brief Input stream function for a string value.
+  //! \param string String value to add in buffer.
   MemBuf& operator<<(const std::string& string);
+
+  //! \brief Output stream function for a string value.
+  //! \param string String value read from buffer.
   MemBuf& operator>>(std::string& string);
+
+  //! \brief Input stream function for a MemBuf buffer.
+  //! \param membuf MemBuf buffer to add in buffer.
   MemBuf& operator<<(const MemBuf& membuf);
+
+private:
+  //- Read position
+  uint32  m_uiPos; 
+
+  //- Size of used binary blocks in bytes.
+  uint32  m_uiLen;         
+
+  //- Buffer capacity (allocated size) in bytes.
+  uint32  m_uiLenBuf;  
+
+  //- Buffer pointer.
+  char* m_pBuf;      
+
+  //- If true the instance owns the buffer.
+  bool  m_bOwner;            
+
+  //- Re-allocation function.
+  void realloc_with_margin(uint32 uiNewSize) ;
+
 };
 
 } // namespace

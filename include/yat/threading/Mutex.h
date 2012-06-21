@@ -53,217 +53,242 @@
 
 namespace yat {
 
-// ----------------------------------------------------------------------------
-//! <YAT_MUTEX>::try_lock may return one of the following MutexState
-// ----------------------------------------------------------------------------
+// ============================================================================
+//! \enum yat::MutexState 
+//! \brief Mutex state enumeration.
+//! The Mutex::try_lock() function may return one of the MutexState value.
+// ============================================================================
 typedef enum
 {
   MUTEX_LOCKED,
   MUTEX_BUSY,
 } MutexState;
 
-// ----------------------------------------------------------------------------
-//! The YAT NullMutex class
-// ----------------------------------------------------------------------------
+// ============================================================================
+//! \class NullMutex
+//! \brief The YAT NullMutex class.
+//!
+//! Provides a "do nothing" Mutex implementation. May be used as template argument
+//! in order to control the template instanciation and avoiding locking
+//! overhead where thread safety is not required.\n
+//! \verbatim
+//!    template <typename LOCK> class OptionalThreadSafetyImpl
+//!    {
+//!    public:
+//!      inline void do_something ()
+//!      {
+//!         yat::AutoMutex<LOCK>(this->m_mutex);
+//!         ...
+//!      }
+//!    private:
+//!      LOCK m_mutex;
+//!    };
+//! \endverbatim
+//!
+//! OptionalThreadSafetyImpl<yat::Mutex> will be thread safe while...
+//! OptionalThreadSafetyImpl<yat::NullMutex> will not be!
+//!
+//! \remark This class is not supposed to be derived.
+// ============================================================================
 class YAT_DECL NullMutex
 {
-  //! This is the yat NullMutex class.
-  //!
-  //! Provides a "do nothing" Mutex impl. May be used as template argument
-  //! in order to control the template instanciation and avoiding locking
-  //! overhead where thread safety is not required.
-  //!
-  //! template <typename LOCK> class OptionalThreadSafetyImpl
-  //! {
-  //! public:
-  //!   inline void do_something ()
-  //!   {
-  //!      yat::AutoMutex<LOCK>(this->m_mutex);
-  //!      ...
-  //!   }
-  //! private:
-  //    LOCK m_mutex;
-  //! }
-  //!
-  //! OptionalThreadSafetyImpl<yat::Mutex> will be thread safe while...
-  //! OptionalThreadSafetyImpl<yat::NullMutex> will not be!
-  //!
-  //! This class is not supposed to be derived.
 
 public:
-  //! Constructor.
+  //! \brief Constructor.
   NullMutex ();
 
-  //! Destructor.
+  //! \brief Destructor.
   ~NullMutex ();
 
-  //! Locks (i.e. acquires) the mutex.
+  //! \brief Locks (i.e. acquires) the mutex.
   void lock ();
 
-  //! Locks (i.e. acquires) the mutex.
+  //! \brief Locks (i.e. acquires) the mutex. Synonym of lock().
   void acquire ();
 
-  //! Locks (i.e. acquires) the mutex. Always returns MUTEX_LOCKED.
+  //! \brief Tries to lock (i.e. acquire) the mutex. 
+  //!
+  //! Always returns MUTEX_LOCKED.
   MutexState try_lock ();
 
-  //! Locks (i.e. acquires) the mutex. Always returns MUTEX_LOCKED.
+  //! \brief Tries to lock (i.e. acquire) the mutex. Synonym of try_lock().
+  //!
+  //! Always returns MUTEX_LOCKED.
   MutexState try_acquire ();
 
-  //! Tries to lock (i.e. acquire) the mutex within the specified time.
+  //! \brief Tries to lock (i.e. acquire) the mutex within the specified time.
   //!
-  //! \param tmo_msecs The "dummy" timeout in milliseconds
   //! Always returns MUTEX_LOCKED.
+  //! \param tmo_msecs The "dummy" timeout in milliseconds.
   MutexState timed_try_lock (unsigned long tmo_msecs);
 
-  //! Tries to lock (i.e. acquire) the mutex within the specified time.
+  //! \brief Tries to lock (i.e. acquire) the mutex within the specified time.
   //!
-  //! \param tmo_msecs The "dummy" timeout in milliseconds
+  //! Synonym of timed_try_lock().
   //! Always returns MUTEX_LOCKED.
+  //! \param tmo_msecs The "dummy" timeout in milliseconds.
   MutexState timed_try_acquire (unsigned long tmo_msecs);
 
-  //! Unlocks (i.e. releases) the mutex.
+  //! \brief Unlocks (i.e. releases) the mutex.
   void unlock ();
 
-  //! Unlocks (i.e. releases) the mutex.
+  //! \brief Unlocks (i.e. releases) the mutex. Synonym of unlock().
   void release ();
 
 private:
-  //! Not implemented private member
+  //- Not implemented private member
   NullMutex (const NullMutex&);
-  //! Not implemented private member
+  
+  //- Not implemented private member
   NullMutex & operator= (const NullMutex&);
 };
 
-// ----------------------------------------------------------------------------
-//! The YAT Mutex class
-// ----------------------------------------------------------------------------
+// ============================================================================
+//! \class Mutex
+//! \brief The yat basic mutex implementation.
+//!
+//! This class is not supposed to be derived (no virtual destructor).
+// ============================================================================
 class YAT_DECL Mutex
 {
-  //! This is the yat Mutex implementation.
-  //!
-  //! This class is not supposed to be derived (no virtual destructor).
 
 public:
-  //! Constructor.
+  //! \brief Constructor.
   Mutex ();
 
-  //! Destructor.
+  //! \brief Destructor.
   ~Mutex ();
 
-  //! Locks (i.e. acquires) the mutex.
+  //! \brief Locks (i.e. acquires) the mutex.
   void lock ();
 
-  //! Locks (i.e. acquires) the mutex.
+  //! \brief Locks (i.e. acquires) the mutex. Synonym of lock().
   void acquire ();
 
-  //! Tries to lock (i.e. acquire) the mutex.
+  //! \brief Tries to lock (i.e. acquire) the mutex.
+  //!
   //! Returns MUTEX_LOCKED in case the mutex was successfully locked.
   //! Returns MUTEX_BUSY if it is already owned by another thread.
   MutexState try_lock ();
   
-  //! Tries to lock (i.e. acquire) the the mutex.
+  //! \brief Tries to lock (i.e. acquire) the the mutex. Synonym of try_lock().
+  //!
   //! Returns MUTEX_LOCKED in case the mutex was successfully locked.
   //! Returns MUTEX_BUSY if it is already owned by another thread.
   MutexState try_acquire ();
 
-  //! Tries to lock (i.e. acquire) the mutex within the specified time.
+  //! \brief Tries to lock (i.e. acquire) the mutex within the specified time.
   //!
-  //! \param tmo_msecs The timeout in milliseconds
   //! Returns MUTEX_LOCKED in case the mutex was successfully locked.
   //! Returns MUTEX_BUSY if still owned by another thread after tmo expiration.
+  //!
+  //! \param tmo_msecs The timeout in milliseconds.
   MutexState timed_try_lock (unsigned long tmo_msecs);
 
-  //! Tries to lock (i.e. acquire) the mutex within the specified time.
+  //! \brief Tries to lock (i.e. acquire) the mutex within the specified time.
+  //! Synonym of timed_try_lock().
   //!
-  //! \param tmo_msecs The timeout in milliseconds
   //! Returns MUTEX_LOCKED in case the mutex was successfully locked.
   //! Returns MUTEX_BUSY if still owned by another thread after tmo expiration.
+  //!
+  //! \param tmo_msecs The timeout in milliseconds.
   MutexState timed_try_acquire (unsigned long tmo_msecs);
 
-  //! Unlocks (i.e. releases) the mutex.
+  //! \brief Unlocks (i.e. releases) the mutex.
   void unlock ();
   
-  //! Unlocks (i.e. releases) the mutex.
+  //! \brief Unlocks (i.e. releases) the mutex.
+  //! Synonym of unlock().
   void release ();
 
 private:
-  //! Not implemented private member
+  //- Not implemented private member
   Mutex (const Mutex&);
-  //! Not implemented private member
+  
+  //- Not implemented private member
   Mutex & operator= (const Mutex&);
 
   //- platform specific implementation
   YAT_MUTEX_IMPLEMENTATION;
 };
 
-// ----------------------------------------------------------------------------
-//! The YAT "auto mutex" class
-// ----------------------------------------------------------------------------
+// ============================================================================
+//! \class AutoMutex
+//! \brief The YAT "auto mutex" class.
+//!
+//! The AutoMutex class provides an auto lock/unlock mechanism.\n
+//!
+//! The AutoMutex is ideal in context where some exceptions may be thrown.
+//! Whatever is the exit path of your code, the AutoMutex class will garantee
+//! that the associated mutex is properly unlock.\n
+//!
+//! This class is a template since it may be used in contexts in which the
+//! thread safety is optionnal (see yat::NullMutex for an example).
+//!
+//! AutoMutex provides an efficient and safe alternative to:
+//! \verbatim
+//!    { //- enter critical section
+//!      my_mutex.lock();
+//!      ...your critical section code goes here (may throw an exception)...
+//!      my_mutex.unlock();
+//!    } //- leave critical section \endverbatim
+//!
+//! In such a context, you can use a instance AutoMutex as follows:
+//! \verbatim
+//!    { //- enter critical section
+//!      yat::AutoMutex<> guard(my_mutex);
+//!      ...your critical section code goes here (may throw an exception)...
+//!    } //- leave critical section \endverbatim
+//! \n
+//! This has the advantage that my_mutex.unlock() will be called automatically
+//! even if an exception is thrown. Since the AutoMutex is created on the stack,
+//! its destructor will be called whatever is the exit path of critical section.\n
+//!
+//! \remark Note that the AutoMutex type can be used with any "LOCK_TYPE" whose 
+//! interface contains both a lock() and a unlock() method. 
+//! For example, the yat::SharedObject class offers such a compatible "LOCK_TYPE".
+// ============================================================================
 template <typename LOCK_TYPE = yat::Mutex> class AutoMutex
 {
-  //! An "auto mutex" providing an auto lock/unlock mechanism.
-  //!
-  //! The AutoMutex is ideal in context where some exceptions may be thrown.
-  //! Whatever is the exit path of your code, the <AutoMutex> will garantee
-  //! that the associated <Mutex> is properly unlock.
-  //!
-  //! This class is template since it may be used in contexts in which the
-  //! thread safety is optionnal (see yat::NullMutex for an example).
-  //!
-  //! AutoMutex provides an efficient and safe alternative to:
-  //!
-  //! { //- enter critical section
-  //!   my_mutex.lock();
-  //!   ...your critical section code goes here (may throw an exception)...
-  //!   my_mutex.unlock();
-  //! } //- leave critical section
-  //!
-  //! In such a context, you can use a instance AutoMutex as follows:
-  //!
-  //! { //- enter critical section
-  //!   yat::AutoMutex<> guard(my_mutex);
-  //!   ...your critical section code goes here (may throw an exception)...
-  //! } //- leave critical section
-  //!
-  //! This has the advantage that my_mutex.unlock() will be called automatically
-  //! even if an exception is thrown. Since the AutoMutex is created on the stack
-  //! its destructor will be called whatever is the exit path of critical section.
-  //!
-  //! Note that AutoMutex can be used with any "LOCK_TYPE" which interface contains
-  //! both a lock() and a unlock() method. The yat::SharedObject class of
-  //! such a compatible "LOCK_TYPE". 
-  //!
+
 public:
-  //! Constructor (locks the associated Mutex)
+  //! \brief Constructor (locks the associated Mutex).
+  //!
+  //! Example : 
+  //! \verbatim
+  //!   myMutexType myMutex;
+  //!   AutoMutex<myMutexType> guard(myMutex); 
+  //! \endverbatim
   AutoMutex (LOCK_TYPE & _lock)
     : m_lock (_lock)
   {
     m_lock.lock();
   }
 
-  //! Destructor (unlocks the associated Mutex)
+  //! \brief Destructor (unlocks the associated Mutex).
   ~AutoMutex ()
   {
     m_lock.unlock();
   }
 
 private:
-  //! The associated Mutex
+  //- The associated Mutex
   LOCK_TYPE & m_lock;
 
-  //! Not implemented private member
+  //- Not implemented private member
   AutoMutex (const AutoMutex&);
-  //! Not implemented private member
+
+  //- Not implemented private member
   AutoMutex & operator= (const AutoMutex&);
 };
 
 // ----------------------------------------------------------------------------
-//! MutexLock: an AutoMutex specialisation (for backforward compatibility)
+//! MutexLock: an AutoMutex specialisation (for backforward compatibility).
 // ----------------------------------------------------------------------------
 typedef AutoMutex<Mutex> MutexLock;
 
 // ----------------------------------------------------------------------------
-//! A global mutex used for thread safe logging
+//! A global mutex used for thread safe logging.
 // ----------------------------------------------------------------------------
 #if defined (YAT_DEBUG)
   extern Mutex g_logging_mux;

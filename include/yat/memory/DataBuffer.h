@@ -48,12 +48,12 @@ namespace yat
 {
 
 // ============================================================================
-//! A buffer abstraction class.  
-// ============================================================================
+//! \class Buffer 
+//! \brief A buffer abstraction class.
 //!  
-//! This template class provides a buffer abstraction. 
-//! Implementation constraint: operator= must be defined for template parameter T.
-//! 
+//! This template class provides a simple buffer abstraction, i.e. a one-dimensionnal 
+//! array (vector) of type \<T\> elements. \n
+//! Implementation constraint: operator= must be defined for template parameter \<T\>.
 // ============================================================================
 template <typename T> 
 class Buffer 
@@ -63,390 +63,359 @@ public:
   typedef T value_type;
   typedef std::size_t size_type;
   
-  /**
-   * Constructor. 
-   * @param capacity the maximum number of elements of type T that can be stored into the buffer 
-   * @param clear clears the associated memory block (i.e. set each byte to 0), does nothing ortherwise 
-   */
+  //! \brief Constructor. 
+  //!
+  //! \param capacity The maximum number of elements of type \<T\> that can be stored 
+  //! into the buffer.
+  //! \param clear If set to "true", clears the associated memory block (i.e. sets each
+  //! byte to 0), does nothing ortherwise.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   Buffer (size_t capacity = 0, bool clear = false)
     throw (Exception);
  
-  /**
-   * Memory copy constructor. Memory is copied from 'base' to 'base + length * sizeof(T)'.
-   * @param length the number of elements of type T to be copied into the buffer. 
-   * @param base address of the memory block to copy into the buffer.
-   */
+  //! \brief Memory copy constructor. 
+  //!
+  //! Memory is copied from 'base' to 'base + length * sizeof(T)'.
+  //! \param length The number of elements of type \<T\> to be copied into the buffer.
+  //! \param base Address of the memory block to copy into the buffer.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   Buffer (size_t length, const T *base)
     throw (Exception);
 
-  /**
-   * Copy constructor 
-   * @param buf the source buffer.
-   */
+  //! \brief Copy constructor.
+  //!
+  //! \param buf The source buffer.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   Buffer (const Buffer<T> &buf)
     throw (Exception);
 
-  /**
-   * Destructor. Release underlying memory.
-   */
+  //! \brief Destructor. 
+  //! 
+  //! Releases underlying memory.
   virtual ~Buffer ();
 
-  /**
-   * operator= 
-   */
+  //! \brief Operator=.
+  //!
+  //! \param src The source buffer.
   Buffer<T>& operator= (const Buffer<T> &src);
 
-  /**
-   * operator=. Memory is copied from base to base + Buffer::length_ * sizeof(T). 
-   * @param base address of the block to copy.
-   */
+  //! \brief Operator=. 
+  //!
+  //! Memory is copied from base to base + Buffer::length_ * sizeof(T). 
+  //! \param base Address of the block to copy.
   Buffer<T>& operator= (const T *base);
 
-  /**
-   * operator=. Fill the buffer with a specified value.
-   * @param val the value.
-   */
+  //! \brief Operator=. 
+  //!
+  //! Fills the buffer with the specified value.
+  //! \param val The specified value.
   Buffer<T>& operator= (const T &val);
    
-  /**
-   * Fills the buffer with a specified value.
-   * @param val the value.
-   */
+  //! \brief Fills the buffer with the specified value.
+  //!
+  //! \param val The specified value.
   void fill (const T& val);
   
-  /**
-   * Clears buffer's content. This is a low level clear: set memory
-   * from Buffer::base_ to Buffer::base_ + Buffer::length_ to 0.
-   */
+  //! \brief Clears buffer's content. 
+  //!
+  //! This is a low level clear: set memory from Buffer::base_ to 
+  //! Buffer::base_ + Buffer::length_ to 0.
   void clear ();
 
-  /**
-   * Returns a reference to the _ith element. No bound error checking.
-   * @param i index of the element to return.
-   * @return a reference to the ith element.
-   */
+  //! \brief Returns a reference to the ith element.
+  //!
+  //! Returns a reference to the ith element of the buffer. No bound error checking.
+  //! \param i Index of the element to return.
   T& operator[] (size_t i);
 
-  /**
-   * Returns a const reference to the _ith element. No bound error checking.
-   * @param i index of the element to return.
-   * @return a reference to the ith element.
-   */
+  //! \brief Returns a const reference to the ith element. 
+  //!
+  //! Returns a const reference to the ith element of the bueffer. No bound error checking.
+  //! \param i Index of the element to return.
   const T& operator[] (size_t i) const;
 
-  /**
-   * Returns the size of each element in bytes.
-   * @return sizeof(T).
-   */
+  //! \brief Returns the size of each element in bytes.
+  //!
+  //! Returns sizeof(\<T\>).
   size_t elem_size () const;
 
-  /**
-   * Returns the number of bytes currently stored into the buffer. 
-   * @return size of buffer content in bytes.
-   */
+  //! \brief Returns the number of bytes currently stored into the buffer.
   size_t size () const;
 
-  /**
-   * Returns the number of element currently stored into the buffer. 
-   * @return current number of elements. 
-   */
+  //! \brief Returns the number of elements currently stored into the buffer. 
   size_t length () const;
   
-  /**
-   * Artificially change the buffer length. 
-   * @param new_length actual number of elements.
-   *
-   *\remark
-   * If new_length is greater than buffer capacity, then buffer length is set to buffer capacity.
-   */
+  //! \brief Artificially changes the buffer length. 
+  //!
+  //! \param new_length New number of elements.
+  //! \remark If new_length is greater than buffer capacity, then buffer 
+  //! length is set to buffer capacity.
   void force_length (size_t new_length);
   
-  /**
-   * Returns the buffer capacity (i.e. max num of elements that can be stored into the buffer). 
-   * @return the buffer capacity. 
-   */
+  //! \brief Returns the buffer capacity (i.e. max num of elements that can be stored into the buffer). 
   size_t capacity () const;
   
-  /**
-   * Set the buffer capacity to _capacity
-   * @param new_capacity new buffer capacity in num of elements.
-   * @param keep_content if set to true, the current buffer content is maintained (might be troncated if new capacity < current buffer capacity).
-   */
+  //! \brief Sets the buffer capacity to specified value.
+  //!
+  //! \param new_capacity New buffer capacity in number of elements.
+  //! \param keep_content If set to true, the current buffer content is maintained 
+  //! (might be truncated if new capacity < current buffer capacity).
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   virtual void capacity (size_t new_capacity, bool keep_content = false)
     throw (Exception);
   
-  /**
-   * Returns true is the buffer is empty, false otherwise. 
-   */
+  //! \brief Returns true is the buffer is empty, false otherwise.
   bool empty () const;
 
-  /**
-   * Returns the buffer base address. 
-   * @return the buffer base address. 
-   */
+  //! \brief Returns the buffer base address.
   T * base () const;
 
 protected:
 
-  /**
-   * the buffer base address. 
-   */
+  //! \brief The buffer base address. 
   T * base_;
 
-  /**
-   * maximum number of element of type T.
-   */
+  //! \brief Maximum number of element of type \<T\>.
   size_t capacity_;
   
-  /**
-   * current number of element of type T.
-   */
+  //! \brief Current number of element of type \<T\>.
   size_t length_;
 };
 
 // ============================================================================
-//! An image container abstraction class.  
-// ============================================================================
+//! \class ImageBuffer 
+//! \brief An image container abstraction class.
 //!  
-//! This template class provides an image container abstraction. 
-//! <operator=> must be defined for template parameter T.
-//! 
+//! This template class inherits from yat::Buffer template class and provides an image 
+//! container abstraction, i.e. a two-dimensionnal array of type \<T\> elements.
+//!
+//! Implementation constraint: operator= must be defined for template parameter \<T\>.
 // ============================================================================
 template <typename T>
 class ImageBuffer : public yat::Buffer<T>
 {
 public:
-  /**
-   * Constructor. 
-   * @param width the width of the image in pixels
-   * @param height the height of the image in pixels
-   */
+  //! \brief Constructor (empty data). 
+  //!
+  //! \param width Width of the image in pixels.
+  //! \param height Height of the image in pixels.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   ImageBuffer (size_t width = 0, size_t height = 0)
     throw (Exception);
  
-  /**
-   * Constructor. 
-   * @param width the width of the image in pixels
-   * @param height the height of the image in pixels
-   * @param base address of the block to copy.
-   */
+  //! \brief Memory copy Constructor.
+  //! 
+  //! Memory is copied from 'base' to 'base + width * height * sizeof(T)'.
+  //! \param width Width of the image in pixels.
+  //! \param height Height of the image in pixels.
+  //! \param base Address of the block to copy.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   ImageBuffer (size_t width, size_t height, const T *base)
     throw (Exception);
 
-  /**
-   * Copy Constructor. 
-   * @param im
-   */
+  //! \brief Copy Constructor.
+  //!
+  //! \param im The source image.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   ImageBuffer (const ImageBuffer<T>& im)
     throw (Exception);
 
-  /**
-   * Constructor. 
-   * @param width the width of the image in pixels
-   * @param height the height of the image in pixels
-   * @param buf the buffer to copy data from
-   */
+  //! \brief Constructor (with data). 
+  //! 
+  //! \param width Width of the image in pixels.
+  //! \param height Height of the image in pixels.
+  //! \param buf Buffer to copy data from.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   ImageBuffer (size_t width, size_t height, const yat::Buffer<T>& buf)
     throw (Exception);
 
-  /**
-   * Destructor
-   */
+  //! \brief Destructor.
   virtual ~ImageBuffer();
 
-  /**
-   * Accessor for the image width 
-   */
+  //! \brief Image width accessor. 
   size_t width () const;
 
-  /**
-   * Accessor for the image height 
-   */
+  //! \brief Image height accessor.
   size_t height () const;
 
-  /**
-   * Setter for the dimensions of the image (set the length at width * height)
-   */
+  //! \brief Setter for the dimensions of the image (set the length at width * height).
   void set_dimensions (size_t width, size_t height);
 
-  /**
-   * change the dimensions of the array and preserve data
-   */
+  //! \brief Changes the dimensions of the array and preserve data.
   void resize (size_t new_width, size_t new_height)
     throw (Exception);
 
-  /**
-   * operator =
-   */
+  //! \brief Operator=.
+  //! 
+  //! \param src The source image.
   ImageBuffer<T>& operator= (const ImageBuffer<T> &src);
 
-  /**
-   * operator=. Memory is copied from base to base + ImageBuffer::length_. 
-   * @param base address of the block to copy.
-   */
+  //! \brief Operator=. 
+  //!
+  //! Memory is copied from base to base + ImageBuffer::length_.
+  //! \param base Address of the block to copy.
   ImageBuffer<T>& operator= (const T *base);
 
-  /**
-   * operator=. Fill the buffer with a specified value.
-   * @param val the value.
-   */
+  //! \brief Operator=. 
+  //!
+  //! Fills the buffer with the specified value of type \<T\>.
+  //! \param val The specified value.
   ImageBuffer<T>& operator= (const T &val);
 
 protected:
+  //! \brief Image width.
   size_t width_;
+
+  //! \brief Image height.
   size_t height_;
 };
 
 // ============================================================================
-//! A thread safe shared buffer abstraction class.
-// ============================================================================
+//! \class SharedBuffer 
+//! \brief A thread safe shared circular buffer abstraction class.
+//!  
+//! This template class inherits from yat::Buffer template class and yat::SharedObject
+//! class. It provides a thread safe shared circular buffer abstraction 
+//! (one-dimensionnal array).
 //!
-//! This template class provides a thread safe shared buffer abstraction.
-//! <operator=> must be defined for template parameter T.
-//!
+//! Implementation constraint: <operator=> must be defined for template parameter \<T\>.
 // ============================================================================
 template <typename T> 
 class SharedBuffer : public Buffer<T>, public SharedObject
 {
 protected:
-  /**
-   * Constructor. 
-   * @param  capacity the maximum number of elements of type T 
-   *         that can be stored into the buffer 
-   */
+  //! \brief Constructor. 
+  //!
+  //! \param  capacity Maximum number of elements of type \<T\>
+  //! that can be stored into the buffer.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   SharedBuffer (size_t capacity = 0)
     throw (Exception);
  
-  /**
-   * Memory copy constructor. Memory is copied from base to base + length * sizeof(T).
-   * @param  length the number of elements of type T to be copied into the buffer. 
-   * @param  base address of the block to copy.
-   */
+  //! \brief Memory copy constructor. 
+  //! 
+  //! Memory is copied from base to base + length * sizeof(\<T\>).
+  //! \param length Number of elements of type \<T\> to be copied into the buffer. 
+  //! \param base Address of the block to copy.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   SharedBuffer (size_t length, const T *base)
     throw (Exception);
 
-  /**
-   * Copy constructor. Use allocator associated with the source buffer.
-   * @param  buf the source buffer.
-   */
+  //! \brief Copy constructor. 
+  //! 
+  //! Uses allocator associated with the source buffer.
+  //! \param buf The source buffer.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   SharedBuffer (const Buffer<T> &buf)
     throw (Exception);
 
-  /**
-   * Destructor. Release resources.
-   */
+  //! \brief Destructor. 
+  //!
+  //! Releases resources.
   virtual ~SharedBuffer ();
 
-  /**
-   * Duplicate (shallow copy) this shared buffer
-   */
+  //! \brief Returns a "shallow" copy of the shared buffer (avoids deep copy).
   SharedBuffer * duplicate ()
     throw (Exception);
 };
 
 // ============================================================================
-//! A ciruclar buffer abstraction class.  
-// ============================================================================
+//! \class CircularBuffer 
+//! \brief A circular buffer abstraction class.
 //!  
-//! This template class provides a  (write only) circular buffer abstraction. 
-//! <operator=> must be defined for template parameter T.
+//! This template class provides a (write only) circular buffer abstraction with
+//! selectable locking strategy. \n
+//! If object lock is not necessary, use a yat::NullMutex type (default value in 
+//! the template definition), for example : 
+//! \verbatim myBuffer = new CircularBuffer<mySimpleObjectType>(10); // defines a "simple" object buffer \endverbatim
 //! 
+//! If object lock is necessary, use a mutex type, for example :
+//! \verbatim myBuffer = new CircularBuffer<mySharedObjectType, yat::Mutex>(10); // defines a shared object buffer \endverbatim
+//! 
+//! Implementation constraint: <operator=> must be defined for template parameter \<T\>.
 // ============================================================================
 template <typename T, typename L = yat::NullMutex>
 class CircularBuffer
 {
 public:
-  /**
-   * Constructor. 
-   */
+  //! \brief Default constructor.
+  //!
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   CircularBuffer ()
     throw (Exception);
 
-  /**
-   * Constructor. 
-   */
+  //! \brief Constructor.
+  //!
+  //! \param capacity Maximum number of elements of type \<T\>
+  //! that can be stored into the buffer.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   CircularBuffer (size_t capacity)
     throw (Exception);
   
-  /**
-   * Destructor. Release resources.
-   */
+  //! \brief Destructor. 
+  //!
+  //! Releases resources.
   virtual ~CircularBuffer ();
 
-  /**
-   * Clears buffer's content.
-   */
+  //! \brief Clears buffer's content.
   virtual void clear ();
 
-  /**
-   * Fills the buffer with a specified value.
-   * @param val the value.
-   */
+  //! \brief Fills the buffer with the specified value of type \<T\>.
+  //!
+  //! \param val The specified value.
   void fill (const T& val);
   
-  /**
-   * Pushes the specified data into the circular buffer.
-   * The data buffer must have 
-   */
+  //! \brief Pushes the specified data into the circular buffer.
+  //!
+  //! Push is ignored if data buffer is frozen.
+  //! \exception PROGRAMMING_ERROR Thrown when circular buffer is not 
+  //! initialized properly (ex: capacity set to 0).
   void push (T new_element)
     throw (Exception);
 
-  /**
-   * Freezes the buffer. 
-   * Any data pushed into a frozen circular buffer is silently ignored.  
-   */
+  //! \brief Freezes the buffer.
+  //!
+  //! Any data pushed into a frozen circular buffer is silently ignored.
   void freeze ();
 
-  /**
-   * Unfreeze 
-   * Data pushed into a frozen circular buffer is silently ignored (see CircularBuffer::freeze).  
-   */
+  //! \brief Unfreezes the buffer.
+  //!
+  //! Data pushed into a frozen circular buffer is silently ignored (see CircularBuffer::freeze).
   void unfreeze ();
 
-  /**
-   * Returns the "chronologically ordered" circular buffer's content
-   */
+  //! \brief Returns the "chronologically ordered" circular buffer's content.
+  //!
+  //! \exception INTERNAL_ERROR Thrown on unexpected buffer size.
   const yat::Buffer<T> & ordered_data ()
     throw (Exception);
 
-  /**
-   * Set the buffer capacity to _capacity
-   */
+  //! \brief Sets the buffer capacity to the specified value.
+  //! 
+  //! \param capacity New maximum number of elements of type \<T\> stored in the buffer.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   virtual void capacity (size_t capacity)
     throw (Exception);
 
 private:
-  /**
-   * Locling stategy
-   */
+  //- Locling stategy.
   L lock_;
   
-  /**
-   * The write pointer
-   */
+  //- The write pointer.
   T * wp_; 
 
-  /**
-   * Frozen flag
-   */
+  //- Frozen flag.
   bool frozen_;
 
-  /**
-   * The main buffer
-   */
+  //- The main buffer.
   yat::Buffer<T> data_;
   
-  /**
-   * The ordered buffer
-   */
+  //- The chronologically ordered buffer.
   yat::Buffer<T> ordered_data_;
 
-  /**
-   * Num of cycles
-   */
+  //- Number of cycles.
   unsigned long num_cycles_;
 
-  // = Disallow these operations.
+  //- = Disallow these operations.
   //--------------------------------------------
   CircularBuffer& operator= (const CircularBuffer&);
   CircularBuffer(const CircularBuffer&);

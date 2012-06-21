@@ -54,40 +54,53 @@ namespace yat
 {
 
 // ============================================================================
-// class: Task
+//! \class Task
+//! \brief Undetached thread in association with a message queue.
+//!
+//! A Task is an implemantation of the Thread class in association with a MessageQ class.
+//! The task configuration (including message queue parameters) is set trough the Config configuration structure.
+//! %Message types are defined in yat::MessageType enumeration.
+//! \remark The yat4Tango::DeviceTask provides the same features than the yat::Task
+//! but the former is better adapted to the context of TANGO Device (exception handling/conversion).
 // ============================================================================
 class YAT_DECL Task : public yat::Thread
 {
-  //! a yat::Task = an undetached yat::Thread + a yat::MessageQ
-  //-TODO: write some doc!
 
 public:
 
-  //! yat::Task configuration class
+  //! Task configuration structure.
   struct YAT_DECL Config
   {
-    //- enable TIMEOUT messages
+    //! Enables TIMEOUT messages.
+    //!
+    //! If timeout expires without any message received by the task, a TIMEOUT message is sent.
+    //! Default value : false.
     bool enable_timeout_msg;
-    //- timeout msg period in msec
+    //! Timeout message period in msec.
     size_t timeout_msg_period_ms;
-    //- enable PERIODIC messages
+    //! Enables PERIODIC messages.
+    //!
+    //! A PERIODIC message is sent every period (best effort).
+    //! Default value : false.
     bool enable_periodic_msg;
-    //- periodic msg period in msec
+    //! Periodic message period in msec.
     size_t periodic_msg_period_ms;
-    //- should we process msg under critical section?
-    //- not recommended! for backward compatibility only.
+    //! \remark Obsolete attribute.
+    //! Enables message processing under critical section.
+    //! Not recommended! For backward compatibility only.
+    //! Default value : false.
     bool lock_msg_handling;
-    //- msgQ low water mark
+    //! %Message queue low water mark.
     size_t lo_wm;
-    //- msgQ high water mark
+    //! %Message queue high water mark.
     size_t hi_wm;
-    //- throw exception on post message timeout
+    //! Enables throwing exception on post message timeout.
     bool throw_on_post_tmo;
-    //- user data (passed back in all msg)
+    //! User data (passed back in all messages).
     Thread::IOArg user_data;
-    //- default ctor
+    //! Default constructor.
     Config ();
-    //- ctor
+    //! Constructor with parameters.
     Config (bool   enable_timeout_msg,
             size_t timeout_msg_period_ms,
             bool   enable_periodic_msg,
@@ -99,150 +112,240 @@ public:
             Thread::IOArg user_data);
   };
 
-  //- default ctor
+  //! \brief Default constructor.
   Task ();
   
-  //- config ctor
+  //! \brief Config constructor.
+  //! \param cfg Task configuration.
   Task (const Config& cfg);
 
-  //- dtor
+  //! \brief Destructor.
   virtual ~Task ();
 
-  //- starts the task (same as go_synchronously - backward compatibility)
+  //! \brief Starts the task synchronously and wait the specified time
+  //! (same as go_synchronously - backward compatibility).
+  //!
+  //! \param tmo_msecs Timeout in ms.
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   virtual void go (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
     throw (Exception);
     
-  //- starts the task (same as go_synchronously - backward compatibility)
-  //- an exception is thrown in case the specified message:
-  //-   * is not of type TASK_INIT
-  //-   * is not "waitable"
+  //! \brief Starts the task synchronously using the specified message 
+  //! and wait the specified time
+  //! (same as go_synchronously - backward compatibility).
+  //!
+  //! \param msg Message to send.
+  //! \param tmo_msecs Timeout in ms.
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
+  //! \exception PROGRAMMING_ERROR Thrown in case the specified message:
+  //!   * is not of type TASK_INIT
+  //!   * is not "waitable".
   virtual void go (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
     throw (Exception);
   
-  //- starts the task synchronously (i.e. wait for the INIT msg to be handled)
+  //! \brief Starts the task synchronously and wait the specified time
+  //! (i.e. wait for the INIT message to be handled).
+  //! \param tmo_msecs Timeout in ms.
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   virtual void go_synchronously (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
     throw (Exception);
     
-  //- starts the task synchronously (i.e. wait for the INIT msg to be handled) 
-  //- an exception is thrown in case the specified message:
-  //-   * is not of type TASK_INIT
-  //-   * is not "waitable"
+  //! \brief Starts the task synchronously using the specified message and wait 
+  //! the specified time
+  //! (i.e. wait for the specified init message to be handled).
+  //! \param msg Message to send.
+  //! \param tmo_msecs Timeout in ms.
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
+  //! \exception PROGRAMMING_ERROR Thrown in case the specified message:
+  //!   * is not of type TASK_INIT
+  //!   * is not "waitable".
   virtual void go_synchronously (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
     throw (Exception);
 
-  //- starts the task asynchronously (i.e. does NOT wait for the INIT msg to be handled)
+  //! \brief Starts the task asynchronously 
+  //! (i.e. does NOT wait for the INIT message to be handled, but still waits
+  //! for the message to be posted).
+  //! \param tmo_msecs Timeout for INIT message posting in ms.
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   virtual void go_asynchronously (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
     throw (Exception);
     
-  //- starts the task asynchronously (i.e.  does NOT wait for the INIT msg to be handled) 
-  //- an exception is thrown in case the specified message:
-  //-   * is not of type TASK_INIT
+  //! \brief Starts the task asynchronously (i.e. does NOT wait for the specified init 
+  //! message to be handled, but still waits for the message to be posted).
+  //! \param msg Init message to send.
+  //! \param tmo_msecs Timeout for message posting.
+  //! \exception PROGRAMMING_ERROR Thrown in case the specified message is not of type TASK_INIT
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   virtual void go_asynchronously (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
     throw (Exception);
 
-  //! aborts the task (join with the underlying thread before returning).
-  //! provides an implementation to the Thread::exit pure virtual method.
+  //! \brief Aborts the task (join with the underlying thread before returning).
+  //!
+  //! Provides an implementation to the Thread::exit pure virtual method.
+  //! \exception SOFTWARE_ERROR Thrown when EXIT message allocation fails.
   virtual void exit ()
     throw (Exception);
 
-  //- posts a message to the task
+  //! \brief Posts a message to the task asynchronously (i.e. does NOT wait for the message 
+  //! to be handled, but still waits for the message to be posted).
+  //! \param msg Message to send.
+  //! \param tmo_msecs Timeout in ms.
+  //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   void post (Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO)
     throw (Exception);
     
-  //- posts the specified msg to the task then returns immediately (asynchronous approach)
+  //! \brief Posts the specified message type to the task asynchronously (i.e. does NOT wait for 
+  //! the message to be handled, but still waits for the message to be posted).
+  //! \param msg_type Message type to send.
+  //! \param tmo_msecs Timeout in ms.
+  //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   void post (size_t msg_type, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
     throw (Exception);
 
-  //- posts the specified data to the task then returns immediately (asynchronous approach)
+  //! \brief Posts the specified message type with specified data to the task asynchronously
+  //! (i.e. does NOT wait for the message to be handled, but still waits for the message to be posted).
+  //! \param msg_type Message type to send.
+  //! \param data Data buffer to send with the message.
+  //! \param transfer_ownership True if message is to be deleted by the task.
+  //! \param tmo_msecs Timeout in ms.
+  //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   template <typename T> void post (size_t msg_type, T * data, bool transfer_ownership, size_t tmo_msecs)
     throw (Exception);
 
-  //- posts the specified data to the task then returns immediately (asynchronous approach)
+  //! \brief Posts the specified message type with specified data to the task asynchronously
+  //! (i.e. does NOT wait for the message to be handled, but still waits for the message to be posted).
+  //! \param msg_type Message type to send.
+  //! \param data Data buffer to send with the message.
+  //! \param tmo_msecs Timeout in ms.
+  //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   template <typename T> void post (size_t msg_type, const T & data, size_t tmo_msecs)
     throw (Exception);
 
-  //- posts the specified msg to the task then waits for this message to be handled (synchronous approach)
+  //! \brief Posts the specified message to the task then waits for this message to be handled
+  //! (synchronous approach).
+  //! \param msg Message to send.
+  //! \param tmo_msecs Timeout in ms.
+  //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   void wait_msg_handled (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
     throw (Exception);
 
-  //- posts the specified msg to the task then waits for this message to be handled (synchronous approach)
+  //! \brief Posts the specified message type to the task then waits for this message to be handled
+  //! (synchronous approach).
+  //! \param msg_type Message type to send.
+  //! \param tmo_msecs Timeout in ms.
+  //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   void wait_msg_handled (size_t msg_type, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
     throw (Exception);
 
-  //- posts the specified data to the task then waits for the associated message to be handled (synchronous approach)
+  //! \brief Posts the specified message type with specified data to the task then waits for the message to be handled 
+  //! (synchronous approach).
+  //! \param msg_type Message type to send.
+  //! \param data Data buffer to send with the message.
+  //! \param transfer_ownership True if message is to be deleted by the message.
+  //! \param tmo_msecs Timeout in ms.
+  //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   template <typename T> void wait_msg_handled (size_t msg_type, T * data, bool transfer_ownership, size_t tmo_msecs)
     throw (Exception);
 
-  //- posts the specified data to the task then waits for the associated message to be handled (synchronous approach)
+  //! \brief Posts the specified message type with specified data to the task then waits for the message to be handled 
+  //! (synchronous approach).
+  //! \param msg_type Message type to send.
+  //! \param data Data buffer to send with the message.
+  //! \param tmo_msecs Timeout in ms.
+  //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
+  //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   template <typename T> void wait_msg_handled (size_t msg_type, const T & data, size_t tmo_msecs)
     throw (Exception);
 
-  //- timeout msg period mutator
+  //! \brief Timeout message period mutator.
+  //! \param p_msecs Timeout in ms.
   void set_timeout_msg_period (size_t p_msecs);
   
-  //- periodic msg period accessor
+  //! \brief Periodic message period accessor.
   size_t get_timeout_msg_period () const;
   
-  //- enable/disable timeout messages
+  //! \brief Enable/disable timeout messages.
+  //! \param enable True = enabled, false = disabled.
   void enable_timeout_msg (bool enable);
 
-  //- returns timeout messages handling status
+  //! \brief Returns timeout messages handling status.
   bool timeout_msg_enabled () const;
 
-  //- periodic msg period mutator
+  //! \brief Periodic message period mutator.
+  //! \param p_msecs Period in ms.
   void set_periodic_msg_period (size_t p_msecs);
   
-  //- periodic msg period accessor
+  //! \brief Periodic message period accessor.
   size_t get_periodic_msg_period () const;
 
-  //- enable/disable periodic messages
+  //! \brief Enable/disable periodic messages.
+  //! \param enable True = enabled, false = disabled.
   void enable_periodic_msg (bool enable);
 
-  //- returns period messages handling status
+  //! \brief Returns period messages handling status.
   bool periodic_msg_enabled () const;
 
-  //- MsgQ water marks unit mutator
+  //! \brief %Message queue water marks unit mutator.
+  //! \param _wmu %Message queue unit.
   void msgq_wm_unit (MessageQ::WmUnit _wmu);
 
-  //- MsgQ water marks unit accessor
+  //! \brief %Message queue water marks unit accessor.
   MessageQ::WmUnit msgq_wm_unit () const;
 
-  //- MsgQ low water mark mutator (MsgQ unit dependent)
+  //! \brief %Message queue low water mark mutator.
+  //! \param _lo_wm Low water mark (in message queue unit).
   void msgq_lo_wm (size_t _lo_wm);
   
-  //- MsgQ low water mark accessor (MsgQ unit dependent)
+  //! \brief %Message queue low water mark accessor.
+  //! (message queue unit dependent).
   size_t msgq_lo_wm () const;
   
-  //- MsgQ high water mark mutator (MsgQ unit dependent)
+  //! \brief %Message queue high water mark mutator.
+  //! \param _hi_wm High water mark (in message queue unit).
   void msgq_hi_wm (size_t _hi_wm);
   
-  //- MsgQ high water mark accessor (MsgQ unit dependent)
+  //! \brief %Message queue high water mark accessor.
+  //! (message queue unit dependent).
   size_t msgq_hi_wm () const;
 
-  //- MsgQ statistics accessor
+  //! \brief %Message queue Statistics accessor.
   const MessageQ::Statistics & msgq_statistics ();
   
-  //- resets the MsgQ statistics
+  //! \brief Resets the message queue statistics.
   void reset_msgq_statistics ();
   
-  //- Should the underlying MsgQ throw an exception on post msg tmo expiration?
+  //! \brief Should the underlying message queue throw an exception
+  //! on post message timeout expiration?
+  //!
+  //! Default value : false.
+  //! \param _strategy True = exception thrown, False = no exception thrown.
   void throw_on_post_msg_timeout (bool _strategy);
 
-  //- Clears all pending messages
+  //! \brief Clears all pending messages in the message queue.
   size_t clear_pending_messages ();
 
-  //- Clears pending messages of type <msg_type> 
+  //! \brief Clears pending messages of type \<msg_type\> in the message queue.
+  //! \param msg_type Message type to be cleared.
   size_t clear_pending_messages (size_t msg_type);
   
 protected:
-  //- run_undetached
+  //! \brief Run the task undetached.
   virtual Thread::IOArg run_undetached (Thread::IOArg);
   
-  //- message handler
+  //! \brief Message handler (pure virtual function).
+  //! \param msg Message to handle.
+  //! \remark After processing message, do NOT release the message (done by yat).
   virtual void handle_message (yat::Message& msg)
      throw (yat::Exception) = 0;
 
-  //- returns the underlying msgQ
+  //! \brief Returns the underlying message queue.
   MessageQ & message_queue ();
 
 private:

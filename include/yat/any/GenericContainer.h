@@ -44,16 +44,19 @@ namespace yat
 {
 
 // ============================================================================
-//  class: Container
+//! \class Container 
+//! \brief Basic container class only used for genericity constraints.
 // ============================================================================
 class YAT_DECL Container
 {
 public:
+  //! \brief Constructor.
   Container ()
   {
     //- noop
   };
 
+  //! \brief Destructor.
   virtual ~Container () 
   {
     //- noop
@@ -61,49 +64,70 @@ public:
 };
 
 // ============================================================================
-//  template class: GenericContainer - class T must have a copy ctor
+//! \class GenericContainer 
+//! \brief Generic container implementation.
+//!
+//! This template class provides a generic container implementation , with elementary
+//! content manipulation functions (eg set/get, contructors, operators...) and cast functions.
+//!
+//! Implementation constraint: class \<T\> must have a copy constructor.
 // ============================================================================
 template <typename T> 
 class GenericContainer : public Container
 {
 public:
 
-  //- default ctor
+  //! \brief Default constructor.
   GenericContainer () 
     : ptr_(0), own_(false)
   {
     //- noop
   }
 
-  //- ctor - no copy
-  //- points to <_data> and optionnally gets <_ownership> 
+  //! \brief Constructor with parameters.
+  //! 
+  //! No copy is made. Points to specified data and optionnally gets 
+  //! specified ownership.
+  //! \param _data The source data.
+  //! \param _transfer_ownership If set to true, ownership of source data is transfered
+  //! to *this*.
   GenericContainer (T* _data, bool _transfer_ownership = true) 
     : ptr_(0), own_(false)
   {
     this->set_content(_data, _transfer_ownership);
   }
 
-  //- ctor - makes a copy
+  //! \brief Constructor with parameters.
+  //! 
+  //! Makes a copy of source data.
+  //! \param _data The source data.
   GenericContainer (const T& _data) 
     : ptr_(0), own_(false)
   {
     this->set_content(_data);
   }
 
-  //- copy ctor  - makes a copy
+  //! \brief Copy constructor.
+  //! \param _src The source container.
   GenericContainer (const GenericContainer<T>& _src) 
     : ptr_(0), own_(false)
   {
     *this = _src;
   }
 
-  //- dtor - delete data according to the ownership flag
+  //! \brief Destructor.
+  //!
+  //! Deletes data if the ownership flag is set to true.
   virtual ~GenericContainer ()
   {
     if (own_) delete ptr_;
   }
 
-  //- changes content - makes a copy
+  //! \brief Operator=.
+  //!
+  //! Changes content and makes a copy of the source content.
+  //! \param _src The source container.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   const GenericContainer& operator= (const GenericContainer<T>& _src)
   {  
     if (&_src == this)
@@ -133,13 +157,21 @@ public:
     return *this;
   }
 
-  //- changes content - makes a copy
+  //! \brief Operator=.
+  //!
+  //! Changes content and makes a copy of the source data.
+  //! \param _src The source data.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   const GenericContainer& operator= (T& _src)
   {
     return this->operator=(static_cast<const T&>(_src));
   }
-    
-  //- changes content - makes a copy
+
+  //! \brief Operator=.
+  //!
+  //! Changes content and makes a copy of the source data.
+  //! \param _src The const source data.
+  //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
   const GenericContainer& operator= (const T& _src)
   {
     if (! ptr_ || ! own_)
@@ -167,7 +199,10 @@ public:
     return *this;
   }
 
-  //- changes content but does NOT gets ownership of the data
+  //! \brief Operator=.
+  //!
+  //! Changes content but does NOT get ownership of the data.
+  //! \param _data The source data.
   const GenericContainer& operator= (T* _data)
   { 
     if (_data == ptr_)
@@ -179,35 +214,46 @@ public:
     return *this;
   }
 
-  //- changes content and set ownership
+  //! \brief Sets the content of the container.
+  //!
+  //! Changes content and sets ownership to specified value.
+  //! \param _data The source data.
+  //! \param _transfer_ownership If set to true, ownership of source data is transfered
+  //! to *this*.
   void set_content (T* _data, bool _transfer_ownership)
   {
     *this = _data;
     own_ = _transfer_ownership;
   }
 
-  //- changes content (makes a copy)
+  //! \brief Sets the content of the container (makes a copy).
+  //! \param _data The const source data.
   void set_content (const T& _data)
   {
     *this = _data;
   }
 
-  //- changes content (makes a copy)
+  //! \brief Sets the content of the container (makes a copy).
+  //! \param _data The source data.
   void set_content (T& _data)
   {
     *this = _data;
     own_ = true;
   }
   
-  //- returns content 
-  //- does NOT transfer data ownership to the caller
+  //! \brief Returns content of the container.
+  //!
+  //! Does NOT transfer data ownership to the caller.
   T * operator-> ()
   {
     return ptr_;
   }
 	
-  //- returns content 
-  //- optionally transfers data ownership to the caller
+  //! \brief Returns content of the container.
+  //!
+  //! Optionally transfers data ownership to the caller.
+  //! \param transfer_ownership If set to true, ownership of content is transfered
+  //! to the caller.
   T * get_content (bool transfer_ownership)
   {
     if (transfer_ownership)
@@ -215,7 +261,9 @@ public:
     return ptr_;
   }
 
-  //- returns content
+  //! \brief Returns content of the container.
+  //! \exception RUNTIME_ERROR Thrown if could not extract data from GenericContainer
+  //! [empty].
   T & get_content ()
     throw (Exception)
   {
@@ -228,28 +276,37 @@ public:
     return *ptr_;
   }
 
-  //- does this container have ownership of the underlying data?
+  //! \brief Does this container have ownership of the underlying data?
+  //!
+  //! Returns true if container has ownership, false otherwise.
   bool get_ownership () const
   {
     return own_;
   }
   
-  //- returns true if the container is empty, return false otherwise
+  //! \brief Does the content of the container is empty ?
+  //!
+  //! Returns true if the container is empty, false otherwise.
   bool empty () const 
   {
     return ptr_ ? false : true;
   }
 
 private:
-  //- actual container content
+  //- Actual container content.
   T * ptr_;
-  //- do we have data ownership?
+
+  //- Do we have data ownership?
   bool own_;
 };
 
-// ============================================================================
-//  template method: any_cast
-// ============================================================================
+
+//! \brief Cast function from Container type to \<T\> type.
+//!
+//! Returns NULL pointer if bad cast conversion.
+//! \param _c Container to cast.
+//! \param _transfer_ownership If set to true, ownership of source content is transfered
+//! to cast object.
 template<typename T>
 T * any_cast (Container * _c, bool _transfer_ownership = false)
 {
@@ -259,18 +316,21 @@ T * any_cast (Container * _c, bool _transfer_ownership = false)
        : 0;
 }
 
-// ============================================================================
-//  template method: any_cast
-// ============================================================================
+//! \brief Cast function from const Container type to const \<T\> type.
+//!
+//! Returns NULL pointer if bad cast conversion.
+//! \param c Const container to cast.
 template<typename T>
 const T * any_cast (const Container * c)
 {
   return any_cast<T>(const_cast<Container*>(c), false);
 }
 
-// ============================================================================
-//  template method: any_cast
-// ============================================================================
+//! \brief Cast function from const Container type to const \<T\> type.
+//!
+//! \param c Const container to cast.
+//! \exception RUNTIME_ERROR Thrown if could not extract data from GenericContainer 
+//! [attached data type is not of specified type].
 template<typename T>
 const T & any_cast (const Container & c) 
   throw (yat::Exception)
@@ -285,9 +345,11 @@ const T & any_cast (const Container & c)
   return *t;
 }
 
-// ============================================================================
-//  template method: any_cast
-// ============================================================================
+//! \brief Cast function from Container type to \<T\> type.
+//!
+//! \param c Container to cast.
+//! \exception RUNTIME_ERROR Thrown if could not extract data from GenericContainer 
+//! [attached data type is not of specified type].
 template<typename T>
 T & any_cast (Container & c) 
   throw (yat::Exception)

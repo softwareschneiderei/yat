@@ -55,9 +55,12 @@
 // ============================================================================
 // CONSTs
 // ============================================================================
+//! Default post message timeout.
 #define kDEFAULT_POST_MSG_TMO   1000
 //-----------------------------------------------------------------------------
+//! Default message queue low water mark.
 #define kDEFAULT_LO_WATER_MARK  8
+//! Default message queue high water mark.
 #define kDEFAULT_HI_WATER_MARK  64
 //-----------------------------------------------------------------------------
 #define kMIN_LO_WATER_MARK      kDEFAULT_LO_WATER_MARK
@@ -69,7 +72,11 @@ namespace yat
 {
 
 // ============================================================================
-// class: MessageQ
+//! \class MessageQ 
+//! \brief %Message queue of Message messages.
+//!
+//! MessageQ is used to manage Message transmission/reception between Task objects.
+//! It is a FIFO message queue for equal priority messages.
 // ============================================================================
 class YAT_DECL MessageQ
 {
@@ -78,129 +85,153 @@ class YAT_DECL MessageQ
   typedef std::list<yat::Message *> MessageQImpl;
 
 public:
-  //- MessageQ has a state
+  //! %Message queue state.
   typedef enum
   {
     OPEN,
     CLOSED
   } State;
   
-  //- MessageQ lo/hi water marks unit
+  //! Low/high water marks unit.
   typedef enum
   {
-    //- number of messages in msgQ (default)
+    //! Number of messages in msgQ (default).
     NUM_OF_MSGS,
-    //- number of bytes in msgQ
+    //! Number of bytes in msgQ.
     NUM_OF_BYTES
   } WmUnit;
   
+  //! %Message queue statistics.
   struct YAT_DECL Statistics
   {
-    //- default ctor
+    //! Default constructor.
     Statistics ();
-    //- dump stats 
+    //! Dumps statistics to specified output.
+	//! \param out Output
 	void dump (std::ostream& out = std::cout) const;
-    //- did the MessageQ reached the hi-water mark?
+    //! Number of times MessageQ reached the hi-water mark.
     size_t has_been_saturated_;
-    //- did the MessageQ reached the low-water mark?
+    //! Number of times MessageQ reached the low-water mark.
     size_t has_been_unsaturated_;
-    //- max. pending charge reached
+    //! Maximum pending charge reached.
     unsigned long max_pending_charge_reached_;
-    //- max. num of pending msgs reached
+    //! Maximum number of pending messages reached.
     unsigned long max_pending_msgs_reached_;
-    //- num. total of msgs posted after <waiting for room in MsgQ>
+    //! Total number of messages posted after "waiting for room in MsgQ".
     unsigned long posted_with_waiting_msg_counter_;
-    //- num. total of msgs posted without <waiting for room in MsgQ>
+    //! Total number of messages posted without "waiting for room in MsgQ".
     unsigned long posted_without_waiting_msg_counter_;
-    //- num. total of trashed msgs 
+    //! Total number of trashed messages.
     unsigned long trashed_msg_counter_;
-    //- num. total of msgs trashed on <post> timeout
+    //! Total number of messages trashed on post timeout.
     unsigned long trashed_on_post_tmo_counter_;
-    //- current pending charge in bytes
+    //! Current pending charge in bytes.
     unsigned long pending_charge_;
-    //- current pending charge in num. of msgs 
+    //! Current pending charge in number of messages.
     unsigned long pending_mgs_;
-    //- messageQ unit 
+    //! MessageQ unit. 
     WmUnit wm_unit_;
   };
 
-  //- ctor
+  //! \brief Constructor with parameters.
+  //! \param lo_wm Low water mark.
+  //! \param hi_wm High water mark.
+  //! \param throw_on_post_tmo Enables exception creation on post timeout expiration.
   MessageQ (size_t lo_wm = kDEFAULT_LO_WATER_MARK,
             size_t hi_wm = kDEFAULT_HI_WATER_MARK,
             bool throw_on_post_tmo = false);
 
-  //- dtor
+  //! \brief Destructor.
   virtual ~ MessageQ ();
 
-  //- post a yat::Message into the msgQ
-  //- returns 0 if <msg> was successfully posted. tmo expiration, throws an 
-  //- if <throw_on_post_msg_timeout> is set to <true>, returns -1 otherwise.
-  //- <msg> is destroyed (i.e. released) in case it could not be posted. 
+  //! \brief Posts a Message into the message queue.
+  //!
+  //! Returns 0 if the message was successfully posted, -1 otherwise. 
+  //! \param msg %Message to send.
+  //! \param tmo_msecs Timeout in ms.
+  //! \remark %Message is destroyed (i.e. released) in case it could not be posted. 
+  //! \remark Can NOT post any TIMEOUT or PERIODIC msg (yat::Task model violation).
+  //!
+  //! \exception TIMEOUT_EXPIRED Thrown on timeout expiration, if *throw_on_post_msg_timeout* is set 
+  //! to true.
   int post (yat::Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO)
     throw (Exception);
 
-  //- extract next message from the msgQ
+  //! \brief Extracts next message from the message queue. 
+  //!
+  //! Waits for a message the specified time.
+  //! \param tmo_msecs Tiemout in ms.
   Message * next_message (size_t tmo_msecs);
   
-  //- Water marks unit mutator
+  //! \brief Water marks unit mutator.
+  //! \param _wmu Water mark unit.
   void wm_unit (WmUnit _wmu);
 
-  //- Water marks unit accessor
+  //! \brief Water marks unit accessor.
   WmUnit wm_unit () const;
   
-  //- Low water mark mutator
+  //! \brief Low water mark mutator.
+  //! \param _lo_wm Low water mark (in msgQ current unit).
   void lo_wm (size_t _lo_wm);
 
-  //- Low water mark accessor
+  //! \brief Low water mark accessor.
   size_t lo_wm () const;
 
-  //- High water mark mutator
+  //! \brief High water mark mutator.
+  //! \param _hi_wm High water mark (in msgQ current unit).
   void hi_wm (size_t _hi_wm);
 
-  //- High water mark accessor
+  //! \brief High water mark accessor.
   size_t hi_wm () const;
   
-  //- Should the msgQ throw an exception on post msg tmo expiration?
+  //! \brief Sets if the message queue should throw an exception on post message
+  //! timeout expiration.
+  //! \param _strategy True if exception to be thrown.
   void throw_on_post_msg_timeout (bool _strategy);
 
-  //- Clears msgQ content 
+  //! \brief Clears message queue content.
+  //!
+  //! Returns number of removed messages.
   size_t clear();
 
-  //- Clears pending message of type <msg_type> 
+  //! \brief Clears pending message of specified type.
+  //!
+  //! Returns number of removed messages.
+  //! \param msg_type %Message type.
   size_t clear_pending_messages (size_t msg_type);
   
-  //- Closes the msqQ
+  //! \brief Closes the message queue.
   void close ();
   
-  //- Returns the MessageQ stats
+  //! Returns the MessageQ Statistics.
   const Statistics & statistics ();
   
-  //- Resets the MessageQ stats
+  //! \brief Resets the MessageQ Statistics.
   void reset_statistics ();
   
 private:
   //- periodic msg tmo expired?
 	bool periodic_tmo_expired_i (double _tmo_msecs);
   
-  //- clears msgQ content (returns num of trashed messages)
+  //- clears msgQ content (returns num of trashed messages).
   size_t clear_i (bool notify_waiters = true);
 
-  //- waits for the msQ to contain at least one msg
+  //- waits for the msQ to contain at least one msg.
   //- returns false if tmo expired, true otherwise.
   bool wait_not_empty_i (size_t tmo_msecs);
 
-  //- waits for the msQ to have room for new messages
+  //- waits for the msQ to have room for new messages.
   //- returns false if tmo expired, true otherwise.
   bool wait_not_full_i (size_t tmo_msecs);
 
-  //- insert a msg according to its priority
+  //- inserts a msg according to its priority.
   void insert_i (Message * msg)
     throw (Exception);
 
-  //- increment the pending charge
+  //- increments the pending charge.
   void inc_pending_charge_i (Message * msg);
   
-  //- decrement the pending charge
+  //- decrements the pending charge.
   void dec_pending_charge_i (Message * msg);
   
   //- use a std::deque to implement msgQ
@@ -239,7 +270,7 @@ private:
   //- expection activation flag
   bool throw_on_post_msg_timeout_;
 
-  //- flag indicating whether or not the last returned msg was a periodoc msg
+  //- flag indicating whether or not the last returned msg was a periodic msg
   //- we use this flag in order to avoid PERIODIC event flooding in case
   //- the PERIODIC event frequency is really high - which could prevent other
   //- messages from being handled. reciprocally, a very high msg posting freq.

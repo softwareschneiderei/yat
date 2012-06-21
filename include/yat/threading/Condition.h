@@ -56,7 +56,7 @@ namespace yat {
 // ----------------------------------------------------------------------------
 class Mutex;
 
-// ----------------------------------------------------------------------------
+// ============================================================================
 //! \class Condition
 //! \brief The YAT Condition variable class
 //!
@@ -69,62 +69,67 @@ class Mutex;
 //! \remarks
 //! While its destructor is virtual, this class is not supposed to be derived.\n
 //! Be sure to clearly understand the internal behaviour before trying to do so.
-// ----------------------------------------------------------------------------
+// ============================================================================
 class YAT_DECL Condition
 {
 public:
-  //! Constructor.
+  //! \brief Constructor.
   //!
-  //! Each condition must be associated to a mutex that must be hold while
+  //! Each condition must be associated to a mutex (use in preference Automutex) that must be hold while
   //! evaluating the condition. It means that \a external_mutex must be locked
-  //! prior to any to call to the Condition interface. See \link
+  //! prior to any call to the Condition interface. See \link
   //! http://www.cs.wustl.edu/~schmidt/win32-cv-1.html D.C.Schmidt and I.Pyarali
   //! \endlink article for details.
+  //! \param external_mutex Associated mutex to lock/unlock while using the condition
   Condition (yat::Mutex& external_mutex);
 
-  //! Destructor.
+  //! \brief Destructor.
   //!
   //! While this destructor is virtual, this class is not supposed to be derived.
   //! Be sure to understand the internal behaviour before trying to do so.
   virtual ~Condition ();
 
-  //! Wait until the condition is either \link Condition::signal signaled\endlink
-  //! or \link Condition::broadcast broadcasted\endlink by another thread.
+  //! \brief Wait until the condition is either \link Condition::signal signaled\endlink
+  //! or \link Condition::broadcast broadcast\endlink by another thread.
   //!
   //! The associated \a external_mutex <b>must be locked</b> by the calling thread.
+  //! \remark The associated external_mutex is unlocked by the wait() function.
   void wait ();
 
-  //! Wait for the condition to be \link Condition::signal signaled\endlink
-  //! or \link Condition::broadcast broadcasted\endlink by another thread.
+  //! \brief Wait for the condition to be \link Condition::signal signaled\endlink
+  //! or \link Condition::broadcast broadcast\endlink by another thread.
+  //!
   //! Returns \c false in case the specified timeout expired before the condition 
   //! was notified. Returns \c true otherwise.
   //!
   //! The associated \a external_mutex <b>must be locked</b> by the calling thread.
   //!
-  //! \param tmo_msecs The timeout in milliseconds
+  //! \param tmo_msecs The timeout in milliseconds.
   //! \return \c false [timeout expired] or \c true [condition notified]
+  //! \remark The associated external_mutex is unlocked by the timed_wait() function.
   bool timed_wait (unsigned long tmo_msecs);
 
-  //! Signals the condition by notifying \b one of the waiting threads.
+  //! \brief Signals the condition by notifying \b one of the waiting threads.
   //!
   //! The associated \a external_mutex <b>must be locked</b> by the calling thread.
   void signal ();
 
-  //! Broadcasts the condition by notifying \b all waiting threads.
+  //! \brief Broadcasts the condition by notifying \b all waiting threads.
   //!
   //! The associated \a external_mutex <b>must be locked</b> by the calling thread.
   void broadcast ();
 
 private:
-  //! The so called "external mutex" (see D.Schmidt's article)
+  //- The so called "external mutex" (see D.Schmidt's article).
   Mutex & m_external_lock;
   
-  //! Not implemented private member
+  //- Not implemented private member.
   Condition (const Condition&);
-  //! Not implemented private member
+  
+  //- Not implemented private member.
   Condition & operator= (const Condition&);
   
-  //! hidden/abstract platform specific implementation
+  //- hidden/abstract platform specific implementation.
   YAT_CONDITION_IMPLEMENTATION;
 };
 

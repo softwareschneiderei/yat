@@ -59,33 +59,38 @@ namespace yat
 //     MSG PRIORITIES - MSG PRIORITIES - MSG PRIORITIES - MSG PRIORITIES  
 // ============================================================================
 //-----------------------------------------------------------------------------
-//- HIGHEST PRIORITY
+//! Highest message priority
 //-----------------------------------------------------------------------------
 #define HIGHEST_MSG_PRIORITY 0xFFFF
 //-----------------------------------------------------------------------------
-//- LOWEST PRIORITY
+//! Lowest message priority
 //-----------------------------------------------------------------------------
 #define LOWEST_MSG_PRIORITY 0
 //-----------------------------------------------------------------------------
-//- INIT MSG PRIORITY
+//! INIT message priority
 //-----------------------------------------------------------------------------
 #define INIT_MSG_PRIORITY HIGHEST_MSG_PRIORITY
 //-----------------------------------------------------------------------------
-//- EXIT MSG PRIORITY
+//! EXIT message priority
 //-----------------------------------------------------------------------------
 #define EXIT_MSG_PRIORITY HIGHEST_MSG_PRIORITY
 //-----------------------------------------------------------------------------
-//- MAX (i.e.HIGHEST) USER PRIORITY
+//! MAX (i.e. highest) user message priority
 //-----------------------------------------------------------------------------
 #define MAX_USER_PRIORITY (HIGHEST_MSG_PRIORITY - 20)
 //-----------------------------------------------------------------------------
-//- DEFAULT MSG PRIORITY
+//! Default message priority (lowest priority)
 //-----------------------------------------------------------------------------
 #define DEFAULT_MSG_PRIORITY LOWEST_MSG_PRIORITY
 // ============================================================================
 
 // ============================================================================
-// enum: MessageType
+//! \enum yat::MessageType 
+//! \brief Message type enumeration.
+//! 
+//! INIT, EXIT, TIMEOUT & PERIODIC types are predefined control types.
+//! For user messages, use type number from FIRST_USER_MSG
+//! (for example : \#define MY_MSG_TYPE (FIRST_USER_MSG+1)).
 // ============================================================================
 typedef enum
 {
@@ -99,7 +104,12 @@ typedef enum
 } MessageType;
 
 // ============================================================================
-//  class: Message
+//! \class Message 
+//! \brief Message exchanged between Task objects.
+//!
+//! Inherits from SharedObject class. Its main characteristics are : type, priority, 
+//! waitable and associated data. \n
+//! The waitable characteristic is based on a Condition object.
 // ============================================================================
 class YAT_DECL Message : private yat::SharedObject
 {
@@ -130,169 +140,173 @@ public:
   static void release_pre_alloc () {};
 #endif
 
-  //---------------------------------------------
-  // Message::factory
-  //---------------------------------------------
+  //! \brief Message factory. 
+  //!
+  //! Creates a new message of specified type.
+  //! \param msg_type %Message type.
+  //! \param msg_priority %Message priority.
+  //! \param waitable Is message is waitable or not.
+  //! \exception OUT_OF_MEMORY Thrown if allocation fails due to lack of memory.
   static Message * allocate (size_t msg_type, 
                              size_t msg_priority = DEFAULT_MSG_PRIORITY,
                              bool waitable = false)
     throw (Exception);
 
-  //---------------------------------------------
-  // Message::ctor
-  //---------------------------------------------
+  //! \brief Default contructor.
   explicit Message ();
 
-  //---------------------------------------------
-  // Message::ctor
-  //---------------------------------------------
+  //! \brief Constructor with parameters.
+  //! \param msg_type %Message type.
+  //! \param msg_priority %Message priority.
+  //! \param waitable Is message is waitable or not.
   explicit Message (size_t msg_type, 
                     size_t msg_priority = DEFAULT_MSG_PRIORITY,
                     bool waitable = false);
 
-  //---------------------------------------------
-  // Message::dtor
-  //---------------------------------------------
+  //! \brief Destructor.
   virtual ~Message ();
 
-  //---------------------------------------------
-  // Message::to_string
-  //---------------------------------------------
+  //! \brief Returns a string containing information about the message.
   virtual const char * to_string () const;
 
-  //---------------------------------------------
-  // Message::is_task_ctrl_message
-  //---------------------------------------------
+  //! \brief Returns true if message type is a predefined control type.
   bool is_task_ctrl_message ();
 
-  //---------------------------------------------
-  // Message::duplicate
-  //---------------------------------------------
+  //! \brief Returns the "shallow" copy of the message.
+  //!
+  //! Does not really copy message but increase the reference count.
+  //! Works as yat::SharedObject::duplicate function.
+  //! \remark Useful when sending same message to multiple recipients.
   Message * duplicate ();
 
-  //---------------------------------------------
-  // Message::release
-  //---------------------------------------------
+  //! \brief Decreases the shared reference count of the message.
+  //!
+  //! Works as yat::SharedObject::release function.
   void release ();
 
-  //---------------------------------------------
-  // Message::type
-  //---------------------------------------------
+  //! \brief Returns message type.
   size_t type () const;
 
-  //---------------------------------------------
-  // Message::type
-  //---------------------------------------------
+  //! \brief Sets message type.
+  //! \param t %Message type (from yat::MessageType enumeration + 
+  //! user defined types).
   void type (size_t t);
 
-  //---------------------------------------------
-  // Message::type
-  //---------------------------------------------
+  //! \brief Returns message priority.
   size_t priority () const;
 
-  //---------------------------------------------
-  // Message::type
-  //---------------------------------------------
+  //! \brief Sets message priority.
+  //! \param p %Message priority (from LOWEST_MSG_PRIORITY to HIGHEST_MSG_PRIORITY).
   void priority (size_t p);
 
-  //---------------------------------------------
-  // Message::user_data
-  //---------------------------------------------
+  //! \brief Obsolete function.
+  //!
+  //! Returns message user data.
   void * user_data () const;
 
-  //---------------------------------------------
-  // Message::user_data
-  //---------------------------------------------
+  //! \brief Obsolete function.
+  //!
+  //! Sets message user data.
   void user_data (void * ud);
 
-  //---------------------------------------------
-  // Message::size_in_bytes
-  //---------------------------------------------
+  //! \brief Returns message size in bytes.
+  //!
+  //! Depends on associated data length.
   size_t size_in_bytes () const;
 
-  //---------------------------------------------
-  // Message::user_data
-  //---------------------------------------------
+  //! \brief Sets message size in bytes.
+  //! \param s Size of the message in bytes.
   void size_in_bytes (size_t s);
   
-  //---------------------------------------------
-  // Message::attach_data 
-  //---------------------------------------------
+  //! \brief Template function to associate any type of data to a message.
+  //!
+  //! Example : 
+  //! \verbatim m.attach_data<double>(pDouble); \endverbatim
+  //! \param _data Data buffer pointer.
+  //! \param _transfer_ownership True if data is deleted with message.
+  //! \exception OUT_OF_MEMORY Thrown if allocation fails due to lack of memory.
   template <typename T> void attach_data (T * _data, bool _transfer_ownership = true)
     throw (Exception);
 
-  //---------------------------------------------
-  // Message::attach_data (makes a copy of _data)
-  //---------------------------------------------
+  //! \brief Template function to associate any type of data to a message (makes a copy of _data).
+  //!
+  //! Example : 
+  //! \verbatim m.attach_data<double>(myDouble); \endverbatim
+  //! \param _data Data buffer.
+  //! \exception OUT_OF_MEMORY Thrown if allocation fails due to lack of memory.
   template <typename T> void attach_data (const T & _data)
     throw (Exception);
 
-  //---------------------------------------------
-  // Message::get_data
-  //---------------------------------------------
+  //! \brief Template function that returns the message associated data.
+  //!
+  //! Data is left in message and will be deleted with message.
+  //! Example : 
+  //! \verbatim myDouble = m.get_data<double>(); \endverbatim
+  //! \exception RUNTIME_ERROR Thrown if wrong data type put in \<T\>.
   template <typename T> T& get_data () const
     throw (Exception);
 
-  //---------------------------------------------
-  // Message::detach_data
-  //---------------------------------------------
+  //! \brief Template function that detaches data from message, 
+  //! i.e. data is not left in the message and will not be deleted with message.
+  //!
+  //! Before extracting data, checks specified type and data type.
+  //! Example : 
+  //! \verbatim m.detach_data<double>(myDouble); \endverbatim
+  //! \param _data Data buffer.
+  //! \exception RUNTIME_ERROR Thrown if wrong data type specified.
   template <typename T> void detach_data (T*& _data) const
     throw (Exception);
 
-  //---------------------------------------------
-  // Message::detach_data
-  //---------------------------------------------
+  //! \brief Template function that detaches data from message, 
+  //! i.e. data is not left in the message and will not be deleted with message.
+  //!
+  //! Example : 
+  //! \verbatim myDouble = m.detach_data<double>(); \endverbatim
+  //! \remark There is no data type check !
   template <typename T> T * detach_data () const;
 
-  //---------------------------------------------
-  // Message::check_attached_data_type
-  //---------------------------------------------
+  //! \brief Template function that checks the message associated data type.
+  //!
+  //! Returns true if wright type.
+  //! Example : 
+  //! \verbatim isDouble = m.check_attached_data_type<double>(); \endverbatim
   template <typename T> bool check_attached_data_type () const;
 
-  //---------------------------------------------
-  // Message::make_waitable
-  //---------------------------------------------
+  //! \brief Makes a message waitable.
+  //! 
+  //! Default value = false.
+  //! \exception MEMORY_ERROR Thrown if associated Condition allocation fails on lack of memory.
   void make_waitable ()
     throw (Exception);
 
-  //---------------------------------------------
-  // Message::waitable
-  //---------------------------------------------
+  //! \brief Is message waitable ?
+  //! 
+  //! Returns true if message is waitable, false otherwise.
   bool waitable () const;
 
-  //---------------------------------------------
-  // Message::wait_processed
-  //---------------------------------------------
-  //! Wait for the message to be processed by the associated consumer(s).
-  //! Returns "false" in case the specified timeout expired before the 
-  //! message was processed. Returns true otherwise. An exception is 
-  //! thrown in case the message is not "waitable".
+  //! \brief Waits for the message to be processed by the associated consumer(s).
+  //!
+  //! Returns false in case the specified timeout expired before the 
+  //! message was processed. Returns true otherwise. 
+  //! \param tmo_ms Timeout in ms.
+  //! \exception PROGRAMMING_ERROR Thrown in case the message is not "waitable".
   bool wait_processed (unsigned long tmo_ms)
     throw (Exception);
 
-  //---------------------------------------------
-  // Message::processed
-  //---------------------------------------------
+  //! \brief Notifies to awaiting threads (on wait_processed())that the message is handled.
   void processed ();
 
-  //---------------------------------------------
-  // Message::has_error
-  //---------------------------------------------
+  //! \brief Tells if attached errors (exceptions) on message.
   bool has_error () const;
 
-  //---------------------------------------------
-  // Message::set_error
-  //---------------------------------------------
+  //! \brief Attaches an exception to the message.
+  //! \param e Exception to attached to the message.
   void set_error (const Exception & e);
 
-  //---------------------------------------------
-  // Message::get_error
-  //---------------------------------------------
+  //! \brief Gets attached errors (exceptions) on message.
   const Exception & get_error () const;
 
-  //---------------------------------------------
-  // Message::dump
-  //---------------------------------------------
+  //! \brief Writes in cout message dump.
   virtual void dump () const;
 
   //---------------------------------------------
@@ -317,31 +331,31 @@ public:
 #endif
 
 protected:
-  //- msg processed
+  //! \brief Is message processed.
   bool processed_;
 
-  //- the msg type
+  //! \brief %Message type.
   size_t type_;
 
-  //- the msg priority
+  //! \brief %Message priority.
   size_t priority_;
 
-  //- the associated user data (same for all messages handled by a given task)
+  //- the associated user data (same for all messages handled by a given task).
   void * user_data_;
 
-  //- the associated msg data (specific to a given message)
+  //! \brief Associated message data (specific to a given message).
   Container * msg_data_;
 
-  //- true if an error occured during message handling
+  //! \brief Has an error occurred during message handling.
   bool has_error_;
 
-  //- TANGO exception local storage
+  //! \brief Local storage exception.
   Exception exception_;
 
-  //- condition variable (for waitable msgs)
+  //! \brief Condition variable (for waitable messages).
   Condition * cond_;
 
-  //- size of message content in bytes
+  //! \brief Size of message content in bytes.
 	size_t size_in_bytes_;
 
 #if defined (YAT_DEBUG)

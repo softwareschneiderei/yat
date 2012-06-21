@@ -51,43 +51,65 @@
 
 namespace yat
 {
-//=============================================================================
-/// Synchronize access to a object
-//=============================================================================
+// ============================================================================
+//! \class SyncAccess 
+//! \brief Synchronize access to an object.
+//!
+//! The synchronization is implemented in the object constructor and destructor
+//! functions.
+// ============================================================================
 class YAT_DECL SyncAccess
 {
+public:
+	//! \brief Constructor.
+	//! \param pObj Pointer to the object or resource to synchronize.
+	SyncAccess(void *pObj);
+
+	//! \brief Destructor.
+	~SyncAccess();
+
 private:
   typedef void* obj_ptr;
   
-	/// Synchronized object
+	//- Synchronized object class.
 	class SyncObject
 	{
 	public:
-		void*          m_pObj;            // Pointer to the synchronized object
-		uint32         m_uiThreadCount;	  // Thread access count
-		uint32         m_uiLockCount;     // Current lock count
-		yat::Mutex     m_Mutex;           // Locked by using thread
-		yat::ThreadUID m_CurrentThreadId; // Thread  currently lock access
+		//- Pointer to the synchronized object.
+		void*          m_pObj;            
 		
+		//- Thread access count.
+		uint32         m_uiThreadCount;	  
+		
+		//- Current lock count.
+		uint32         m_uiLockCount;     
+		
+		//- Locked by using thread.
+		yat::Mutex     m_Mutex;           
+		
+		//- Thread currently locking access.
+		yat::ThreadUID m_CurrentThreadId; 
+		
+		//- Constructor.
 		SyncObject(void *ptr) : m_pObj(ptr), m_uiThreadCount(0), m_uiLockCount(0), 
 		  m_CurrentThreadId(YAT_INVALID_THREAD_UID) { }
 	};
 
+	//- Synchronized object.
 	SyncObject *m_pSyncObj;
 	
+	//- Synchronization map.
 	static std::map<void *, SyncObject *> m_sSynObjMap;
-	static yat::Mutex m_sLock; // To lock access on the above map
+	
+	//- To lock synchronization map access.
+	static yat::Mutex m_sLock; 
 
+	//- Locks synchronized object.
 	void lock_obj(void *pObj);
+
+	//- Unlocks synchronized object.
 	void unlock_obj(void *pObj);
 	
-public:
-	/// c-tor
-	/// @param pObj pointer on object or ressource
-	SyncAccess(void *pObj);
-
-	/// d-tor
-	~SyncAccess();
 };
 
 } // namespace gdshare
