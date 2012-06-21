@@ -51,14 +51,21 @@
 
 namespace yat {
 
-// ----------------------------------------------------------------------------
-//! The YAT Thread abstract class
-// ----------------------------------------------------------------------------
+// ============================================================================
+//! \class Thread
+//! \brief The YAT Thread abstract class.
+//!
+//! A yat thread has a state, an identifier and a priority, managed by an internal mutex.
+//! It provides both "detached" and "undetached" (i.e. joinable) behaviour. \n
+//! This abstract class can not be used as this and must be derived.
+//! At least, the exit() function and one of run() (used in detached mode) or run_undetached() (used in undetached mode)
+//! functions must be implemented in derived class.
+//! 
+//! \remark For example, a Thread class can be used to implement a simple data acquisition thread.
+//! For more complex threaded treatment, use Task class.
+// ============================================================================
 class YAT_DECL Thread
 {
-  //! This abstract class can't be used as this and must be derived.
-  //! Provides both "detached" and "undetached" (i.e. joinable) behaviour.
-
 public:
   //! A dedicated type for thread entry point argument (user specified data).
   typedef void * IOArg;
@@ -74,7 +81,7 @@ public:
     PRIORITY_RT
   };
 
-  //! The possible thread states
+  //! The possible thread states.
   enum State
   {
     //! Thread object exists but thread hasn't started yet.
@@ -86,113 +93,129 @@ public:
     STATE_TERMINATED
   };
 
-  //! Returns the the thread unique indentifier.
-  //! In case the thread is not yet running (THREAD_STATE_NEW), self will returns
+  //! \brief Returns the thread unique indentifier.
+  //!
+  //! In case the thread is not yet running (THREAD_STATE_NEW), self() will returns
   //! YAT_INVALID_THREAD_UID (since the thread UID is not defined in this state).
   ThreadUID self () const;
 
-  //! Set the priority of the thread.
+  //! \brief Set the priority of the thread.
+  //!
   //! In case the thread is running, the priority is immediately applied.
+  //! \param p Priority.
   void priority (Priority p)
     throw (Exception);
 
-  //! Returns the current priority of the thread.
+  //! \brief Returns the current priority of the thread.
   Thread::Priority priority ();
 
-  //! Returns the current state of the thread.
-  //! \remarks Locks the associated Mutex (\c m_lock)
+  //! \brief Returns the current state of the thread.
+  //! \remarks Locks the associated Mutex (\c m_lock).
   Thread::State state ();
 
-  //! This pure virtual member _must_ cause the "run" (for detached threads)
-  //! or "run_undetached" (for undetached threads) to return. In other words,
-  //! exit _must_ make the thread quit its "infinite loop" and return. Its
-  //! content in purely application dependent - that's why the actual
-  //! implementation is delegated to the derived class.
+  //! \brief This pure virtual member _must_ cause the "run" (for detached threads)
+  //! or "run_undetached" (for undetached threads) to return. 
+  //!
+  //! In other words, exit _must_ make the thread quit its "infinite loop" 
+  //! and return. Its content is purely application dependent - that's why 
+  //! the actual implementation is delegated to the derived class.
   virtual void exit () = 0;
 
-  //! Allows another thread to run.
+  //! \brief Allows another thread to run.
   static void yield ();
 
-  //! Causes the thread to sleep for the given time.
+  //! \brief Causes the thread to sleep for the given time.
+  //! \param msecs Time.
   static void sleep (unsigned long msecs);
   
-  //! Causes the thread to be detached.  
-  //! In this case the thread executes the run member function.
+  //! \brief Causes the thread to be detached.  
+  //!
+  //! In this case, the thread executes the run() member function.
   void start ()
     throw (Exception);
 
-  //! Causes the thread to be undetached.
-  //! In this case the thread executes the run_undetached member function.
+  //! \brief Causes the thread to be undetached.
+  //!
+  //! In this case, the thread executes the run_undetached() member function.
   void start_undetached ()
     throw (Exception);
 
 protected:
-  //! This constructor is used in a derived class.  The thread will
-  //! execute the run() or run_undetached() member functions depending on
-  //! whether start() or start_undetached() is called respectively.
+  //! \brief This constructor is used in a derived class. 
+  //!
+  //! The thread will execute the run() or run_undetached() member functions 
+  //! depending on whether start() or start_undetached() is called respectively.
+  //! \param a Thread argument.
+  //! \param p Thread priotity.
   Thread (IOArg a = 0, Priority p = yat::Thread::PRIORITY_NORMAL);
 
-  //! Join causes the calling thread to wait for another's completion,
-  //! putting the return value in the variable of type IOArg whose address
-  //! is given (unless passed a null pointer). Only undetached threads
-  //! may be joined. Storage for the thread will be reclaimed. May throw an 
-  //! exception in case the thread is either "not running" or "terminated".
-  //! An exception will also be thrown in case the thread is "detached" or
-  //! in case the underlying OS "wait for the thread to terminate" call fails.
+  //! \brief Join causes the calling thread to wait for another's completion,
+  //! putting the return value in the IOArg type argument, whose address
+  //! is given (unless passed a null pointer). 
+  //!
+  //! Only undetached threads may be joined. Storage for the thread will be reclaimed. 
+  //! \param <> %Thread "result".
+  //! \exception ToBeDefined Thrown in case the thread is either "not running" or "terminated".
+  //! \exception ToBeDefined Thrown in case the thread is "detached".
+  //! \exception ToBeDefined Thrown in case the underlying OS "wait for the thread to terminate" call fails.
   void join (Thread::IOArg *)
     throw (Exception);
 
-  //! The Thread destructor cannot be called by user (except via a derived class).
-  //! Use exit() instead. This also means a thread object must be allocated with
+  //! \brief The Thread destructor cannot be called by user (except via a derived class).
+  //! Use exit() instead. 
+  //!
+  //! This also means a thread object must be allocated with
   //! new - it cannot be statically or automatically allocated. The destructor of
   //! a class that inherits from omni_thread shouldn't be public either (otherwise 
   //! the thread object can be destroyed while the underlying thread is still running).
   virtual ~Thread ();
 
-  //! Default implementation of the run method (detached thread).
-  //! Should be overridden in a derived class. Called by start()
+  //! \brief Default implementation of the run method (detached thread).
+  //!
+  //! Should be overridden in a derived class. Called by start().
   virtual void run (Thread::IOArg)
   {
     //- noop
     DEBUG_ASSERT(true);
   }
 
-  //! Default implementation of the run_undetached method (undetached thread).
-  //! Should be overridden in a derived class. Called by start_undetached()
+  //! \brief Default implementation of the run_undetached method (undetached thread).
+  //!
+  //! Should be overridden in a derived class. Called by start_undetached().
   virtual IOArg run_undetached (Thread::IOArg)
   {
     DEBUG_ASSERT(true);
     return 0;
   }
 
-  //! The following mutex is used to protect any members which can change
-  //! after construction (such as m_state, m_priority, ...)
+  //! \brief The following mutex is used to protect any members which can change
+  //! after construction (such as m_state, m_priority, ...).
   yat::Mutex m_lock;
 
-   //! Returns the current state of the thread.
-  //! \remarks Does not lock the associated Mutex (\c m_lock)
+  //! \brief Returns the current state of the thread.
+  //! \remarks Does not lock the associated Mutex (\c m_lock).
   Thread::State state_i () const;
 
 private:
-  //! The current TState of the thread.
+  //- The current TState of the thread.
   State m_state;
 
-  //! The current TPriority of the thread.
+  //- The current TPriority of the thread.
   Priority m_priority;
 
-  //! The thread input argument
+  //- The thread input argument
   Thread::IOArg  m_iarg;
 
-  //! The thread returned value
+  //- The thread returned value
   Thread::IOArg  m_oarg;
 
-  //! Detached/undetached flag
+  //- Detached/undetached flag
   bool m_detached;
 
-  //! The thread identifier
+  //- The thread identifier
   ThreadUID m_uid;
 
-  //! Not implemented private members
+  //- Not implemented private members
   Thread (const Thread&);
   Thread & operator= (const Thread&);
 
