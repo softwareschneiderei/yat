@@ -71,19 +71,17 @@ typedef enum
 //! Provides a "do nothing" Mutex implementation. May be used as template argument
 //! in order to control the template instanciation and avoiding locking
 //! overhead where thread safety is not required.\n
-//! \verbatim
-//!    template <typename LOCK> class OptionalThreadSafetyImpl
-//!    {
-//!    public:
-//!      inline void do_something ()
-//!      {
-//!         yat::AutoMutex<LOCK>(this->m_mutex);
-//!         ...
-//!      }
-//!    private:
-//!      LOCK m_mutex;
-//!    };
-//! \endverbatim
+//!    template <typename LOCK> class OptionalThreadSafetyImpl\n
+//!    {\n
+//!    public:\n
+//!      inline void do_something ()\n
+//!      {\n
+//!         yat::AutoMutex<LOCK>(this->m_mutex);\n
+//!         ...\n
+//!      }\n
+//!    private:\n
+//!      LOCK m_mutex;\n
+//!    };\n
 //!
 //! OptionalThreadSafetyImpl<yat::Mutex> will be thread safe while...
 //! OptionalThreadSafetyImpl<yat::NullMutex> will not be!
@@ -225,20 +223,18 @@ private:
 //! This class is a template since it may be used in contexts in which the
 //! thread safety is optionnal (see yat::NullMutex for an example).
 //!
-//! AutoMutex provides an efficient and safe alternative to:
-//! \verbatim
-//!    { //- enter critical section
-//!      my_mutex.lock();
-//!      ...your critical section code goes here (may throw an exception)...
-//!      my_mutex.unlock();
-//!    } //- leave critical section \endverbatim
+//! AutoMutex provides an efficient and safe alternative to:\n
+//!    { //- enter critical section\n
+//!      my_mutex.lock();\n
+//!      ...your critical section code goes here (may throw an exception)...\n
+//!      my_mutex.unlock();\n
+//!    } //- leave critical section \n
 //!
-//! In such a context, you can use a instance AutoMutex as follows:
-//! \verbatim
-//!    { //- enter critical section
-//!      yat::AutoMutex<> guard(my_mutex);
-//!      ...your critical section code goes here (may throw an exception)...
-//!    } //- leave critical section \endverbatim
+//! In such a context, you can use a instance AutoMutex as follows:\n
+//!    { //- enter critical section\n
+//!      yat::AutoMutex<> guard(my_mutex);\n
+//!      ...your critical section code goes here (may throw an exception)...\n
+//!    } //- leave critical section \n
 //! \n
 //! This has the advantage that my_mutex.unlock() will be called automatically
 //! even if an exception is thrown. Since the AutoMutex is created on the stack,
@@ -254,11 +250,9 @@ template <typename LOCK_TYPE = yat::Mutex> class AutoMutex
 public:
   //! \brief Constructor (locks the associated Mutex).
   //!
-  //! Example : 
-  //! \verbatim
-  //!   myMutexType myMutex;
-  //!   AutoMutex<myMutexType> guard(myMutex); 
-  //! \endverbatim
+  //! Example : \n
+  //!   myMutexType myMutex;\n
+  //!   AutoMutex<myMutexType> guard(myMutex); \n
   AutoMutex (LOCK_TYPE & _lock)
     : m_lock (_lock)
   {

@@ -31,7 +31,7 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \author J.Malik (stolen from the BOOST lib :-) - Synchrotron SOLEIL
+ * \author See AUTHORS file
  */
 
 #ifndef _YAT_ANY_H_

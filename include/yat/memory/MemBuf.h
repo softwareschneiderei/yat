@@ -49,12 +49,11 @@ namespace yat
 //! - pulInitValue set to NULL value : CRC is calculated for the input buffer,
 //! - pulInitValue NOT set to NULL : CRC is calculated for a set of buffers. 
 //! For example, with p1 & p2 two buffer pointers :
-//! \verbatim
-//!    uint32 ulCrc = 0xFFFFFFFFL;
-//!    ulCrc = crc( p1, uiP1Len, &ulCrc );
-//!    ulCrc = crc( p2, uiP2Len, &ulCrc );
-//!    ulCrc = ulCrc ^ 0xFFFFFFFFL; 
-//! \endverbatim
+//! \n
+//!    uint32 ulCrc = 0xFFFFFFFFL;\n
+//!    ulCrc = crc( p1, uiP1Len, &ulCrc );\n
+//!    ulCrc = crc( p2, uiP2Len, &ulCrc );\n
+//!    ulCrc = ulCrc ^ 0xFFFFFFFFL; \n
 //! \param pBuf Input buffer pointer.
 //! \param uiLen Size of inputr buffer, in bytes.
 //! \param pulInitValue Initial crc value.

@@ -89,14 +89,13 @@
 //! (override the message manager function handle_message() which is called when a message is received in the message queue).
 //! - Define specific commands to activate the task (it is recommended not to expose messages but only a command like interface,
 //! and define a private function to self-post a message).
-//! - Usage :
-//! \verbatim
-//!   myTask = new userTask(); // Creates my task object
-//!   myTask->go(); // Starts my task with a synchronous management
-//!   ...
-//!   myTask->myCommand(); // Stimulates my task (i.e. sends a specific message)
-//!   ...
-//!   myTask->exit(); // Stops my task \endverbatim
+//! - Usage :\n
+//!   myTask = new userTask(); // Creates my task object\n
+//!   myTask->go(); // Starts my task with a synchronous management\n
+//!   ...\n
+//!   myTask->myCommand(); // Stimulates my task (i.e. sends a specific message)\n
+//!   ...\n
+//!   myTask->exit(); // Stops my task\n
 //!
 //! \subsection ssec23 Messages
 //! A yat message is a yat::SharedObject defined by a type, a priority, a waitable attribute and some associated data.
