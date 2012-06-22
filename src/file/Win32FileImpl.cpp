@@ -59,7 +59,7 @@ namespace yat
 mode_t FileName::access_from_string(const String &strAccess)
 {
   mode_t mode = 0;
-	return mode;
+  return mode;
 }
 
 //-------------------------------------------------------------------
@@ -482,8 +482,6 @@ void FileName::set_mod_time(const Time& tm) const throw( Exception )
   CloseHandle(hFile);
 }
 
-// 1Mo
-#define MAX_SIZE  1048576LL
 //-------------------------------------------------------------------
 // FileName::copy
 //-------------------------------------------------------------------
@@ -574,6 +572,14 @@ void FileName::chown(uid_t uid, gid_t gid) throw( Exception )
 void FileName::ThrowExceptionFromErrno(const char *pszDesc, const char *pszOrigin) const
 {
   throw Exception("FILE_ERROR", pszDesc, pszOrigin);     
+}
+
+//-------------------------------------------------------------------
+// FileName::set_copy_bloc_size
+//-------------------------------------------------------------------
+void FileName::set_copy_bloc_size(size_t)
+{
+  // Nothing to do on Windows
 }
 
 //===========================================================================
