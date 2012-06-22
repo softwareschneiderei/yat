@@ -227,6 +227,11 @@ class YAT_DECL FileName
 {
 protected:
   String m_strFile;  /// File name
+
+#ifdef YAT_LINUX
+  static size_t s_copy_bloc_size;
+#endif
+
 public:
   
   // File system types
@@ -289,7 +294,7 @@ public:
   /// Convert separator according to the current operating system
   static void convert_separators(String *pstr);
 
-  /// Get access mode from a string in the form "rwxrwxrwx"
+  /// Get access mode from a string in the form "770"
   ///
   /// @param strAccess Input string
   static mode_t access_from_string(const String &strAccess);
@@ -393,13 +398,16 @@ public:
   void recursive_chown(uid_t uid, gid_t gid = (uid_t)-1) 
     throw(Exception);
 
-  // Returns filesystem type
+  /// Returns filesystem type
   FSType file_system_type() const 
     throw(Exception);
 
-  // Returns filesystem type
+  /// Returns filesystem type
   fsid_t file_system_id() const 
     throw(Exception);
+
+  /// Set the bloc size (in bytes) for file copy operations
+  static void set_copy_bloc_size(size_t size);
 };
 
 ///===========================================================================
