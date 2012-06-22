@@ -51,6 +51,7 @@ namespace yat
 ///===========================================================================
 /// FileName
 ///===========================================================================
+size_t FileName::s_copy_bloc_size = 1048576;
 
 //----------------------------------------------------------------------------
 // FileName::access_from_string
@@ -59,7 +60,7 @@ mode_t FileName::access_from_string(const String &strAccess)
 {
   mode_t mode = 0;
   sscanf(PSZ(strAccess), "%o", &mode);
-	return mode;
+  return mode;
 }
 
 //-------------------------------------------------------------------
@@ -85,9 +86,15 @@ bool FileName::path_exist() const
     String strPath = pszPath;
     strPath = strPath.substr(0, strPath.size()-1);
     iRc = stat(PSZ(strPath), &st);
+    if( iRc && errno != ENOENT )
+      ThrowExceptionFromErrno(PSZ(String::str_format(ERR_STAT_FAILED, PSZ(strPath))), "FileName::path_exist");
   }
   else
+  {
     iRc = stat(pszPath, &st);
+    if( iRc && errno != ENOENT )
+      ThrowExceptionFromErrno(PSZ(String::str_format(ERR_STAT_FAILED, pszPath)), "FileName::path_exist");
+  }
   return !iRc && (st.st_mode & S_IFDIR);
 }
 
@@ -307,12 +314,15 @@ bool FileName::link_exist() const throw( Exception )
   int iRc = lstat(PSZ(strFullName), &st);
   if( !iRc && S_ISLNK(st.st_mode) )
     return true;
+
+/* Probably stupid... no file => no link!
   else if( iRc )
   {
     String strErr = String::str_format(ERR_TEST_LINK, PSZ(full_name()));
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::link_exist");
   }
-  
+*/
+
   return false;
 }
 
@@ -412,8 +422,6 @@ void FileName::set_mod_time(const Time& tm) const throw( Exception )
 	}
 }
 
-// 1Mo bloc size
-#define MAX_SIZE  1048576LL
 //-------------------------------------------------------------------
 // FileName::copy
 //-------------------------------------------------------------------
@@ -450,59 +458,68 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
   }
 
   // Open source file
-  FILE *fiSrc = fopen(PSZ(full_name()), "r");
-  if( NULL == fiSrc )
+  int fsrc = open(PSZ(full_name()), O_RDONLY);
+  if( fsrc < 0 )
   {
     String strErr = String::str_format(ERR_OPEN_FILE, PSZ(full_name()));
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
   }
 
   // Buffer
-  char aBuf[MAX_SIZE];
+  char aBuf[s_copy_bloc_size];
 
   // Get last modified time
   Time tmLastMod;
   mod_time(&tmLastMod);
 
   // Opens destination file
-  FILE *fiDst = fopen(PSZ(fDst.full_name()), "w");
-  if( NULL == fiDst )
+  int fdst = creat(PSZ(fDst.full_name()), st.st_mode);
+  if( fdst < 0 )
   {
     String strErr = String::str_format(ERR_OPEN_FILE, PSZ(fDst.full_name()));
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
   }
 
-  // Copy by blocs
-  int64 llSize = size64();
-  long lReaded=0, lWritten=0;
-  while( llSize )
+  try
   {
-    long lToRead = 0;
-
-    if( llSize > MAX_SIZE )
-      lToRead = MAX_SIZE;
-    else
-      lToRead = (long)llSize;
-
-    lReaded = fread(aBuf, 1, lToRead, fiSrc);
-    if( ferror(fiSrc) )
+    // Copy by blocs
+    int64 llSize = size64();
+    ssize_t lReaded=0, lWritten=0;
+    while( llSize )
     {
-      String strErr = String::str_format(ERR_READING_FILE, PSZ(full_name()));
-      ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
-    }
+      size_t lToRead = 0;
 
-    lWritten = fwrite(aBuf, 1, lToRead, fiDst);
-    if( ferror(fiDst) || lWritten != lReaded )
-    {
-      String strErr = String::str_format(ERR_WRITING_FILE, PSZ(fDst.full_name()));
-      ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
-    }
+      if( llSize > s_copy_bloc_size )
+        lToRead = s_copy_bloc_size;
+      else
+        lToRead = (size_t)llSize;
 
-    llSize -= lReaded;
+      lReaded = read(fsrc, aBuf, lToRead);
+      if( lReaded < 0 )
+      {
+        String strErr = String::str_format(ERR_READING_FILE, PSZ(full_name()));
+        ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
+      }
+
+      lWritten = write(fdst, aBuf, lToRead);
+      if( lWritten < 0 )
+      {
+        String strErr = String::str_format(ERR_WRITING_FILE, PSZ(fDst.full_name()));
+        ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
+      }
+
+      llSize -= lWritten;
+    }
   }
-
-  fclose(fiSrc);
-  fclose(fiDst);
+  catch( yat::Exception &ex )
+  {
+    close(fsrc);
+    close(fdst);
+    throw ex;
+  }
+  
+  close(fsrc);
+  close(fdst);
 
   // Copy last modifitation date
   fDst.set_mod_time(tmLastMod);
@@ -510,16 +527,17 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
   // if root copy file metadata: access mode, owner & group
   if( bKeepMetaData && 0 == geteuid() )
   {
-  	try
-  	{
-        fDst.chown(st.st_uid, st.st_gid);
-        fDst.chmod(st.st_mode);
-  	}
+    try
+    {
+      fDst.chown(st.st_uid, st.st_gid);
+    }
+
     catch( ... )
     {
       // Don't care, we did our best effort...
     }
   }
+
 }
 
 //-------------------------------------------------------------------
@@ -655,6 +673,15 @@ void FileName::ThrowExceptionFromErrno(const char *pszDesc, const char *pszOrigi
       throw Exception("FILE_ERROR", PSZ(strDesc), pszOrigin);
   }
 }
+
+//-------------------------------------------------------------------
+// FileName::set_copy_bloc_size
+//-------------------------------------------------------------------
+void FileName::set_copy_bloc_size(size_t size)
+{
+  s_copy_bloc_size = size;
+}
+
 
 //===========================================================================
 // Class FileEnum
