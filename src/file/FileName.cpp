@@ -2,9 +2,9 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2011  The Tango Community
+// Copyright (C) 2006-2012  The Tango Community
 //
-// Part of the code comes from the ACE Framework (i386 asm bytes swaping code)
+// Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread

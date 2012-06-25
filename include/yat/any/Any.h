@@ -2,9 +2,9 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2011  N.Leclercq & The Tango Community 
+// Copyright (C) 2006-2012  N.Leclercq & The Tango Community 
 //
-// Part of the code comes from the ACE Framework (i386 asm bytes swaping code)
+// Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
@@ -31,7 +31,7 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \author See AUTHORS file
+ * \author See AUTHORS file (this implementation is highly inspired by boost)
  */
 
 #ifndef _YAT_ANY_H_
