@@ -45,58 +45,63 @@
 
 namespace yat { 
   
-// ----------------------------------------------------------------------------
-//! The YAT Address class
-// ----------------------------------------------------------------------------
+// ============================================================================
+//! \class Address 
+//! \brief The YAT network address class.
+//!
+//! This class provides an implementation of a basic IP network adress. 
+//! This address is defined by the following features:
+//! - IP address or host name,
+//! - Port number.
+// ============================================================================
 class YAT_DECL Address
 {
-  //! This is the yat network Address class.
 
 public:
-  //! Construct a peer address.
+  //! \brief Constructs a peer address.
   //!
   //! \param host The host name or IP address.
   //! \param port The associated port number.
-  //!
-  //! \remarks May throw an exception
+  //! \exception INVALID_HOST Thrown if could not resolve IP address for host.
   Address (const std::string& host, size_t port);
 
-  //! Construct a peer address by copy.
+  //! \brief Constructs a peer address by copy.
   //!
   //! \param addr The address to be cloned.
-  //!
-  //! \remarks May throw an exception
   Address (const Address& addr);
 
-  //! Copy a peer address.
+  //! \brief Copies a peer address.
   //!
   //! \param addr The address to be copied.
   Address & operator= (const Address& addr);
 
-  //! Destructor. 
+  //! \brief Destructor. 
   virtual ~Address();
   
-  //! Return host name.
+  //! \brief Returns host name.
   const std::string& get_host_name () const;
 
-  //! Return IP address.
+  //! \brief Returns IP address.
   const std::string& get_ip_address () const;
 
-  //! Return port number.
+  //! \brief Returns port number.
   size_t get_port_number () const;
       
 protected:
-  //! Resolve host name <-> ip_address.
+  //! \brief Resolves host name <-> ip_address.
   //!
-  //! \remarks May throw an Exception
+  //! \param host The host name to resolve.
+  //! \exception INVALID_HOST Thrown if could not resolve IP address for host.
   void ns_lookup (const std::string& host)
     throw (Exception);
 
-  //! port number.
+  //! \brief Port number.
   size_t m_port;
-  //! IP address.
+
+  //! \brief IP address.
   std::string m_ip_addr;
-  //! host name.
+
+  //! \brief Host name.
   std::string m_host_name;
 };
 

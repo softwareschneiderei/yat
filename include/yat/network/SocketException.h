@@ -45,105 +45,119 @@
 namespace yat 
 {
 
-// ============================================================================
-//! Socket error code
-// ============================================================================
-//!  
-//! detailed description to be written
-//!
-// ============================================================================
+//! \brief Socket specific error codes.
 enum SocketError 
 {
-  //- No error
+  //! No error.
   SoErr_NoError, 
-  //- The receive buffer pointer(s) point outside the processes address space
+  //! The receive buffer pointer points outside the process address space.
   SoErr_BadMemAddress,
-  //- Address is already in use (bind & connect).
+  //! %Address is already in use (bind & connect).
   SoErr_AddressInUse, 
-  //- Address not available on machine (bind & connect).
+  //! %Address not available on machine (bind & connect).
   SoErr_AddressNotAvailable, 
-  //- Invalid socket descriptor (socket).
+  //! Invalid socket descriptor (socket).
   SoErr_BadDescriptor, 
-  //- Message signature is invalid.
+  //! %Message signature is invalid.
   SoErr_BadMessage,
-  //- Connection was closed (or broken) by other party.
+  //! Connection was closed (or broken) by other party.
   SoErr_ConnectionClosed, 
-  //- Connection refused by server.
+  //! Connection refused by server.
   SoErr_ConnectionRefused, 
-  //- Datagram too long to send atomically.
+  //! Datagram too long to send atomically.
   SoErr_DatagramTooLong, 
-  //- Invalid option for socket protocol.
+  //! Invalid option for socket protocol.
   SoErr_InvalidOption, 
-  //- %Socket is already connected.
+  //! %Socket is already connected.
   SoErr_IsConnected, 
-  //- %Socket is not connected.
+  //! %Socket is not connected.
   SoErr_NotConnected,
-  //- Operation is not supported for this socket.
+  //! Operation is not supported for this socket.
   SoErr_OpNotSupported, 
-  //- User does not have acces to privileged ports (bind).
+  //! User does not have access to privileged ports (bind).
   SoErr_PrivilegedPort, 
-  //- Time out was reached for operation (receive & send).
+  //! %Time out was reached for operation (receive & send).
   SoErr_TimeOut, 
-  //- Current operation is blocking (non-blocking socket)
+  //! Current operation is blocking (non-blocking socket).
   SoErr_WouldBlock,
-  //- Op. in progress 
+  //! Operation in progress.
   SoErr_InProgress,
-  //- Op. interrupted by OS event (signal) 
+  //! Operation interrupted by OS event (signal).
   SoErr_OSInterrupt,
-  //- Memory allocation failed.
+  //! Memory allocation failed.
   SoErr_OutOfMemory, 
-  //- Any other OS specific error.
+  //! %Any other OS specific error.
   SoErr_Other
 };
 
 // ============================================================================
-//! The SocketException class
-// ============================================================================
-//!  
-//! detailed description to be written
+//! \class SocketException 
+//! \brief The specific socket exception class.
 //!
+//! This class provides an implementation of specific socket exception.
+//! It offers pre-formated socket error messages and error code conversion (native/YAT).\n
+//! Inherits from Exception class.
 // ============================================================================
+
 class YAT_DECL SocketException : public Exception
 {
 public:
-  //! Ctor
+  //! \brief Constructor from an application error.
+  //! \param reason %Error reason.
+  //! \param desc %Error description.
+  //! \param origin %Error origin.
+  //! \param err_code %Native error code.
+  //! \param severity %Error severity.
   SocketException ( const char *reason,
                     const char *desc,
                     const char *origin,
                     int err_code = -1,
                     int severity = yat::ERR);
-  //! Ctor
+
+  //! \brief Constructor from an application error.
+  //! \param reason %Error reason.
+  //! \param desc %Error description.
+  //! \param origin %Error origin.
+  //! \param err_code %Native error code.
+  //! \param severity %Error severity.
   SocketException ( const std::string& reason,
                     const std::string& desc,
                     const std::string& origin, 
                     int err_code = -1, 
                     int severity = yat::ERR);
-  //! Dtor
+  
+  //! \brief Destructor.
   virtual ~SocketException ();
   
-  //! Returns the YAT error code
+  //! \brief Returns the YAT error code.
   int code () const;
   
-  //! Returns true if <_code> equals the exception error code, returns false otherwise.
+  //! \brief Tests if specified code equals the exception error code.
+  //!
+  //! Returns true if \<_code\> is equal to the YAT error code, false otherwise.
+  //! \param _code Code to test.
   bool is_a (int _code) const;
 
-  //! Returns the error text.
+  //! \brief Returns the error text.
   std::string text () const;
   
-  //! Dump.
+  //! \brief Dumps the error towards logging output.
   virtual void dump () const;
     
-  //! Given a yat SocketError code, return its associated text 
+  //! \brief Given a YAT yat::SocketError code, returns its associated text.
+  //! \param _yat_err_code The error code.
   static std::string get_error_text (int _yat_err_code);
 
-  //! Convert from native to YAT SocketError code
+  //! \brief Converts from native to YAT yat::SocketError code.
+  //! \param _os_err_code The native error code.
   static SocketError native_to_yat_error (int _os_err_code);
   
-  //! Convert from YAT to native SocketError code
+  //! \brief Converts from YAT to native yat::SocketError code.
+  //! \param _yat_err_code The YAT error code.
   static int yat_to_native_error (SocketError _yat_err_code);
   
 private:
-  //! The native (i.e. platform specific error code)
+  //- The native (i.e. platform specific error code).
   int m_yat_err_code;
 };
 

@@ -44,70 +44,86 @@
 
 namespace yat { 
   
-// ----------------------------------------------------------------------------
-//! The YAT ClientSocket class
-// ----------------------------------------------------------------------------
+// ============================================================================
+//! \class ClientSocket 
+//! \brief The YAT client socket class.
+//!
+//! This class provides an implementation of a TCP/IP and UDP/IP client socket.
+//! It offers basic client socket functions (open/close, read/write, bind, ...).\n
+//! It inherits from Socket class.
+// ============================================================================
 class YAT_DECL ClientSocket : public Socket
 {
-  //! This is the yat network socket class.
-  //!
-  //! Base class for both TCPClientSocket and UDPClientSocket.
 
 public:
-  //! ClientSocket connection status
+  //! \brief ClientSocket connection status.
   typedef enum {
+    //! Connected.
     CONNECTED_YES,
+	//! Not connected.
     CONNECTED_NO
   } ConnectionStatus;
 
-  //! Construct new CleintSocket
+  //! \brief Constructs new ClientSocket.
   //! 
-  //! \param p The associated protocol. Defaults to \c yat::TCP_PROTOCOL
-  //!
-  //! \remarks May throw an Exception.
+  //! \param p The associated protocol. Defaults to \c yat::TCP_PROTOCOL.
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - invalid protocol specified or
+  //! - socket descriptor instanciation fails.
   ClientSocket (Protocol p = TCP_PROTOCOL);
       
-  //! Release any allocated resource.
+  //! \brief Releases any allocated resource.
   virtual ~ClientSocket ();
 
-  //! Bind socket to specified port
+  //! \brief Binds socket to specified port.
   //! 
-  //! \param p The port
+  //! \param _p The port on which the socket is to be binded
+  //! \exception SOCKET_ERROR Thrown when call for host fails.
+  //! \remarks May fail if port \<p\> is already reserved by another process or thread. 
+  //! It may also fail after the connection is released (see option SOCK_OPT_REUSE_ADDRESS).
   void bind (size_t _p = 0)
     throw (SocketException);
     
-  //! Connect to peer socket.
+  //! \brief Connects to peer socket.
   //!
-  //! \param a The peer address
+  //! \param a The peer address.
+  //! \exception SOCKET_ERROR Thrown when call for host fails.
   void connect (const Address & a)
     throw (SocketException);
 
-  //! Disonnect from peer socket.
+  //! \brief Disonnects from peer socket.
+  //!
+  //! \exception SOCKET_ERROR Thrown when socket descriptor closing fails.
   void disconnect ()
     throw (SocketException);
     
-  //! Could we read without blocking?
+  //! \brief Could we read without blocking?
   //!
-  //! \return True if there is some input data pending, false otherwise.
+  //! Returns true if there is some input data pending, false otherwise.
+  //! \exception SOCKET_ERROR Thrown when select fails.
   bool can_read_without_blocking ()
     throw (SocketException);
 
-  //! Wait till some data is available for reading or \c _tmo_msecs expires
+  //! \brief Waits till some data is available for reading or timeout expires.
   //!
-  //! \param _tmo_msecs The timeout in milliseconds (0 means no timeout - return immediatly)
-  //! \param _throw_exception Throw an exception in case \c _tmo_msecs expires
+  //! \param _tmo_msecs The timeout in milliseconds (0 means no timeout - return immediatly).
+  //! \param _throw_exception Throws an exception in case timeout expires.
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - select fails or 
+  //! - timeout expires (if \<_throw_exception\> set to true).
   bool wait_input_data (size_t _tmo_msecs, bool _throw_exception = true)
     throw (SocketException);
 
-  //! Is this client socket currently connected? 
-  //! \return the connection status: ClientSocket::CONNECTED_YES or ClientSocket::CONNECTED_NO
+  //! \brief Is this client socket currently connected?
+  //!
+  //! Returns the connection status: ClientSocket::CONNECTED_YES or ClientSocket::CONNECTED_NO.
   inline ConnectionStatus connection_status () const 
   {
     return this->m_connection_status;
   }
 
 private:
-  //! Connection status
+  //- Connection status.
   ConnectionStatus m_connection_status;
 };  
   

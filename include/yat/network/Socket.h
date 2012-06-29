@@ -47,31 +47,34 @@
 // ============================================================================
 // CONSTs
 // ============================================================================
+//! DEFAULT NUMBER OF READ BYTES
 #define DEFAULT_RD_BYTES 512
 
 namespace yat { 
   
-// ----------------------------------------------------------------------------
-//! The YAT Socket class
-// ----------------------------------------------------------------------------
+// ============================================================================
+//! \class Socket 
+//! \brief The YAT network socket class.
+//!
+//! This class provides an implementation of a TCP/IP and UDP/IP network socket.
+//! It offers basic socket functions (open/close, read/write, bind, listen, ...).\n
+//! It is the base class for both TCP client socket and UDP client socket.
+// ============================================================================
 class YAT_DECL Socket
 {
-  //! This is the yat network socket class.
-  //!
-  //! Base class for both TCPClientSocket and UDPClientSocket.
 
 public:
-  //! OS socket descriptor.
+  //! \brief OS socket descriptor.
 #if defined(YAT_WIN32)
   typedef unsigned int OSDescriptor;
 #else
   typedef int OSDescriptor;
 #endif
 
-  //! Create a dedicated type for Socket I/O data.
+  //! \brief Create a dedicated type for socket I/O data.
   typedef Buffer<char> Data;
 
-  //! Supported socket protocols.
+  //! \brief Supported socket protocols.
   enum Protocol 
   {
     //! Transfer Control Protocol.
@@ -80,248 +83,317 @@ public:
     UDP_PROTOCOL
   };
     
-  //! Socket options.
+  //!  \brief %Socket options.
   enum Option 
   {
-    //- keep connection alive
+    //! Keep connection alive.
     SOCK_OPT_KEEP_ALIVE,
-    //- time to linger on close (in seconds)
+    //! Time to linger on close (in seconds).
     SOCK_OPT_LINGER, 
-    //- disable the Nagle algorithm for packet coalescing
+    //! Disable the Nagle algorithm for packet coalescing.
     SOCK_OPT_NO_DELAY,
-    //- socket protocol type
+    //! %Socket protocol type.
     SOCK_OPT_PROTOCOL_TYPE,
-    //- allow reuse of a TCP address without delay
+    //! Allow reuse of a TCP address without delay.
     SOCK_OPT_REUSE_ADDRESS,
-    //- size of receive buffer (in bytes)
+    //! Size of receive buffer (in bytes).
     SOCK_OPT_IBUFFER_SIZE,
-    //- time out period for receive operations (in seconds)
+    //! Time out period for receive operations (in seconds).
     SOCK_OPT_ITIMEOUT,
-    //- size of send buffer (in bytes)
+    //! Size of send buffer (in bytes).
     SOCK_OPT_OBUFFER_SIZE,
-    //- time out period for send operations (in seconds)
+    //! Time out period for send operations (in seconds).
     SOCK_OPT_OTIMEOUT
   };
     
-  //! YAT Socket internal intialization cooking.
+  //! \brief YAT socket internal intialization cooking.
+  //!
   //! Must be called prior to any other yat::Socket or yat::Address call.
-  //! Call this from your main function or dll entry point.  
+  //! Call this from your main function or dll entry point. 
+  //! \exception YAT_INTERNAL_ERROR Thrown if socket library initialization fails 
+  //! (WINDOWS plateform only).
   static void init ()
     throw (SocketException);
 
-  //! YAT Socket internal termination cooking.
-  //! Must be called prior to any other yat::Socket or yat::Address call.
+  //! \brief YAT socket internal termination cooking.
+  //!
+  //! Must be called afetr any other yat::Socket or yat::Address call.
   //! Call this at the end of your main function or dll exit point.  
   static void terminate ()
     throw (SocketException);
 
-  //! Returns socket error status
-  //! See SocketException::SocketError enum for returned values
+  //! \brief Returns socket error status.
+  //!
+  //! See yat::SocketException::SocketError enum for returned values.
+  //! \exception SOCKET_ERROR Thrown if access to socket options fails.
   int status () const
     throw (SocketException);
   
-  //! Return the socket protocols.
+  //! \brief Returns the socket protocol.
   Protocol get_protocol () const
     throw (SocketException);
       
-  //! Return address the associated addr.
+  //! \brief Returns the connected peer address.
+  //!
+  //! \exception SOCKET_ERROR Thrown if unable to retrieve peer address. 
   Address get_address () const
     throw (SocketException);
       
-  //! Return current value of the specified socket option.
+  //! \brief Returns current value of the specified socket option.
   //!
-  //! \param op The option name
+  //! \param op The option name.
+  //! \exception SOCKET_ERROR Thrown if invalid socket option specified.
   int get_option (Socket::Option op) const
     throw (SocketException);
 
-  //! Switch socket I/O to blocking mode.
+  //! \brief Switches socket I/O to blocking mode.
+  //!
+  //! \exception SOCKET_ERROR Thrown if acess to socket I/O control fails.
   void set_blocking_mode ()
     throw (SocketException);
 
-  //! Switch socket I/O to non-blocking mode.
+  //! \brief Switches socket I/O to non-blocking mode.
+  //!
+  //! \exception SOCKET_ERROR Thrown if acess to socket I/O control fails.
   void set_non_blocking_mode ()
     throw (SocketException);
 
-  //! Change the value of the specified socket option.
+  //! \brief Changes the value of the specified socket option.
   //!
-  //! \param op The option name
-  //! \param value New value for \c op
-  //! \remark 
-  //!  Most option associated to booleans. Some execeptions...
-  //!  SOCK_OPT_ITIMEOUT and SOCK_OPT_OTIMEOUT should be specified in millseconds.
+  //! \param op The option name.
+  //! \param value New value for the specified option.
+  //! \exception SOCKET_ERROR Thrown if invalid or unsupported socket option specified.
+  //! \remark Most options are associated to booleans. Some exceptions however...
+  //!  SOCK_OPT_ITIMEOUT and SOCK_OPT_OTIMEOUT should be specified in milliseconds.
   void set_option (Socket::Option op, int value = 0)
     throw (SocketException);
   
-  //! Receive (i.e. read) data from the socket.
+  //! \brief Receives (i.e. reads) data from the socket.
   //!
+  //! Returns the actual number of bytes received.
   //! \param ib The buffer in which the data will be placed.
-  //! \param nb The number of bytes to read. 
-  //! \return the actual number of bytes received.
+  //! \param nb The number of bytes to read.
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - connection has been reset/closed by peer or
+  //! - operation may block the caller (for non blocking socket) or
+  //! - reception fails.
   size_t receive (char * ib, size_t nb)
     throw (SocketException);
 
-  //! Receive (i.e. read) data from the socket.
+  //! \brief Receives (i.e. reads) data from the socket.
   //!
+  //! Returns the actual number of bytes received.
   //! \param ib The buffer in which the data will be placed.
-  //! \return the actual number of bytes received.
-  //! \remarks 
-  //!  Reads up to ib.capacity() bytes on the socket. Upon return
-  //!  ib.length() will give the actual number of bytes read.
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - destination buffer has a null capacity or
+  //! - connection has been reset/closed by peer or
+  //! - operation may block the caller (for non blocking socket) or
+  //! - reception fails.
+  //! \remarks Reads up to \c ib.capacity() bytes on the socket. Upon return,
+  //!  \c ib.length() will give the actual number of bytes read.
   size_t receive (Socket::Data & ib)
     throw (SocketException);
       
-  //! Receive (i.e. read) data from the socket.
+  //! \brief Receives (i.e. reads) data from the socket.
   //!
+  //! Returns the actual number of bytes received.
   //! \param is The string in which the data will be placed.
-  //! \return the actual number of bytes received.
-  //! \remarks Read up to \c Socket::MAX_RD_BYTES bytes.
-  //! Upon return the string size will equal the actual number of bytes read. 
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - buffer reallocation fails or
+  //! - string assignment fails or
+  //! - connection has been reset/closed by peer or
+  //! - operation may block the caller (for non blocking socket) or
+  //! - reception fails.
+  //! \remarks Read up to \c yat::Socket::MAX_RD_BYTES bytes.
+  //! Upon return, the string size will equal the actual number of bytes read. 
   size_t receive (std::string & is)
     throw (SocketException);
 
-  //! Receive (i.e. read) data from the socket.
+  //! \brief Receives (i.e. reads) data from the socket.
   //!
   //! \param ib The buffer in which the data will be placed.
-  //!
-  //! \remarks Read \c ib.length() bytes from the socket. 
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - destination buffer has a null capacity or
+  //! - connection has been reset/closed by peer or
+  //! - operation may block the caller (for non blocking socket) or
+  //! - reception fails.
+  //! \remarks Reads \c ib.length() bytes from the socket.
   size_t operator>> (Socket::Data & ib)
     throw (SocketException);
 
-  //! Receive (i.e. read) data from the socket.
+  //! \brief Receives (i.e. reads) data from the socket.
   //!
   //! \param is The string in which the data will be placed.
-  //!
-  //! \remarks Read up to \c Socket::MAX_RD_BYTES bytes.
-  //! Upon return the string size will equal the actual number of bytes read. 
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - buffer reallocation fails or
+  //! - string assignment fails or
+  //! - connection has been reset/closed by peer or
+  //! - operation may block the caller (for non blocking socket) or
+  //! - reception fails.
+  //! \remarks Reads up to \c yat::Socket::MAX_RD_BYTES bytes.
+  //! Upon return, the string size will equal the actual number of bytes read. 
   size_t operator>> (std::string& is)
     throw (SocketException);
 
-  //! Send (i.e. write) data to the socket.
+  //! \brief Sends (i.e. writes) data to the socket.
   //!
   //! \param ob The buffer containing the data to be sent.
   //! \param nb The number of bytes to write.
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - operation may block the caller (for non blocking socket) or
+  //! - connection has been reset/closed by peer or
+  //! - emission fails.
   void send (const char * ob, size_t nb)
     throw (SocketException);
 
-  //! Send (i.e. write) data to the socket.
+  //! \brief Sends (i.e. writes) data to the socket.
   //!
   //! \param ob The buffer containing the data to be sent.
-  //!
-  //! \remarks 
-  //! Write ob.length() bytes onto the socket.
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - operation may block the caller (for non blocking socket) or
+  //! - connection has been reset/closed by peer or
+  //! - emission fails.
+  //! \remarks Writes \c ob.length() bytes onto the socket.
   void send (const Socket::Data & ob)
     throw (SocketException);
       
-  //! Send (i.e. write) data to the socket.
+  //! \brief Sends (i.e. writes) data to the socket.
   //!
-  //! \param is The string containing the data to be sent.
+  //! \param os The string containing the data to be sent.
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - operation may block the caller (for non blocking socket) or
+  //! - connection has been reset/closed by peer or
+  //! - emission fails.
   void send (const std::string & os)
     throw (SocketException);
 
-  //! Send (i.e. write) data to the socket.
+  //! \brief Sends (i.e. writes) data to the socket.
   //!
   //! \param ob The buffer containing the data to be sent.
-  //! \remarks Send \c ob.length() bytes on the socket.
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - operation may block the caller (for non blocking socket) or
+  //! - connection has been reset/closed by peer or
+  //! - emission fails.
+  //! \remarks Sends \c ob.length() bytes on the socket.
   void operator<< (const Socket::Data & ob)
     throw (SocketException);
 
-  //! Send (i.e. write) data to the socket.
+  //! \brief Sends (i.e. writes) data to the socket.
   //!
   //! \param os The string containing the data to be sent.
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - operation may block the caller (for non blocking socket) or
+  //! - connection has been reset/closed by peer or
+  //! - emission fails.
   //! \remarks Send \c os.size() bytes on the socket.
   void operator<< (const std::string& os)
     throw (SocketException);
   
-  //! Set default read buffer size (in bytes)
+  //! \brief Sets default read buffer size (in bytes).
   //!
+  //! \param dbs Default buffer size (in bytes).
   static void default_rd_buffer_size (size_t dbs);
 
 protected:
-  //! Construct new socket
+  //! \brief Constructs new socket.
   //! 
-  //! \param p The associated protocol. Defaults to \c yat::TCP_PROTOCOL
-  //!
-  //! \remarks May throw an Exception.
+  //! \param p The associated protocol. Defaults to \c yat::TCP_PROTOCOL.
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - invalid protocol specified or
+  //! - socket descriptor instanciation fails.
   explicit Socket (Protocol p = TCP_PROTOCOL);
       
-  //! Release any allocated resource.
+  //! \brief Releases any allocated resource.
   virtual ~Socket ();
 
-  //! Instanciate the underlying OS socket descriptor.
-  //! Called from Socket::Socket (ctor).
+  //! \brief Instanciates the underlying OS socket descriptor.
+  //!
+  //! Called from Socket::Socket (constructor).
+  //! \exception SOCKET_ERROR Thrown when:
+  //! - invalid protocol specified or
+  //! - socket descriptor instanciation fails.
   void open ()
     throw (SocketException);
 
-  //! Close the underlying OS socket descriptor.
+  //! \brief Closes the underlying OS socket descriptor.
+  //!
+  //! \exception SOCKET_ERROR Thrown when socket descriptor closing fails.
   void close ()
     throw (SocketException);
 
-  //! Listen to incoming connection.
+  //! \brief Listens to incoming connection.
+  //! \param n Maximum number of connections.
+  //! \exception SOCKET_ERROR Thrown when socket listening fails.
   void listen_to_incoming_connections (size_t n = 1)
     throw (SocketException);
 
-  //! Accept connection on bound port.
+  //! \brief Accepts connection on bound port.
+  //!
+  //! \exception SOCKET_ERROR Thrown when connection acceptance fails.
   OSDescriptor accept_incoming_connections ()
     throw (SocketException);
       
-  //! Connect to peer socket.
+  //! \brief Connects to peer socket.
   //!
-  //! \param a The peer address 
+  //! \param a The peer address.
+  //! \exception SOCKET_ERROR Thrown when call for host fails.
   void connect (const Address & a)
     throw (SocketException);
 
-  //! Bind the socket to the specified port
+  //! \brief Binds the socket to the specified port.
   //!
-  //! \param p The port on which the socket is to be binded 
-  //! 
-  //! \remarks
-  //! May fail if port \c p is already reserved by another process or thread. 
+  //! \param p The port on which the socket is to be binded.
+  //! \exception SOCKET_ERROR Thrown when call for host fails.
+  //! \remarks May fail if port \<p\> is already reserved by another process or thread. 
   //! It may also fail after the connection is released (see option SOCK_OPT_REUSE_ADDRESS).
   void bind (size_t p)
     throw (SocketException);
       
-  //! Wait for activity on the socket (tmo in milliseconds)
+  //! \brief Waits for activity on the socket (timeout in milliseconds).
   //!
-  //! \param _tmo_msecs The timeout in milliseconds (0 means no timeout - return immediatly)
-  //! 
-  //! \return True if there is some activity on the socket before tmo expires
+  //! Returns true if there is some activity on the socket before timeout expires.
+  //! \param _tmo_msecs The timeout in milliseconds (0 means no timeout - returns immediatly).
+  //! \exception SOCKET_ERROR Thrown when select fails.
   bool select (size_t _tmo_msecs = 0)
     throw (SocketException);
     
-  //! Given a yat socket option, returns the associated native socket option.
+  //! \brief Given a YAT socket option, returns the associated native socket option.
   //!
-  //! \param o yat socket option
+  //! \param o YAT socket option.
+  //! \exception SOCKET_ERROR Thrown if invalid socket option specified.
   int yat_to_native_option (Option o) const
     throw (SocketException);
     
-  //! Given a yat socket option, returns its associated level.
+  //! \brief Given a YAT socket option, returns its associated level.
   //!
-  //! \param o yat socket option
+  //! Returns the level to use for the specified option in the socket \c getsockopt() function.
+  //! \param o YAT socket option.
   int option_level (Option o) const;
 
 private:
-  //! The associated protocol
+  //- The associated protocol.
   Protocol m_protocol;
 
-  //! The underlying OS socket descriptor.
+  //- The underlying OS socket descriptor.
   OSDescriptor m_os_desc;
 
-  //! Return true is the current operation would block, returns 
-  //! false otherwise.
+  //- Returns true is the current operation would block, returns 
+  //- false otherwise.
   bool current_op_is_blocking ();
 
-  //! Data buffer used in some send/receive operations. 
+  //- Data buffer used in some send/receive operations. 
   Socket::Data m_buffer;
 
-  //! Init done flag
+  //- Init done flag.
   static bool init_done;
 
-  //! Default read buffer size
+  //- Default read buffer size.
   static size_t m_default_rd_buffer_size;
  
-  //! Not implemented private member
+  //- Not implemented private member.
   Socket (const Socket&);
-  //! Not implemented private member
+
+  //- Not implemented private member.
   Socket& operator= (const Socket&);
 };  
   
