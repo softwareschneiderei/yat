@@ -31,12 +31,39 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \author S.Poirier - Synchrotron SOLEIL
+ * \author See AUTHORS file
  */
 
 
 #ifndef __YAT_TIME_H__
 #define __YAT_TIME_H__
+
+// ============================================================================
+//! \page TimePage Time documentation
+//! \tableofcontents
+//! The time utilities provide basic date manipulation functions and an implementation 
+//! of the timer & timeout concepts.
+//!
+//! \section secT1 Time utilities
+//! The time utilities provide basic date manipulation functions such as:
+//!  - various date format ("time" fields, microsecond precision, Julian day, Unix time),
+//!  - conversion functions (Julian/Gregorian/Unix, UTC/local time),
+//!  - output format (ISO8601, international format), 
+//!  - accessors & mutators, 
+//!  - comparison functions,
+//!  - usual date & time constants.
+//!
+//! The time utilities also provide an implementation of the timer (chronometer) and 
+//! timeout (deadline) concepts.
+//!
+//! \section secT2 Time classes
+//! Links to time classes :
+//!   - yat::DateFields
+//!   - yat::Time
+//!   - yat::CurrentTime
+//!   - yat::Timer
+//!   - yat::Timeout
+// ============================================================================
 
 #include <yat/CommonHeader.h>
 #include <yat/utils/String.h>
@@ -44,7 +71,9 @@
 namespace yat
 {
 
-/// Make int64 from the long integers pair [highpart, lowpart]
+//! \brief Makes int64 from the long integers pair [higher part, lower part].
+//! \param lHigh High part.
+//! \param ulLow Low part.
 inline int64 int64FromHLPair(long lHigh, unsigned long ulLow) 
 { 
   int64 i64 = 1;
@@ -58,356 +87,456 @@ inline int64 int64FromHLPair(long lHigh, unsigned long ulLow)
 //============================================================================
 
 // Usual durations
+//! Number of seconds per minute.
 #define SEC_PER_MIN         60L
+//! Number of seconds per hour.
 #define SEC_PER_HOUR        3600L
+//! Number of seconds per day.
 #define SEC_PER_DAY         86400L
+//! Number of seconds per month (30 days).
 #define SEC_PER_MONTH       (SEC_PER_DAY*30)     // logical month (30 days)
+//! Number of seconds per year (12 months).
 #define SEC_PER_YEAR        (SEC_PER_DAY*30*12)  // logical year (12 logicals months)
 
 #ifndef MS_SEC
-  #define MS_SEC              1000L              // milliseconds per second
+//! Number of milliseconds per second.
+  #define MS_SEC              1000L              
 #endif
-#define MICROSEC_PER_SEC      1000000L           // microseconds per second
+//! Number of microseconds per second.
+#define MICROSEC_PER_SEC      1000000L           
 
+//! Number of microseconds per day - High part.
 #define MICROSEC_PER_DAY_H    20L
+//! Number of microseconds per day - Low part.
 #define MICROSEC_PER_DAY_L    500654080UL
+//! Number of microseconds per day.
 #define MICROSEC_PER_DAY      int64FromHLPair(MICROSEC_PER_DAY_H, MICROSEC_PER_DAY_L) // microseconds per day 
 
 #ifndef MS_OVERFLOW
-  // Nombre de ms indiquant un depassement de capacite d'un int64 lors du calcul
-  // de difference entre deux dates
+  //! \brief Number of milliseconds indicating an int64 capacity overflow.
+  //! Used in a date substraction.
   #define MS_OVERFLOW	(int64FromHLPair(0x80000000, 0x0) - int64(1))
 #endif
 
-// 1970/01/01 at 0h
+//! 1970/01/01 at 00:00.
 #define REF_UNIX        int64FromHLPair(0x2ed263d, 0x83a88000)
 
-// Flags pour les noms de jours, mois et unités
-// - on a 4 combinaisons pour les jours/mois et 6 pour les unités avec le pluriel
-// - ABBR, LONG, LONGPL, OTHERS sont exclusifs ; on peut ajouter inter
-#define TM_ABBR     0 // pas vraiment utile
-#define TM_INTER    1 // international
-#define TM_LONG     2 // long
-#define TM_LONGPL   4 // long pluriel (pour les durées)
-#define TM_OTHERS   6 // autres abbréviations autorisées en parsing (séparées par |)
-#define TM_DEFAULT 16 // unité par défaut (pour les durées)
 
-// identifiant des unités dans le tableau
+// Const for day, month and unit names.
+// - 4 possible combinations for days/months and 6 possible combinations for units
+// with plural possibilities.
+// - ABBR, LONG, LONGPL, OTHERS are exclusive terms; INTER can be added.
+//! Const for day, month and unit names: abbreviation.
+#define TM_ABBR     0 // pas vraiment utile
+//! Const for day, month and unit names: international.
+#define TM_INTER    1
+//! Const for day, month and unit names: long.
+#define TM_LONG     2
+//! Const for day, month and unit names: plural long (for durations).
+#define TM_LONGPL   4
+//! Const for day, month and unit names: other abbreviations (for parsing function, with a | separator).
+#define TM_OTHERS   6
+//! Const for day, month and unit names: default unit (for durations).
+#define TM_DEFAULT 16
+
+// Unit identifiers.
+//! Second identifier.
 #define TS_UNIT_SEC   0
+//! Minute identifier.
 #define TS_UNIT_MIN   1
+//! Hour identifier.
 #define TS_UNIT_HOUR  2
+//! Day identifier.
 #define TS_UNIT_DAY   3
+//! Month identifier.
 #define TS_UNIT_MONTH 4  // mois logique (=30 jours)
+//! year identifier.
 #define TS_UNIT_YEAR  5  // année logique (=12 mois logiques)
 
-// Month names
+//! Month names.
 static const pcsz s_pszMonth[] = 
 {
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
-//============================================================================
-/// DateFields
-/// Date splitted in fields
-//============================================================================
+// ============================================================================
+//! \struct DateFields 
+//! \brief %Date split in fields.
+//!
+//! This structure provides a date split in "time fields", i.e. year, day, month, 
+//! hour,... to microseconds precision.
+// ============================================================================
 struct YAT_DECL DateFields
 {
+  //! Year.
   int16  year;
+  //! Month.
   uint8  month;
+  //! Day.
   uint8  day;
+  //! Hour.
   uint8  hour;
+  //! Minute.
   uint8  min;
-  double sec;      // Seconds with microsec precision
+  //! Second (with microsecond precision).
+  double sec;
+  //! Day of year (1-366).
+  uint16 day_of_year; 
+  //! Day of week (1=Monday, 7=Sunday).
+  uint8  day_of_week;  
+  //! Week of year (1-53).
+  uint8  week_of_year;  
 
-  uint16 day_of_year;   // Day of year (1-366)
-  uint8  day_of_week;   // Day of week (1=lundi, 7=dimanche)
-  uint8  week_of_year;  // Week of year (1-53)
-
-  /// Clears all field
+  //! \brief Clears all fields.
   void clear();
 
-  /// Accessor
+  //! \brief Returns true if date is null, false otherwise.
   int is_empty() const;
 };
 
-//===========================================================================
-/// The class CDate represents a specific instant in time, with 
-/// microsecond precision
-//===========================================================================
+// ============================================================================
+//! \class Time 
+//! \brief The YAT time class.
+//!
+//! This class represents a specific instant in time (date & time), with a microsecond precision.
+//! It provides various date manipulation functions (accessors & mutators, format conversions,
+//! comparison operators...).
+//! \remark This class uses the Julian day system, which takes its reference at 
+//! -4712/01/01 12:00.
+// ============================================================================
 class YAT_DECL Time
 {
 private:
-  int64 m_llTime;   // Complete date with microsec precision
+  int64 m_llTime;   // Complete date with microsecond precision
 
   // For debugging purpose only
   // NEVER USE THIS METHOD IN REAL CODE !!
   void txt() const;
 
 public:
-  /// Constructors
+  //! \brief Default constructor.
   Time() { m_llTime = 0; }
 
-  /// Constructor from fields
-  ///
-  /// @param iYear Year from -4712 to ?
-  /// @param uiMonth Month in range [1, 12]
-  /// @param uiDay Day in range [1, 31]
-  /// @param uiHour Hour in range [0, 23]
-  /// @param uiMin Minute in range [0, 59]
-  /// @param dSec Seconds in range [0, 59] with microsec precision
-  /// 
+  //! \brief Constructor from time fields.
+  //!
+  //! \param iYear Year from -4712 to ?
+  //! \param uiMonth Month in range [1, 12].
+  //! \param uiDay Day in range [1, 31].
+  //! \param uiHour Hour in range [0, 23].
+  //! \param uiMin Minute in range [0, 59].
+  //! \param dSec Seconds in range [0, 59] with microsecond precision.
   Time(int16 iYear, uint8 uiMonth, uint8 uiDay, uint8 uiHour=0, uint8 uiMin=0, double dSec=0)
   { set(iYear, uiMonth, uiDay, uiHour, uiMin, dSec); }
 
   //-----------------------------------------------------------------
-  /// @name Accessors
+  //! \name Accessors
   //@{
 
-  /// Returns data internal value
+  //! \brief Returns the date's internal value.
   int64 raw_value() const { return m_llTime; }
+
+  //! \brief Sets the date's internal value.
+  //! \param i Complete date with microsecond precision (from Julian reference).
   void set_raw_value(int64 i) { m_llTime = i; }
 
-  /// return 'true' if date is empty
+  //! \brief Returns true if the date is empty (null value).
   bool is_empty() const { return m_llTime == 0; }
 
-  /// return 'true' if date is 1970/01/01 0h
+  //! \brief Returns true if the date is 1970/01/01 00:00.
   int is_empty_unix() const { return REF_UNIX == m_llTime; }
 
-  /// Splittes date in fields
-  ///
-  /// @param pTm structure to fill in
-  ///
+  //! \brief Splits the date in "time fields".
+  //! \param pTm Structure to fill in.
   void get(DateFields *pTm) const;
 
-  /// Returns the microseconds part
+  //! \brief Returns the microsecond part.
   long micro() const;
 
-  /// Returns the milliseconds part
+  //! \brief Returns the millisecond part.
   long ms() const;
 
-  /// Returns the seconds part with microsecond precision
+  //! \brief Returns the second part with microsecond precision.
   double second() const;
 
-  /// Returns the minutes part
+  //! \brief Returns the minute part.
   uint8 minute() const;
 
-  /// Return the hour part
+  //! \brief Returns the hour part.
   uint8 hour() const;
 
-  /// Returns the Day part
+  //! \brief Returns the Day part
   uint8 day() const;
 
-  /// Returns the hour part
+  //! \brief Returns the month part
   uint8 month() const;
 
-  /// Return the year part
+  //! \brief Returns the year part.
   int16 year() const;
 
-  /// Returns the day number of the week, starting from monday (1) to sunday (7)
+  //! \brief Returns the day number of the week.
+  //! 
+  //! Starts from monday (1) to sunday (7).
   uint8 day_of_week() const;
 
-  /// Returns the day number in the range [1, 366]
+  //! \brief Returns the day number in the range [1, 366].
   uint16 day_of_year() const;
 
-  /// Returns the week number in the range [1, 53]
+  //! \brief Returns the week number in the range [1, 53].
   uint8 week_of_year() const;
 
-  /// Gets Julian day at 12h
-  long julian_date() const;  // Jour julien de la date a 12h
+  //! \brief Gets Julian day at 12:00.
+  long julian_date() const;
 
-  /// Gets real Julian day with respect with time
+  //! \brief Gets real Julian day taking the time field into account.
   double julian_day() const;
 
   //@} Accessors
 
   //-----------------------------------------------------------------
-  /// @name Setting date
+  //! \name Setting date
   //@{
 
-  /// Empties Date
+  //! \brief Empties the date (sets date to null value).
   void set_empty() { m_llTime = 0; }
 
-  /// Empties Date in unix sense
+  //! \brief Empties the date in Unix sense (sets to Unix reference value).
   void set_empty_unix() { m_llTime = REF_UNIX; }
 
-  /// Initialize date
-  ///
-  /// @param sTm structure containing splitted date
-  ///
+  //! \brief Initializes the date from DateField value.
+  //!
+  //! \param sTm Structure containing split date.
+  //! \exception BAD_ARGS Thrown if date is not correct.
   void set(const DateFields& sTm) throw(yat::Exception);
 
-  /// Initializes date from explicit values
-  ///
-  /// @param iYear Year from -4712 to ?
-  /// @param uiMonth Month in range [1, 12]
-  /// @param uiDay Day in range [1, 31]
-  /// @param uiHour Hour in range [0, 23]
-  /// @param uiMin Minute in range [0, 59]
-  /// @param dSec Seconds in range [0, 59] with microsec precision
-  ///
+  //! \brief Initializes the ate from explicit values.
+  //!
+  //! \param iYear Year from -4712 to ?
+  //! \param uiMonth Month in range [1, 12].
+  //! \param uiDay Day in range [1, 31].
+  //! \param uiHour Hour in range [0, 23].
+  //! \param uiMin Minute in range [0, 59].
+  //! \param dSec Seconds in range [0, 59] with microsecond precision.
   void set(int16 iYear, uint8 uiMonth, uint8 uiDay, 
            uint8 uiHour=0, uint8 uiMin=0, double dSec=0);
 
-  // Fixe la partie date depuis le numéro de jour dans l'année / clear le time
+  //! \brief Initializes the date from the number of the day in the specified year.
+  //!
+  //! Clears the time part of the date.
+  //! \param iDayOfYear Number of the day in year.
+  //! \param iYear Year value.
   void set_day_of_year(uint16 iDayOfYear, int16 iYear);
 
-  /// Sets the seconds part with microsecond precision
+  //! \brief Sets the second part with microsecond precision.
+  //! \param dSec Seconds in range [0, 59] with microsecond precision.
   void set_second(double dSec);
 
-  /// Sets the minute part
+  //! \brief Sets the minute part.
+  //! \param uiMin Minute in range [0, 59].
   void set_minute(uint8 uiMin);
 
-  /// Sets the hour part
+  //! \brief Sets the hour part.
+  //! \param uiHour Hour in range [0, 23].
   void set_hour(uint8 uiHour);
 
-  /// Sets the day part
+  //! \brief Sets the day part.
+  //! \param uiDay Day in range [1, 31].
   void set_day(uint8 uiDay);
 
-  /// Sets the month part
+  //! \brief Sets the month part.
+  //! \param uiMonth Month in range [1, 12].
   void set_month(uint8 uiMonth);
 
-  /// Sets the year part
+  //! \brief Sets the year part.
+  //! \param iYear Year value.
   void set_year(int16 iYear);
 
-  /// Sets the Julian date
+  //! \brief Sets the Julian date.
+  //! \param lJulianDate Julian date (in number of days from Julian reference).
   void set_julian_date(long lJulianDate);
 
-  /// Sets the internal value
+  //! \brief Sets date internal value.
+  //! \param ui64 Complete date with microsecond precision (from Julian reference).
   void set(int64 ui64) { m_llTime = ui64; }
 
-  /// Clears the time part (hour, min, sec)
+  //! \brief Clears the time part (hour, min, sec).
   void clear_time();
 
-  /// Clears the date part (year, month, day)
+  //! \brief Clears the date part (year, month, day).
   void clear_date();
   
-  /// Sets to current time
-  /// 
-  /// @param bUT if true sets to the universal time (UTC)
-  ///        otherwise sets to local time
+  //! \brief Initializes the date from current time.
+  //! \param bUT If set to true, uses coordinated universal time (UTC) reference, 
+  //! otherwise uses local time reference.
   void set_current(bool bUT=false);
 
-  /// Convert from local time to universal time (UTC)
+  //! \brief Converts the date from local time to universal time (UTC).
   void local_to_UT();
 
-  /// Convert from universal time (UTC) to local time
+  //! \brief Converts the date from universal time (UTC) to local time.
   void UT_to_local();
 
-  /// Adds seconds
+  //! \brief Adds seconds to the date.
+  //! \param dSec Number of seconds to add.
   void add_sec(double dSec) { m_llTime += int64(dSec * 1e6); }
+
+  //! \brief operator+=.
+  //!
+  //! Adds seconds to the date.
+  //! \param dSec Number of seconds to add.
   void operator +=(double dSec) { add_sec(dSec); }
+
+  //! \brief operator-=.
+  //!
+  //! Subtracts seconds to the date.
+  //! \param dSec Number of seconds to subtract.
   void operator -=(double dSec) { add_sec(-dSec); }
   
   //@}
 
   //-----------------------------------------------------------------
-  /// @name Text methods
+  //! \name Text methods
   //@{
 
-  /// Gets date from a ISO8601 string
+  //! \brief Initializes date from a ISO8601 string. NOT implemented function.
+  //!
+  //! Do not use : not implemented function.
+  //! \param pszISO8601 %Date in ISO8601 format.
   void from_ISO8601(const char* pszISO8601);
 
-  /// Gets local time in ISO8601 format
+  //! \brief Gets the date in a local time ISO8601 format.
   String to_local_ISO8601() const;
 
-  /// Gets a ISO8601 string with milliseconds
+  //! \brief Gets the date in a local time ISO8601 format with milliseconds.
   String to_local_ISO8601_ms() const;
 
-  /// Gets universal time in ISO8601 format
+  //! \brief Gets the date in ISO8601 format.
   String to_ISO8601() const;
 
-  /// Gets time with milliseconds in ISO8601 format
+  //! \brief Gets the date in ISO8601 format with milliseconds.
   String to_ISO8601_ms() const;
 
-  /// Gets universal time with milliseconds in ISO8601 format
+  //! \brief Gets the date in a UTC ISO8601 format with milliseconds.
   String to_ISO8601_ms_TU() const;
 
-  /// Gets a string in the international format
-  ///
-  /// @param bMillis with milliseconds if true
-  ///
+  //! \brief Gets the date in the international format.
+  //!
+  //! \param bMillis If set to true, the output format is with milliseconds.
   String to_inter(bool bMillis=true) const;
 
   //@} Text methods
 
   //-----------------------------------------------------------------
-  /// @name UNIX reference
-  ///
-  /// @note UNIX dates start from 1970/01/01. So theses methods
-  /// are conveniance methods to set and get a number of seconds since
-  /// the UNIX reference
-  ///
+  //! \name UNIX reference
+  //
+  //! \note UNIX dates start from 1970/01/01. So, theses methods
+  //! are convenient methods to set and get a number of seconds since
+  //! the UNIX reference.
   //@{
+
   
-  /// Gets a (integer) number of second since 1970/01/01 0h
+  //! \brief Gets *this* date as a number of seconds since 1970/01/01 00:00.
+  //!
+  //! Returns an integer value.
   long long_unix() const;
-  /// Sets the date from a (integer) number of seconds since 1970/01/01 0h
+
+  //! \brief Initializes date from a number of seconds since 1970/01/01 00:00.
+  //! \param lRefSec Number of seconds (integer value).
   void set_long_unix(long lRefSec);
-  /// Gets a (double) number of seconds since 1970/01/01 0h with microseconds precision
+
+  //! \brief Gets *this* date as a number of seconds since 1970/01/01 00:00 with microseconds precision.
+  //!
+  //! Returns a double value.
   double double_unix() const;
-  /// Sets the date from a (double) number seconds since 1970/01/01 0h with microseconds precision
+
+  //! \brief Initializes date from a number seconds since 1970/01/01 00:00 with microseconds precision.
+  //! \param dRefSec Number of seconds (double value).
   void set_double_unix(double dRefSec);
 
   //@} UNIX reference
 
   //-----------------------------------------------------------------
-  /// @name Compare operators
+  //! \name Compare operators
   //@{
 
+  //! \brief operator==.
+  //! \param tm The source date.
   bool operator ==(const Time& tm) const
     { return m_llTime == tm.m_llTime; }
+
+  //! \brief operator>.
+  //! \param tm The source date.
   bool operator >(const Time& tm) const
     { return m_llTime > tm.m_llTime; }
+  
+  //! \brief operator>=.
+  //! \param tm The source date.
   bool operator >=(const Time& tm) const
     { return m_llTime >= tm.m_llTime; }
+  
+  //! \brief operator<.
+  //! \param tm The source date.
   bool operator <(const Time& tm) const
     { return m_llTime < tm.m_llTime; }
+  
+  //! \brief operator<=.
+  //! \param tm The source date.
   bool operator <=(const Time& tm)  const
     { return m_llTime <= tm.m_llTime; }
+  
+  //! \brief operator!=.
+  //! \param tm The source date.
   bool operator !=(const Time& tm) const
     { return m_llTime != tm.m_llTime; }
 
   //@} Compare operators
 
   //-----------------------------------------------------------------
-  /// @name Static methods
+  //! \name Static methods
   //@{
 
-  /// Number of days for a given month
+  //! \brief Number of days for a given month.
+  //! \param iMonth Month number.
+  //! \param iYear Year value.
   static uint8 nb_days_in_month(uint8 iMonth, int16 iYear);
 
-  /// Number of days in a given year
+  //! \brief Number of days in a given year.
+  //! \param iYear Year value.
   static uint16 nb_days_in_year(int16 iYear);
 
-  /// Month name
+  //! \brief Month name.
+  //! \param iMonth Month number.
   static pcsz month_name(uint8 iMonth);
 
-  /// Unix time
+  //! \brief Gets Unix current time.
   static uint32 unix_time();
 
   //@} Static methods
 
 };
 
-/// Create synonymes for convenience
+//- Create synonyms for convenience.
 typedef Time Date;
 typedef Time DateTime;
 
-//===========================================================================
-/// CCurrentDate is CDate initialized with current date and time
-//===========================================================================
+// ============================================================================
+//! \class CurrentTime 
+//! \brief Current date class.
+//!
+//! This class is a Time class initialized with current date and time.
+//! Inherits from Time class.
+// ============================================================================
 class YAT_DECL CurrentTime : public Time
 {
 public:
-  /// Constructor
-  ///
-  /// @param bUT if true hte date is initialized with Universal Time instead of local time
-  ///
+  //! \brief Constructor.
+  //!
+  //! \param bUT If set to true, the date is initialized with Universal %Time instead 
+  //! of local time.
   CurrentTime(bool bUT=false);
 };
 
-/// Create synonyme for convenience
+//- Create synonym for convenience.
 typedef CurrentTime CurrentDate;
 typedef CurrentTime CurrentDateTime;
 

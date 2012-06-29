@@ -149,24 +149,27 @@ namespace yat
 #if ! defined (YAT_WIN32) 
  
 // ============================================================================
-// class Timer
+//! \class Timer 
+//! \brief The YAT timer class.
+//!
+//! This class implements a basic timer object, with microsecond precision.
 // ============================================================================
 class YAT_DECL Timer
 {
 public:
-	//- instanciate then resets the Timer
+  //! \brief Creates/resets the timer.
   Timer () 
   { 
     this->restart();
   } 
   
-  //- resets the Timer
+  //! \brief Resets the timer.
   inline void restart() 
   {
     ::gettimeofday(&_start_time, NULL); 
   }
 
-  //- returns elapsed time in seconds
+  //! \brief Returns the elapsed time in seconds.
   inline double elapsed_sec ()             
   { 
     struct timeval now;
@@ -174,7 +177,7 @@ public:
     return (now.tv_sec - _start_time.tv_sec) + 1e-6 * (now.tv_usec - _start_time.tv_usec);
   }
 
-  //- returns elapsed time in milliseconds
+  //! \brief Returns the elapsed time in milliseconds.
   inline double elapsed_msec ()             
   { 
     struct timeval now;
@@ -182,7 +185,7 @@ public:
     return 1e3 * (now.tv_sec - _start_time.tv_sec) + 1e-3 * (now.tv_usec - _start_time.tv_usec);
   }
 
-  //- returns elapsed time in microseconds
+  //! \brief Returns the elapsed time in microseconds.
   inline double elapsed_usec ()              
   { 
     struct timeval now;
@@ -197,12 +200,17 @@ private:
 #else // ! YAT_WIN32
 
 // ============================================================================
-// class: Timer
+//! \class Timer 
+//! \brief The YAT timer class.
+//!
+//! This class implements a basic timer (chronometer) object, with microsecond precision.
 // ============================================================================
 class YAT_DECL Timer 
 {
 public:
-  //- instanciates/resets the Timer
+  //! \brief Default constructor.
+  //!
+  //! Creates/resets the timer.
   Timer () 
   {
     _start.QuadPart = 0;
@@ -211,13 +219,13 @@ public:
     ::QueryPerformanceCounter(&_start);
   }
   
-  //- resets the Timer
+  //! \brief Resets the timer.
   inline void restart() 
   {
     ::QueryPerformanceCounter(&_start) ;
   }
   
-  //- returns elapsed time in seconds
+  //! \brief Returns the elapsed time in seconds.
   inline double elapsed_sec ()             
   { 
     ::QueryPerformanceCounter(&_stop);
@@ -226,13 +234,13 @@ public:
     return li_to_secs(dt);
   }
 
-  //- returns elapsed time in milliseconds
+  //! \brief Returns the elapsed time in milliseconds.
   inline double elapsed_msec ()           
   { 
     return  1.E3 * elapsed_sec (); 
   }
 
-  //- returns elapsed time in microseconds
+  //! \brief Returns the elapsed time in microseconds.
   inline double elapsed_usec ()            
   { 
     return  1.E6 * elapsed_sec (); 
@@ -250,65 +258,89 @@ private:
 #endif // ! YAT_WIN32
 
 // ============================================================================
-// class: Timeout
+//! \class Timeout 
+//! \brief The YAT timeout class.
+//!
+//! This class implements a basic timeout object, with customizable unit (from 
+//! second to microsecond precision).\n 
+//! The yat::Timeout class uses a yat::Timer timer.
 // ============================================================================
 class YAT_DECL Timeout 
 {
 public:
-  //- Timeout value type
+  //! \brief %Timeout value type.
   typedef double TimeoutValue;
   
-  //- Timeout units
+  //! \brief %Timeout units.
   typedef enum  
   {
-    TMO_UNIT_SEC,  //- second
-    TMO_UNIT_MSEC, //- millisecond
-    TMO_UNIT_USEC, //- microsecond
+	//! Second.
+    TMO_UNIT_SEC,
+	//! Millisecond.
+    TMO_UNIT_MSEC,
+	//! Microsecond.
+    TMO_UNIT_USEC, 
   } TimeoutUnit;
   
-  //- instanciates a Timeout (default dtor)
+  //! \brief Default constructor. 
+  //!
+  //! Creates/resets the timeout. The default unit is millisecond and
+  //! the timeout is set to 0 and disabled.
   Timeout () 
   	: _unit(TMO_UNIT_MSEC), _tmo(0), _enabled(false)
   {
 		//- noop 
   }
   
-  //- instanciates a Timeout
+  //! \brief Constructor.
+  //!
+  //! Creates a timeout.
+  //! \param tmo_in_unit %Timeout value in specified unit.
+  //! \param unit %Unit.
+  //! \param enabled If set to true, timeout is started.
   Timeout (TimeoutValue tmo_in_unit, TimeoutUnit unit = TMO_UNIT_MSEC, bool enabled = false) 
   	: _unit(unit), _tmo(tmo_in_unit), _enabled(enabled)
   {
 		//- noop 
   }
   
-  //- restarts/(re)enables the Timeout 
-  //- in the <disabled> state, Timeout::expired will always return false
+  //! \brief Restarts/(re)enables the timeout.
+  //!
+  //! Enables the timeout.
   inline void restart () 
   {
   	enable();
   }
   
-  //- enables the Timeout 
-  //- in the <disabled> state, Timeout::expired will always return false
+  //! \brief Enables the timeout.
+  //!
+  //! \param restart_timer If set to true, restart the timeout.
   inline void enable (bool restart_timer = true) 
   {
   	if (restart_timer) _t.restart();
     _enabled = true;
   }
   
-  //- disables the Timeout 
-  //- in the <disabled> state, Timeout::expired will always return false
+  //! \brief Disables the timeout.
+  //!
+  //! In the disabled state, Timeout::expired() will always return false.
   inline void disable () 
   {
     _enabled = false;
   }
     
-  //- enabled?
+  //! \brief Is the timeout enabled?
+  //!
+  //! Returns true if the timeout is enabled, false otherwise.
   inline bool enabled () const
   {
     return _enabled;
   }
   
-  //- Timeout expired?
+  //! Did the timeout expire?
+  //! 
+  //! Return true if timeout is enabled and has expired.
+  //! In the disabled state, always returns false.
   inline bool expired ()
   {
     //- a disabled Timeout never expire
@@ -333,10 +365,11 @@ public:
     return dt >= _tmo;
   }
   
-  //- time to expiration in Timeout unit?
-  //- a negative value means: expired ... tmo-unit ago 
-  //- a positive value means: will expired in ... tmo-unit
-  //- for a disabled Timeout, returns the infinity value 
+  //! \brief Gets the time to expiration in timeout unit.
+  //!
+  //! A negative value means: expired ... \<timeout unit\> ago.\n
+  //! A positive value means: will expired in ... \<timeout unit\>.\n
+  //! For a disabled timeout, returns the infinity value.
   inline TimeoutValue time_to_expiration ()
   {
     //- undefined if disabled...
@@ -360,25 +393,27 @@ public:
     return _tmo - dt;
   }
   
-  //- changes the Timeout value
+  //! \brief Changes the timeout value.
+  //! \param tmo New timeout value (in the current timeout unit).
   inline void set_value (TimeoutValue tmo) 
   {
     _tmo = tmo;
   }
   
-  //- returns the Timeout value 
+  //! \brief Returns the timeout value.
   inline TimeoutValue get_value () const
   {
     return _tmo;
   }
   
-  //- changes the Timeout unit
+  //! \brief Changes the timeout unit.
+  //! \param unit New timeout unit.
   inline void set_unit (TimeoutUnit unit) 
   {
     _unit = unit;
   }
   
-  //- returns the Timeout unit 
+  //! \brief Returns the timeout unit.
   inline TimeoutUnit get_unit () const
   {
     return _unit;
