@@ -31,7 +31,7 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \author S.Poirier - Synchrotron SOLEIL
+ * \author See AUTHORS file
  */
 
 
@@ -43,27 +43,53 @@
 
 namespace yat
 {
-//===========================================================================
-//
-/// Generic system utilities
-//
+// ============================================================================
+//! \class SysUtils 
+//! \brief Generic system utilities.
+//!
+//! This class provides plateform abstracted interface for the following functions:
+//! - command line execution,
+//! - environment variable access.
 //===========================================================================
 class YAT_DECL SysUtils
 {
 public:
-  /// Return the value of a environnement variable
-  ///
-  /// @param pstrVar Variable to evaluate
-  /// @return true if template has been evaluated, or false
-  ///
+  //! \brief Gets the value of an environment variable.
+  //!
+  //! Returns true if the environment variable has been evaluated, false otherwise.
+  //! \remark If the environment variable is not defined and default value is set,
+  //! the function sets \<strVar\> with default value.
+  //! \param strVar Environment variable name.
+  //! \param pstrValue Environment variable value.
+  //! \param pszDef Default value.
   static bool get_env(const String &strVar, String *pstrValue, const char *pszDef=NULL);
 
-  /// Execute command line
-  /// 
+  //! \brief Executes a command line.
+  //! \param pszCmdLine The command line to execute.
+  //! \param pszDefDir Current directory for the command line execution.
+  //! \param bBackground If set to true, the command line is executed in background.
+  //! \param bThrow If set to true, function throws an exception when an error occurs.
+  //! \param pulReturnCode Value returned by the system on command line execution (plateform dependent).
+  //! \exception SYSTEM_ERROR Thrown when quotes missing in command line (on Windows plateform 
+  //! implementation).
+  //! \exception ERR_FILE Thrown if command execution fails (on Windows plateform implementation).
   bool exec(const char* pszCmdLine, const char *pszDefDir = NULL,
            int bBackground = true, bool bThrow = true, int* pulReturnCode = NULL);
            
-  /// Execute a command line using the identity of another account
+  //! \brief Executes a command line using the identity of another account.
+  //!
+  //! \remark Does the same as SysUtils::exec() function on a Windows plateform.
+  //! \param pszCmdLine The command line to execute.
+  //! \param pszDefDir Current directory for the command line execution.
+  //! \param bBackground If set to true, the command line is executed in background.
+  //! \param bThrow If set to true, function throws an exception when an error occurs.
+  //! \param pulReturnCode Value returned by the system on command line execution (plateform dependent).
+  //! \param uid User id.
+  //! \param gid Group id.
+  //! \exception SYSTEM_ERROR Thrown when :
+  //! - quotes miss in command line (on Windows plateform implementation),
+  //! - shell execution fails (on Posix plateform implementation).
+  //! \exception ERR_FILE Thrown if command execution fails (on Windows plateform implementation). 
   bool exec_as(const char* pszCmdLine, const char *pszDefDir = NULL,
            int bBackground = true, bool bThrow = true, int* pulReturnCode = NULL, uid_t uid = -1, gid_t gid = -1);
 };
