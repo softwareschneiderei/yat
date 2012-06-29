@@ -56,173 +56,186 @@ namespace yat
   }
 
   // ============================================================================
-  // Error Severity
+  //! \brief Error severity.
   // ============================================================================
   typedef enum {
+    //! Warning.
     WARN, 
+	//! Functional error.
     ERR, 
+	//! Fatal error.
     PANIC
   } ErrorSeverity;
 
   // ============================================================================
-  //! The Error class
-  // ============================================================================
-  //!  
-  //! detailed description to be written
+  //! \class Error 
+  //! \brief Yat error class.
   //!
+  //! The Yat error class provides an implementation of an application error. 
+  //! This application error is defined with the following features:
+  //! - reason: gives the error type. The goal of this text is to guide the 
+  //! \b operator towards the functional cause of the problem.
+  //!
+  //! - description: describes the error. The goal of this text is to guide the
+  //! <b>system expert</b> towards the cause of the problem.
+  //!
+  //! - origin: gives the function name where the error occurred. The goal of this
+  //! text is to guide the \b developper towards the programming error.
+  //!
+  //! - code: gives the error code. The goal of this number is to identify the error.
+  //! - severity: gives the error severity (from yat::ErrorSeverity).
   // ============================================================================
   struct YAT_DECL Error
   {
-    /**
-    * Initialization. 
-    */
+    //! \brief Default constructor.
+    //!
+    //! The default values are :
+    //! - reason = "unknown"
+    //! - desc = "unknown error"
+    //! - origin = "unknown"
+    //! - code = -1
+    //! - severity = yat::ERR
     Error ();
 
-    /**
-    * Initialization. 
-    */
+    //! \brief Constructor with parameters.
+	//! \param reason %Error reason.
+	//! \param desc %Error description.
+	//! \param origin %Error origin.
+	//! \param err_code %Error id.
+	//! \param severity %Error severity.
     Error ( const char *reason,
             const char *desc,
             const char *origin,
             int err_code = -1, 
             int severity = yat::ERR);
-    /**
-    * Initialization. 
-    */
+
+    //! \brief Constructor with parameters.
+	//! \param reason %Error reason.
+	//! \param desc %Error description.
+	//! \param origin %Error origin.
+	//! \param err_code %Error id.
+	//! \param severity %Error severity.    
     Error ( const std::string& reason,
             const std::string& desc,
             const std::string& origin, 
             int err_code = -1, 
             int severity = yat::ERR);
 
-    /**
-    * Copy constructor. 
-    */
+    //! \brief Copy constructor. 
+    //! \param src The source error.
     Error (const Error& src);
 
-    /**
-    * Error details: code 
-    */
+    //!\brief Destructor.
     virtual ~Error ();
 
-    /**
-    * operator= 
-    */
+    //! \brief operator=.
+    //! \param _src The source error.
     Error& operator= (const Error& _src);
 
-    /**
-    * Error details: reason 
-    */
+    //! \brief %Error details: reason.
     std::string reason;
 
-    /**
-    * Error details: description 
-    */
+    //! \brief %Error details: description.
     std::string desc;
 
-    /**
-    * Error details: origin 
-    */
+    //! \brief %Error details: origin.
     std::string origin;
 
-    /**
-    * Error details: code 
-    */
+    //! \brief %Error details: code.
     int code;
 
-    /**
-    * Error details: severity 
-    */
+    //! \brief %Error details: severity.
     int severity;
   };
 
   // ============================================================================
-  //! The Exception class
-  // ============================================================================
-  //!  
-  //! detailed description to be written
+  //! \class Exception 
+  //! \brief Yat exception class.
   //!
+  //! The Yat exception class provides an implementation of an application exception. 
+  //! This application exception contains a list of yat::Error errors.
   // ============================================================================
   class YAT_DECL Exception
   {
   public:
 
+    //! \brief List of errors.
     typedef std::vector<Error> ErrorList;
 
-    /**
-    * Ctor
-    */
+    //! \brief Default constructor.
     Exception ();
 
-    /**
-    * Ctor
-    */
+    //! \brief Constructor from an application error.
+    //! \param reason %Error reason.
+	//! \param desc %Error description.
+	//! \param origin %Error origin.
+	//! \param err_code %Error code.
+	//! \param severity %Error severity.
     Exception ( const char *reason,
                 const char *desc,
                 const char *origin,
                 int err_code = -1, 
                 int severity = yat::ERR);
 
-    /**
-    * Ctor
-    */
+    //! \brief Constructor from an application error.
+    //! \param reason %Error reason.
+	//! \param desc %Error description.
+	//! \param origin %Error origin.
+	//! \param err_code %Error code.
+	//! \param severity %Error severity.
     Exception ( const std::string& reason,
                 const std::string& desc,
                 const std::string& origin, 
                 int err_code = -1, 
                 int severity = yat::ERR);
 
-    /**
-    * Ctor
-    */
+    //! \brief Constructor from an application error.
+    //! \param error Error.
     Exception (const Error& error);
 
-    /**
-    * Copy ctor
-    */
+    //! \brief Copy constructor.
+    //! \param src The source exception.
     Exception (const Exception& src);
 
-    /**
-    * operator=
-    */
+    //! \brief operator=.
+    //! \param _src The source exception.
     Exception& operator= (const Exception& _src); 
 
-    /**
-    * Dtor
-    */
+    //! \brief Destructor.
     virtual ~Exception ();
 
-    /**
-    * Push the specified error into the errors list.
-    */
+    //! \brief Pushes the specified error into the error list.
+    //! \param reason %Error reason.
+	//! \param desc %Error description.
+	//! \param origin %Error origin.
+	//! \param err_code %Error code.
+	//! \param severity %Error severity.    
     void push_error ( const char *reason,
                       const char *desc,
                       const char *origin, 
                       int err_code = -1, 
                       int severity = yat::ERR);
 
-    /**
-    * Push the specified error into the errors list.
-    */
+    //! \brief Pushes the specified error into the error list.
+    //! \param reason %Error reason.
+	//! \param desc %Error description.
+	//! \param origin %Error origin.
+	//! \param err_code %Error code.
+	//! \param severity %Error severity.    
     void push_error ( const std::string& reason,
                       const std::string& desc,
                       const std::string& origin, 
                       int err_code = -1, 
                       int severity = yat::ERR);
 
-    /**
-    * Push the specified error into the errors list.
-    */
+    //! \brief Pushes the specified error into the error list.
+    //! \param error Error.
     void push_error (const Error& error);
     
-    /**
-    * Dump.
-    */
+    //! \brief Dumps the content of the exception's error list towards standard output.
     virtual void dump () const;
 
-    /**
-    * The errors list
-    */
+    //! \brief The error list.
     ErrorList errors;
   };
 
