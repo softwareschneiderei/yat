@@ -31,7 +31,7 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \author S.Poirier - Synchrotron SOLEIL
+ * \author See AUTHORS file
  */
 
 
@@ -78,21 +78,32 @@ namespace yat
 typedef const char *   pcsz;
 typedef char *         psz;
 
-//=============================================================================
-/// Extended string class
-///
-//=============================================================================
+// ============================================================================
+//! \class String 
+//! \brief Extended string class.
+//!
+//! This class is an extension of the std::string class: it provides additional
+//! string manipulation functions, such as token extraction, enclosure deletion, 
+//! find and replace function, ...
+//!
+//! Inherits from std::string class.
+// ============================================================================
 class YAT_DECL String : public std::string
 {
 public:
 
-  /// Empty string - useful when need a const string &
+  //! \brief Empty string - useful when need a const string &.
   static const String nil;
 
-  //@{ Constructors
+  //! \name Constructors
+  //@{ 
+
+  //! \brief Default constructor.
   String() : std::string()
   {}
 
+  //! \brief Constructor from a char pointer.
+  //! \param psz Char pointer.
   String(const char *psz)
   {
     if( NULL == psz )
@@ -101,6 +112,9 @@ public:
       append(psz);
   }
 
+  //! \brief Constructor from char buffer.
+  //! \param psz Char pointer.
+  //! \param iSize %Buffer size.
   String(const char *psz, int iSize)
   {
     if( NULL == psz )
@@ -109,129 +123,226 @@ public:
       append(psz, iSize);
   }
 
+  //! \brief Copy Constructor.
+  //! \param str The source string.
   String(const String &str) : std::string(str) {}
 
+  //! \brief Constructor from std::string.
+  //! \param str The string.
   String(const std::string &str) : std::string(str) {}
   //@}
 
-  /// Build a string with a C-string like format
-  /// @param pszFormat The format
+  //! \brief Builds a string with a C-string like format.
+  //! \param pszFormat The string format.
+  //! \param ... The string.
   static String str_format(pcsz pszFormat, ...);
 
-  /// Compare strings (eq. '==' operator)
+  //! \brief Compares strings (i.e. operator==).
+  //!
+  //! Returns true if strings are equal, false otherwise.
+  //! \param str The source string.
   bool is_equal(const String &str) const;
 
-  /// Compare string in a no case sensitive way
+  //! \brief Compares string in a no case sensitive way.
+  //!
+  //! Returns true if strings are equal, false otherwise.
+  //! \param str The source string.
   bool is_equal_no_case(const String &str) const;
 
-  /// Test first character
+  //! \brief Tests the first character.
+  //!
+  //! Returns true if the string starts with this character, false otherwise.
+  //! \param c The character.
   bool start_with(char c) const;
   
-  /// Test first characters with other string
+  //! \brief Tests the first character with that of another string.
+  //!
+  //! Returns true if the strings start with the same character, false otherwise.
+  //! \param pcszStart The source string.
+  //! \param bNoCase If set to true, the test is not case sensitive.
   bool start_with(pcsz pcszStart, bool bNoCase=false) const;
   
-  /// Test last character
+  //! \brief Tests the last character.
+  //!
+  //! Returns true if the string ends with this character, false otherwise.
+  //! \param c The character.
   bool end_with(char c) const;
   
-  /// Test last character
+  //! \brief Tests the last character with that of another string.
+  //!
+  //! Returns true if the strings end with the same character, false otherwise.
+  //! \param pcszEnd The source string.
+  //! \param bNoCase If set to true, the test is not case sensitive.
   bool end_with(pcsz pcszEnd, bool bNoCase=false) const;
 
-  //@{ Tokens Extraction
+  //! \name Token extraction
+  //@{ 
 
-  /// extract_token methods family results
+  //! \brief Family results for token extraction methods.
   enum ExtractTokenRes
   {
-    EMPTY_STRING=0, /// nothing extracted
-    SEP_FOUND,      /// string extracted and separator found
-    SEP_NOT_FOUND   /// string extracted and separator not found
+    //! Nothing extracted.
+    EMPTY_STRING=0,
+	//! %String extracted and separator found.
+    SEP_FOUND,
+	//! %String extracted and separator not found.
+    SEP_NOT_FOUND
   };
 	
-  /// Search token from left to right
-  /// @param c Separator
-  /// @param pstrToken String object receiving the extracted token
+  //! \brief Looks for a token, from left to right.
+  //! 
+  //! Returns the extraction status.\n
+  //! The function looks for the first separator occurrence. The extracted token is removed from the string.
+  //! \param c Separator.
+  //! \param[out] pstrToken %String object receiving the extracted token.
   ExtractTokenRes extract_token(char c, String *pstrToken);
   
-  /// Search token from right to left
-  /// @param c Separator
-  /// @param pstrToken String object receiving the extracted token
+  //! \brief Looks for a token, from right to left.
+  //! 
+  //! Returns the extraction status.\n
+  //! The function looks for the first separator occurrence. The extracted token is removed from the string.
+  //! \param c Separator.
+  //! \param[out] pstrToken Extracted token.
   ExtractTokenRes extract_token_right(char c, String *pstrToken);
   
-  /// Search enclosed token from left to right
-  /// @param cLeft Left separator
-  /// @param cRight Right separator
-  /// @param pstrToken String object receiving the extracted token
+  //! \brief Looks for enclosed token, from left to right.
+  //! 
+  //! Returns the extraction status.\n
+  //! The function looks for the first left separator occurrence. The extracted token is removed from the string.
+  //! \param cLeft Left separator.
+  //! \param cRight Right separator.
+  //! \param[out] pstrToken Extracted token.
   ExtractTokenRes extract_token(char cLeft, char cRight, String *pstrToken);
   
-  /// Search enclosed token from right to left
-  /// @param cLeft Left separator
-  /// @param cRight Right separator
-  /// @param pstrToken String object receiving the extracted token
+  //! \brief Looks for enclosed token, from right to left.
+  //! 
+  //! Returns the extraction status.\n
+  //! The function looks for the first left separator occurrence. The extracted token is removed from the string.
+  //! \param cLeft Left separator.
+  //! \param cRight Right separator.
+  //! \param[out] pstrToken Extracted token.
   ExtractTokenRes extract_token_right(char cLeft, char cRight, String *pstrToken);
   
   //@}
 
-  /// Remove characters that enclose string: quotes, paranthesis, etc...
-  /// ex: RemoveEnclosure("'", "'") -> removes quotes in a string like 'string'
-  /// ex: RemoveEnclosure("([", ")]") -> removes paranthesis in a string like (string) or [string]
-  ///                                    but not in string like (string]
-  /// @param pcszLeft list of possible left enclosure chars
-  /// @param pcszRight list of possible right enclosure chars
-  /// @return true if enclosure was removed
+  //! \brief Removes characters that enclose string: quotes, parenthesis, etc...
+  //!
+  //! Returns true if enclosure was removed.
+  //! ex: RemoveEnclosure("'", "'") -\> removes quotes in a string like 'string'.
+  //! ex: RemoveEnclosure("(\[", ")\]") -\> removes parenthesis in a string like (string) or \[string\]
+  //! but not in string like (string\].
+  //! \param pszLeft List of possible left enclosure characters.
+  //! \param pszRight List of possible right enclosure characters.
+  //! \remark \<pszLeft\> and \<pszRight\> must have the same length.
   bool remove_enclosure(psz pszLeft, psz pszRight);
+
+  //! \brief Removes characters that enclose string: quotes, parenthesis, etc...
+  //!
+  //! Returns true if enclosure was removed.
+  //! ex: RemoveEnclosure("'", "'") -\> removes quotes in a string like 'string'.
+  //! \param cLeft Left enclosure character.
+  //! \param cRight Right enclosure character.
   bool remove_enclosure(char cLeft, char cRight);
 
-  /// Match string with mask containing '*' and '?' jokers
-  /// '*' match any number of characters
-  /// '?' match one character
+  //! \brief Tests if string matches with mask containing '*' and '?' jokers.
+  //!
+  //! Returns true if string matches the mask, false otherwise. \n
+  //! The mask can contain:
+  //! - '*': match any number of characters.
+  //! - '?': match one character.
+  //! \param pszMask The mask.
   bool match(pcsz pszMask) const;
+
+  //! \brief Tests if string matches with mask containing '*' and '?' jokers.
+  //!
+  //! Returns true if string matches the mask, false otherwise. \n
+  //! The mask can contain:
+  //! - '*': match any number of characters.
+  //! - '?': match one character.
+  //! \param strMask The mask.
   bool match(const String &strMask) const;
 
-  /// Remove white space and begining and end of string
+  //! \brief Removes white spaces at beginning and end of string.
   void trim();
 
-  /// Build a string with format
+  //! \brief Builds a string with the specified format.
+  //!
+  //! Returns the string size.
+  //! \param pszFormat The format.
+  //! \param ... The string.
   int printf(pcsz pszFormat, ...);
 
-  /// Split string
-  ///
-  /// @param c Separator
-  /// @param pvecstr pointer to a vector of strings
-  ///
+  //! \brief Splits the string.
+  //!
+  //! The string is split in tokens separated with the specified separator.
+  //! The extracted tokens are put in the string vector, while *this* string is
+  //! preserved.
+  //! \param c Separator.
+  //! \param[out] pvecstr Pointer to a vector of strings.
+  //! \param bClearVector If set to true, the vector is cleared.
   void split(char c, std::vector<String> *pvecstr, bool bClearVector=true);
+
+  //! \brief Splits the string.
+  //!
+  //! The string is split in tokens separated with the specified separator.
+  //! The extracted tokens are put in the string vector, while *this* string is
+  //! preserved.
+  //! \param c Separator.
+  //! \param[out] pvecstr Pointer to a vector of strings.
+  //! \param bClearVector If set to true, the vector is cleared.
   void split(char c, std::vector<String> *pvecstr, bool bClearVector=true) const;
+
+  //! \brief Splits the string.
+  //!
+  //! The string is split in 2 tokens separated with the specified separator.
+  //!
+  //! \param c Separator.
+  //! \param[out] pstrLeft Left part of the split string.
+  //! \param[out] pstrRight Right part of the split string.
+  //! \param bPreserve If set to true, *this* string is preserved, else, *this* is
+  //! the left part of the split string.
   void split(char c, String *pstrLeft, String *pstrRight, bool bPreserve=false);
 
-  /// Join strings from string vector
-  ///
-  /// @param cSep Items separator
+  //! \brief Joins strings from a string vector, using specified separator.
+  //!
+  //! Replaces *this* string with the result.
+  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2 
+  //! \param vecStr The source vector.
+  //! \param cSep %String separator.
   void join(const std::vector<String> &vecStr, char cSep=',');
 
-  /// Remove item in a string like "item1,item2,item3,..."
-  /// @param cSep Items separator
-  /// @return true if the item was found, otherwise false
+  //! \brief Removes items separated by a specific separator.
+  //!
+  //! For instance: string like "item1,item2,item3,...". \n
+  //! Returns true if any item was found, false otherwise.
+  //! \param strItem Item to find and remove.
+  //! \param cSep Items separator.
   bool remove_item(const String &strItem, char cSep=',');
 
-  /// Convert characters to lowercase
+  //! \brief Converts string to lowercase.
   void to_lower();
 
-  /// Convert string to uppercase
+  //! \brief Converts string to uppercase.
   void to_upper();
 
-  /// Find and replace
-  /// @param pszSrc Substring to replace
-  /// @param pszDst Substitution string
+  //! \brief Finds and replaces a string.
+  //! \param pszSrc %String to replace.
+  //! \param pszDst Substitution string.
   void replace(pcsz pszSrc, pcsz pszDst);
 
-  /// Find and replace one character
-  ///
-  /// @param cSrc Character to replace
-  /// @param cDst Substitution Character
+  //! \brief Finds and replaces one character.
+  //!
+  //! \param cSrc Character to replace.
+  //! \param cDst Substitution character.
   void replace(char cSrc, char cDst);
 
-  /// Returns a hash code
+  //! \brief Returns a 32 bits hash code.
   uint32 hash() const;
   
-  /// Returns the hash code using the FNV-1a algorithm (http://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function)
+  //! \brief Returns the hash code using the FNV-1a algorithm.
+  //!
+  //! Calculates a 64 bits hash code. See details of the algorithm 
+  //! on http://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function.
   uint64 hash64() const;
 };
 

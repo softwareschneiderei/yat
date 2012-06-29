@@ -46,13 +46,21 @@ namespace yat
 {
 
 // ============================================================================
-// NonCopiable class
+//! \class NonCopyable 
+//! \brief Non "copyable" class.
+//!
+//! Copy constructor and operator= are private members.
+//! Inherit from this class to use its "non copyable" capability.
 // ============================================================================
 class NonCopyable
 {
 protected:
+  //! Default constructor.
   NonCopyable () {}
+
+  //! Destructor.
  ~NonCopyable () {}
+
 private:
   NonCopyable ( const NonCopyable& );
   const NonCopyable& operator= ( const NonCopyable& );

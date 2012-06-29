@@ -46,16 +46,24 @@ namespace yat
 {
 
 // ============================================================================
-// XString class
+//! \class XString 
+//! \brief Generic numeric string class.
+//!
+//! This template class provides conversion functions for a generic \<_T\> "numeric"
+//! string.
 // ============================================================================
 template <typename _T>
 class XString
 {
 public:  
   
-  //- converts string content to numeric type _T
-  //- should also work for any "istringstream::operator>>" supported type
-  //---------------------------------------------------------------------
+  //! \brief Converts string content to numeric type \<_T\>.
+  //! 
+  //! Returns the converted string in numeric type \<_T\>.
+  //! Should also work for any "istringstream::operator>>" supported type.
+  //! \param _s The string to convert.
+  //! \param _throw If set to true, throws an exception if conversion fails.
+  //! \exception SOFTWARE_ERROR Thrown if conversion fails.
   static _T to_num (const std::string& _s, bool _throw = true)
   {
     ISStream iss(_s.c_str());
@@ -81,8 +89,11 @@ public:
     return num_val;
   } 
 
-  //- converts from type _T to std::string
-  //---------------------------------------------------------------------
+  //! \brief Converts from type \<_T\> to std::string.
+  //!
+  //! \param _t The \<_T\> type value to convert.
+  //! \param _throw If set to true, throws an exception if conversion fails.
+  //! \exception SOFTWARE_ERROR Thrown if conversion fails.
   static std::string to_string (const _T & _t, bool _throw = true)
   {
     OSStream oss;

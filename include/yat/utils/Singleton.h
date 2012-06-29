@@ -39,23 +39,31 @@
 
 namespace yat
 {
+  // ============================================================================
+  //! \class Singleton 
+  //! \brief The YAT singleton class.
+  //!
+  //! This template class is a base class which provides a "single instance" capability.
+  //! Inherit from this class to get this capability.
+  //!
+  // ============================================================================
   template <class T> class Singleton
   {
   protected: 
-  	//! protected ctor (this is a base class)
+  	//! \brief Protected constructor (this is a base class).
     Singleton ()
     {
       //-noop
     }
     
-  	//! protected dtor (this is a base class)
+  	//! \brief Protected destructor (this is a base class).
     virtual ~Singleton()
     {
       //-noop
     }
 
   public:
-    //! static method to get the unique instance of the class
+    //! \brief Static method to get the unique instance of the class.
     static T & instance( )
     {
       static T the_unique_instance;

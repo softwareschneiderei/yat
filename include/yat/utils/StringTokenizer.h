@@ -31,7 +31,7 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \author unknown - adapted/modified by N.Leclercq - Synchrotron SOLEIL
+ * \author See AUTHORS file
  */
 
 #ifndef _YAT_STRING_TOKENIZER_H_
@@ -50,31 +50,55 @@ namespace yat
 {
 
 // ============================================================================
-// StringTokenizer class
+//! \class StringTokenizer 
+//! \brief String "tokenizer" class.
+//!
+//! This class provides functions to read a string containing tokens separated by
+//! a separator.\n
+//! For instance: "Kilo:Lima:Mike:November"
 // ============================================================================
 class YAT_DECL StringTokenizer
 {
 public:
+  //! \brief Constructor from string and separator.
+  //! \param str The string.
+  //! \param delim The separator.
   StringTokenizer (const std::string & str, const std::string & delim);
 
+  //! \brief Destructor.
   ~StringTokenizer () {};
 
+  //! \brief Counts remaining tokens in string.
   int count_tokens () const;
 
+  //! \brief Tests if string has remaining tokens.
   bool has_more_tokens () const;
 
+  //! \brief Gets next token as a string value.
   std::string next_token ();
 
+  //! \brief Gets next token as an integer value.
   int next_int_token ();
 
+  //! \brief Gets next token as a long value.
   long next_long_token ();
 
+  //! \brief Gets next token as a double value.
   double next_fp_token ();
 
+  //! \brief Gets next token as a string value, with specified separator.
+  //!
+  //! Searches fro next token using the specified separator.
+  //! \param delim The separator.
   std::string next_token (const std::string & delim);
 
+  //! \brief Gets the remaining string.
   std::string remaining_string ();
 
+  //! \brief Erases the specified filter from next token.
+  //!
+  //! Returns the filtered token.
+  //! \param filterStr %String to filter.
   std::string filter_next_token (const std::string & filterStr);
 
 private:

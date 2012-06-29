@@ -2,7 +2,7 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2010  The Tango Community
+// Copyright (C) 2006-2012  The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
@@ -31,7 +31,7 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \author N.Leclercq - Synchrotron SOLEIL
+ * \author See AUTHORS file
  */
 
 #ifndef _YAT_REF_COUNTER_H_
@@ -52,15 +52,21 @@ namespace yat
 #define PTR_DBG(s)
 //#define PTR_DBG(s) std::cout << std::hex << "[" << yat::ThreadingUtilities::self() << "][" << (void*)(this) << "] - " << std::dec << s << std::endl;
 
-// Define the default counter type
+//! Defines the default counter type.
 typedef yat::uint32 counter_t;
 
+
 // ============================================================================
-// functor: DefaultDeleter
+//! \class DefaultDeleter 
+//! \brief Default deleter function.
+//!
+//! This template structure provides a default destructor for \<T\> type object.
 // ============================================================================
 template <typename T>
 struct DefaultDeleter
 {
+  //! \brief operator().
+  //! \param object The object to delete.
   void operator()(T* object)
   {
     try
@@ -75,26 +81,43 @@ struct DefaultDeleter
 };
 
 // ============================================================================
-// class: CountBase
-// Base class for CountImpl
+//! \class CountBase 
+//! \brief Base class for counter implementation.
+//!
+//! This template class is the base class for a generic \<C\> type counter
+//! (see CountImpl for instance). At least, the virtual function *dispose()* must 
+//! be implemented.
+//! 
+//! If counter lock is not necessary, use a yat::NullMutex type for example: 
+//! \verbatim myCounter = new CountBase<yat::uint64, yat::NullMutex>(); \endverbatim
+//! 
+//! If counter lock is necessary, use a mutex type (default value in 
+//! the template definition), for example:
+//! \verbatim myCounter = new CountBase<yat::uint64>(); \endverbatim
+//!
 // ============================================================================
 template <typename C = counter_t, typename L = yat::Mutex>
 class CountBase
 {
 public:
+  //! \brief Default constructor.
   CountBase() : m_use_count(1), m_weak_count(0)
   {
     PTR_DBG("CountBase::CountBase");
   }
   
+  //! \brief Destructor.
   virtual ~CountBase()
   {
     PTR_DBG("CountBase::~CountBase");
   }
 
-  // object disposal method
+  //! \brief Object disposal method (i.e. delete function).
   virtual void dispose() = 0; // nothrow
 
+  //! \brief Adds a reference to counter.
+  //!
+  //! Increments counter by 1.
   const C add_ref()
   {
     PTR_DBG("CountImpl::add_ref(->" << m_use_count+1 << ")");
@@ -103,6 +126,9 @@ public:
     return m_use_count;
   }
   
+  //! \brief Adds a weak reference to counter.
+  //!
+  //! Increments weak counter by 1.
   const C add_weak_ref()
   {
     PTR_DBG("CountImpl::add_weak_ref(->" << m_weak_count+1 << ")");
@@ -110,7 +136,10 @@ public:
     ++m_weak_count;
     return m_weak_count;
   }
-  
+
+  //! \brief Removes a reference from counter.
+  //!
+  //! Decreases counter by 1.
   const C dec_ref()
   {
     PTR_DBG("CountImpl::dec_ref(->" << m_use_count-1 << ")");
@@ -119,7 +148,10 @@ public:
     --m_use_count;
     return m_use_count;
   }
-  
+
+  //! \brief Removes a weak reference from counter.
+  //!
+  //! Decreases weak counter by 1.
   const C dec_weak_ref()
   {
     PTR_DBG("CountImpl::dec_weak_ref(->" << m_weak_count-1 << ")");
@@ -128,59 +160,91 @@ public:
     return m_weak_count;
   }
   
+  //! \brief Gets the counter value.
   C & use_count()
   {
     yat::AutoMutex<L> guard(this->m_lock);
     return m_use_count;
   }
 
+  //! \brief Gets the weak counter value.
   const C & weak_count()
   {
     yat::AutoMutex<L> guard(this->m_lock);
     return m_weak_count;
   }
 
+  //! \brief Tests if there is any reference (weak or not).
+  //!
+  //! Returns true if reference counter AND weak reference counter 
+  //! are empty, false otherwise.
   bool expired()
   {
     yat::AutoMutex<L> guard(this->m_lock);
     return 0 == m_use_count && 0 == m_weak_count;
   }
   
+  //! \brief Explicitly locks the counter.
   void lock()
   {
     m_lock.lock();
   }
 
+  //! \brief Explicitly unocks the counter.
   void unlock()
   {
     m_lock.unlock();
   }
 
 protected:
+  //! Use counter.
   C m_use_count;
+
+  //! Weak counter.
   C m_weak_count;
+
+  //! Counter lock.
   L m_lock;
 };
 
 // ============================================================================
-// class: CountImpl 
-// where the things are actually counted !
+//! \class CountImpl 
+//! \brief Counter implementation.
+//!
+//! This template class is a generic \<C\> type counter implementation. 
+//! It inherits from CountBase class and provides:
+//! - a generic \<D\> type deleter,
+//! - a generic \<T\> type object.
+//! 
+//! If counter lock is not necessary, use a yat::NullMutex type for example: 
+//! \verbatim myCounter = new CountImpl<myDeleterType, myObjType, yat::NullMutex>(); \endverbatim
+//! 
+//! If counter lock is necessary, use a mutex type (default value in 
+//! the template definition), for example:
+//! \verbatim myCounter = new CountImpl<myDeleterType, myObjType>(); \endverbatim
+//!
 // ============================================================================
 template <typename T, typename D, typename C = counter_t, typename L = yat::Mutex>
 class CountImpl: public CountBase<C,L>
 {
 public:
-  
+  //! \brief Constructor.
+  //! \param p Object to manage.
+  //! \param d Specific deleter.
   CountImpl(T* p, D d) : m_deleter(d), m_data(p)
   {
     PTR_DBG("CountImpl::CountImpl");
   }
   
+  //! \brief A "do nothing" destructor.
   ~CountImpl()
   {
     PTR_DBG("CountImpl::~CountImpl");
   }
 
+  //! \brief The specific deletion function.
+  //!
+  //! Calls for the specified deleter on the specified object.
   void dispose()
   {
     m_deleter(m_data);
@@ -194,7 +258,19 @@ private:
 template <typename C = counter_t, typename L = yat::Mutex> class WeakCounter;
 
 // ============================================================================
-// class: SharedCounter
+//! \class SharedCounter 
+//! \brief Shared counter implementation.
+//!
+//! This template class is a generic \<C\> type counter implementation. 
+//! It uses a CountImpl counter.
+//! 
+//! If counter lock is not necessary, use a yat::NullMutex type for example: 
+//! \verbatim myCounter = new SharedCounter<yat::NullMutex>(); \endverbatim
+//! 
+//! If counter lock is necessary, use a mutex type (default value in 
+//! the template definition), for example:
+//! \verbatim myCounter = new SharedCounter<>(); \endverbatim
+//!
 // ============================================================================
 template <typename C = counter_t, typename L = yat::Mutex>
 class SharedCounter
@@ -202,9 +278,13 @@ class SharedCounter
   friend class WeakCounter<C,L>;
 public:
 
+  //! Shared counter type.
   typedef SharedCounter<C,L> ThisType;
   
-  //! constructor
+  //! \brief Constructor.
+  //!
+  //! uses the default deleter class: DefaultDeleter.
+  //! \param p Object to manage.
   template <typename T>
   SharedCounter(T* p)
   {
@@ -212,7 +292,9 @@ public:
     this->m_count = new CountImpl<T,DefaultDeleter<T>,C,L>(p, DefaultDeleter<T>());
   }
 
-  //! constructor with specific deleter
+  //! \brief Constructor with specific deleter.
+  //! \param p Object to manage.
+  //! \param d Specific deleter.
   template <typename T, typename D>
   SharedCounter(T* p, D d)
   {
@@ -220,14 +302,15 @@ public:
     this->m_count = new CountImpl<T,D,C,L>(p, d);
   }
 
-  //! destructor
+  //! \brief Destructor.
   virtual ~SharedCounter()
   {
     PTR_DBG("SharedCounter::~SharedCounter()");
     release();
   };
 
-  //! copy constructor from weak pointer
+  //! \brief Copy constructor from weak counter.
+  //! \param cnt The source counter.
   explicit SharedCounter (const WeakCounter<C,L>& cnt)
   {
     PTR_DBG("SharedCounter::SharedCounter(const WeakCounter<T,L>&)");
@@ -240,7 +323,8 @@ public:
     cnt.m_count->unlock();
   }
 
-  //! copy constructor
+  //! \brief copy constructor.
+  //! \param cnt The source counter.
   SharedCounter (const ThisType& cnt)
   {
     PTR_DBG("SharedCounter::SharedCounter(const ThisType&)");
@@ -248,7 +332,7 @@ public:
     this->m_count->add_ref();    
   }
 
-  //! release counter and underlying object
+  //! \brief Releases counter and underlying object.
   void release ()
   {
     PTR_DBG("SharedCounter::release()");
@@ -268,14 +352,15 @@ public:
     }
   }
 
-  //! reset content
+  //! \brief Resets counter's content.
   void reset ()
   {
     PTR_DBG("SharedCounter::reset()");
     ThisType().swap(*this);
   }
 
-  //! copy operator
+  //! \brief operator=.
+  //! \param s The source counter.
   const ThisType& operator= (const ThisType& s)
   {
     PTR_DBG("SharedCounter::operator=(const ThisType&)");
@@ -288,26 +373,31 @@ public:
     return *this;
   }
   
-  //! swap content
+  //! \brief Swaps counters content.
+  //! \param s The source counter.
   void swap (ThisType& s)
   {
     std::swap(this->m_count, s.m_count);
   }
 
-  //! unique
+  //! \brief Tests if there is only one reference or more.
+  //!
+  //! Returns true if there is only one reference, false otherwise.
   bool unique () const
   {
     return this->m_count->use_count() == 1;
   }
 
-  //! use count
+  //! \brief Gets use counter value.
   const C use_count () const
   {
     return this->m_count ? this->m_count->use_count() : 0;
   }
 
-  //- implicit conversion to bool
+  //! Implicit conversion to bool.
   typedef C* SharedCounter::*unspecified_bool_type;
+
+  //! \brief Implicit conversion to bool.
   operator unspecified_bool_type() const
   {
     return this->m_count ? m_count->use_count() : 0;
@@ -319,8 +409,20 @@ private:
 };
 
 // ============================================================================
-// class: WeakCounter
-// This class is used by the WeakPtr pointer type
+//! \class WeakCounter 
+//! \brief Weak counter implementation.
+//!
+//! This template class is a generic \<C\> type counter implementation. 
+//! It uses a SharedCounter counter.
+//! 
+//! If counter lock is not necessary, use a yat::NullMutex type for example: 
+//! \verbatim myCounter = new WeakCounter<yat::uint16, yat::NullMutex>(); \endverbatim
+//! 
+//! If counter lock is necessary, use a mutex type , for example:
+//! \verbatim myCounter = new WeakCounter<yat::uint16, yat::Mutex>(); \endverbatim
+//!
+//! This class is used by the WeakPtr pointer type. 
+//!
 // ============================================================================
 template <typename C, typename L>
 class WeakCounter
@@ -331,14 +433,15 @@ public:
 
   typedef WeakCounter<C,L> ThisType;
   
-  //! constructor
+  //! \brief Default constructor.
   WeakCounter ()
   {
     PTR_DBG("WeakCounter::WeakCounter()");
     this->m_count = 0;
   }
 
-  //! copy constructor
+  //! \brief Copy constructor.
+  //! \param cnt The source counter.
   WeakCounter (const ThisType& cnt)
   {
     PTR_DBG("WeakCounter::WeakCounter(const ThisType&)");
@@ -346,7 +449,8 @@ public:
     this->m_count->add_weak_ref();
   }
 
-  //! copy constructor from shared pointer
+  //! \brief Copy constructor from shared pointer.
+  //! \param cnt The source counter.
   WeakCounter (const SharedCounter<C,L>& cnt)
   {
     PTR_DBG("WeakCounter::WeakCounter(const SharedCounter<T,L>&)");
@@ -354,14 +458,15 @@ public:
     this->m_count->add_weak_ref();
   }
 
-  //! destructor
+  //! \brief Destructor.
   virtual ~WeakCounter()
   {
     PTR_DBG("WeakCounter::~WeakCounter()");
     release();
   };
 
-  //! copy operator
+  //! \brief operator=.
+  //! \param s The source counter.
   const ThisType& operator= (const ThisType& s)
   {
     PTR_DBG("WeakCounter::operator=(const ThisType&)");
@@ -374,7 +479,7 @@ public:
     return *this;
   }
   
-  //! release counter
+  //! \brief Releases counter.
   void release()
   {
     PTR_DBG("WeakCounter::release()");
@@ -389,27 +494,30 @@ public:
     }
   }
 
-  //! reset content
+  //! \brief Resets counter's content.
   void reset ()
   {
     PTR_DBG("WeakCounter::reset()");
     ThisType().swap(*this);
   }
 
-  //! swap content
+  //! \brief Swaps counters content.
+  //! \param s The source counter.
   void swap (const WeakCounter & s)
   {
     std::swap(this->m_count, s.m_count);
   }
 
-  //! use count
+  //! \brief Gets the use counter value.
   const C use_count () const
   {
     return this->m_count ? this->m_count->use_count() : 0;
   }
 
-  //- implicit conversion to bool
+  //! Implicit conversion to bool.
   typedef C* WeakCounter::*unspecified_bool_type;
+
+  //! \brief Implicit conversion to bool.
   operator unspecified_bool_type() const
   {
     return this->m_count ? m_count->use_count() : 0;

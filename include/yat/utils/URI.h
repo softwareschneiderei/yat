@@ -31,7 +31,7 @@
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
- * \author S.Poirier - Synchrotron SOLEIL
+ * \author See AUTHORS file
  */
 
 
@@ -43,29 +43,49 @@
 
 namespace yat
 {
-//===========================================================================
-/// Unified Ressource Identifier
-/// This class is aimed to allow parsing and building URLs
-/// The URI
-/// URI syntax is defined by RFC 3986
-/// The basic syntax is:
-///   scheme ":" hier-part [ "?" query ] [ "#" fragment ]
-//===========================================================================
+// ============================================================================
+//! \class URI 
+//! \brief Unified Resource Identifier class.
+//!
+//! This class is aimed to allow parsing and building URLs.
+//! \par The URI
+//! A URI is a compact sequence of characters that identifies an abstract or physical 
+//! resource.
+//! \par
+//! URI syntax is defined by RFC 3986. 
+//! \par
+//! The generic URI syntax consists of a hierarchical sequence of
+//!	components referred to as the scheme, authority, path, query, and fragment.
+//! \par
+//! The basic syntax is:
+//! \verbatim  URI = scheme ":" hier-part \[ "?" query \] \[ "\#" fragment \] \endverbatim
+//! 
+// ============================================================================
 class YAT_DECL URI
 {
 public:
+  //! \brief URI component types.
   enum Part
   {
+    //! Scheme.
     SCHEME = 0,
+	//! Authority.
     AUTHORITY,
+	//! User information.
     USERINFO,
+	//! Host.
     HOST,
+	//! Port.
     PORT,
+	//! Path.
     PATH,
+	//! Query.
     QUERY,
+	//! Fragment.
     FRAGMENT
   };
   
+  //! \brief URI components structure.
   struct Fields
   {
     String scheme;
@@ -87,44 +107,51 @@ private:
   static bool check_authority(const String& authority, URI::Fields* fields_ptr, bool throw_exception) throw ( Exception );
 
 public:
-  /// c-tor using the regular representation of the URL: a string !
+  //! \brief Constructor from URI.
+  //!
+  //! Creates an URI object from the regular representation of the URL: a string.
+  //! \param uri_string The URI value.
+  //! \exception BAD_URI_SYNTAX Thrown if URI syntax is not correct.
   URI(const String& uri_string) throw ( Exception );
   
-  /// c-tor using each fields
+  //! \brief Constructor from explicit values.
+  //! 
+  //! Creates an URI object from explicit URI fields.
+  //! \param fields URI components structure.
+  //! \exception BAD_URI_SYNTAX Thrown if URI syntax is not correct.
   URI(const URI::Fields& fields) throw ( Exception );
   
-  /// Empty c-tor
+  //! \brief Default constructor.
   URI() { }
   
-  /// Get the URI as a string
+  //! \brief Gets the URI as a string.
   String get() const;
   
-  /// Gets a specific part of the URI
-  ///
-  /// @param part The URI part looked for
-  /// @return a string
-  ///
+  //! \brief Gets a specific part of the URI as a string.
+  //!
+  //! \param part The URI part to retrieve.
   String get(Part part) const;
 
-  /// Sets a specific part
-  /// 
-  /// @param part The URI part looked for
-  /// @param associated value
-  /// @throw yat::Exception if ther syntax of the value is wrong
-  ///
+  //! \brief Sets a specific part of the URI.
+  //!
+  //! \param part The URI part to set.
+  //! \param value Value.
+  //! \exception BAD_URI_SYNTAX Thrown if the value syntax is not correct.
   void set(Part part, const String &value) throw ( Exception ); 
   
-  /// Sets value
-  /// 
-  /// @param associated value
-  ///
+  //! \brief Sets the URI.
+  //! 
+  //! \param value The URI value.
+  //! \exception BAD_URI_SYNTAX Thrown if the URI syntax is not correct.
   void set(const String &value) throw ( Exception ); 
   
-  /// Check the syntax of a value associated with a URI part
-  ///
-  /// @param part
-  /// @param associated value
-  /// @return true if ok, otherwise false
+  //! \brief Checks the syntax of the value of an URI part.
+  //!
+  //! Returns true if check is OK, false otherwise.
+  //! \param part The URI part to check.
+  //! \param value The value to check.
+  //! \param throw_exception If set to true, throws an exception if an error occurs.
+  //! \exception BAD_URI_SYNTAX Thrown if the value syntax is not correct.
   static bool check(Part part, const String &value, bool throw_exception=false) throw ( Exception );
 };
 
