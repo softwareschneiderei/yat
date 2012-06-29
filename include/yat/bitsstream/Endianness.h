@@ -37,12 +37,6 @@
 //=============================================================================
 // original authors..Aniruddha Gokhale, Carlos O'Ryan, ... (ACE lib)
 // hackers...........N. Leclercq & J. Malik - SOLEIL
-//=============================================================================
-// The current implementation assumes that the host has  1-byte, 2-byte and 
-// 4-byte integral types, and that it has single precision and double  precision 
-// IEEE floats. Those assumptions are pretty  good these days, with Crays being
-// the only known exception.
-//=============================================================================
 
 #ifndef  _YAT_ENDIANNESS_H_
 #define  _YAT_ENDIANNESS_H_
@@ -56,38 +50,85 @@ namespace yat
 {
 
 // ============================================================================
-// class: Endianness
+//! \class Endianness 
+//! \brief Endianness management class.
+//!
+//! This class provides endianness swaping functions for different data types.
+//! \remark The current implementation assumes that the host has 1-byte, 2-byte and 
+//! 4-byte integral types, and that it has single precision and double precision 
+//! IEEE floats. Those assumptions are pretty good these days, with Crays being
+//! the only known exception.
 // ============================================================================
 class YAT_DECL Endianness
 {
 public:
-  //- endianness
+  //! \brief Bytes ordering types.
   typedef enum
   {
+    //! Little endian.
     BO_LITTLE_ENDIAN,
+	//! Big endian.
     BO_BIG_ENDIAN
   } ByteOrder;
   
-  //- host bytes ordering
+  //! \brief Host bytes ordering.
   static const Endianness::ByteOrder host_endianness;
+
+  //! \brief Not host bytes ordering.
   static const Endianness::ByteOrder not_host_endianness;
 
-  //- bytes ordering required for host platform
+  //! \brief Tests if bytes ordering is required for host platform.
+  //!
+  //! Returns true if the specified data bytes ordering type is different
+  //! from local platform bytes ordering type, false otherwise.
+  //! \param _data_bo Data bytes ordering type.
   inline static bool data_needs_bytes_reordering (const Endianness::ByteOrder & _data_bo)
   {
     return _data_bo != Endianness::host_endianness;
   }
 
-  //- byte swapping for scalar 
+  //! \brief Byte swapping for a 2-bytes scalar.
+  //! \param orig The source scalar.
+  //! \param target The swaped scalar.
   static void swap_2  (const char *orig, char *target);
+
+  //! \brief Byte swapping for a 4-bytes scalar.
+  //! \param orig The source scalar.
+  //! \param target The swaped scalar.
   static void swap_4  (const char *orig, char *target);
+  
+  //! \brief Byte swapping for a 8-bytes scalar.
+  //! \param orig The source scalar.
+  //! \param target The swaped scalar.
   static void swap_8  (const char *orig, char *target);
+
+  //! \brief Byte swapping for a 16-bytes scalar.
+  //! \param orig The source scalar.
+  //! \param target The swaped scalar.
   static void swap_16 (const char *orig, char *target);
 
-  //- byte swapping for array 
+  //! \brief Byte swapping for an array of 2-bytes elements.
+  //! \param orig The source array.
+  //! \param target The swaped array.
+  //! \param length The array size.
   static void swap_2_array  (const char *orig, char *target, size_t length);
+
+  //! \brief Byte swapping for an array of 4-bytes elements.
+  //! \param orig The source array.
+  //! \param target The swaped array.
+  //! \param length The array size.
   static void swap_4_array  (const char *orig, char *target, size_t length);
+
+  //! \brief Byte swapping for an array of 8-bytes elements.
+  //! \param orig The source array.
+  //! \param target The swaped array.
+  //! \param length The array size.
   static void swap_8_array  (const char *orig, char *target, size_t length);
+
+  //! \brief Byte swapping for an array of 16-bytes elements.
+  //! \param orig The source array.
+  //! \param target The swaped array.
+  //! \param length The array size.
   static void swap_16_array (const char *orig, char *target, size_t length);
 };
 

@@ -52,11 +52,30 @@
 
 #include <yat/bitsstream/Endianness.h>
 
+// ============================================================================
+//! \page streamsPage Bit streams documentation
+//! \tableofcontents
+//! The bit stream utilities provide a set of stream services, such as different
+//! stream operators (\<\<, \|=, \&=, ...), getters and endianness management. \n
+//!
+//! \section secBS1 Bit stream utilities
+//! The bit stream utilities contains :
+//! - a bits set implementation,
+//! - a bits stream implementation,
+//! - endianness management.
+//!
+//! \section secBS2 Bit stream classes
+//! Links to file access classes : 
+//!   - yat::BitsSet
+//!   - yat::BitsStream
+//!   - yat::Endianness
+// ============================================================================
+
 namespace yat 
 {
 
 //=============================================================================
-// BitsStorage type
+//! \brief BitsStorage type.
 //=============================================================================
 #if defined(YAT_64BITS)
   typedef yat::uint64 BitsStorage;
@@ -69,114 +88,137 @@ namespace yat
 //=============================================================================
 class YAT_DECL BitsStream;
 
-//=============================================================================
-// class: BitsSet (set of bits abstraction)
-//=============================================================================
+// ============================================================================
+//! \class BitsSet 
+//! \brief Set of bits abstraction.
+//!
+//! This template class provides an implementation of a bit data storage with the
+//! following features:
+//! - \<n\> bits stored in a \<T\> type variable (which size is sizeof(\<T\>)),
+//! - stream operators provided.
+// ============================================================================
 template <size_t _n, typename T> 
 class YAT_DECL BitsSet
 {
 public:
-  //---------------------------------------------
+  //! \brief Constructor.
+  //! \param _value \<T\> type bit set value.
   BitsSet (const T& _value = 0) 
-  //---------------------------------------------
     : m_value (_value)
   {
     //- noop ctor
   }
-  //---------------------------------------------
+
+  //! \brief Destructor.
   ~BitsSet ()
-  //---------------------------------------------
   {
     //- noop dtor
   }
-  //---------------------------------------------
+
+  //! \brief operator= for a BitsSet value.
+  //! \param _src The source bits set.
   BitsSet<_n, T> & operator= (const BitsSet<_n, T>& _src)
-  //---------------------------------------------
   {
     if (this == &_src) return *this;
     m_value = _src.m_value;
     return *this;
   }
-  //---------------------------------------------
+
+  //! \brief operator= for a \<T\> type value.
+  //! \param _src The source \<T\> type value.
   BitsSet<_n, T> & operator= (const T& _src)
-  //---------------------------------------------
   {
     m_value = _src; 
     return *this;
   }
-  //---------------------------------------------
+
+  //! \brief operator|= for a BitsSet value.
+  //! \param _src The source bits set.
   BitsSet<_n, T> & operator|= (const BitsSet<_n, T>& _src)
-  //---------------------------------------------
   {
     m_value |= _src.m_value;
     return *this;
   }
-  //---------------------------------------------
+
+  //! \brief operator|= for a \<T\> type value.
+  //! \param _src The source \<T\> type value.
   BitsSet<_n, T> & operator|= (const T& _src)
-  //---------------------------------------------
   {
     m_value |= _src; 
     return *this;
   }
-  //---------------------------------------------
+
+  //! \brief operator&= for a BitsSet value.
+  //! \param _src The source bits set.
   BitsSet<_n, T> & operator&= (const BitsSet<_n, T>& _src)
-  //---------------------------------------------
   {
     m_value &= _src.m_value;
     return *this;
   }
-  //---------------------------------------------
+
+  //! \brief operator&= for a \<T\> type value.
+  //! \param _src The source \<T\> type value.
   BitsSet<_n, T> & operator&= (const T& _src)
-  //---------------------------------------------
   {
     m_value &= _src; 
     return *this;
   }
-  //---------------------------------------------
+
+  //! \brief Gets bits set value.
   const T& value () const
-  //---------------------------------------------
   {
     return m_value;
   }
-  //---------------------------------------------
+
+  //! \brief Gets bits set value.
   T& value ()
-  //---------------------------------------------
   {
     return m_value;
   }
-  //---------------------------------------------
+
+  //! \brief Gets bits set value.
   const T& operator() () const
-  //---------------------------------------------
   {
     return m_value;
   }
-  //---------------------------------------------
+
+  //! \brief Returns a string representation of the bits set value.
   std::string to_string () const
-  //---------------------------------------------
   {
     std::bitset<_n> bs(static_cast<BitsStorage>(m_value));
     return bs.to_string();
   }
 
 private:
+  //- The bits set value.
   T m_value;
 };
 
-//=============================================================================
-// class: BitsStream (input stream of bits abstraction)
-//=============================================================================
+// ============================================================================
+//! \class BitsStream 
+//! \brief Input stream of bits abstraction.
+//!
+//! This template class provides a bits stream abstraction that offers stream 
+//! reading functions. 
+// ============================================================================
 class YAT_DECL BitsStream
 {
 public:
+  //! \brief Constructor.
+  //! \param _data Data buffer pointer.
+  //! \param _size Data buffer size in bytes.
+  //! \param _endianness Data buffer endianness.
   BitsStream (unsigned char * _data = 0, 
               size_t _size = 0,
               const Endianness::ByteOrder& _endianness = Endianness::BO_LITTLE_ENDIAN);
 
+  //! \brief Destructor.
   virtual ~BitsStream ();
 
-  //-------------------------------------------------------------------------
+  //! \brief Sets data buffer.
+  //! \param _data Data buffer pointer.
+  //! \param _size Data buffer size in bytes.
   void input_data (unsigned char * _data, size_t _size)
-  //-------------------------------------------------------------------------
   {
     if (_data)
     {
@@ -188,38 +230,49 @@ public:
     }
   }
 
-  //-------------------------------------------------------------------------
+  //! \brief Reads the specified number of bits.
+  //!
+  //! Returns true if the reading operation is correct, false otherwise.
+  //! The possible error cases are :
+  //! - the number of remaining bits (still not read) is less than \<_num_bits\>,
+  //! - sizeof(\<_bits\>) in bits is less than \<_num_bits\>.
+  //! \param _num_bits Number of bits to read.
+  //! \param _bits Bits read.
   bool read_bits (unsigned int _num_bits, yat::BitsStorage & _bits)
-  //-------------------------------------------------------------------------
   {
     _bits = 0;
     return read_bits_i (_num_bits, &_bits);
   }
 
-  //-------------------------------------------------------------------------
+  //! \brief Skips the specified number of bits.
+  //!
+  //! Returns true if the skiping operation is correct, false otherwise.
+  //! The possible error cases are :
+  //! - the number of remaining bits (still not read) is less than \<_num_bits\>.
+  //! \param _num_bits Number of bits to skip.
   bool skip_bits (unsigned int _num_bits)
-  //-------------------------------------------------------------------------
   {
     return read_bits_i (_num_bits, 0);
   }
 
-  //-------------------------------------------------------------------------
+  //! \brief Gets endianness strategy.
   const Endianness::ByteOrder & endianness () const
-  //-------------------------------------------------------------------------
   {
     return m_endianness;
   }
 
-  //-------------------------------------------------------------------------
+  //! \brief Tests if data buffer has a nig endian representation.
+  //!
+  //! Returns true if data buffer has a big endian representation, false otherwise.
   bool is_big_endian () const
-  //-------------------------------------------------------------------------
   {
     return m_endianness == Endianness::BO_BIG_ENDIAN;
   }
 
-  //-------------------------------------------------------------------------
+  //! \brief Tests if data buffer has a little endian representation.
+  //!
+  //! Returns true if data buffer has a little endian representation, false otherwise.
   bool is_little_endian () const
-  //-------------------------------------------------------------------------
   {
     return m_endianness == Endianness::BO_LITTLE_ENDIAN;
   }
@@ -257,7 +310,7 @@ private:
               << std::right
               << std::endl;
   }
-
+  
   //- this extracts _num_bits bits or skips _num_bits if bits == 0
   inline bool read_bits_i (int _num_bits, yat::BitsStorage * _bits)
   {
@@ -313,7 +366,11 @@ private:
 };
 
 //=============================================================================
-// operator>> - extracts _n bits from source then puts result into dest.value
+//! \brief operator>> for a bits set.
+//! 
+//! Extracts _n bits from source then puts result into dest.value.
+//! \param source The source bits stream.
+//! \param dest The extracted bits set.
 //=============================================================================
 template <size_t _n, typename _T>
 BitsStream& operator>> (BitsStream& source, BitsSet<_n, _T>& dest)
@@ -326,7 +383,7 @@ BitsStream& operator>> (BitsStream& source, BitsSet<_n, _T>& dest)
 
   if ( source.endianness() != yat::Endianness::host_endianness )
   {
-    switch ( sizeof(_T) )
+    switch (sizeof(_T))
     {
       case 2:
       {
@@ -353,7 +410,7 @@ BitsStream& operator>> (BitsStream& source, BitsSet<_n, _T>& dest)
       }
       break;
     }
-  }
+  } 
 
   dest.value() = t; 
 
@@ -361,7 +418,9 @@ BitsStream& operator>> (BitsStream& source, BitsSet<_n, _T>& dest)
 } 
 
 //=============================================================================
-// operator>> for array of elements of type T
+//! \brief operator>> for an array of \<T\> type elements.
+//! \param _source The source bits stream.
+//! \param _dest The destination array.
 //=============================================================================
 template <typename _T>
 BitsStream& operator>> (BitsStream& _source, const _T _dest[])

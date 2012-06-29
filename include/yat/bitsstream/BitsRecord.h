@@ -55,40 +55,40 @@ namespace yat
 {
 
 //=============================================================================
-// INDENT COUNTER
+//! INDENT COUNTER
 //=============================================================================
 extern YAT_DECL size_t kINDENT_COUNTER;
 
 //=============================================================================
-// MACRO: DUMP_INC_INDENT
+//! MACRO: DUMP_INC_INDENT
 //=============================================================================
 #define DUMP_INC_INDENT yat::kINDENT_COUNTER += 2;
 
 //=============================================================================
-// MACRO: DUMP_DEC_INDENT
+//! MACRO: DUMP_DEC_INDENT
 //=============================================================================
 #define DUMP_DEC_INDENT yat::kINDENT_COUNTER -= 2;
 
 //=============================================================================
-// MACRO: INDENT_STREAM
+//! MACRO: INDENT_STREAM
 //=============================================================================
 #define INDENT_STREAM \
   _os << std::setw(yat::kINDENT_COUNTER) << std::left << std::setfill(' ') << ""
 
 //=============================================================================
-// MACRO: DUMP_CLASS
+//! MACRO: DUMP_CLASS
 //=============================================================================
 #define DUMP_CLASS(_CLASS_NAME_) \
   INDENT_STREAM << "-------------------------------------------------------------" << std::endl;
 
 //=============================================================================
-// MACRO: DUMP_END
+//! MACRO: DUMP_END
 //=============================================================================
 #define DUMP_END \
   INDENT_STREAM << "-------------------------------------------------------------";
 
 //=============================================================================
-// MACRO: YAT_BEGIN_BR_DUMP
+//! MACRO: YAT_BEGIN_BR_DUMP
 //=============================================================================
 #define YAT_BEGIN_BR_DUMP(_CLASS_NAME_) \
   inline std::ostream& operator<< (std::ostream& _os, const _CLASS_NAME_& _c) \
@@ -99,7 +99,7 @@ extern YAT_DECL size_t kINDENT_COUNTER;
     DUMP_INC_INDENT;
                     
 //=============================================================================
-// MACRO: DUMP_MEMBER
+//! MACRO: DUMP_MEMBER
 //=============================================================================
 #define DUMP_MEMBER(_MEMBER_NAME_) \
   INDENT_STREAM << " - "  \
@@ -111,7 +111,7 @@ extern YAT_DECL size_t kINDENT_COUNTER;
                 << std::endl;
 
 //=============================================================================
-// MACRO: DUMP_SKIP_BITS
+//! MACRO: DUMP_SKIP_BITS
 //=============================================================================
 #define DUMP_SKIP_BITS(_BITS_TO_SKIP_) \
   INDENT_STREAM << " - "  \
@@ -124,7 +124,7 @@ extern YAT_DECL size_t kINDENT_COUNTER;
                 << std::endl;
 
 //=============================================================================
-// MACRO: YAT_END_BR_DUMP
+//! MACRO: YAT_END_BR_DUMP
 //=============================================================================
 #define YAT_END_BR_DUMP(_CLASS_NAME_) \
     DUMP_DEC_INDENT; \
@@ -135,7 +135,9 @@ extern YAT_DECL size_t kINDENT_COUNTER;
   }
 
 //=============================================================================
-// operator<< for  BitsSet - dump value 
+//! \brief operator<< for BitsSet (dump value).
+//! \param _os Output stream.
+//! \param _brm Input value.
 //=============================================================================
 inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<8,unsigned char>& _brm)
 {
@@ -151,7 +153,9 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<8,unsigne
 }
 
 //=============================================================================
-// operator<< for  BitsSet - dump value 
+//! \brief operator<< for BitsSet (dump value).
+//! \param _os Output stream.
+//! \param _brm Input value.
 //=============================================================================
 inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<8,char>& _brm)
 {
@@ -167,7 +171,9 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<8,char>& 
 }
 
 //=============================================================================
-// operator<< for  BitsSet - dump value 
+//! \brief operator<< for BitsSet (dump value).
+//! \param _os Output stream.
+//! \param _brm Input value.
 //=============================================================================
 template <size_t _n, typename _T> 
 inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<_n,_T>& _brm)
@@ -184,7 +190,7 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<_n,_T>& _
 }
 
 //=============================================================================
-// MACRO: YAT_BEGIN_BR
+//! MACRO: YAT_BEGIN_BR
 //=============================================================================
 #define YAT_BEGIN_BR(_CLASS_NAME_) \
   class _CLASS_NAME_ \
@@ -198,43 +204,43 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<_n,_T>& _
     }
 
 //=============================================================================
-// MACRO: YAT_END_BR
+//! MACRO: YAT_END_BR
 //=============================================================================
 #define YAT_END_BR(_CLASS_NAME_) \
   };
    
 //=============================================================================
-// MACRO: MEMBER
+//! MACRO: MEMBER
 //=============================================================================   
 #define MEMBER(_MEMBER_NAME_, _BITS_, _CPP_TYPE_) \
   yat::BitsSet<_BITS_, _CPP_TYPE_> _MEMBER_NAME_;
 
 //=============================================================================
-// MACRO: IGNORE_MEMBER
+//! MACRO: IGNORE_MEMBER
 //=============================================================================   
 #define IGNORE_MEMBER(_MEMBER_NAME_, _BITS_, _CPP_TYPE_)
 
 //=============================================================================
-// MACRO: YAT_BEGIN_BR_EXTRACTOR
+//! MACRO: YAT_BEGIN_BR_EXTRACTOR
 //=============================================================================
 #define YAT_BEGIN_BR_EXTRACTOR(_CLASS_NAME_) \
   inline void operator>> (yat::BitsStream& _bs, _CLASS_NAME_& _br) \
   { \
 
 //=============================================================================
-// MACRO: EXTRACT_MEMBER
+//! MACRO: EXTRACT_MEMBER
 //=============================================================================
 #define EXTRACT_MEMBER(_MEMBER_NAME_) \
   _bs >> _br._MEMBER_NAME_;
 
 //=============================================================================
-// MACRO: SKIP_BITS
+//! MACRO: SKIP_BITS
 //=============================================================================
 #define SKIP_BITS(_BITS_TO_SKIP_) \
   _bs.skip_bits(_BITS_TO_SKIP_);
 
 //=============================================================================
-// MACRO: YAT_END_BR_EXTRACTOR
+//! MACRO: YAT_END_BR_EXTRACTOR
 //=============================================================================
 #define YAT_END_BR_EXTRACTOR(_CLASS_NAME_) \
   }
