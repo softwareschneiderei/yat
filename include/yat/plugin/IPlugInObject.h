@@ -42,12 +42,22 @@
 namespace yat
 {
 
+// ============================================================================
+//! \class IPlugInObject 
+//! \brief The plugin object interface.
+//!
+//! This class is a base class for a plugin object. 
+//!
+//! Inherits from yat::NonCopyable class.
+// ============================================================================
 class YAT_DECL IPlugInObject : private yat::NonCopyable
 {
 public:
+  //! \brief Destructor.
   virtual ~IPlugInObject();
 
 protected:
+  //! \brief Protected constructor.
   IPlugInObject();
 };
 

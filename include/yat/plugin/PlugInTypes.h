@@ -46,12 +46,14 @@
 
 namespace yat
 {
-
+  //! \brief "Set attribute" callback definition.
   YAT_DEFINE_CALLBACK ( SetAttrCB, const yat::Any&  );
+  //! \brief "Get attribute" callback definition.
   YAT_DEFINE_CALLBACK ( GetAttrCB, yat::Any& );
 
   struct PlugInDataType
   { 
+    //! \brief Plugin attribute data types.
     enum
     {
       BOOLEAN,
@@ -70,6 +72,7 @@ namespace yat
 
   struct PlugInAttrWriteType
   { 
+    //! \brief Plugin attribute access types.
     enum
     {
       READ,
@@ -78,26 +81,50 @@ namespace yat
     };
   };
 
+  // ============================================================================
+  //! \class PlugInAttrInfo 
+  //! \brief Plugin attribute information.
+  //!
+  //! This class contains an attribute description.
+  //! 
+  // ============================================================================
   class PlugInAttrInfo
   {
   public:
+    //! \brief Attribute name.
     std::string name;
+
+	//! \brief Attribute data type.
     int data_type;
+
+	//! \brief Attribute access type.
     int write_type;
 
+	//! \brief Attribute label.
     std::string label;
+
+	//! \brief Attribute description.
     std::string desc;
+
+	//! \brief Attribute unit.
     std::string unit;
+
+	//! \brief Attribute display format.
     std::string display_format;
 
+	//! \brief "Set atrribute" callback.
     SetAttrCB set_cb;
+
+	//! \brief "Get atrribute" callback.
     GetAttrCB get_cb;
   };
 
+  //! \brief List of attribute informations.
   typedef std::vector<PlugInAttrInfo> PlugInAttrInfoList;
 
   struct PlugInPropType
   {
+    //! \brief Plugin property types.
     enum
     {
       _UNDEFINED = -1,
@@ -124,7 +151,9 @@ namespace yat
     };
   };
 
+  //! \brief List of property informations.
   typedef std::map<std::string , int> PlugInPropInfos;
+  //! \brief List of property values.
   typedef std::map<std::string , yat::Any> PlugInPropValues;
 
 } // namespace

@@ -42,19 +42,31 @@
 
 namespace yat
 {
-/*! \brief Templated generic factory implementing IPlugInFactory, used to instantiate the Object
-  *         given to it during template instantiation
-  */
+// ============================================================================
+//! \class GenericFactory 
+//! \brief The plugin generic factory.
+//!
+//! This template class is a generic factory implementing IPlugInFactory, 
+//! used to instantiate the \<Object\> type object given as a template parameter.
+//!
+//! \remark The \<Object\> type must be IPlugInObject compatible. 
+// ============================================================================
 template <class Object>
 class GenericFactory : public IPlugInFactory
 {
 public:
+  //! \brief Default constructor.
   GenericFactory()
   {};
 
+  //! \brief Destructor.
   virtual ~GenericFactory()
   {};
 
+  //! \brief Creates a new \<Object\> type object.
+  //! \param object A reference to a IPlugInObject pointer that will hold 
+  //! the address of the created object.
+  //! \param p A set of parameters to customize the object creation if necessary. 
   virtual void create(IPlugInObject*& object,
                       const PlugInObjectParams&)
   {
@@ -62,52 +74,57 @@ public:
   };
 };
 
-/*! \brief Prototypes for the exported symbols of a plugin
-  */
+
+//! \brief Prototype for the exported "on load" symbol of a plugin.
 typedef void            (*OnLoadFunc_t    ) ( void );
+
+//! \brief Prototype for the exported "on unload" symbol of a plugin.
 typedef void            (*OnUnLoadFunc_t  ) ( void );
+
+//! \brief Prototype for the exported "get information" symbol of a plugin.
 typedef IPlugInInfo*    (*GetInfoFunc_t   ) ( void );
+
+//! \brief Prototype for the exported "get factory" symbol of a plugin.
 typedef IPlugInFactory* (*GetFactoryFunc_t) ( void );
 
-/*! \brief Names of the exported symbols of a plugin
-  */
+
+//! \brief Name of the exported "on load" symbol of a plugin.
 const std::string kOnLoadSymbol      ( "OnLoad" );
+//! \brief Name of the exported "on unload" symbol of a plugin.
 const std::string kOnUnLoadSymbol    ( "OnUnLoad" );
+//! \brief Name of the exported "get infirmation" symbol of a plugin.
 const std::string kGetInfoSymbol     ( "GetInfo" );
+//! \brief Name of the exported "get factory" symbol of a plugin.
 const std::string kGetFactorySymbol  ( "GetFactory" );
 
-/*! Helper macro to declare the OnLoad and OnUnLoad plugin exported symbols
-  */
+//! \brief Helper macro to declare the OnLoad and OnUnLoad plugin exported symbols.
 # define DECLARE_LOAD_UNLOAD_PLUGIN_EXPORTED_SYMBOLS \
   extern "C" YAT_DECL_EXPORT void OnLoad( void ); \
   extern "C" YAT_DECL_EXPORT void OnUnLoad( void );
 
-/*! Helper macro to define an empty implementation of the OnLoad and OnUnLoad plugin exported symbols
-  */
+//! \brief Helper macro to define an empty implementation of the OnLoad and OnUnLoad plugin exported symbols.
 # define DEFINE_LOAD_UNLOAD_EXPORTED_SYMBOLS \
   void OnLoad( void )   {  }; \
   void OnUnLoad( void ) {  };
 
-/*! Helper macro to define and declare default empty OnLoad and OnUnLoad plugin exported symbols
-  */
+//! \brief Helper macro to define and declare default empty OnLoad and OnUnLoad plugin exported symbols.
 # define EXPORT_DEFAULT_LOAD_UNLOAD \
   DECLARE_LOAD_UNLOAD_PLUGIN_EXPORTED_SYMBOLS \
   DEFINE_LOAD_UNLOAD_EXPORTED_SYMBOLS
 
-/*! Helper macro to export the GetInfo symbol. The function will allocate and return an instance
-  *  of the class given to it as parameter
-  */
+//! \brief Helper macro to export the GetInfo symbol. 
+//!
+//! The function will allocate and return an instance of the class given to it as parameter.
 # define EXPORT_GETINFO( PlugInInfoClass ) \
   extern "C" YAT_DECL_EXPORT yat::IPlugInInfo *GetInfo( void ) { return new PlugInInfoClass(); }
 
-/*! Helper macro to export the GetFactory symbol. The function will allocate and return an instance
-  *  of the class given to it as parameter
-  */
+//! \brief Helper macro to export the GetFactory symbol. 
+//!
+//! The function will allocate and return an instance of the class given to it as parameter.
 # define EXPORT_FACTORY( FactoryClass ) \
   extern "C" YAT_DECL_EXPORT yat::IPlugInFactory *GetFactory( void ) { return new FactoryClass(); }
 
-/*! Helper macro to declare and define the exported symbols for a plugin containing a single class
-  */
+//! \brief Helper macro to declare and define the exported symbols for a plugin containing a single class.
 # define EXPORT_SINGLECLASS_PLUGIN( PlugInObjectClass, PlugInInfoClass ) \
   EXPORT_DEFAULT_LOAD_UNLOAD \
   EXPORT_GETINFO( PlugInInfoClass ) \

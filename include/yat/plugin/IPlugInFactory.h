@@ -42,25 +42,34 @@
 namespace yat
 {
 
+//! Parameters to customize the object creation.
 typedef std::vector<std::string> PlugInObjectParams;
 
-/**
-  *  \brief Abtract interface for a Plugin factory
-  */
+
+// ============================================================================
+//! \class IPlugInFactory 
+//! \brief Abstract interface for a Plugin factory.
+//!
+//! This class is a base factory for "dynamic library" objects. At least the virtual 
+//! function *create()* must be implemented by derived classes.
+//! 
+// ============================================================================
 class YAT_DECL IPlugInFactory
 {
   friend class PlugInManager;
 
 public:
-  /**
-    *  \brief Creates a plugin object
-    *  \param[in,out] object a reference to a IPlugInObject pointer that will hold the adress of the created object
-    *  \param[in] params a set of parameters to customize the object creation if necessary
-    */
+  //! \brief Creates a plugin object.
+  //! \param[in,out] object A reference to a IPlugInObject pointer that will hold 
+  //! the address of the created object.
+  //! \param[in] params A set of parameters to customize the object creation if necessary.
   virtual void create(IPlugInObject*& object,
                       const PlugInObjectParams& params = PlugInObjectParams()) = 0;
 protected:
+  //! \brief Protected default constructor.
   IPlugInFactory();
+
+  //! \brief Protected destructor.
   virtual ~IPlugInFactory();
 
 private:

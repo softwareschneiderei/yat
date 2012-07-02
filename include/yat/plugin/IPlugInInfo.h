@@ -42,18 +42,32 @@
 namespace yat
 {
 
+// ============================================================================
+//! \class IPlugInInfo 
+//! \brief The information class for plugin object.
+//!
+//! This class is a base class providing access to informations on a plugin object. 
+//! This abstract class can not be used as this and must be derived.
+//!
+//! Inherits from yat::NonCopyable class.
+// ============================================================================
 class YAT_DECL IPlugInInfo : private yat::NonCopyable
 {
 public:
+  //! \brief Destructor.
   virtual ~IPlugInInfo();
 
+  //! \brief Gets plugin identifier (as a string value).
   virtual std::string get_plugin_id () const = 0;
 
+  //! \brief Gets plugin interface name (as a string value).
   virtual std::string get_interface_name () const = 0;
 
+  //! \brief Gets plugin version number (as a string value).
   virtual std::string get_version_number () const = 0;
   
 protected:
+  //! \brief Protected constructor.
   IPlugInInfo();
 };
 

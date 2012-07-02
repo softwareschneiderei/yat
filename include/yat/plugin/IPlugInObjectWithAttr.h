@@ -43,15 +43,31 @@
 namespace yat
 {
 
+// ============================================================================
+//! \class IPlugInObjectWithAttr 
+//! \brief The plugin object with attributes interface.
+//!
+//! This class is a base class for a plugin object with attributes providing
+//! access these attributes.
+//! This abstract class can not be used as this and must be derived.
+//!
+//! Inherits from yat::IPlugInObject class.
+// ============================================================================
 class YAT_DECL IPlugInObjectWithAttr : public yat::IPlugInObject
 {
 public:
+  //! \brief Enumerates the object's attributes.
+  //! \param[out] list List of attributes.
   virtual void enumerate_attributes( yat::PlugInAttrInfoList& list) const
     throw (yat::Exception) = 0;
 
+  //! \brief Enumerates the object's properties.
+  //! \param[out] prop_infos List of properties.
   virtual void enumerate_properties( yat::PlugInPropInfos& prop_infos ) const
     throw (yat::Exception) = 0;
   
+  //! \brief Sets the object's properties.
+  //! \param[in] prop_values List of properties to set.
   virtual void set_properties( yat::PlugInPropValues& prop_values )
     throw (yat::Exception) = 0;
 };

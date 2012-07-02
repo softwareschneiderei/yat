@@ -43,71 +43,78 @@
 namespace yat
 {
 
-/*! \brief Manages PlugIn.
- */
+// ============================================================================
+//! \class PlugInManager 
+//! \brief The plugin manager class.
+//!
+//! This class provides an interface to manage dynamic library (plugin) objects: 
+//! - load a plugin,
+//! - unload a plugin.
+//!
+// ============================================================================
 class YAT_DECL PlugInManager
 {
 public:
-  /*! \brief Information about a specific plug-in.
-   */
+  //! \brief Information about a specific plug-in.
   struct PlugInEntry
   {
+    //! \brief %File name.
     std::string     m_fileName;
+	//! \brief Plugin pointer.
     PlugIn*         m_plugin;
+	//! \brief Plugin informations.
     IPlugInInfo*    m_info;
+	//! \brief Plugin factory.
     IPlugInFactory* m_factory;
   };
 
-  /*! Constructs a PlugInManager object.
-   */
+  //! \brief Default constructor.
+  //!
+  //! Constructs a PlugInManager object.
   PlugInManager();
 
-  /// Destructor.
+  //! \brief Destructor.
   virtual ~PlugInManager();
 
-  /*! \brief Loads the specified plug-in.
-   *
-   * After being loaded, the OnLoad() method is called.
-   *
-   * \param library_file_name Name of the file that contains the PlugIn.
-   * \return Pointer on the IPlugInFactory associated to the library.
-   *         Valid until the library is unloaded. Never \c NULL.
-   * \exception yat::Exception is thrown if an error occurs during loading.
-   */
+  //! \brief Loads the specified plug-in.
+  //!
+  //! After being loaded, the OnLoad() method is called.
+  //! Returns the pointer on the IPlugInFactory associated to the library.
+  //! Valid until the library is unloaded. Never \c NULL.
+  //!
+  //! \param library_file_name Name of the file that contains the PlugIn.
+  //! \exception SHAREDLIBRARY_ERROR Thrown if an error occurs during loading.
   std::pair<IPlugInInfo*, IPlugInFactory*> load( const std::string &library_file_name );
 
-  /*! \brief Loads the specified plug-in. new version!
-   *
-   * After being loaded, the OnLoad() method is called.
-   *
-   * \param library_file_name Name of the file that contains the PlugIn.
-   * \param plugin_entry_ptr pointer to a previously allocated PlugInEntry structure
-   * \exception yat::Exception is thrown if an error occurs during loading.
-   */
+  //! \brief Loads the specified plug-in. Newer version!
+  //!
+  //! After being loaded, the OnLoad() method is called.
+  //!
+  //! \param library_file_name Name of the file that contains the PlugIn.
+  //! \param entry_ptr Pointer to a previously allocated PlugInEntry structure.
+  //! \exception NULL_POINTER Thrown if entry pointer is NULL.
+  //! \exception SHAREDLIBRARY_ERROR Thrown if an error occurs during loading.
   void load( const std::string &library_file_name, PlugInEntry* entry_ptr );
 
-  /*! \brief Unloads the specified plug-in.
-   * \param library_file_name Name of the file that contains the TestPlugIn passed
-   *                        to a previous call to load().
-   */
+  //! \brief Unloads the specified plug-in.
+  //! \param library_file_name Name of the file that contains the TestPlugIn passed
+  //! to a previous call to load().
   void unload( const std::string &library_file_name );
   
-  /*! \brief Unloads all loaded plug-in.
-   */
+  //! \brief Unloads all loaded plug-in.
   void unload_all( void );
 
 protected:
 
-  /*! Unloads the specified plug-in.
-   * \param plug_in Information about the plug-in.
-   */
+  //! \brief Unloads the specified plug-in.
+  //! \param plug_in Information about the plug-in.
   void unload( PlugInEntry &plug_in );
 
 private:
-  /// Prevents the use of the copy constructor.
+  //- Prevents the use of the copy constructor.
   PlugInManager( const PlugInManager &copy );
 
-  /// Prevents the use of the copy operator.
+  //- Prevents the use of the copy operator.
   void operator =( const PlugInManager &copy );
 
 private:
