@@ -115,7 +115,7 @@ inline int64 int64FromHLPair(long lHigh, unsigned long ulLow)
 #ifndef MS_OVERFLOW
   //! \brief Number of milliseconds indicating an int64 capacity overflow.
   //! Used in a date substraction.
-  #define MS_OVERFLOW	(int64FromHLPair(0x80000000, 0x0) - int64(1))
+  #define MS_OVERFLOW  (int64FromHLPair(0x80000000, 0x0) - int64(1))
 #endif
 
 //! 1970/01/01 at 00:00.
@@ -509,7 +509,7 @@ public:
   static pcsz month_name(uint8 iMonth);
 
   //! \brief Gets Unix current time.
-  static uint32 unix_time();
+  static int32 unix_time();
 
   //@} Static methods
 
