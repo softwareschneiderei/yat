@@ -55,7 +55,7 @@
 // ----------------------------------------------------------------------------
 // SOME PSEUDO CONSTs
 // ----------------------------------------------------------------------------
-#define MAX_SLEEP_SECONDS  (long)4294966	//- this is (2^32 - 2) / 1000 
+#define MAX_SLEEP_SECONDS  (long)4294966  //- this is (2^32 - 2) / 1000 
 #define MAX_NSECS 1000000000
 
 // ----------------------------------------------------------------------------
@@ -200,22 +200,22 @@ bool Condition::timed_wait (unsigned long _tmo_msecs)
 
   bool signaled = true;
  
-	if (_tmo_msecs == 0) 
+  if (_tmo_msecs == 0) 
   {
     ::pthread_cond_wait(&m_posix_cond, &m_external_lock.m_posix_mux);
   }
-	else 
+  else 
   {
-		//- get absoulte time
-		struct timespec ts;
-		ThreadingUtilities::get_time(ts, _tmo_msecs);
+    //- get absoulte time
+    struct timespec ts;
+    ThreadingUtilities::get_time(ts, _tmo_msecs);
     //- wait for the condition to be signaled or tmo expiration
-		int result = ::pthread_cond_timedwait(&m_posix_cond, 
+    int result = ::pthread_cond_timedwait(&m_posix_cond, 
                                           &m_external_lock.m_posix_mux, 
                                           &ts);
     if (result == ETIMEDOUT)
       signaled = false;
-	}
+  }
 
   return signaled;
 }
@@ -256,7 +256,7 @@ Thread::IOArg yat_thread_common_entry_point (Thread::IOArg _p)
     //- just protect yat impl. against user code using a try/catch statement
     try
     {
-	    me->run(me->m_iarg);
+      me->run(me->m_iarg);
     }
     catch (...)
     {
@@ -269,7 +269,7 @@ Thread::IOArg yat_thread_common_entry_point (Thread::IOArg _p)
     //- just protect yat impl. against user code using a try/catch statement
     try
     {
-	    me->m_oarg = me->run_undetached(me->m_iarg);
+      me->m_oarg = me->run_undetached(me->m_iarg);
     }
     catch (...)
     {
@@ -288,14 +288,14 @@ Thread::IOArg yat_thread_common_entry_point (Thread::IOArg _p)
     //- creating thread must have reached the end of start() before we delete the
     //- thread object.  Of course, once the call to start() returns, the user can
     //- still incorrectly refer to the thread object, but that's their problem.
-	  AutoMutex<Mutex> guard(me->m_lock);
-	  YAT_LOG_STATIC("yat_thread_common_entry_point::thread " << DUMP_THREAD_UID << " - changing state to TERMINATED");
+    AutoMutex<Mutex> guard(me->m_lock);
+    YAT_LOG_STATIC("yat_thread_common_entry_point::thread " << DUMP_THREAD_UID << " - changing state to TERMINATED");
     //- set state to TERMINATED
     me->m_state = yat::Thread::STATE_TERMINATED;
   }
 
   //- commit suicide in case the thread ran detached
-	if (me->m_detached)
+  if (me->m_detached)
   {
     YAT_LOG_STATIC("yat_thread_common_entry_point::thread " << DUMP_THREAD_UID << " is detached and will be deleted now.");
     delete me;
@@ -393,7 +393,7 @@ void Thread::spawn ()
   if (this->m_state != yat::Thread::STATE_NEW)
   {
     YAT_LOG("Thread::spawn::thread is either already running or terminated");
-	  return;
+    return;
   }
 
   //- intialize thread attributes
@@ -414,7 +414,7 @@ void Thread::spawn ()
 
   //- set thread priority
 #if defined(PthreadSupportThreadPriority)
-	YAT_LOG("Thread::spawn::changing thread priority attr");
+  YAT_LOG("Thread::spawn::changing thread priority attr");
 # if (PthreadDraftVersion <= 6)
   ::pthread_attr_setprio(&thread_attrs, yat_to_posix_priority(m_priority));
 # else
@@ -557,7 +557,7 @@ int Thread::yat_to_posix_priority (Priority _p)
   switch (_p) 
   {
     case yat::Thread::PRIORITY_LOW:
-	    return lowest_priority;
+      return lowest_priority;
 
     case yat::Thread::PRIORITY_HIGH:
       return highest_priority;
@@ -566,13 +566,13 @@ int Thread::yat_to_posix_priority (Priority _p)
       return highest_priority;
 
     default:
-	    return normal_priority;
+      return normal_priority;
   }
 #else
   switch (_p) 
   {
     default:
-			throw Exception(); //-TODO
+      throw Exception(); //-TODO
   } 
 #endif
 }
@@ -599,9 +599,9 @@ void ThreadingUtilities::sleep (unsigned long _secs, unsigned long _nano_secs)
   {
     if (errno == EINTR) 
     {
-	    ts1.tv_sec  = ts2.tv_sec;
-	    ts1.tv_nsec = ts2.tv_nsec;
-	    continue;
+      ts1.tv_sec  = ts2.tv_sec;
+      ts1.tv_nsec = ts2.tv_nsec;
+      continue;
     }
   }
 
@@ -610,7 +610,7 @@ void ThreadingUtilities::sleep (unsigned long _secs, unsigned long _nano_secs)
   if (_secs > 2000) 
     while ((_secs = ::sleep(_secs))) ;
   else 
- 	  ::usleep(_secs * 1000000 + (_nano_secs / 1000));
+     ::usleep(_secs * 1000000 + (_nano_secs / 1000));
 
 #endif
 }
@@ -620,7 +620,7 @@ void ThreadingUtilities::sleep (unsigned long _secs, unsigned long _nano_secs)
 // ----------------------------------------------------------------------------
 void ThreadingUtilities::get_time (unsigned long & abs_sec_,
                                    unsigned long & abs_nano_sec_,
-                  		             unsigned long _rel_sec,
+                                   unsigned long _rel_sec,
                                    unsigned long _rel_nano_sec)
 {
   timespec abs;

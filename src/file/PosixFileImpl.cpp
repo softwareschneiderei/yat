@@ -384,10 +384,10 @@ void FileName::mod_time(Time *pTm, bool bLocalTime) const throw( Exception )
 {
   struct stat sStat;
   if( stat(PSZ(full_name()), &sStat) == -1 )
-	{
-      String strErr = String::str_format(ERR_CANNOT_GET_FILE_TIME, PSZ(m_strFile));
-      ThrowExceptionFromErrno(PSZ(strErr), "FileName::mod_time");
-	}
+  {
+    String strErr = String::str_format(ERR_CANNOT_GET_FILE_TIME, PSZ(m_strFile));
+    ThrowExceptionFromErrno(PSZ(strErr), "FileName::mod_time");
+  }
 
   if( bLocalTime )
   {
@@ -416,10 +416,10 @@ void FileName::set_mod_time(const Time& tm) const throw( Exception )
 
   sTm.modtime = tm.long_unix();
   if( utime(PSZ(full_name()), &sTm) )
-	{
-      String strErr = String::str_format(ERR_CANNOT_CHANGE_FILE_TIME, PSZ(m_strFile));
-      ThrowExceptionFromErrno(PSZ(strErr), "FileName::set_mod_time");
-	}
+  {
+    String strErr = String::str_format(ERR_CANNOT_CHANGE_FILE_TIME, PSZ(m_strFile));
+    ThrowExceptionFromErrno(PSZ(strErr), "FileName::set_mod_time");
+  }
 }
 
 //-------------------------------------------------------------------
@@ -429,8 +429,8 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
 {
   if( !file_exist() )
   { // File doesn't exists
-      String strErr = String::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
-      throw FileNotFoundException(PSZ(strErr), "FileName::copy");
+    String strErr = String::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
+    throw FileNotFoundException(PSZ(strErr), "FileName::copy");
   }
 
   FileName fDst(strDst);
@@ -547,8 +547,8 @@ void FileName::move(const String &strDest) throw( Exception )
 {
   if( !file_exist() )
   { // File doesn't exists
-      String strErr = String::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
-      throw FileNotFoundException(PSZ(strErr), "FileName::move");
+    String strErr = String::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
+    throw FileNotFoundException(PSZ(strErr), "FileName::move");
   }
 
   FileName fDst(strDest);

@@ -213,14 +213,14 @@ void FileName::rmdir(bool bRecursive, bool bContentOnly) throw( Exception )
       FileEnum fileEnum(full_name(), FileEnum::ENUM_FILE);
       while( fileEnum.find() )
         fileEnum.remove();
-  	  if( !bContentOnly )
-  	  {
-    		if( ::rmdir(PSZ(full_name())) )
-    		{
-    		  String strErr = String::str_format(ERR_CANNOT_REMOVE_FILE, PSZ(full_name()));
-    		  ThrowExceptionFromErrno(PSZ(strErr), "FileName::rmdir");
-    		}
-  	  }
+      if( !bContentOnly )
+      {
+        if( ::rmdir(PSZ(full_name())) )
+        {
+          String strErr = String::str_format(ERR_CANNOT_REMOVE_FILE, PSZ(full_name()));
+          ThrowExceptionFromErrno(PSZ(strErr), "FileName::rmdir");
+        }
+      }
     }
     else
     { // Recursively delete directory content
@@ -396,7 +396,7 @@ bool FileName::is_empty_dir() const
   FileEnum fileEnum(full_name(), FileEnum::ENUM_FILE);
   
   if( !dirEnum.find() && !fileEnum.find() )
-	return true;
+  return true;
   return false;
 }
 
@@ -505,55 +505,55 @@ CfgFile::CfgFile(const String &strFile) : File(strFile) { }
 //-----------------------------------------------------------------------------
 void CfgFile::load() throw(Exception)
 {
-	try
-	{
-		String strContent;
-		File::load(&strContent);
-		String strLine;
+  try
+  {
+    String strContent;
+    File::load(&strContent);
+    String strLine;
 
-		// Create a 'default' section
-		Section aSection;
-		m_strSection = "default";
-		m_dictSection[m_strSection] = aSection;
+    // Create a 'default' section
+    Section aSection;
+    m_strSection = "default";
+    m_dictSection[m_strSection] = aSection;
 
-		while( !strContent.empty() )
-		{
-			// Extract next line
-			strContent.extract_token('\n', &strLine);
-			// Supress blank characters at the begining and the end of the string
-			strLine.trim();
-			// Pass blank line and comments line
-			if( strLine.match("#*") || strLine.empty() )
-				continue;
+    while( !strContent.empty() )
+    {
+      // Extract next line
+      strContent.extract_token('\n', &strLine);
+      // Supress blank characters at the begining and the end of the string
+      strLine.trim();
+      // Pass blank line and comments line
+      if( strLine.match("#*") || strLine.empty() )
+        continue;
 
-			if( strLine.match("[*]") )
-			{	// Section declaration
-				Section aSection;
-				strLine.extract_token('[', ']', &m_strSection);
+      if( strLine.match("[*]") )
+      {  // Section declaration
+        Section aSection;
+        strLine.extract_token('[', ']', &m_strSection);
         m_strSection.trim();
-				m_dictSection[m_strSection] = aSection;
-				continue;
-			}
+        m_dictSection[m_strSection] = aSection;
+        continue;
+      }
 
-			if( strLine.match("*=*") )
-			{
-				String strParamName;
-				strLine.extract_token('=', &strParamName);
+      if( strLine.match("*=*") )
+      {
+        String strParamName;
+        strLine.extract_token('=', &strParamName);
         strLine.trim();
         strParamName.trim();
-				m_dictSection[m_strSection].m_dictParameters[strParamName] = strLine;
+        m_dictSection[m_strSection].m_dictParameters[strParamName] = strLine;
 
-			}
-			else
-				m_dictSection[m_strSection].m_vecSingleValues.push_back(strLine);
-		}
-	}
-	catch (Exception &)
-	{
-		throw;
-	}
-	// Set cursor on default section
-	m_strSection = "default";
+      }
+      else
+        m_dictSection[m_strSection].m_vecSingleValues.push_back(strLine);
+    }
+  }
+  catch (Exception &)
+  {
+    throw;
+  }
+  // Set cursor on default section
+  m_strSection = "default";
 }
 
 //-----------------------------------------------------------------------------
@@ -562,9 +562,9 @@ void CfgFile::load() throw(Exception)
 const CfgFile::Values &CfgFile::get_values(const String &strSection)
 {
   if( strSection.empty() )
-  	return m_dictSection[m_strSection].m_vecSingleValues;
+    return m_dictSection[m_strSection].m_vecSingleValues;
   else
-  	return m_dictSection[strSection].m_vecSingleValues;
+    return m_dictSection[strSection].m_vecSingleValues;
 }
 
 //-----------------------------------------------------------------------------
@@ -572,7 +572,7 @@ const CfgFile::Values &CfgFile::get_values(const String &strSection)
 //-----------------------------------------------------------------------------
 const CfgFile::Parameters &CfgFile::get_parameters()
 {
-	return m_dictSection[m_strSection].m_dictParameters;
+  return m_dictSection[m_strSection].m_dictParameters;
 }
 
 //-----------------------------------------------------------------------------
@@ -580,13 +580,13 @@ const CfgFile::Parameters &CfgFile::get_parameters()
 //-----------------------------------------------------------------------------
 String CfgFile::get_param_value(const String &strParamName)
 {
-	CfgFile::Parameters::const_iterator cit =
-	        m_dictSection[m_strSection].m_dictParameters.find(strParamName);
+  CfgFile::Parameters::const_iterator cit =
+          m_dictSection[m_strSection].m_dictParameters.find(strParamName);
 
-	if( cit == m_dictSection[m_strSection].m_dictParameters.end() )
-		return String::nil;
+  if( cit == m_dictSection[m_strSection].m_dictParameters.end() )
+    return String::nil;
 
-	return cit->second;
+  return cit->second;
 }
 
 //-----------------------------------------------------------------------------
@@ -594,10 +594,10 @@ String CfgFile::get_param_value(const String &strParamName)
 //-----------------------------------------------------------------------------
 bool CfgFile::has_parameter(const String &strParamName)
 {
-	CfgFile::Parameters::const_iterator cit =
-	        m_dictSection[m_strSection].m_dictParameters.find(strParamName);
+  CfgFile::Parameters::const_iterator cit =
+          m_dictSection[m_strSection].m_dictParameters.find(strParamName);
 
-	return cit != m_dictSection[m_strSection].m_dictParameters.end() ? true : false;
+  return cit != m_dictSection[m_strSection].m_dictParameters.end() ? true : false;
 }
 
 //-----------------------------------------------------------------------------
@@ -605,11 +605,11 @@ bool CfgFile::has_parameter(const String &strParamName)
 //-----------------------------------------------------------------------------
 bool CfgFile::set_section(const String &strSection, bool bThrowException) throw( Exception )
 {
-	std::map<String, Section>::iterator it = m_dictSection.find(strSection);
-	if( it != m_dictSection.end() )
-		m_strSection = strSection;
-	else if( bThrowException )
-	    throw Exception("NO_DATA", PSZ(String::str_format("Section '%s' not found", PSZ(strSection))), "CfgFile::SetSection");
+  std::map<String, Section>::iterator it = m_dictSection.find(strSection);
+  if( it != m_dictSection.end() )
+    m_strSection = strSection;
+  else if( bThrowException )
+      throw Exception("NO_DATA", PSZ(String::str_format("Section '%s' not found", PSZ(strSection))), "CfgFile::SetSection");
   else
     return false;
   return true;
@@ -624,9 +624,9 @@ bool CfgFile::set_section(const String &strSection, bool bThrowException) throw(
 //-----------------------------------------------------------------------------
 DirectoryWatcher::Entry::Entry(const String &strFullName)
 {
-	ptrFile = new FileName(strFullName);
-	ptrFile->mod_time(&tmLastModTime);
-	bRemoved = false;
+  ptrFile = new FileName(strFullName);
+  ptrFile->mod_time(&tmLastModTime);
+  bRemoved = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -634,17 +634,17 @@ DirectoryWatcher::Entry::Entry(const String &strFullName)
 //-----------------------------------------------------------------------------
 DirectoryWatcher::DirectoryWatcher(const String &strDirectoryPath, WatchMode eMode) throw(Exception)
 {
-	set(strDirectoryPath);
-	m_tmDirModTime.set_long_unix(0);
-	m_bDirectoryHasChanged = false;
-	m_eMode = eMode;
-	
-	if( ENUM_FIRST == eMode )
-	{
-		FileEnum fe(full_name(), FileEnum::ENUM_ALL);
-		while( fe.find() )
-			m_mapEntry[fe.full_name().hash64()] = new Entry(fe.full_name());
-	}
+  set(strDirectoryPath);
+  m_tmDirModTime.set_long_unix(0);
+  m_bDirectoryHasChanged = false;
+  m_eMode = eMode;
+  
+  if( ENUM_FIRST == eMode )
+  {
+    FileEnum fe(full_name(), FileEnum::ENUM_ALL);
+    while( fe.find() )
+      m_mapEntry[fe.full_name().hash64()] = new Entry(fe.full_name());
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -652,39 +652,39 @@ DirectoryWatcher::DirectoryWatcher(const String &strDirectoryPath, WatchMode eMo
 //-----------------------------------------------------------------------------
 bool DirectoryWatcher::priv_has_changed(bool bReset) 
 {
-	CurrentTime tmCur;
-	Time tmModTime;
-	mod_time(&tmModTime);
-	
-	if( m_tmDirModTime.is_empty() && NO_FIRST_ENUM == m_eMode )
-	{ 	// First call
-		m_tmLocalModTime = tmCur;
-		m_tmDirModTime = tmModTime;
-		return true;
-	}
-	else if( tmModTime != m_tmDirModTime && !m_bDirectoryHasChanged )
-	{
-		m_bDirectoryHasChanged = true;
-		m_tmLocalModTime = tmCur;
-		m_tmDirModTime = tmModTime;
-		return false;
-	}
+  CurrentTime tmCur;
+  Time tmModTime;
+  mod_time(&tmModTime);
+  
+  if( m_tmDirModTime.is_empty() && NO_FIRST_ENUM == m_eMode )
+  {   // First call
+    m_tmLocalModTime = tmCur;
+    m_tmDirModTime = tmModTime;
+    return true;
+  }
+  else if( tmModTime != m_tmDirModTime && !m_bDirectoryHasChanged )
+  {
+    m_bDirectoryHasChanged = true;
+    m_tmLocalModTime = tmCur;
+    m_tmDirModTime = tmModTime;
+    return false;
+  }
         // The change is considered at least 1 second after its first observation
-	else if( m_bDirectoryHasChanged && tmCur.double_unix() - m_tmLocalModTime.double_unix() > 1.0 )
-	{
-		if( bReset )
-		{
-			if( tmModTime == m_tmDirModTime )
-				m_bDirectoryHasChanged = false;
-			else
-			{
-				m_tmLocalModTime = tmCur;
-				m_tmDirModTime = tmModTime;
-			}
-		}
-		return true;
-	}
-	return false;
+  else if( m_bDirectoryHasChanged && tmCur.double_unix() - m_tmLocalModTime.double_unix() > 1.0 )
+  {
+    if( bReset )
+    {
+      if( tmModTime == m_tmDirModTime )
+        m_bDirectoryHasChanged = false;
+      else
+      {
+        m_tmLocalModTime = tmCur;
+        m_tmDirModTime = tmModTime;
+      }
+    }
+    return true;
+  }
+  return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -692,7 +692,7 @@ bool DirectoryWatcher::priv_has_changed(bool bReset)
 //-----------------------------------------------------------------------------
 bool DirectoryWatcher::has_changed()
 {
-	return priv_has_changed(false);
+  return priv_has_changed(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -700,67 +700,67 @@ bool DirectoryWatcher::has_changed()
 //-----------------------------------------------------------------------------
 void DirectoryWatcher::get_changes(FileNamePtrVector *pvecNewFilesPtr, 
                                   FileNamePtrVector *pvecChangedFileNamePtr,
-								  FileNamePtrVector *pvecRemovedFileNamePtr) throw(Exception)
+                  FileNamePtrVector *pvecRemovedFileNamePtr) throw(Exception)
 {
-	Time tmModTimeDir;
-	
+  Time tmModTimeDir;
+  
   // File modifications does not affect the last modification time of its parent directory
-	if( pvecChangedFileNamePtr || priv_has_changed(true) )
-	{
-		if( pvecRemovedFileNamePtr )
-		{
-			// Mark all entry as removed for detection of removed entries
-			for( EntryMap::iterator it = m_mapEntry.begin(); it != m_mapEntry.end(); it++ )
-				it->second->bRemoved = true;
-		}
+  if( pvecChangedFileNamePtr || priv_has_changed(true) )
+  {
+    if( pvecRemovedFileNamePtr )
+    {
+      // Mark all entry as removed for detection of removed entries
+      for( EntryMap::iterator it = m_mapEntry.begin(); it != m_mapEntry.end(); it++ )
+        it->second->bRemoved = true;
+    }
 
-		FileEnum fe(full_name(), FileEnum::ENUM_ALL);
-		while( fe.find() )
-		{
-			uint64 hashFile = fe.full_name().hash64();
-			
-			if( m_mapEntry.find(hashFile) != m_mapEntry.end() )
-			{
-				EntryPtr ptrEntry = m_mapEntry[hashFile];
-				ptrEntry->bRemoved = false;
-				
-				// Existing file, check for change if needed
-				if( pvecChangedFileNamePtr )
-				{
-					Time tmModTime;
-					fe.mod_time(&tmModTime);
+    FileEnum fe(full_name(), FileEnum::ENUM_ALL);
+    while( fe.find() )
+    {
+      uint64 hashFile = fe.full_name().hash64();
+      
+      if( m_mapEntry.find(hashFile) != m_mapEntry.end() )
+      {
+        EntryPtr ptrEntry = m_mapEntry[hashFile];
+        ptrEntry->bRemoved = false;
+        
+        // Existing file, check for change if needed
+        if( pvecChangedFileNamePtr )
+        {
+          Time tmModTime;
+          fe.mod_time(&tmModTime);
 
-					if( ptrEntry->tmLastModTime != tmModTime )
-					{
-						ptrEntry->tmLastModTime = tmModTime;
-						pvecChangedFileNamePtr->push_back(ptrEntry->ptrFile);
-					}
-				}
-			}
-			else if( pvecNewFilesPtr )
-			{
-				m_mapEntry[hashFile] = new Entry(fe.full_name());
-				pvecNewFilesPtr->push_back(m_mapEntry[hashFile]->ptrFile);
-			}			
-		}
-		
-		if( pvecRemovedFileNamePtr )
-		{
-			// Delete all removed entry and push them in the user vector
-			for( EntryMap::iterator it = m_mapEntry.begin(); it != m_mapEntry.end(); )
-			{
-				if( it->second->bRemoved )
-				{
-					EntryMap::iterator itErase = it;
-					it++;
-					pvecRemovedFileNamePtr->push_back(itErase->second->ptrFile);
-					m_mapEntry.erase(itErase);
-				}
-				else
-					it++;
-			}
-		}
-	}
+          if( ptrEntry->tmLastModTime != tmModTime )
+          {
+            ptrEntry->tmLastModTime = tmModTime;
+            pvecChangedFileNamePtr->push_back(ptrEntry->ptrFile);
+          }
+        }
+      }
+      else if( pvecNewFilesPtr )
+      {
+        m_mapEntry[hashFile] = new Entry(fe.full_name());
+        pvecNewFilesPtr->push_back(m_mapEntry[hashFile]->ptrFile);
+      }      
+    }
+    
+    if( pvecRemovedFileNamePtr )
+    {
+      // Delete all removed entry and push them in the user vector
+      for( EntryMap::iterator it = m_mapEntry.begin(); it != m_mapEntry.end(); )
+      {
+        if( it->second->bRemoved )
+        {
+          EntryMap::iterator itErase = it;
+          it++;
+          pvecRemovedFileNamePtr->push_back(itErase->second->ptrFile);
+          m_mapEntry.erase(itErase);
+        }
+        else
+          it++;
+      }
+    }
+  }
 }
 
 } // namespace

@@ -68,7 +68,7 @@ namespace yat
     pending_mgs_ (0),
     wm_unit_ (MessageQ::NUM_OF_MSGS)
 {
-	//- noop
+  //- noop
 }
 
 // ============================================================================
@@ -88,10 +88,10 @@ void MessageQ::Statistics::dump (std::ostream& out) const
   
   if (this->wm_unit_ == NUM_OF_BYTES)
   {
-  	out << "MessageQ::statistics::has contained up to..........." 
-            	<< this->max_pending_charge_reached_ 
-            	<< " bytes"
-            	<< std::endl;
+    out << "MessageQ::statistics::has contained up to..........." 
+              << this->max_pending_charge_reached_ 
+              << " bytes"
+              << std::endl;
   }
   
   out << "MessageQ::statistics::has contained up to..........." 
@@ -238,103 +238,103 @@ int MessageQ::post (yat::Message * msg, size_t _tmo_msecs)
   
   { //- critical section
   
-  	//- lock (required to protect the msgQ and for cond. vars. to work properly)
-  	MutexLock guard(this->lock_);
+    //- lock (required to protect the msgQ and for cond. vars. to work properly)
+    MutexLock guard(this->lock_);
 
-  	//- can only post a msg on an opened MsgQ
-  	if (this->state_ != MessageQ::OPEN)
-  	{
-    	this->stats_.trashed_msg_counter_++;
-    	//- silently trash the message (should we throw an exception instead?)
-    	msg->release();
-    	return 0;
-  	}
+    //- can only post a msg on an opened MsgQ
+    if (this->state_ != MessageQ::OPEN)
+    {
+      this->stats_.trashed_msg_counter_++;
+      //- silently trash the message (should we throw an exception instead?)
+      msg->release();
+      return 0;
+    }
 
-  	//- we force post of ctrl message even if the msQ is saturated
-  	if (msg->is_task_ctrl_message()) 
-  	{
-    	//- insert msg according to its priority
-    	try
-    	{
-      	this->insert_i(msg);
-    	}
-    	catch (...)
-    	{
-      	//- insert_i released the message (no memory leak)
-      	THROW_YAT_ERROR("INTERNAL_ERROR",
-                      	"Could not post ctrl message [msgQ insertion error]",
-                      	"MessageQ::post");
-    	}
+    //- we force post of ctrl message even if the msQ is saturated
+    if (msg->is_task_ctrl_message()) 
+    {
+      //- insert msg according to its priority
+      try
+      {
+        this->insert_i(msg);
+      }
+      catch (...)
+      {
+        //- insert_i released the message (no memory leak)
+        THROW_YAT_ERROR("INTERNAL_ERROR",
+                        "Could not post ctrl message [msgQ insertion error]",
+                        "MessageQ::post");
+      }
       
-    	//- wakeup msg consumers (tell them there is a message to handle)
-    	//- this will work since we are under critical section 
-    	msg_consumer_sync_.broadcast();
+      //- wakeup msg consumers (tell them there is a message to handle)
+      //- this will work since we are under critical section 
+      msg_consumer_sync_.broadcast();
       
-    	//- compute stats 
-    	this->stats_.posted_without_waiting_msg_counter_++;
+      //- compute stats 
+      this->stats_.posted_without_waiting_msg_counter_++;
 
-    	//- done (skip remaining code)
-    	return 0;
-  	}
+      //- done (skip remaining code)
+      return 0;
+    }
 
-  	//- is the messageQ saturated?
-  	if (! this->saturated_ && (this->pending_charge_ >= this->hi_wm_))
-  	{
-    	YAT_LOG("MessageQ::post::**** SATURATED ****");
-    	//- compute stats 
-    	this->stats_.has_been_saturated_++;
-    	//- mark msgQ as saturated
-    	this->saturated_ = true;
-  	}
+    //- is the messageQ saturated?
+    if (! this->saturated_ && (this->pending_charge_ >= this->hi_wm_))
+    {
+      YAT_LOG("MessageQ::post::**** SATURATED ****");
+      //- compute stats 
+      this->stats_.has_been_saturated_++;
+      //- mark msgQ as saturated
+      this->saturated_ = true;
+    }
 
-  	//- msg is not a ctrl message...
-  	//- wait for the messageQ to have room for new messages
-  	if (! this->wait_not_full_i(_tmo_msecs))
-  	{
-    	YAT_LOG("MessageQ::post::tmo expired");
-    	//- can't post msg, destroy it in order to avoid memory leak
-    	msg->release(); 
-    	//- compute stats 
-    	this->stats_.trashed_on_post_tmo_counter_++;
-    	//- throw exception if the messageQ is configured to do so
-    	if (this->throw_on_post_msg_timeout_)
-    	{
-      	THROW_YAT_ERROR("TIMEOUT_EXPIRED",
-                      	"Could not post message [timeout expired]",
-                      	"MessageQ::post");
-    	}
-    	//- return if we didn't throw an exception
-    	return -1;
-  	}
+    //- msg is not a ctrl message...
+    //- wait for the messageQ to have room for new messages
+    if (! this->wait_not_full_i(_tmo_msecs))
+    {
+      YAT_LOG("MessageQ::post::tmo expired");
+      //- can't post msg, destroy it in order to avoid memory leak
+      msg->release(); 
+      //- compute stats 
+      this->stats_.trashed_on_post_tmo_counter_++;
+      //- throw exception if the messageQ is configured to do so
+      if (this->throw_on_post_msg_timeout_)
+      {
+        THROW_YAT_ERROR("TIMEOUT_EXPIRED",
+                        "Could not post message [timeout expired]",
+                        "MessageQ::post");
+      }
+      //- return if we didn't throw an exception
+      return -1;
+    }
 
-  	//- ok there is enough room to post our msg
-  	DEBUG_ASSERT(this->pending_charge_ <= this->hi_wm_);
+    //- ok there is enough room to post our msg
+    DEBUG_ASSERT(this->pending_charge_ <= this->hi_wm_);
 
-  	//- insert the message according to its priority
-  	try
-  	{
-    	this->insert_i(msg);
-  	}
-  	catch (...)
-  	{
-    	//- insert_i released the message (no memory leak)
-    	THROW_YAT_ERROR("INTERNAL_ERROR",
-                    	"Could not post message [msgQ insertion error]",
-                    	"MessageQ::post");
-  	}
+    //- insert the message according to its priority
+    try
+    {
+      this->insert_i(msg);
+    }
+    catch (...)
+    {
+      //- insert_i released the message (no memory leak)
+      THROW_YAT_ERROR("INTERNAL_ERROR",
+                      "Could not post message [msgQ insertion error]",
+                      "MessageQ::post");
+    }
 
-  	//- compute stats 
-  	if (this->pending_charge_ > this->stats_.max_pending_charge_reached_)
-    	this->stats_.max_pending_charge_reached_ = this->pending_charge_;
+    //- compute stats 
+    if (this->pending_charge_ > this->stats_.max_pending_charge_reached_)
+      this->stats_.max_pending_charge_reached_ = this->pending_charge_;
 
-  	if (this->msg_q_.size() > this->stats_.max_pending_msgs_reached_)
-    	this->stats_.max_pending_msgs_reached_ = static_cast<unsigned long>(this->msg_q_.size());
+    if (this->msg_q_.size() > this->stats_.max_pending_msgs_reached_)
+      this->stats_.max_pending_msgs_reached_ = static_cast<unsigned long>(this->msg_q_.size());
 
-  	//- wakeup msg consumers (tell them there is a new message to handle)
-  	//- this will work since we are still under critical section
-  	msg_consumer_sync_.broadcast ();
+    //- wakeup msg consumers (tell them there is a new message to handle)
+    //- this will work since we are still under critical section
+    msg_consumer_sync_.broadcast ();
     
-	} //- critical section
+  } //- critical section
   
   return 0;
 }
@@ -407,7 +407,7 @@ yat::Message * MessageQ::next_message (size_t _tmo_msecs)
     {
       YAT_LOG("MessageQ::next_message::**** UNSATURATED ****");
       //- compute stats 
-    	this->stats_.has_been_unsaturated_++;
+      this->stats_.has_been_unsaturated_++;
       //- no more saturated
       this->saturated_ = false;
       //- this will work since we are still under critical section
@@ -489,12 +489,12 @@ bool MessageQ::wait_not_full_i (size_t _tmo_msecs)
   //- <this->lock_> MUST be locked by the calling thread
   //----------------------------------------------------
 
- 	//- compute stats
- 	if ( ! this->saturated_)
- 	{
-		//- compute stats
-   	this->stats_.posted_without_waiting_msg_counter_++;
-  	return true;
+   //- compute stats
+   if ( ! this->saturated_)
+   {
+    //- compute stats
+     this->stats_.posted_without_waiting_msg_counter_++;
+    return true;
   }
   
   //- while the messageQ is empty...

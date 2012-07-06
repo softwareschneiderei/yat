@@ -421,10 +421,10 @@ void FileName::mod_time(Time *pTm, bool bLocalTime) const throw( Exception )
   HANDLE hFile = CreateFile(PSZ(full_name()), GENERIC_READ, FILE_SHARE_READ,
                            NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
   if( hFile == INVALID_HANDLE_VALUE )
-	{
-      String strErr = String::str_format(ERR_CANNOT_CREATE_WIN32, PSZ(m_strFile));
-      throw Exception("FILE_ERROR", PSZ(strErr), "FileName::mod_time");
-	}
+  {
+    String strErr = String::str_format(ERR_CANNOT_CREATE_WIN32, PSZ(m_strFile));
+    throw Exception("FILE_ERROR", PSZ(strErr), "FileName::mod_time");
+  }
   FILETIME fileTime;
   GetFileTime(hFile, NULL, NULL, &fileTime);
   FileTimeToLocalFileTime(&fileTime, &fileTime);
@@ -469,16 +469,16 @@ void FileName::set_mod_time(const Time& tm) const throw( Exception )
                             NULL, OPEN_EXISTING, iAttribute, NULL);
     
   if( hFile == INVALID_HANDLE_VALUE )
-	{
+  {
       String strErr = String::str_format(ERR_CANNOT_CREATE_WIN32, PSZ(m_strFile));
       throw Exception("FILE_ERROR", PSZ(strErr), "FileName::set_mod_time");
-	}
+  }
   if( !SetFileTime(hFile, NULL, NULL, &fileTime) )
-	{
+  {
       CloseHandle(hFile);
       String strErr = String::str_format(ERR_CANNOT_CHANGE_FILE_TIME, PSZ(m_strFile));
       throw Exception("FILE_ERROR", PSZ(strErr), "FileName::set_mod_time");
-	}
+  }
   CloseHandle(hFile);
 }
 
@@ -489,8 +489,8 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
 {
   if( !file_exist() )
   { // File doesn't exists
-      String strErr = String::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
-      throw FileNotFoundException(PSZ(strErr), "FileName::copy");
+    String strErr = String::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
+    throw FileNotFoundException(PSZ(strErr), "FileName::copy");
   }
 
   FileName fDst(strDst);
@@ -512,8 +512,8 @@ void FileName::move(const String &strDest) throw( Exception )
 {
   if( !file_exist() )
   { // File doesn't exists
-      String strErr = String::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
-      throw FileNotFoundException(PSZ(strErr), "FileName::move");
+    String strErr = String::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
+    throw FileNotFoundException(PSZ(strErr), "FileName::move");
   }
 
   FileName fDst(strDest);

@@ -241,8 +241,8 @@ LogForward::LogForward(pfn_log_fwd pfn_log_fwd)
 //----------------------------------------------------------------------------
 void LogForward::log(ELogLevel eLevel, pcsz pszType, const String &strMsg)
 {
-	if( m_pfn_log_fwd )
-		m_pfn_log_fwd(eLevel, pszType, PSZ(strMsg));
+  if( m_pfn_log_fwd )
+    m_pfn_log_fwd(eLevel, pszType, PSZ(strMsg));
 }
 
 //=============================================================================
