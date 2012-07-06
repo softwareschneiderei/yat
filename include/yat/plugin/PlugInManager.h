@@ -60,11 +60,11 @@ public:
   {
     //! \brief %File name.
     std::string     m_fileName;
-	//! \brief Plugin pointer.
+    //! \brief Plugin pointer.
     PlugIn*         m_plugin;
-	//! \brief Plugin informations.
+    //! \brief Plugin informations.
     IPlugInInfo*    m_info;
-	//! \brief Plugin factory.
+    //! \brief Plugin factory.
     IPlugInFactory* m_factory;
   };
 

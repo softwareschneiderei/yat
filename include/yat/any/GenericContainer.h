@@ -248,7 +248,7 @@ public:
   {
     return ptr_;
   }
-	
+
   //! \brief Returns content of the container.
   //!
   //! Optionally transfers data ownership to the caller.

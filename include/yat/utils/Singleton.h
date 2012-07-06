@@ -50,13 +50,13 @@ namespace yat
   template <class T> class Singleton
   {
   protected: 
-  	//! \brief Protected constructor (this is a base class).
+    //! \brief Protected constructor (this is a base class).
     Singleton ()
     {
       //-noop
     }
     
-  	//! \brief Protected destructor (this is a base class).
+    //! \brief Protected destructor (this is a base class).
     virtual ~Singleton()
     {
       //-noop

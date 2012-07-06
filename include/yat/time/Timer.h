@@ -274,11 +274,11 @@ public:
   //! \brief %Timeout units.
   typedef enum  
   {
-	//! Second.
+    //! Second.
     TMO_UNIT_SEC,
-	//! Millisecond.
+    //! Millisecond.
     TMO_UNIT_MSEC,
-	//! Microsecond.
+    //! Microsecond.
     TMO_UNIT_USEC, 
   } TimeoutUnit;
   
@@ -287,9 +287,9 @@ public:
   //! Creates/resets the timeout. The default unit is millisecond and
   //! the timeout is set to 0 and disabled.
   Timeout () 
-  	: _unit(TMO_UNIT_MSEC), _tmo(0), _enabled(false)
+    : _unit(TMO_UNIT_MSEC), _tmo(0), _enabled(false)
   {
-		//- noop 
+    //- noop 
   }
   
   //! \brief Constructor.
@@ -299,9 +299,9 @@ public:
   //! \param unit %Unit.
   //! \param enabled If set to true, timeout is started.
   Timeout (TimeoutValue tmo_in_unit, TimeoutUnit unit = TMO_UNIT_MSEC, bool enabled = false) 
-  	: _unit(unit), _tmo(tmo_in_unit), _enabled(enabled)
+    : _unit(unit), _tmo(tmo_in_unit), _enabled(enabled)
   {
-		//- noop 
+    //- noop 
   }
   
   //! \brief Restarts/(re)enables the timeout.
@@ -309,7 +309,7 @@ public:
   //! Enables the timeout.
   inline void restart () 
   {
-  	enable();
+    enable();
   }
   
   //! \brief Enables the timeout.
@@ -317,7 +317,7 @@ public:
   //! \param restart_timer If set to true, restart the timeout.
   inline void enable (bool restart_timer = true) 
   {
-  	if (restart_timer) _t.restart();
+    if (restart_timer) _t.restart();
     _enabled = true;
   }
   
@@ -345,7 +345,7 @@ public:
   {
     //- a disabled Timeout never expire
     if (! _enabled)
-    	return false;
+      return false;
     //- however, an enabled Timeout might expire :-)
     double dt = 0.;
     switch (_unit) 
@@ -421,7 +421,7 @@ public:
   
 private:
   Timer _t;
-	TimeoutUnit _unit;
+  TimeoutUnit _unit;
   double _tmo;
   bool _enabled;
 };

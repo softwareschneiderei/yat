@@ -60,7 +60,7 @@ public:
   typedef enum {
     //! Connected.
     CONNECTED_YES,
-	//! Not connected.
+    //! Not connected.
     CONNECTED_NO
   } ConnectionStatus;
 

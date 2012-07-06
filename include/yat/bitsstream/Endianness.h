@@ -67,7 +67,7 @@ public:
   {
     //! Little endian.
     BO_LITTLE_ENDIAN,
-	//! Big endian.
+    //! Big endian.
     BO_BIG_ENDIAN
   } ByteOrder;
   

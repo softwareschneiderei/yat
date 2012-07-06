@@ -94,28 +94,28 @@ namespace yat
     //! \brief Attribute name.
     std::string name;
 
-	//! \brief Attribute data type.
+    //! \brief Attribute data type.
     int data_type;
 
-	//! \brief Attribute access type.
+    //! \brief Attribute access type.
     int write_type;
 
-	//! \brief Attribute label.
+    //! \brief Attribute label.
     std::string label;
 
-	//! \brief Attribute description.
+    //! \brief Attribute description.
     std::string desc;
 
-	//! \brief Attribute unit.
+    //! \brief Attribute unit.
     std::string unit;
 
-	//! \brief Attribute display format.
+    //! \brief Attribute display format.
     std::string display_format;
 
-	//! \brief "Set atrribute" callback.
+    //! \brief "Set atrribute" callback.
     SetAttrCB set_cb;
 
-	//! \brief "Get atrribute" callback.
+    //! \brief "Get atrribute" callback.
     GetAttrCB get_cb;
   };
 

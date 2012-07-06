@@ -55,7 +55,7 @@ namespace yat
 //! URI syntax is defined by RFC 3986. 
 //! \par
 //! The generic URI syntax consists of a hierarchical sequence of
-//!	components referred to as the scheme, authority, path, query, and fragment.
+//!  components referred to as the scheme, authority, path, query, and fragment.
 //! \par
 //! The basic syntax is:
 //! \verbatim  URI = scheme ":" hier-part \[ "?" query \] \[ "\#" fragment \] \endverbatim
@@ -69,19 +69,19 @@ public:
   {
     //! Scheme.
     SCHEME = 0,
-	//! Authority.
+    //! Authority.
     AUTHORITY,
-	//! User information.
+    //! User information.
     USERINFO,
-	//! Host.
+    //! Host.
     HOST,
-	//! Port.
+    //! Port.
     PORT,
-	//! Path.
+    //! Path.
     PATH,
-	//! Query.
+    //! Query.
     QUERY,
-	//! Fragment.
+    //! Fragment.
     FRAGMENT
   };
   

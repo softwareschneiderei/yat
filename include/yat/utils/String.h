@@ -183,12 +183,12 @@ public:
   {
     //! Nothing extracted.
     EMPTY_STRING=0,
-	//! %String extracted and separator found.
+    //! %String extracted and separator found.
     SEP_FOUND,
-	//! %String extracted and separator not found.
+    //! %String extracted and separator not found.
     SEP_NOT_FOUND
   };
-	
+  
   //! \brief Looks for a token, from left to right.
   //! 
   //! Returns the extraction status.\n

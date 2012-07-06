@@ -160,7 +160,7 @@ namespace yat
         class Placeholder
         {
         public:
-			//! \brief Destructor.
+            //! \brief Destructor.
             virtual ~Placeholder() 
             {
               //- noop ctor

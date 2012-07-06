@@ -56,7 +56,7 @@
 #endif
 
 #ifdef YAT_LINUX
-	#include <dirent.h>
+  #include <dirent.h>
   #include <unistd.h>
   #include <sys/stat.h>
   #include <errno.h>
@@ -301,32 +301,32 @@ public:
     //! Defaut value for Microsoft partition type.
     MS    = 0,
     //- Microsoft partition types.
-	//! Microsoft FAT16 partition type.
+    //! Microsoft FAT16 partition type.
     FAT16 = 0x04,
-	//! Microsoft FAT32 partition type.
+    //! Microsoft FAT32 partition type.
     FAT32 = 0x0B,
-	//! Microsoft IFS partition type.
+    //! Microsoft IFS partition type.
     IFS   = 0x07,
     //- Unix file system types.
-   //! Unix AFFS file system type.
+    //! Unix AFFS file system type.
     AFFS  = 0xADFF,
-	//! Unix EFS file system type.
+    //! Unix EFS file system type.
     EFS   = 0x00414A53,
-	//! Unix EXT file system type.
+    //! Unix EXT file system type.
     EXT   = 0x137D,
-	//! Unix EXT2 file system type.
+    //! Unix EXT2 file system type.
     EXT2  = 0xEF53,
-	//! Unix HPFS file system type.
+    //! Unix HPFS file system type.
     HPFS  = 0xF995E849,
-	//! Unix ISOFS file system type.
+    //! Unix ISOFS file system type.
     ISOFS = 0x9660,
-	//! Unix MSDOS file system type.
+    //! Unix MSDOS file system type.
     MSDOS = 0x4d44,
-	//! Unix NFS file system type.
+    //! Unix NFS file system type.
     NFS   = 0x6969,
-	//! Unix PROC file system type.
+    //! Unix PROC file system type.
     PROC  = 0x9fa0,
-	//! Unix SMB file system type.
+    //! Unix SMB file system type.
     SMB   = 0x517B,
     //! Apple filesystem types (TODO).
     HFS   = 0xffff
@@ -694,12 +694,12 @@ public:
   //! \brief Enumeration mode.
   enum EEnumMode
   {
-     //! Enumerates only files.
-     ENUM_FILE = 1,
-	 //! Enumerates only directories.
-     ENUM_DIR = 2,
-	 //! Enumerates files & directories.
-     ENUM_ALL = 3
+    //! Enumerates only files.
+    ENUM_FILE = 1,
+    //! Enumerates only directories.
+    ENUM_DIR = 2,
+    //! Enumerates files & directories.
+    ENUM_ALL = 3
   };
 
 protected: 
@@ -778,61 +778,61 @@ public:
   typedef std::map<String, String> Parameters;
 
 private:
-	class Section
-	{
-	public:
-		Values m_vecSingleValues;
-		Parameters m_dictParameters;
-	};
+  class Section
+  {
+  public:
+    Values m_vecSingleValues;
+    Parameters m_dictParameters;
+  };
 
-	std::map<String, Section> m_dictSection;
-	String m_strSection;
+  std::map<String, Section> m_dictSection;
+  String m_strSection;
 
 public:
-	//! \brief Constructor.
-	//! \param strFile %File name.
-	CfgFile(const String &strFile);
+  //! \brief Constructor.
+  //! \param strFile %File name.
+  CfgFile(const String &strFile);
 
-	//! \brief Reads a "windows config file" style file.
-	//!
-	//! \exception FILE_ERROR Thrown if file opening or reading fails.
-	void load() 
+  //! \brief Reads a "windows config file" style file.
+  //!
+  //! \exception FILE_ERROR Thrown if file opening or reading fails.
+  void load() 
     throw(Exception);
 
-	//! \brief Sets the current section.
-	//! \param strSection New section name.
-	//! \param bThrowException If set to true, exceptions are thrown.
-	//! \exception NO_DATA Thrown if section not found.
-	bool set_section(const String &strSection, bool bThrowException=true) 
+  //! \brief Sets the current section.
+  //! \param strSection New section name.
+  //! \param bThrowException If set to true, exceptions are thrown.
+  //! \exception NO_DATA Thrown if section not found.
+  bool set_section(const String &strSection, bool bThrowException=true) 
     throw( Exception );
 
-	//! \brief Gets section values.
-	//!
-	//! Returns a vector of \<values\>.
-	//! \param strSection Section name. If set to NULL, gets current section values.
-	const Values &get_values(const String &strSection=String::nil);
+  //! \brief Gets section values.
+  //!
+  //! Returns a vector of \<values\>.
+  //! \param strSection Section name. If set to NULL, gets current section values.
+  const Values &get_values(const String &strSection=String::nil);
 
-	//! \brief Gets section dictionary.
-	//!
-	//! Returns a map of (\<value name\>, \<value\>).
-	const Parameters &get_parameters();
-	
-	//! \brief Tests if a value name is found in the current section.
-	//! 
-	//! Returns true if the value name is found, false otherwise.
-	//! \param strParamName Value name.
-	bool has_parameter(const String &strParamName);
-	
-	//! \brief Gets a value from its name, in the current section.
-	//!
-    //! Returns nil string if value name not found in the section.
-	//! \param strParamName Value name.
-	String get_param_value(const String &strParamName);
+  //! \brief Gets section dictionary.
+  //!
+  //! Returns a map of (\<value name\>, \<value\>).
+  const Parameters &get_parameters();
+  
+  //! \brief Tests if a value name is found in the current section.
+  //! 
+  //! Returns true if the value name is found, false otherwise.
+  //! \param strParamName Value name.
+  bool has_parameter(const String &strParamName);
+  
+  //! \brief Gets a value from its name, in the current section.
+  //!
+  //! Returns nil string if value name not found in the section.
+  //! \param strParamName Value name.
+  String get_param_value(const String &strParamName);
 };
 
 #define FOR_EACH_VALUES_IN_CFG_SECTION(cfg_file, section, x) \
-		cfg_file.SetSection(section); \
-		for( CfgFile::Values::const_iterator x = cfg_file.GetValues().begin(); x != cfg_file.GetValues().end(); x++)
+    cfg_file.SetSection(section); \
+    for( CfgFile::Values::const_iterator x = cfg_file.GetValues().begin(); x != cfg_file.GetValues().end(); x++)
 
 // ============================================================================
 //! \class DirectoryWatcher 
@@ -852,61 +852,61 @@ public:
   //! \brief List of file name objects.
   typedef std::vector<FileNamePtr> FileNamePtrVector;
 
-    //! \brief Enumeration values for directory content memorization.
-	typedef enum
-	{
-		//! The directory content at object construction time is memorized.
-		ENUM_FIRST=0,	
-		//! The directory content at object construction time is not memorized,
-		//! the first call to GetChanges() will return the whole directory content.
-		NO_FIRST_ENUM
-	} WatchMode;
-	
+  //! \brief Enumeration values for directory content memorization.
+  typedef enum
+  {
+    //! The directory content at object construction time is memorized.
+    ENUM_FIRST=0,  
+    //! The directory content at object construction time is not memorized,
+    //! the first call to GetChanges() will return the whole directory content.
+    NO_FIRST_ENUM
+  } WatchMode;
+  
 private:
-	struct Entry
-	{
-		FileNamePtr ptrFile;
-		Time tmLastModTime;
-		bool bRemoved;
-		
-		Entry(const String& strFullName);
-	};
-	
-	typedef yat::SharedPtr<Entry> EntryPtr;
-	typedef std::map<uint64, EntryPtr> EntryMap;
-	
-	EntryMap  m_mapEntry;            // Directory content	
-	Time      m_tmDirModTime;        // Last modification time of the directory
-	Time      m_tmLocalModTime;      // Last time the the directory's modification time has changfes
-	bool      m_bDirectoryHasChanged;
-	WatchMode m_eMode;
-	
-	bool priv_has_changed(bool bReset);
-	
+  struct Entry
+  {
+    FileNamePtr ptrFile;
+    Time tmLastModTime;
+    bool bRemoved;
+    
+    Entry(const String& strFullName);
+  };
+  
+  typedef yat::SharedPtr<Entry> EntryPtr;
+  typedef std::map<uint64, EntryPtr> EntryMap;
+  
+  EntryMap  m_mapEntry;            // Directory content  
+  Time      m_tmDirModTime;        // Last modification time of the directory
+  Time      m_tmLocalModTime;      // Last time the the directory's modification time has changfes
+  bool      m_bDirectoryHasChanged;
+  WatchMode m_eMode;
+  
+  bool priv_has_changed(bool bReset);
+  
 public:
 
-	//! \brief Constructor.
-	//! \param strDirectoryPath Directory path to whatch.
-	//! \param eMode Watch mode.
-	//! \exception BAD_PATH Thrown if specified path is not correct.
-	DirectoryWatcher(const String &strDirectoryPath, WatchMode eMode = ENUM_FIRST)
+  //! \brief Constructor.
+  //! \param strDirectoryPath Directory path to whatch.
+  //! \param eMode Watch mode.
+  //! \exception BAD_PATH Thrown if specified path is not correct.
+  DirectoryWatcher(const String &strDirectoryPath, WatchMode eMode = ENUM_FIRST)
      throw( Exception);
-	
-	//! \brief Gets new, changed and removed file names since last call.
-	//! \param vecNewFilesPtr List of new file names.
-	//! \param vecChangedFileNamePtr List of changed file names.
-	//! \param vecRemovedFileNamePtr List of deleted file names.
-	//! \exception BAD_PATH Thrown if current path is not correct.
-	void get_changes(FileNamePtrVector *vecNewFilesPtr, FileNamePtrVector *vecChangedFileNamePtr=NULL,
+  
+  //! \brief Gets new, changed and removed file names since last call.
+  //! \param vecNewFilesPtr List of new file names.
+  //! \param vecChangedFileNamePtr List of changed file names.
+  //! \param vecRemovedFileNamePtr List of deleted file names.
+  //! \exception BAD_PATH Thrown if current path is not correct.
+  void get_changes(FileNamePtrVector *vecNewFilesPtr, FileNamePtrVector *vecChangedFileNamePtr=NULL,
                     FileNamePtrVector *vecRemovedFileNamePtr=NULL) 
     throw( Exception);
-	
-	//! \brief Has the directory changed ?
-	//! 
-	//! Returns true if a new, changed or removed file has been detected, false othsewise.
-	bool has_changed();
+  
+  //! \brief Has the directory changed ?
+  //! 
+  //! Returns true if a new, changed or removed file has been detected, false othsewise.
+  bool has_changed();
 };
-		
+    
 }
 
 

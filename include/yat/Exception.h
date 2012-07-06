@@ -61,9 +61,9 @@ namespace yat
   typedef enum {
     //! Warning.
     WARN, 
-	//! Functional error.
+    //! Functional error.
     ERR, 
-	//! Fatal error.
+    //! Fatal error.
     PANIC
   } ErrorSeverity;
 
@@ -98,11 +98,11 @@ namespace yat
     Error ();
 
     //! \brief Constructor with parameters.
-	//! \param reason %Error reason.
-	//! \param desc %Error description.
-	//! \param origin %Error origin.
-	//! \param err_code %Error id.
-	//! \param severity %Error severity.
+    //! \param reason %Error reason.
+    //! \param desc %Error description.
+    //! \param origin %Error origin.
+    //! \param err_code %Error id.
+    //! \param severity %Error severity.
     Error ( const char *reason,
             const char *desc,
             const char *origin,
@@ -110,11 +110,11 @@ namespace yat
             int severity = yat::ERR);
 
     //! \brief Constructor with parameters.
-	//! \param reason %Error reason.
-	//! \param desc %Error description.
-	//! \param origin %Error origin.
-	//! \param err_code %Error id.
-	//! \param severity %Error severity.    
+    //! \param reason %Error reason.
+    //! \param desc %Error description.
+    //! \param origin %Error origin.
+    //! \param err_code %Error id.
+    //! \param severity %Error severity.    
     Error ( const std::string& reason,
             const std::string& desc,
             const std::string& origin, 
@@ -167,10 +167,10 @@ namespace yat
 
     //! \brief Constructor from an application error.
     //! \param reason %Error reason.
-	//! \param desc %Error description.
-	//! \param origin %Error origin.
-	//! \param err_code %Error code.
-	//! \param severity %Error severity.
+    //! \param desc %Error description.
+    //! \param origin %Error origin.
+    //! \param err_code %Error code.
+    //! \param severity %Error severity.
     Exception ( const char *reason,
                 const char *desc,
                 const char *origin,
@@ -179,10 +179,10 @@ namespace yat
 
     //! \brief Constructor from an application error.
     //! \param reason %Error reason.
-	//! \param desc %Error description.
-	//! \param origin %Error origin.
-	//! \param err_code %Error code.
-	//! \param severity %Error severity.
+    //! \param desc %Error description.
+    //! \param origin %Error origin.
+    //! \param err_code %Error code.
+    //! \param severity %Error severity.
     Exception ( const std::string& reason,
                 const std::string& desc,
                 const std::string& origin, 
@@ -206,10 +206,10 @@ namespace yat
 
     //! \brief Pushes the specified error into the error list.
     //! \param reason %Error reason.
-	//! \param desc %Error description.
-	//! \param origin %Error origin.
-	//! \param err_code %Error code.
-	//! \param severity %Error severity.    
+    //! \param desc %Error description.
+    //! \param origin %Error origin.
+    //! \param err_code %Error code.
+    //! \param severity %Error severity.    
     void push_error ( const char *reason,
                       const char *desc,
                       const char *origin, 
@@ -218,10 +218,10 @@ namespace yat
 
     //! \brief Pushes the specified error into the error list.
     //! \param reason %Error reason.
-	//! \param desc %Error description.
-	//! \param origin %Error origin.
-	//! \param err_code %Error code.
-	//! \param severity %Error severity.    
+    //! \param desc %Error description.
+    //! \param origin %Error origin.
+    //! \param err_code %Error code.
+    //! \param severity %Error severity.    
     void push_error ( const std::string& reason,
                       const std::string& desc,
                       const std::string& origin, 

@@ -356,7 +356,7 @@ protected:
   Condition * cond_;
 
   //! \brief Size of message content in bytes.
-	size_t size_in_bytes_;
+  size_t size_in_bytes_;
 
 #if defined (YAT_DEBUG)
   //- msg id

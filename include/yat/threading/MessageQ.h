@@ -107,8 +107,8 @@ public:
     //! Default constructor.
     Statistics ();
     //! Dumps statistics to specified output.
-	//! \param out Output
-	void dump (std::ostream& out = std::cout) const;
+    //! \param out Output
+    void dump (std::ostream& out = std::cout) const;
     //! Number of times MessageQ reached the hi-water mark.
     size_t has_been_saturated_;
     //! Number of times MessageQ reached the low-water mark.
@@ -211,7 +211,7 @@ public:
   
 private:
   //- periodic msg tmo expired?
-	bool periodic_tmo_expired_i (double _tmo_msecs);
+  bool periodic_tmo_expired_i (double _tmo_msecs);
   
   //- clears msgQ content (returns num of trashed messages).
   size_t clear_i (bool notify_waiters = true);
@@ -278,16 +278,16 @@ private:
   //- to ensure that any msg is "finally" handled.
   bool last_returned_msg_periodic_;
 
-	//- water marks unit
-	MessageQ::WmUnit wm_unit_;
+  //- water marks unit
+  MessageQ::WmUnit wm_unit_;
 
-	//- depending on the water marks unit, this can be:
+  //- depending on the water marks unit, this can be:
   //- 1. the number of pending messages (unit_ = NUM_OF_MSGS)
   //- 2. the number of pending bytes (unit_ = NUM_OF_BYTES)
-	size_t pending_charge_;
+  size_t pending_charge_;
   
   //- some task/msgQ stats 
-	Statistics stats_;
+  Statistics stats_;
 
   // = Disallow these operations.
   //--------------------------------------------

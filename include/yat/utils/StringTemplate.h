@@ -87,9 +87,9 @@ public:
   {
     //! Replace by an empty string.
     EMPTY_STRING,
-	//! Keep symbol name.
+    //! Keep symbol name.
     SYMBOL_NAME,
-	//! Keep template.
+    //! Keep template.
     UNCHANGE_STRING
   };
 
