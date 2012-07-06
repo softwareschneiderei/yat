@@ -863,7 +863,7 @@ String Time::to_inter(bool bMillis) const
 //----------------------------------------------------------------------------
 // Time::UnixTime
 //----------------------------------------------------------------------------
-uint32 Time::unix_time()
+int32 Time::unix_time()
 {
   return CurrentTime().long_unix();
 }
