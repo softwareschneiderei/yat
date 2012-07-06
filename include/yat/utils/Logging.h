@@ -189,12 +189,12 @@ typedef void (*pfn_log_fwd)(int iLevel, const char *pszType, const char *pszMsg)
 class YAT_DECL LogForward: public ILogTarget
 {
 private:
-	//- Function to forward log to
+  //- Function to forward log to
   pfn_log_fwd m_pfn_log_fwd;
 
 public:
-	//! \brief Constructor.
-	//! \param pfn_log_fwd Pointer to function to forward log to.
+  //! \brief Constructor.
+  //! \param pfn_log_fwd Pointer to function to forward log to.
   LogForward(pfn_log_fwd pfn_log_fwd);
 
   //! \brief Logs a message.
@@ -303,7 +303,7 @@ YAT_DECL void log_emergency(pcsz pszType, pcsz pszFormat, ...);
   do \
   { \
     for (size_t i = 0; i < e.errors.size(); i++) \
-      yat::log_error(domain, "(%d). %s. %s. From %s.", PSZ(e.errors[i].reason), PSZ(e.errors[i].desc), PSZ(e.errors[i].origin)); \
+      yat::log_error(domain, "%s. %s. From %s.", PSZ(e.errors[i].reason), PSZ(e.errors[i].desc), PSZ(e.errors[i].origin)); \
   } while(0)
 
 } // namespace
