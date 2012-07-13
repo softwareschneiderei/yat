@@ -48,15 +48,21 @@
 namespace yat 
 {
 
-//===========================================================================
-//! A simple command line parsor
-//! command line is like: "$my_app -a -b value_of_b -c value_of_c blabla"
-//===========================================================================
+
+// ============================================================================
+//! \class CommandLine 
+//! \brief A simple command line parser.
+//!
+//! This class provides a parser for a command line that contains options (i.e. "-opt val")
+//! and simple arguments (i.e. "arg1 arg2 ..."). The command line format is like:
+//! \verbatim  $my_app -a -b \<value_of_b\> -c \<value_of_c\> arg1 arg2...  \endverbatim
+//! 
+// ============================================================================
 class YAT_DECL CommandLine
 {
 public:
   //=============================================================================
-  //! Command line option
+  //! \brief Command line option.
   //=============================================================================
   struct CommandLineOpt
   {
@@ -66,10 +72,12 @@ public:
     String strDesc;
     String strValue;
   };
+
+  //! \brief Vector of command line options.
   typedef std::vector<CommandLineOpt> vecOpts;
 
   //=============================================================================
-  //! Command line argument
+  //! \brief Command line argument.
   //=============================================================================
   struct CommandLineArg
   {
@@ -78,36 +86,66 @@ public:
     bool   bSingle;
   };
 
+  //! \brief Vector of command line arguments.
   typedef std::vector<CommandLineArg> vecArgs;
 
-  //! Set command name (displayed in ShowUsage() )
+  //! \brief Sets command name and version.
   //!
+  //! These names will be displayed with the *show_usage()* function.
+  //! \param strName Command's name.
+  //! \param strVersion Command's version.
   void set_cmd_name_version(const String &strName, const String &strVersion);
 
-  //! Add a option
+  //! \brief Defines an option for the command line.
+  //!
+  //! \param cShortName Option's short name.
+  //! \param pszLongName Option's long name.
+  //! \param pszValue Option's value.
+  //! \param pszDesc Option's description.
   void add_opt(char cShortName, pcsz pszLongName, pcsz pszValue, pcsz pszDesc);
 
-  //! Add a argument
+  //! \brief Defines a simple argument for the command line.
+  //! 
+  //! \param pszDesc Argument's description.
+  //! \param bSingle If set to false, several arguments can follow.
+  //! \param bMandatory If set to true, argument is mandatory.
   void add_arg(pcsz pszDesc, bool bSingle=true, bool bMandatory=true);
 
-  //! Initializing with command line arguments
+  //! \brief Initializes the command line with arguments (options and simple arguments).
   //!
-  //! \param iArgc, ppszArgv arguments
-  //! \return true if aguments are sufficients to launch application
-  //! \throw an exception if arguments are not valid
-  //!
+  //! Returns true if arguments are sufficient to launch application, false otherwise.
+  //! \param iArgc Number of arguments.
+  //! \param ppszArgv List of arguments.
+  //! \exception BAD_ARGS Thrown if arguments are not valid.
   bool read(int iArgc, char **ppszArgv) throw (Exception);
 
-  //! Showing Usage
+  //! \brief Shows command's usage.
   //!
-  //! \param strAppInfo Additionnal information about the application
-  //!
+  //! \param[out] strAppInfo Additional information about the command
+  //! or application.
   void show_usage(const String &strAppInfo) const;
 
-  //! Retreiving options, arguments and theirs values
+  //! \brief Checks if option is defined.
+  //!
+  //! Returns true if the specified option is defined for the command, false otherwise.
+  //! \param[in] strArg The option's name to retrieve.
   bool is_option(const String &strArg) const;
+
+  //! \brief Gets options's value.
+  //!
+  //! Returns the option's value or nil string if not found.
+  //! \param[in] strOpt The option's name to retrieve.
   String option_value(const String &strOpt) const;
+  
+  //! \brief Gets the number of initialized arguments.
+  //! 
+  //! Returns the number of simple arguments initialized with the *read()* function.
   int arg_count() const;
+
+  //! \brief Gets a simple argument by its rank.
+  //!
+  //! Returns the \<i\>th simple argument's value initialized with the *read()* function.
+  //! \param i Rank of the simple argument to retrieve.
   String arg(int i) const;
 
 private:
@@ -126,7 +164,7 @@ private:
   //- Valid arguments list
   vecArgs     m_vecArgDefs;
 
-  //- Argument dictionnary
+  //- Argument dictionary
   KeyValueMap m_dictOpts;
 
   //- Command name

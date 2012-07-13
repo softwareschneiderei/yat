@@ -48,7 +48,7 @@
 //! - generic callback classes (for 'free' function or class function),
 //! - a logging management (log manager, log catcher, basic logging functions),
 //! - various string specializations (conversion functions, tokenized string, 
-//! std::string extension, symbol evaluation),
+//! std::string extension, symbol evaluation, command line parser),
 //! - a signal object providing an observer pattern,
 //! - generic objects counters (shared, weak counters),
 //! - a non "copyable" class,
@@ -79,6 +79,7 @@
 //!   - yat::StringTemplate
 //!   - yat::StringTokenizer
 //!   - yat::XString
+//!   - yat::CommandLine
 //!   - yat::NonCopyable
 //!   - yat::Singleton
 //!   - yat::URI
