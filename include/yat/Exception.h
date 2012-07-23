@@ -42,6 +42,7 @@
 // ============================================================================
 #include <string>
 #include <vector>
+#include <yat/CommonHeader.h>
 
 namespace yat 
 {
@@ -247,5 +248,5 @@ namespace yat
 #endif // YAT_INLINE_IMPL
 */
 
-#endif // _MESSAGE_H_
+#endif // _EXCEPTION_H_
 
