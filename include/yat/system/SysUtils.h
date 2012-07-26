@@ -73,7 +73,7 @@ public:
   //! \exception SYSTEM_ERROR Thrown when quotes missing in command line (on Windows plateform 
   //! implementation).
   //! \exception ERR_FILE Thrown if command execution fails (on Windows plateform implementation).
-  bool exec(const char* pszCmdLine, const char *pszDefDir = NULL,
+  static bool exec(const char* pszCmdLine, const char *pszDefDir = NULL,
            int bBackground = true, bool bThrow = true, int* pulReturnCode = NULL);
            
   //! \brief Executes a command line using the identity of another account.
@@ -90,7 +90,7 @@ public:
   //! - quotes miss in command line (on Windows plateform implementation),
   //! - shell execution fails (on Posix plateform implementation).
   //! \exception ERR_FILE Thrown if command execution fails (on Windows plateform implementation). 
-  bool exec_as(const char* pszCmdLine, const char *pszDefDir = NULL,
+  static bool exec_as(const char* pszCmdLine, const char *pszDefDir = NULL,
            int bBackground = true, bool bThrow = true, int* pulReturnCode = NULL, uid_t uid = -1, gid_t gid = -1);
 };
 
