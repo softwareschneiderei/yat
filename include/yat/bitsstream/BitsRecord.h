@@ -73,13 +73,17 @@ extern YAT_DECL size_t kINDENT_COUNTER;
 //! MACRO: INDENT_STREAM
 //=============================================================================
 #define INDENT_STREAM \
-  _os << std::setw(yat::kINDENT_COUNTER) << std::left << std::setfill(' ') << ""
+  _os << std::setw(yat::kINDENT_COUNTER) \
+      << std::left \
+      << std::setfill(' ') \
+      << ""
 
 //=============================================================================
 //! MACRO: DUMP_CLASS
 //=============================================================================
 #define DUMP_CLASS(_CLASS_NAME_) \
-  INDENT_STREAM << "-------------------------------------------------------------" << std::endl;
+  INDENT_STREAM << "-------------------------------------------------------------"\
+                << std::endl;
 
 //=============================================================================
 //! MACRO: DUMP_END
@@ -197,7 +201,7 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<_n,_T>& _
   { \
     friend std::ostream& operator<< (std::ostream&, const _CLASS_NAME_&); \
   public: \
-    void dump () const \
+    virtual void dump () const \
     { \
       std::ostream& _os = std::cout; \
       INDENT_STREAM << *this << std::endl; \
@@ -209,6 +213,26 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<_n,_T>& _
 #define YAT_END_BR(_CLASS_NAME_) \
   };
    
+//=============================================================================
+//! MACRO: YAT_BEGIN_EXT_BR 
+//=============================================================================
+#define YAT_BEGIN_EXT_BR(_CLASS_NAME_, _INHERITED_CLASS_NAME_) \
+  class _CLASS_NAME_ : public _INHERITED_CLASS_NAME_ \
+  { \
+    friend std::ostream& operator<< (std::ostream&, const _CLASS_NAME_&); \
+  public: \
+    virtual void dump () const \
+    { \
+      std::ostream& _os = std::cout; \
+      INDENT_STREAM << *this << std::endl; \
+    }
+      
+//=============================================================================
+//! MACRO: YAT_END_EXT_BR
+//=============================================================================
+#define YAT_END_EXT_BR(_CLASS_NAME_) \
+  };
+  
 //=============================================================================
 //! MACRO: MEMBER
 //=============================================================================   
