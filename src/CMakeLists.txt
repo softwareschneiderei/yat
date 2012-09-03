@@ -3,20 +3,16 @@ set (source_files
   bitsstream/BitsStream.cpp
   bitsstream/Endianness.cpp
   file/FileName.cpp
-  file/PosixFileImpl.cpp
   memory/MemBuf.cpp
   network/Address.cpp
   network/ClientSocket.cpp
   network/Socket.cpp
   network/SocketException.cpp
-  plugin/PlugIn.cpp
+  plugin/PlugIn.cpp 
   plugin/PlugInManager.cpp
-  plugin/PlugInUnix.cpp
-  system/PosixSysUtilsImpl.cpp
   threading/Barrier.cpp
   threading/Message.cpp
   threading/MessageQ.cpp
-  threading/PosixThreadingImpl.cpp
   threading/SharedObject.cpp
   threading/SyncAccess.cpp
   threading/Task.cpp
@@ -28,11 +24,33 @@ set (source_files
   utils/URI.cpp
 )
 
+if (UNIX)
+	list(APPEND source_files 
+		threading/PosixThreadingImpl.cpp
+		plugin/PlugInUnix.cpp
+		system/PosixSysUtilsImpl.cpp
+		file/PosixFileImpl.cpp
+		)
+endif()
+
+if (WIN32)
+	list(APPEND source_files 
+		threading/WinNtThreadingImpl.cpp
+		plugin/PlugInWin32.cpp
+		system/Win32SysUtilsImpl.cpp
+		file/Win32FileImpl.cpp
+		)
+endif()
+
 include_directories(
   ../include
 )
 
 add_library (yat SHARED ${source_files})
+
+if (WIN32)
+	target_link_libraries(yat ws2_32.lib shell32.lib)
+endif()
 
 install (DIRECTORY ../include/yat DESTINATION include/
   FILES_MATCHING PATTERN "*.h"
@@ -43,4 +61,7 @@ install (DIRECTORY ../include/yat DESTINATION include/
   PATTERN "config-win32.h" EXCLUDE
   PATTERN "WinNt*" EXCLUDE
 )
-install (TARGETS yat LIBRARY DESTINATION ${LIB_INSTALL_DIR})
+
+if (UNIX)
+	install (TARGETS yat LIBRARY DESTINATION ${LIB_INSTALL_DIR})
+endif()
