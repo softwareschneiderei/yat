@@ -489,7 +489,7 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
     {
       size_t lToRead = 0;
 
-      if( llSize > s_copy_bloc_size )
+      if( (size_t)llSize > s_copy_bloc_size )
         lToRead = s_copy_bloc_size;
       else
         lToRead = (size_t)llSize;
