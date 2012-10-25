@@ -40,9 +40,11 @@
 
 #include <yat/CommonHeader.h>
 #include <yat/utils/String.h>
+#include <sys/types.h>
 
 namespace yat
 {
+
 // ============================================================================
 //! \class SysUtils 
 //! \brief Generic system utilities.

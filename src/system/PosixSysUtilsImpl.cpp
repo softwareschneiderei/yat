@@ -40,6 +40,7 @@
 #include <yat/system/SysUtils.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 namespace yat
 {

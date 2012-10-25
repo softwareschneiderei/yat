@@ -2,7 +2,7 @@ project (yat)
 cmake_minimum_required (VERSION 2.6)
 
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
-set(VERSION "1.7.7")
+set(VERSION "1.7.11")
 
 if (lib_dir)
   set(LIB_INSTALL_DIR ${lib_dir})

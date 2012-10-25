@@ -79,7 +79,7 @@ public:
   //! \brief Causes the caller to sleep for the given time.
   //! \param secs Time in seconds.
   //! \param nanosecs Nanoseconds precision of time.
-  static void sleep (unsigned long secs, unsigned long nanosecs = 0);
+  static void sleep (long secs, long nanosecs = 0);
 
   //! \brief Calculates an absolute time in seconds and nanoseconds, suitable for
   //! use in timed waits (ex: Condition, Semaphore), which is the current 

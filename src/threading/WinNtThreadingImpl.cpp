@@ -590,7 +590,7 @@ ThreadUID ThreadingUtilities::self ()
 // ----------------------------------------------------------------------------
 // ThreadingUtilities::sleep
 // ----------------------------------------------------------------------------
-void ThreadingUtilities::sleep (unsigned long _secs, unsigned long _nano_secs)
+void ThreadingUtilities::sleep (long _secs, long _nano_secs)
 {
   //- requested sleep time <= to max sleep time per ::Sleep call
   if (_secs <= MAX_SLEEP_SECONDS)
