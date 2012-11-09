@@ -90,14 +90,14 @@ public:
   inline void lock_for_writing () 
   { 
     yat::MutexLock guard(this->m_mutex);
-    for (int i = 0; i < this->m_max_readers; ++i)
+    for (size_t i = 0; i < this->m_max_readers; ++i)
       m_semaphore.wait(); 
   }
 
   //! Unocks the resource for writing
   inline void unlock_for_writing () 
   { 
-    for (int i = 0; i < this->m_max_readers; ++i)
+    for (size_t i = 0; i < this->m_max_readers; ++i)
       m_semaphore.post(); 
   }
 
