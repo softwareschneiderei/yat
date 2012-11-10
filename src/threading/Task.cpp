@@ -267,7 +267,7 @@ void Task::go_asynchronously (Message * _msg, size_t _tmo_ms)
          (_msg->type() != TASK_INIT)
      )
      THROW_YAT_ERROR("PROGRAMMING_ERROR",
-                     "invalid INIT message [null, wrong type or not waitable]",
+                     "invalid INIT message [null or wrong type]",
                      "Task::go");
 
   this->post(_msg, _tmo_ms); 
@@ -309,12 +309,13 @@ void * Task::run_undetached (void *)
     //- get/wait next message from the msgQ
     msg = this->msg_q_.next_message (tmo);
     //- mark TASK_INIT has received
-    received_init_msg = true;
+    if ( msg && msg->type() == TASK_INIT )
+      received_init_msg = true;
   }
-  while (! msg || msg->type() != TASK_INIT);
+  while ( ! received_init_msg );
 
   //- enter thread's main loop 
-  while (! received_exit_msg)
+  while ( ! received_exit_msg )
   {
     //- actual tmo on msg waiting
     tmo = this->actual_timeout();

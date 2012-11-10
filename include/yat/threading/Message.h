@@ -95,7 +95,7 @@ namespace yat
 typedef enum
 {
   //--------------------
-  TASK_INIT,
+  TASK_INIT = 0,
   TASK_TIMEOUT,
   TASK_PERIODIC,
   TASK_EXIT,

@@ -241,7 +241,12 @@
     <ClCompile Include="..\..\src\memory\MemBuf.cpp" />
     <ClCompile Include="..\..\src\plugin\PlugIn.cpp" />
     <ClCompile Include="..\..\src\plugin\PlugInManager.cpp" />
-    <ClCompile Include="..\..\src\plugin\PlugInUnix.cpp" />
+    <ClCompile Include="..\..\src\plugin\PlugInUnix.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\src\plugin\PlugInWin32.cpp" />
     <ClCompile Include="..\..\src\system\Win32SysUtilsImpl.cpp" />
     <ClCompile Include="..\..\src\threading\Barrier.cpp" />
