@@ -29,7 +29,11 @@ libyat_la_SOURCES = \
   	time/Time.cpp \
 	utils/String.cpp \
 	utils/StringTemplate.cpp \
-	utils/Logging.cpp
+	utils/StringTokenizer.cpp \
+	utils/Logging.cpp \
+	utils/CommandLine.cpp \
+	utils/URI.cpp
+
 
 
  
