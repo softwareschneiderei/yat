@@ -69,13 +69,14 @@ nobase_include_HEADERS =  \
 	yat/threading/SyncAccess.h \
 	yat/time/Timer.h \
 	yat/time/Time.h \
-  yat/utils/Callback.h \
-  yat/utils/NonCopyable.h \
-  yat/utils/XString.h \
+	yat/utils/Callback.h \
+	yat/utils/NonCopyable.h \
+	yat/utils/XString.h \
 	yat/utils/Signal.h \
 	yat/utils/Singleton.h \
 	yat/utils/StringTokenizer.h \
 	yat/utils/String.h \
-	yat/utils/StringTemplate.h
-
-
+	yat/utils/StringTemplate.h \
+	yat/utils/URI.h \
+	yat/utils/ReferenceCounter.h \
+	yat/utils/Logging.h
