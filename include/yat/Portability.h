@@ -41,7 +41,7 @@
 # include <float.h>
 # include <yat/config-win32.h>
 #elif (defined _linux_ || defined __linux__)
-# include <math.h>
+# include <cmath> 
 # include <yat/config-linux.h>
 #elif (defined __APPLE__)
 # include <math.h>
@@ -69,7 +69,7 @@ namespace yat
 #if defined (WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
     return _isnan(static_cast<double>(v));
 #else
-    return isnan(static_cast<double>(v));
+    return std::isnan(static_cast<double>(v));  
 #endif
   }
 }
