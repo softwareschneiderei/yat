@@ -226,6 +226,21 @@ namespace yat
                   : 0;
     }
 
+    //! \brief Cast function from Any type to \<ValueType\> type.
+    //! \brief Supposed to be used when trying to cast something exchanged between to RTTI contexts (e.g. a process and a shared lib)
+    //! 
+    //! If \<operand\> is NULL pointer or \<operand\> type is not compatible
+    //! with \<ValueType\>, returns 0.
+    //! \param operand Pointer to value to cast.
+    template<typename ValueType>
+    ValueType * any_cast_ext (Any * operand)
+    {
+        return operand 
+            && static_cast<std::string>(operand->type().name()) == static_cast<std::string>(typeid(ValueType).name())
+             ? &static_cast<Any::Holder<ValueType> *>(operand->m_content)->m_held
+             : 0;
+    }
+
     //! \brief Cast function from *const* Any type to *const* \<ValueType\> type.
     //! 
     //! If \<operand\> is NULL pointer or \<operand\> type is not compatible
@@ -270,6 +285,25 @@ namespace yat
       
         return *result;
     }
+
+    //! \brief Cast function from Any type to \<ValueType\> type. 
+    //! \brief Supposed to be used when trying to cast something exchanged between to RTTI contexts (e.g. a process and a shared lib)
+    //! \param operand Value to cast.
+    //! \exception error Thrown if cast conversion fails.
+    template<typename ValueType>
+    ValueType & any_cast_ext (Any & operand) 
+      throw (yat::Exception)
+    {
+        ValueType * result = any_cast_ext<ValueType>(&operand);
+    
+        if ( ! result )
+          THROW_YAT_ERROR(_CPTC("yat::any_cast error"),
+                          _CPTC("yat::any_cast conversion failed"),
+                          _CPTC("yat::any_cast_ext"));
+      
+        return *result;
+    }
+
 
     //! \brief Cast function from Any type to \<ValueType\> type.
     //!

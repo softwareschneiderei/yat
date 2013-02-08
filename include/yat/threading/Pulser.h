@@ -40,28 +40,49 @@
     
 	\verbatim 
 
-   #include "yat/threading/Pulser.h"
+  #include "yat/threading/Pulser.h"
 
-   class MyClass
-   {
-      void my_callback (yat::Thread::IOArg arg)
-      {
-        std::cout << "MyClass::my_callback called" << std::cout;
-      }
-   }
+  class MyClass
+  {
+  public:
+    MyClass() : calls(0) {}
 
-   //- MyClass instance
-   MyClass mc;
+    void my_callback (yat::Thread::IOArg arg)
+    {
+      std::cout << "MyClass::my_callback::call #" << ++calls << std::endl;
+    }
 
-   //- pulser's config
-   yat::Pulser::Config cfg;
-   cfg.period_in_msecs = 250; //- 4Hz callback pulse
-   cfg.num_pulses = 10; //- 10 pulses then stop
-   cfg.callback = PulserCallback::instanciate(mc, my_callback);
-   cfg.user_data = 0; //- no user data
+    size_t calls;
+  };
 
-   yat::Pulser p(cfg);
-   p.start();
+  int main (int, char**)
+  {
+    try
+    {
+      //- MyClass instance
+      MyClass mc;
+
+      //- pulser's config
+      yat::Pulser::Config cfg;
+      cfg.period_in_msecs = 250;
+      cfg.num_pulses = 10;
+      cfg.callback = yat::PulserCallback::instanciate(mc, &MyClass::my_callback);
+      cfg.user_data = 0;
+
+      yat::Pulser p(cfg);
+      p.start();
+
+      yat::Thread::sleep(5000);
+
+      std::cout << "done!" << std::endl;
+    }
+    catch (...)
+    {
+      std::cout << "Unknown exception caught" << std::endl;
+    }
+
+    return 0;  
+  }
 
 	\endverbatim
 */
