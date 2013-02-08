@@ -104,6 +104,23 @@ int main(int argc, char* argv[])
     std::cout << "ko: yat::Any::any_cast<int> failed!" << std::endl;
   }
 
+  //- try to extract an <int> from an Any holding an <int&>
+  //- this should complete successfully
+  try 
+  {
+    int int_val = yat::any_cast_ext<int>(any_holding_ref);
+
+    std::cout << "ok: yat::Any::any_cast_ext<int> returned "
+              << int_val
+              << " as expected"
+              << std::endl;
+
+  }
+  catch (const yat::Exception&)
+  {
+    std::cout << "ko: yat::Any::any_cast<int> failed!" << std::endl;
+  }
+
   //- try to extract an <int> from an Any holding an <int*>
   //- this should fail!
   try 
