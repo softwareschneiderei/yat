@@ -59,6 +59,7 @@ nobase_include_HEADERS =  \
 	yat/threading/MessageQ.h \
 	yat/threading/MessageQ.i \
 	yat/threading/Mutex.h \
+	yat/threading/Pulser.h \
 	yat/threading/Semaphore.h \
 	yat/threading/SharedObject.h \
 	yat/threading/SharedObject.i \

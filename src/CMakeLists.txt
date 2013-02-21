@@ -13,6 +13,7 @@ set (source_files
   threading/Barrier.cpp
   threading/Message.cpp
   threading/MessageQ.cpp
+  threading/Pulser.cpp
   threading/SharedObject.cpp
   threading/SyncAccess.cpp
   threading/Task.cpp
