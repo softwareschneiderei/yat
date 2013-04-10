@@ -435,7 +435,7 @@ TempFileName::TempFileName(const String &strPath)
 void File::load(MemBuf *pBuf) throw(Exception)
 {
   // Open source file
-  FILE *fi = fopen(PSZ(full_name()), "r");
+  FILE *fi = fopen(PSZ(full_name()), "rb");
   if( NULL == fi )
   {
     String strErr = String::str_format(ERR_OPEN_FILE, PSZ(full_name()));
@@ -446,12 +446,18 @@ void File::load(MemBuf *pBuf) throw(Exception)
   pBuf->set_len(size()+1);
 
   // Read
-  long lSize = size();
-  long lReaded = fread(pBuf->buf(), 1, lSize, fi);
-  if( ferror(fi) || lSize != lReaded )
+  std::size_t lSize = size();
+  std::size_t lTotalReaded = 0;
+  while( lTotalReaded < lSize )
   {
-    String strErr = String::str_format(ERR_READING_FILE, PSZ(full_name()));
-    throw Exception("FILE_ERROR", PSZ(strErr), "File::Load");
+    std::size_t lReaded = fread(pBuf->buf() + lTotalReaded, 1, lSize, fi);
+
+    if( ferror(fi) || 0 == lReaded )
+    {
+      String strErr = String::str_format(ERR_READING_FILE, PSZ(full_name()));
+      throw Exception("FILE_ERROR", PSZ(strErr), "File::Load");
+    }
+    lTotalReaded += lReaded;
   }
   memset(pBuf->buf() + lSize, 0, 1);
   fclose(fi);
