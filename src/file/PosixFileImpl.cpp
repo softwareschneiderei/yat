@@ -483,15 +483,22 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
   try
   {
     // Copy by blocs
-    int64 llSize = size64();
+    int64 llTotalSize = size64();
+    int64 llSize = llTotalSize;
     ssize_t lReaded=0, lWritten=0;
+    size_t lToRead = 0;
+    
+    // progression init
+    uint8 current_progress = 0;
+    int64 cl_start = Time::microsecs();
+    if( m_progress_target_p )
+      m_progress_target_p->on_start();
+    
     while( llSize )
     {
-      size_t lToRead = 0;
+      lToRead = s_copy_bloc_size;
 
-      if( (size_t)llSize > s_copy_bloc_size )
-        lToRead = s_copy_bloc_size;
-      else
+      if( llSize < s_copy_bloc_size )
         lToRead = (size_t)llSize;
 
       lReaded = read(fsrc, aBuf, lToRead);
@@ -509,6 +516,33 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
       }
 
       llSize -= lWritten;
+      
+      // progression
+      if( m_progress_target_p )
+      {
+        double secs = double(Time::microsecs() - cl_start) / MICROSEC_PER_SEC;
+        if( secs > 2 )
+          m_progress_target_p->on_speed((llTotalSize - llSize) / (1024*1024) / secs, "MBytes/s");
+
+        std::size_t percent = std::size_t((100.0 * (llTotalSize - llSize)) / llTotalSize + 0.5);
+        if( percent != current_progress )
+        {
+          current_progress = percent;
+          m_progress_target_p->on_progress(current_progress);
+        }
+      }
+    }
+
+    // progress notification: operation completed
+    if( m_progress_target_p )
+    {
+      double secs = (Time::microsecs() - cl_start) / MICROSEC_PER_SEC;
+      yat::String msg;
+      if( secs >= 1 )
+        msg.printf("%lld bytes copied in %d seconds", llTotalSize, int(secs + 0.5));
+      else
+        msg.printf("%lld bytes copied in less than 1 second", llTotalSize);
+      m_progress_target_p->on_complete(msg);
     }
   }
   catch( yat::Exception &ex )
