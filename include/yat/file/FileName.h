@@ -332,24 +332,48 @@ public:
     HFS   = 0xffff
   };
 
+  // ============================================================================
+  //! \interface IProgress
+  //! \brief progress indicator
+  //!
+  //! This class provides a method to notify about progression while performing
+  //! copy operations
+  // ============================================================================
+  class IProgress
+  {
+  public:
+    //! start notification
+    virtual void on_start() = 0;
+    //! progression notification in the range [0..100]
+    virtual void on_progress(std::size_t percent) = 0;
+    //! speed notification with units
+    virtual void on_speed(std::size_t speed, std::string unit) = 0;    
+    //! complete notification
+    virtual void on_complete(std::string msg) = 0;
+  };
+  
 private:
+  
+  //! progress notification target
+  IProgress* m_progress_target_p;
+
   //- Throws a "FILE_ERROR" yat::Exception.
   void ThrowExceptionFromErrno(const char *pszError, const char *pszMethod) const;
 
 public:
   //! \brief Default constructor.
-  FileName()  { }
+  FileName(): m_progress_target_p(0)  { }
 
   //! \brief Constructor from file name.
   //! 
   //! The specified name can be a path name, a file name or a full path file name.
   //! \param strFileName %File name.
-  FileName(const String &strFileName)  { set(strFileName); }
+  FileName(const String &strFileName): m_progress_target_p(0) { set(strFileName); }
 
   //! \brief Constructor from file and path names.
   //! \param strPath Path name.
   //! \param strName %File name.
-  FileName(const String &strPath, const String &strName)  { set(strPath, strName); }
+  FileName(const String &strPath, const String &strName): m_progress_target_p(0)  { set(strPath, strName); }
 
   //! \brief Tests if filename is a path.
   //! 
@@ -512,6 +536,7 @@ public:
   //! (access mode, owner & group). Metadata are not kept otherwise.
   //! \exception FILE_NOT_FOUND Thrown if *this* file doesn't exist.
   //! \exception FILE_ERROR Thrown if file copy fails.
+  //! \todo implement the progress notifications on Windows using the CopyFileEx functions family
   void copy(const String &strDest, bool bKeepMetaData=false) 
     throw(Exception);
   
@@ -605,6 +630,10 @@ public:
   //! Sets the bloc size (in bytes) for file copy operations.
   //! \param size Bloc size in bytes.
   static void set_copy_bloc_size(size_t size);
+  
+  //! Sets the progress notification target
+  //! \param target_p pointer to the target
+  void set_progress_target(IProgress* target_p) { m_progress_target_p = target_p; }
 };
 
 // ============================================================================
