@@ -151,7 +151,7 @@ inline int64 int64FromHLPair(long lHigh, unsigned long ulLow)
 //! Month identifier.
 #define TS_UNIT_MONTH 4  // mois logique (=30 jours)
 //! year identifier.
-#define TS_UNIT_YEAR  5  // année logique (=12 mois logiques)
+#define TS_UNIT_YEAR  5  // annee logique (=12 mois logiques)
 
 //! Month names.
 static const pcsz s_pszMonth[] = 
@@ -511,6 +511,9 @@ public:
   //! \brief Gets Unix current time.
   static int32 unix_time();
 
+  //! \brief Gets system time in microseconds
+  static int64 microsecs();
+
   //@} Static methods
 
 };
@@ -540,6 +543,24 @@ public:
 typedef CurrentTime CurrentDate;
 typedef CurrentTime CurrentDateTime;
 
+// ============================================================================
+//! \class Duration 
+//! \brief duration class.
+//! \note  complete the implementation !!!
+//! \note add some methods in Time class (operator-, operator+,...)
+//! This class hold a duration
+// ============================================================================
+class YAT_DECL Duration
+{
+public:
+  Duration(int64 llMicroSec);
+  Duration();
+
+  void set_sec(int32 lSec);
+
+private:
+  int64 m_llMicroSec;   // duration in microsecond precision
+};
 } // namespace
 
 #endif
