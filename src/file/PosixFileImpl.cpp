@@ -492,7 +492,7 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
     uint8 current_progress = 0;
     int64 cl_start = Time::microsecs();
     if( m_progress_target_p )
-      m_progress_target_p->on_start();
+      m_progress_target_p->on_start(name_ext(), llTotalSize);
     
     while( llSize )
     {
@@ -521,15 +521,7 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
       if( m_progress_target_p )
       {
         double secs = double(Time::microsecs() - cl_start) / MICROSEC_PER_SEC;
-        if( secs > 2 )
-          m_progress_target_p->on_speed((llTotalSize - llSize) / (1024*1024) / secs, "MBytes/s");
-
-        std::size_t percent = std::size_t((100.0 * (llTotalSize - llSize)) / llTotalSize + 0.5);
-        if( percent != current_progress )
-        {
-          current_progress = percent;
-          m_progress_target_p->on_progress(current_progress);
-        }
+        m_progress_target_p->on_progress(name_ext(), llTotalSize, llTotalSize - llSize, secs);
       }
     }
 
@@ -537,12 +529,7 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
     if( m_progress_target_p )
     {
       double secs = (Time::microsecs() - cl_start) / MICROSEC_PER_SEC;
-      yat::String msg;
-      if( secs >= 1 )
-        msg.printf("%lld bytes copied in %d seconds", llTotalSize, int(secs + 0.5));
-      else
-        msg.printf("%lld bytes copied in less than 1 second", llTotalSize);
-      m_progress_target_p->on_complete(msg);
+      m_progress_target_p->on_complete(name_ext(), llTotalSize, secs);
     }
   }
   catch( yat::Exception &ex )
