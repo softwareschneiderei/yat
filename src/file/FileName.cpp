@@ -175,7 +175,9 @@ String FileName::ext() const
 
   // Search backward for extension separator
   String::size_type iExtPos = m_strFile.find_last_of(SEP_EXT);
-  if( String::npos != iExtPos )
+  // Backward search for last separator
+  String::size_type iLastSepPos = m_strFile.find_last_of(SEP_PATH);
+  if( String::npos != iExtPos && iExtPos > iLastSepPos )
     // Separator found
     strExt = m_strFile.substr(iExtPos + 1);
 
