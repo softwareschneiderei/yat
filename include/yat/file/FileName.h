@@ -343,13 +343,11 @@ public:
   {
   public:
     //! start notification
-    virtual void on_start() = 0;
-    //! progression notification in the range [0..100]
-    virtual void on_progress(std::size_t percent) = 0;
-    //! speed notification with units
-    virtual void on_speed(std::size_t speed, std::string unit) = 0;    
+    virtual void on_start(std::string file_name, int64 total_bytes) = 0;
+    //! progression notification
+    virtual void on_progress(std::string file_name, int64 total_bytes, int64 copied_bytes, double elapsed_secs) = 0;
     //! complete notification
-    virtual void on_complete(std::string msg) = 0;
+    virtual void on_complete(std::string file_name, int64 total_bytes, double elapsed_secs) = 0;
   };
   
 private:
