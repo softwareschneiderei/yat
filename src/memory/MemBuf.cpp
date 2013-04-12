@@ -163,7 +163,7 @@ void MemBuf::realloc_with_margin(uint32 uiNewSize)
 //-------------------------------------------------------------------
 void MemBuf::realloc(uint32 uiNewLenBuf)
 {
-  if (uiNewLenBuf < m_uiLen)
+  if( uiNewLenBuf < m_uiLen )
   {
     // Wished size smaller than current one!
 //##    ASSERT_FAILURE;
