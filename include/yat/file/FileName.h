@@ -345,7 +345,7 @@ public:
     //! start notification
     virtual void on_start(std::string file_name, int64 total_bytes) = 0;
     //! progression notification
-    virtual void on_progress(std::string file_name, int64 total_bytes, int64 copied_bytes, double elapsed_secs) = 0;
+    virtual bool on_progress(std::string file_name, int64 total_bytes, int64 copied_bytes, double elapsed_secs) = 0;
     //! complete notification
     virtual void on_complete(std::string file_name, int64 total_bytes, double elapsed_secs) = 0;
   };
