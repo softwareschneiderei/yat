@@ -38,10 +38,11 @@
 #ifndef __YAT_LOGGING_H__
 #define __YAT_LOGGING_H__
 
-#include <yat/CommonHeader.h>
-#include <yat/utils/String.h>
 #include <stack>
 #include <set>
+#include <sstream>
+#include <yat/CommonHeader.h>
+#include <yat/utils/String.h>
 
 namespace yat
 {
@@ -299,6 +300,8 @@ YAT_DECL void log_emergency(pcsz pszType, pcsz pszFormat, ...);
 
 //@} Log functions
 
+} // namespace
+
 #define LOG_EXCEPTION(domain, e) \
   do \
   { \
@@ -306,6 +309,34 @@ YAT_DECL void log_emergency(pcsz pszType, pcsz pszFormat, ...);
       yat::log_error(domain, "%s. %s. From %s.", PSZ(e.errors[i].reason), PSZ(e.errors[i].desc), PSZ(e.errors[i].origin)); \
   } while(0)
 
-} // namespace
+// Useful macros when not using messages type information
+#define YAT_LOG_EXCEPTION(e)        LOG_EXCEPTION("exc", e)
+#define YAT_LOG_VERBOSE(...)     yat::log_verbose("dbg", __VA_ARGS__)
+#define YAT_LOG_INFO(...)           yat::log_info("inf", __VA_ARGS__)
+#define YAT_LOG_NOTICE(...)       yat::log_notice("not", __VA_ARGS__)
+#define YAT_LOG_WARNING(...)     yat::log_warning("wrn", __VA_ARGS__)
+#define YAT_LOG_ERROR(...)         yat::log_error("err", __VA_ARGS__)
+#define YAT_LOG_CRITICAL(...)   yat::log_critical("crt", __VA_ARGS__)
+#define YAT_LOG_ALERT(...)         yat::log_alert("alt", __VA_ARGS__)
+#define YAT_LOG_EMERGENCY(...) yat::log_emergency("emg", __VA_ARGS__)
+
+//=============================================================================
+// Macro for stream log functions
+//=============================================================================
+#define YAT_MSG_STREAM(level, type, s)                        \
+do {                                                          \
+  std::ostringstream oss;                                     \
+  oss << s;                                                   \
+  yat::LogManager::log(level, type, oss.str());               \
+} while(0)
+
+#define YAT_VERBOSE_STREAM(s)   YAT_MSG_STREAM(yat::LOG_VERBOSE, "dbg", s)
+#define YAT_INFO_STREAM(s)      YAT_MSG_STREAM(yat::LOG_INFO, "inf", s)
+#define YAT_WARNING_STREAM(s)   YAT_MSG_STREAM(yat::LOG_WARNING, "wrn", s)
+#define YAT_NOTICE_STREAM(s)    YAT_MSG_STREAM(yat::LOG_NOTICE, "not", s)
+#define YAT_ERROR_STREAM(s)     YAT_MSG_STREAM(yat::LOG_ERROR, "err", s)
+#define YAT_CRITICAL_STREAM(s)  YAT_MSG_STREAM(yat::LOG_CRITICAL, "crt", s)
+#define YAT_ALERT_STREAM(s)     YAT_MSG_STREAM(yat::LOG_ALERT, "alt", s)
+#define YAT_EMERGENCY_STREAM(s) YAT_MSG_STREAM(yat::LOG_EMERGENCY, "alt", s)
 
 #endif
