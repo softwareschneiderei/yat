@@ -521,16 +521,33 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
       if( m_progress_target_p )
       {
         double secs = double(Time::microsecs() - cl_start) / MICROSEC_PER_SEC;
-        m_progress_target_p->on_progress(name_ext(), llTotalSize, llTotalSize - llSize, secs);
+        if( !m_progress_target_p->on_progress(name_ext(), llTotalSize, llTotalSize - llSize, secs) )
+        {
+          // Operation canceled
+          break;
+        }
       }
     }
 
     // progress notification: operation completed
-    if( m_progress_target_p )
+    if( m_progress_target_p && 0 == llSize )
     {
       double secs = (Time::microsecs() - cl_start) / MICROSEC_PER_SEC;
       m_progress_target_p->on_complete(name_ext(), llTotalSize, secs);
     }
+    
+    close(fsrc);
+    close(fdst);
+    
+    if( llSize > 0 )
+    {
+      // The copy was canceled
+      fDst.remove();
+      return;
+    }
+    
+    // Copy last modifitation date
+    fDst.set_mod_time(tmLastMod);
   }
   catch( yat::Exception &ex )
   {
@@ -539,12 +556,6 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
     throw ex;
   }
   
-  close(fsrc);
-  close(fdst);
-
-  // Copy last modifitation date
-  fDst.set_mod_time(tmLastMod);
-
   // if root copy file metadata: access mode, owner & group
   if( bKeepMetaData && 0 == geteuid() )
   {
@@ -558,7 +569,6 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
       // Don't care, we did our best effort...
     }
   }
-
 }
 
 //-------------------------------------------------------------------
