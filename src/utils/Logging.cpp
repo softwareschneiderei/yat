@@ -248,7 +248,7 @@ void LogForward::log(ELogLevel eLevel, pcsz pszType, const String &strMsg)
 //=============================================================================
 // Macro for Log functions
 //=============================================================================
-#define LOG_MSG(level)                                          \
+#define YAT_LOG_MSG(level)                                      \
   LOCK(&g_acScratchBuf)                                         \
   va_list argptr;                                               \
   va_start(argptr, pszFormat);                                  \
@@ -258,14 +258,14 @@ void LogForward::log(ELogLevel eLevel, pcsz pszType, const String &strMsg)
   LogManager::log(level, pszType, strMsg);
 
 // Log functions
-void log_result(pcsz pszType, pcsz pszFormat, ...)    { LOG_MSG(LOG_RESULT) }
-void log_verbose(pcsz pszType, pcsz pszFormat, ...)   { LOG_MSG(LOG_VERBOSE) }
-void log_info(pcsz pszType, pcsz pszFormat, ...)      { LOG_MSG(LOG_INFO) }
-void log_notice(pcsz pszType, pcsz pszFormat, ...)    { LOG_MSG(LOG_NOTICE) }
-void log_warning(pcsz pszType, pcsz pszFormat, ...)   { LOG_MSG(LOG_WARNING) }
-void log_error(pcsz pszType, pcsz pszFormat, ...)     { LOG_MSG(LOG_ERROR) }
-void log_critical(pcsz pszType, pcsz pszFormat, ...)  { LOG_MSG(LOG_CRITICAL) }
-void log_alert(pcsz pszType, pcsz pszFormat, ...)     { LOG_MSG(LOG_ALERT) }
-void log_emergency(pcsz pszType, pcsz pszFormat, ...) { LOG_MSG(LOG_EMERGENCY) }
+void log_result(pcsz pszType, pcsz pszFormat, ...)    { YAT_LOG_MSG(LOG_RESULT) }
+void log_verbose(pcsz pszType, pcsz pszFormat, ...)   { YAT_LOG_MSG(LOG_VERBOSE) }
+void log_info(pcsz pszType, pcsz pszFormat, ...)      { YAT_LOG_MSG(LOG_INFO) }
+void log_notice(pcsz pszType, pcsz pszFormat, ...)    { YAT_LOG_MSG(LOG_NOTICE) }
+void log_warning(pcsz pszType, pcsz pszFormat, ...)   { YAT_LOG_MSG(LOG_WARNING) }
+void log_error(pcsz pszType, pcsz pszFormat, ...)     { YAT_LOG_MSG(LOG_ERROR) }
+void log_critical(pcsz pszType, pcsz pszFormat, ...)  { YAT_LOG_MSG(LOG_CRITICAL) }
+void log_alert(pcsz pszType, pcsz pszFormat, ...)     { YAT_LOG_MSG(LOG_ALERT) }
+void log_emergency(pcsz pszType, pcsz pszFormat, ...) { YAT_LOG_MSG(LOG_EMERGENCY) }
 
 } // namespace
