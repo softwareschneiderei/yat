@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\src;&quot;$(SOLEIL_ROOT)\sw-support\Boost\include&quot;"
+				AdditionalIncludeDirectories="..\..\include;..\..\src"
 				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;_DEBUG;_WINDOWS;_USRDLL;YAT_BUILD;YAT_DLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -125,7 +125,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\include;..\..\src;&quot;$(SOLEIL_ROOT)\sw-support\Boost\include&quot;"
+				AdditionalIncludeDirectories="..\..\include;..\..\src"
 				PreprocessorDefinitions="WIN32;WIN32_LEAN_AND_MEAN;NDEBUG;_WINDOWS;_USRDLL;YAT_BUILD;YAT_DLL"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -247,6 +247,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\threading\SyncAccess.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\threading\Task.cpp"
 					>
 				</File>
@@ -275,6 +279,70 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="time"
+				>
+				<File
+					RelativePath="..\..\src\time\Time.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="file"
+				>
+				<File
+					RelativePath="..\..\src\file\FileName.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\file\Win32FileImpl.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="memory"
+				>
+				<File
+					RelativePath="..\..\src\memory\MemBuf.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="system"
+				>
+				<File
+					RelativePath="..\..\src\system\Win32SysUtilsImpl.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="utils"
+				>
+				<File
+					RelativePath="..\..\src\utils\CommandLine.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\utils\Logging.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\utils\String.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\utils\StringTemplate.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\utils\StringTokenizer.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\utils\URI.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="include"
@@ -282,10 +350,6 @@
 			<Filter
 				Name="yat"
 				>
-				<File
-					RelativePath="..\..\include\yat\Any.h"
-					>
-				</File>
 				<File
 					RelativePath="..\..\include\yat\Callback.h"
 					>
@@ -303,19 +367,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\include\yat\DataBuffer.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\include\yat\Exception.h"
 					>
 				</File>
 				<File
 					RelativePath="..\..\include\yat\Exception.i"
-					>
-				</File>
-				<File
-					RelativePath="..\..\include\yat\GenericContainer.h"
 					>
 				</File>
 				<File
@@ -331,11 +387,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\include\yat\Timer.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\include\yat\XString.h"
+					RelativePath="..\..\include\yat\TargetPlatform.h"
 					>
 				</File>
 				<Filter
@@ -391,10 +443,6 @@
 					</File>
 					<File
 						RelativePath="..\..\include\yat\plugin\PlugInTypes.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\include\yat\plugin\PlugInTypes.tpp"
 						>
 					</File>
 				</Filter>
@@ -563,6 +611,122 @@
 					</File>
 					<File
 						RelativePath="..\..\include\yat\memory\DataBuffer.tpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\memory\MemBuf.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\memory\Memory.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\memory\SharedPtr.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="any"
+					>
+					<File
+						RelativePath="..\..\include\yat\any\Any.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\any\GenericContainer.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="file"
+					>
+					<File
+						RelativePath="..\..\include\yat\file\File.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\file\FileName.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="system"
+					>
+					<File
+						RelativePath="..\..\include\yat\system\System.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\system\SysUtils.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="time"
+					>
+					<File
+						RelativePath="..\..\include\yat\time\Time.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\Timer.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="utils"
+					>
+					<File
+						RelativePath="..\..\include\yat\utils\Callback.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\utils\CommandLine.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\utils\Logging.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\utils\NonCopyable.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\utils\ReferenceCounter.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\utils\Signal.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\utils\Singleton.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\utils\String.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\utils\StringTemplate.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\utils\StringTokenizer.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\utils\URI.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\utils\Utils.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\include\yat\utils\XString.h"
 						>
 					</File>
 				</Filter>
