@@ -2,20 +2,20 @@ project (yat)
 cmake_minimum_required (VERSION 2.6)
 
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
-set(VERSION "1.7.11")
+set(VERSION "1.7.13")
 
-if (lib_dir)
-  set(LIB_INSTALL_DIR ${lib_dir})
+# check for 64 bit
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(LIB_INSTALL_DIR "lib64")
 else()
-  set(LIB_INSTALL_DIR "lib${LIB_SUFFIX}") 
-endif()  
+  set(LIB_INSTALL_DIR "lib")
+endif()
 
 if (UNIX)
-	add_definitions(-ansi -Wall -Wextra -Werror)
+  add_definitions(-std=c++0x -Wall -Wextra)
 endif()
 
 add_subdirectory (src)
-#add_subdirectory (test)
 
 set(prefix ${CMAKE_INSTALL_PREFIX})
 if (UNIX)
