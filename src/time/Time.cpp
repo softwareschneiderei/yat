@@ -492,7 +492,7 @@ void Time::set(const DateFields &df) throw(yat::Exception)
     int16 iYear  = df.year;
 
     // Check fields
-    if( uiMonth > 12 ||  
+    if( uiMonth > 12 || uiMonth < 1 ||
         df.day < 1 || df.day > nb_days_in_month(uiMonth, iYear) || 
         df.hour > 24 ||
         df.min > 59 || 
