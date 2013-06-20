@@ -277,33 +277,13 @@ void JJToDate(long lJJ, int16 *piYear, uint8 *puiMonth, uint8 *puiDay)
 }
 
 //----------------------------------------------------------------------------
-// TimeZoneBias
+// LocalBias
 //----------------------------------------------------------------------------
-double TimeZoneBias()
+double LocalBias()
 {
-  #if (defined WIN32 || defined _WIN32)
-    TIME_ZONE_INFORMATION TimeZoneInformation;
-    GetTimeZoneInformation(&TimeZoneInformation);
-    double dSec = - (double)TimeZoneInformation.Bias * SEC_PER_MIN;
-    return dSec;
-  #elif (defined _linux_ || defined __linux__)
-    struct timeval tv;
-    struct timezone tzp;
-    gettimeofday(&tv, &tzp);
- 
-    // Calculer l'heure universelle
-    time_t tGM = tv.tv_sec;
-    struct tm tmGM;    
-    tGM = mktime(gmtime_r(&tGM, &tmGM));
-
-    // Calculer l'heure locale
-    time_t tLocal = tv.tv_sec;
-    struct tm tmLocal;        
-    tLocal = mktime(localtime_r(&tLocal, &tmLocal));
-
-    double dDiff = difftime(tLocal, tGM);
-    return dDiff;
-  #endif
+  double diff = double(yat::CurrentTime().raw_value() - 
+                       yat::CurrentTime(true).raw_value()) / MICROSEC_PER_SEC ;
+  return diff;
 }
 
 //=============================================================================
@@ -426,7 +406,7 @@ void Time::set_current(bool bUt)
 //----------------------------------------------------------------------------
 void Time::local_to_UT()
 {
-  *this -= TimeZoneBias();
+  *this -= LocalBias();
 }
 
 //----------------------------------------------------------------------------
@@ -434,7 +414,7 @@ void Time::local_to_UT()
 //----------------------------------------------------------------------------
 void Time::UT_to_local()
 {
-  *this += TimeZoneBias();
+  *this += LocalBias();
 }
 
 //----------------------------------------------------------------------------
@@ -724,7 +704,7 @@ String Time::to_local_ISO8601() const
   String strDate;
   String strFmt;
 
-  double dTZ = TimeZoneBias();
+  double dTZ = LocalBias();
   if( dTZ < 0 )
     strFmt = "%04d-%02d-%02dT%02d:%02d:%02d-%02d%02d";
   else
@@ -809,7 +789,7 @@ String Time::to_local_ISO8601_ms() const
   String strDate;
   String strFmt;
 
-  double dTZ = TimeZoneBias();
+  double dTZ = LocalBias();
   if( dTZ < 0 )
     strFmt = "%04d-%02d-%02dT%02d:%02d:%06.3lf-%02d%02d";
   else
@@ -866,6 +846,35 @@ String Time::to_inter(bool bMillis) const
 int32 Time::unix_time()
 {
   return CurrentTime().long_unix();
+}
+
+//----------------------------------------------------------------------------
+// Time::is_daylight_saving_time
+//----------------------------------------------------------------------------
+bool Time::is_daylight_saving_time()
+{
+  #ifdef WIN32
+    TIME_ZONE_INFORMATION lpTimeZoneInformation;
+    GetTimeZoneInformation(&lpTimeZoneInformation);
+    if( lpTimeZoneInformation.Bias == lpTimeZoneInformation.StandardBias + lpTimeZoneInformation.DaylightBias )
+      return true;
+    return false;
+  #else
+    long lTm, lMs;
+    struct timeval tv;
+    struct timezone tzp;
+    gettimeofday(&tv, &tzp);
+    lTm = tv.tv_sec;
+    lMs = tv.tv_usec/1000;
+
+    // Convert from 'time_t' format to 'struct tm' format
+    struct tm tmCurrent;
+    localtime_r(&lTm, &tmCurrent);
+    
+    if( tmCurrent.tm_isdst > 0 )
+      return true;
+    return false;
+  #endif
 }
 
 //----------------------------------------------------------------------------
