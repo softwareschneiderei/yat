@@ -514,6 +514,10 @@ public:
   //! \brief Gets system time in microseconds
   static int64 microsecs();
 
+  //! \brief return true if daylight saving time (summer time in british english) is effective
+  //! at the moment
+  static bool is_daylight_saving_time();
+  
   //@} Static methods
 
 };
@@ -553,14 +557,67 @@ typedef CurrentTime CurrentDateTime;
 class YAT_DECL Duration
 {
 public:
-  Duration(int64 llMicroSec);
+  Duration(long hours, long minutes, long secs, long millis, long micros);
+  Duration(int64 microsecs);
   Duration();
 
-  void set_sec(int32 lSec);
+  static Duration micro(long micros);
+  static Duration milli(long millis);
+  static Duration sec(long secs);
+  static Duration minute(long minutes);
+  static Duration hour(long hours);
+  
+  Duration  operator+(const Duration& other);
+  Duration  operator-(const Duration& other);
+  Duration  operator/(int n);
+  Duration  operator*(int n);
+  Duration& operator+=(const Duration& other);
+  Duration& operator-=(const Duration& other);
+  Duration& operator*=(int n);
+  Duration& operator/=(int n);
+
+  long hour();
+  long minute();
+  long sec();
+  long milli();
+  long micro();
+  int64 total_micro();
+  long total_milli();
+  long total_sec();
+  double double_sec();
+  
+  /// Export duration to a string using this format:
+  /// hh:mm:ss.micros
+  std::string to_string();
+  
+  /// Import duration from a string having this format:
+  /// hh[:mm:[ss[.micros]]]
+  void from_string(const std::string& duration_string);
+  
+private:
+  int64 m_microsecs;   // duration in microsecond precision
+};
+
+//==================================================================================================
+// MeanDuration
+//==================================================================================================
+class YAT_DECL MeanDuration
+{
+public:
+  MeanDuration();
+
+  void add( const Duration& duration );
+  void reset();
+  std::size_t n() const { return m_count; }
+  const Duration& get() const { return m_mean; }
 
 private:
-  int64 m_llMicroSec;   // duration in microsecond precision
+  std::size_t m_count;
+  bool        m_initialized;
+  Duration    m_mean;
 };
+
+
 } // namespace
 
 #endif
