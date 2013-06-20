@@ -489,7 +489,6 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
     size_t lToRead = 0;
     
     // progression init
-    uint8 current_progress = 0;
     int64 cl_start = Time::microsecs();
     if( m_progress_target_p )
       m_progress_target_p->on_start(name_ext(), llTotalSize);
