@@ -353,6 +353,15 @@ inline bool operator<(SharedPtr<T, L> const & a, SharedPtr<U, L> const & b)
  return a.less_than(b);
 }
 
+//! \brief Operator== on SharedPtr type, i.e. is \<a\> point to the same object as \<b\> ?
+//! \param a Left shared pointer.
+//! \param b Right shared pointer.
+template < class T, class U >
+inline bool operator==( const SharedPtr<T>& a, const SharedPtr<U>& b )
+{
+  return a.get == b.get();
+}
+
 // ============================================================================
 //! \class WeakPtr 
 //! \brief A weak pointer abstraction class.
