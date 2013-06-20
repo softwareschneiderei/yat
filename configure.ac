@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(yat, 1.6.4, nicolas.leclercq@synchrotron-soleil.fr)
+AC_INIT(yat, 1.7.14, nicolas.leclercq@synchrotron-soleil.fr)
 AC_CONFIG_SRCDIR([src/Exception.cpp])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_AUX_DIR(config)
