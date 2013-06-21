@@ -6,11 +6,13 @@ AC_INIT(yat, 1.7.14, nicolas.leclercq@synchrotron-soleil.fr)
 AC_CONFIG_SRCDIR([src/Exception.cpp])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
+AC_CONFIG_MACRO_DIR([m4])
+AM_INIT_AUTOMAKE([-Wall -Werror])
 
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
+AM_PROG_AR
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
@@ -36,7 +38,15 @@ AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([gethostbyaddr gethostbyname gettimeofday inet_ntoa memset select socket])
 
 AC_CONFIG_FILES([Makefile
-		            yat.pc
+		yat.pc
                 include/Makefile
                 src/Makefile])
 AC_OUTPUT
+
+AC_MSG_RESULT([
+    ${PACKAGE} version ${VERSION}
+
+    Compiler............: ${CXX}
+    Compiler flags......: ${CXXFLAGS}
+
+])

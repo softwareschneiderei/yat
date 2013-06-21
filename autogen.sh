@@ -1,4 +1,4 @@
 #!/bin/sh
 
-mkdir m4
+mkdir -p m4
 autoreconf -ivf
