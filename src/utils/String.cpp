@@ -99,6 +99,656 @@ char g_acScratchBuf[g_iScratchLen];
 // String
 //
 //=============================================================================
+const std::string StringWork::empty = "";
+//---------------------------------------------------------------------------
+// Build a string using C-like format
+//---------------------------------------------------------------------------
+std::string StringWork::str_format(pcsz pszFormat, ...)
+{
+  LOCK(&g_acScratchBuf)
+  va_list argptr;
+  va_start(argptr, pszFormat);
+  VSNPRINTF(g_acScratchBuf, g_iScratchLen, pszFormat, argptr);
+  va_end(argptr);
+
+  return std::string(g_acScratchBuf);
+}
+
+//---------------------------------------------------------------------------
+// StringWork::operator=
+//---------------------------------------------------------------------------
+StringWork& StringWork::operator=(const StringWork& other)
+{
+  the_string_ = other.the_string_;
+  return *this;
+}
+
+//---------------------------------------------------------------------------
+// StringWork::operator=
+//---------------------------------------------------------------------------
+StringWork& StringWork::operator=(const std::string& other)
+{
+  the_string_ = other;
+  return *this;
+}
+
+//---------------------------------------------------------------------------
+// StringWork::extract_token
+//---------------------------------------------------------------------------
+StringWork::ExtractTokenRes StringWork::extract_token(char c, std::string *pstrToken)
+{
+  // Cannot extract a substring a put it in the same string !
+  if( &the_string_ == pstrToken )
+    return EMPTY_STRING;
+
+  int iSrcLength = the_string_.length();
+
+  if( 0 == iSrcLength )
+  {
+    // Nothing else
+    pstrToken->erase();
+    return EMPTY_STRING;
+  }
+
+  // Search for separator
+  int iPos = the_string_.find_first_of(c);
+  if( iPos < 0 )
+  {
+    // Not found
+    *pstrToken = the_string_;
+    the_string_.clear();
+    return SEP_NOT_FOUND;
+  }
+
+  // Separator found
+  *pstrToken = the_string_.substr(0, iPos);
+  the_string_.erase(0, iPos+1);
+  return SEP_FOUND;
+}
+
+//---------------------------------------------------------------------------
+// StringWork::split
+//---------------------------------------------------------------------------
+void StringWork::split(char c, std::string *pstrLeft, std::string *pstrRight, bool bPreserve)
+{
+  if( bPreserve )
+  {
+    std::string strSaved(the_string_);
+    extract_token_right(c, pstrRight);
+    (*pstrLeft) = the_string_;
+    *this = strSaved;
+  }
+  else
+  {
+    extract_token_right(c, pstrRight);
+    (*pstrLeft) = the_string_;
+  }
+}
+
+//---------------------------------------------------------------------------
+// StringWork::extract_token_right
+//---------------------------------------------------------------------------
+StringWork::ExtractTokenRes StringWork::extract_token_right(char c, std::string *pstrToken)
+{
+  // Cannot extract a substring a put it in the same string !
+  if( &the_string_ == pstrToken )
+    return EMPTY_STRING;
+
+  int iSrcLength = the_string_.length();
+
+  if( 0 == iSrcLength )
+  {
+    // Nothing else
+    pstrToken->erase();
+    return EMPTY_STRING;
+  }
+
+  // Search for separator
+  int iPos = the_string_.find_last_of(c);
+  if( iPos < 0 )
+  {
+    // Not found
+    *pstrToken = the_string_;
+    the_string_.clear();
+    return SEP_NOT_FOUND;
+  }
+
+  // Separator found
+  *pstrToken = the_string_.substr(iPos+1);
+  the_string_.erase(iPos);
+  return SEP_FOUND;
+}
+
+//---------------------------------------------------------------------------
+// StringWork::extract_token
+//---------------------------------------------------------------------------
+StringWork::ExtractTokenRes StringWork::extract_token(char cLeft, char cRight, std::string *pstrToken)
+{
+  // Cannot extract a substring a put it in the same string !
+  if( &the_string_ == pstrToken )
+    return EMPTY_STRING;
+
+  int iSrcLength = the_string_.length();
+
+  if( 0 == iSrcLength )
+  {
+    // Nothing else
+    pstrToken->erase();
+    return EMPTY_STRING;
+  }
+
+  // Search for enclosing characters
+  int iLeftPos = the_string_.find(cLeft);
+  int iRightPos = the_string_.find(cRight, iLeftPos + 1);
+  if( iLeftPos < 0 || iRightPos < 0 || iRightPos < iLeftPos )
+  {
+    // Not found
+    pstrToken->clear();
+    return SEP_NOT_FOUND;
+  }
+
+  // Enclosing characters found
+  *pstrToken = the_string_.substr(iLeftPos + 1, iRightPos - iLeftPos - 1);
+  the_string_.erase(0, iRightPos + 1);
+  return SEP_FOUND;
+}
+
+//---------------------------------------------------------------------------
+// StringWork::extract_token_right
+//---------------------------------------------------------------------------
+StringWork::ExtractTokenRes StringWork::extract_token_right(char cLeft, char cRight, std::string *pstrToken)
+{
+  // Cannot extract a substring a put it in the same string !
+  if( &the_string_ == pstrToken )
+    return EMPTY_STRING;
+
+  int iSrcLength = the_string_.length();
+
+  if( 0 == iSrcLength )
+  {
+    // Nothing else
+    pstrToken->erase();
+    return EMPTY_STRING;
+  }
+
+  // Search for enclosing characters
+  int iRightPos = the_string_.rfind(cRight);
+  int iLeftPos = iRightPos > 0 ? (int)the_string_.rfind(cLeft, iRightPos - 1) : -1;
+  if( iLeftPos < 0 || iRightPos < 0 || iRightPos < iLeftPos )
+  {
+    // Not found
+    *pstrToken = empty;
+    return SEP_NOT_FOUND;
+  }
+
+  // Enclosing characters found
+  *pstrToken = the_string_.substr(iLeftPos+1, iRightPos - iLeftPos - 1);
+  the_string_.erase(iLeftPos);
+  return SEP_FOUND;
+}
+
+//---------------------------------------------------------------------------
+// StringWork::remove_enclosure
+//---------------------------------------------------------------------------
+bool StringWork::remove_enclosure(psz pszLeft, psz pszRight)
+{
+  // pcszLeft & pcszRight must have the same length
+  if( strlen(pszLeft) != strlen(pszRight) )
+    return false;
+  
+  for( uint32 ui = 0; ui < strlen(pszLeft); ui++ )
+  {
+    std::string strMask;
+    strMask += pszLeft[ui];
+    strMask += '*';
+    strMask += pszRight[ui];
+    if( match(strMask) )
+    {
+      the_string_ = the_string_.substr(strlen(pszLeft), the_string_.size() - (strlen(pszLeft) + strlen(pszRight)));
+      return true;
+    }
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+// StringWork::remove_enclosure
+//---------------------------------------------------------------------------
+bool StringWork::remove_enclosure(char cLeft, char cRight)
+{
+  std::string strMask;
+  strMask += cLeft;
+  strMask += '*';
+  strMask += cRight;
+  if( match(strMask) )
+  {
+    the_string_ = the_string_.substr(1, the_string_.size() - 2);
+    return true;
+  }
+  return false;
+}
+
+//---------------------------------------------------------------------------
+// StringWork::is_equal
+//---------------------------------------------------------------------------
+bool StringWork::is_equal(const std::string &str) const
+{
+  return (the_string_ == str);
+}
+
+//---------------------------------------------------------------------------
+// StringWork::is_equal_no_case
+//---------------------------------------------------------------------------
+bool StringWork::is_equal_no_case(const std::string &str) const
+{
+  return (!stricmp(the_string_.c_str(), str.c_str()));
+}
+
+//---------------------------------------------------------------------------
+// StringWork::start_with
+//---------------------------------------------------------------------------
+bool StringWork::start_with(char c) const
+{
+  if( the_string_.size() == 0 )
+    return false;
+
+  if( c == the_string_[0] )
+    return true;
+
+  return false;
+}
+
+//---------------------------------------------------------------------------
+// StringWork::start_with
+//---------------------------------------------------------------------------
+bool StringWork::start_with(pcsz pcszStart, bool bNoCase) const
+{
+  if( the_string_.size() < strlen(pcszStart) )
+    return false;
+
+  if( bNoCase )
+  {
+    return (!strnicmp(the_string_.c_str(), pcszStart, strlen(pcszStart)));
+  }
+  else
+  {
+    return (!strncmp(the_string_.c_str(), pcszStart, strlen(pcszStart)));
+  }
+}
+
+//---------------------------------------------------------------------------
+// StringWork::end_with
+//---------------------------------------------------------------------------
+bool StringWork::end_with(pcsz pcszEnd, bool bNoCase) const
+{
+  if( the_string_.size() < strlen(pcszEnd) )
+    return false;
+
+  if( bNoCase )
+  {
+    return (!strnicmp(the_string_.c_str() + strlen(the_string_.c_str())-strlen(pcszEnd), pcszEnd, strlen(pcszEnd)));
+  }
+  else
+  {
+    return (!strncmp(the_string_.c_str() + strlen(the_string_.c_str())-strlen(pcszEnd), pcszEnd, strlen(pcszEnd)));
+  }
+}
+
+//---------------------------------------------------------------------------
+// StringWork::end_with
+//---------------------------------------------------------------------------
+bool StringWork::end_with(char c) const
+{
+  if( the_string_.size() == 0 )
+    return false;
+
+  if( c == the_string_[the_string_.size()-1] )
+    return true;
+
+  return false;
+}
+
+//---------------------------------------------------------------------------
+// Internal utility function
+// Look for occurence for a string in another
+// Take care of '?' that match any character
+//---------------------------------------------------------------------------
+static pcsz find_sub_str_with_joker(pcsz pszSrc, pcsz pMask, uint32 uiLenMask)
+{
+  if (strlen(pszSrc) < uiLenMask)
+    return NULL; // No hope
+
+  // while mask len < string len 
+  while( *(pszSrc + uiLenMask - 1) ) 
+  {
+    uint32 uiOffSrc = 0; // starting offset in mask and sub-string
+    
+    // Tant qu'on n'est pas au bout du masque
+    while (uiOffSrc < uiLenMask)
+    {
+      char cMask = pMask[uiOffSrc];
+      
+      if (cMask != '?') // In case of '?' it always match
+      {
+        if (pszSrc[uiOffSrc] != cMask)
+          break;
+      }
+  
+      // Next char
+      uiOffSrc++;
+    }
+
+    // std::string matched !
+    if (uiOffSrc == uiLenMask)
+      return pszSrc + uiLenMask;
+
+    // Next sub-string
+    pszSrc++;
+  }
+
+  // Not found
+  return NULL;
+}
+
+//---------------------------------------------------------------------------
+// StringWork::match
+//---------------------------------------------------------------------------
+bool StringWork::match(const std::string &strMask) const
+{
+  return match(PSZ(strMask));
+}
+
+//---------------------------------------------------------------------------
+// StringWork::match
+//---------------------------------------------------------------------------
+bool StringWork::match(pcsz pszMask) const
+{
+  pcsz pszTxt = the_string_.c_str();
+  while (*pszMask)
+  {
+    switch (*pszMask)
+    {
+
+      case '\\':
+        // escape next special mask char (e.g. '?' or '*')
+        pszMask++;
+        if( *pszMask )
+        {
+          if( *(pszMask++) != *(pszTxt++) )
+            return false;
+        }
+        break;
+
+      case '?': // joker at one position
+        if (!*pszTxt)
+          return true; // no match
+
+        pszTxt++;
+        pszMask++;
+        break;
+
+      case '*': // joker on one or more positions
+        {
+          // Pass through others useless joker characters
+          while (*pszMask == '*' || *pszMask == '?')
+            pszMask++;
+
+          if (!*pszMask)
+            return true; // Fin
+
+          // end of mask
+          uint32 uiLenMask;
+          const char *pEndMask = strchr(pszMask, '*');
+
+          if (pEndMask)
+            // other jokers characters => look for bloc between the two jokers in source string
+            uiLenMask = pEndMask - pszMask;
+          else
+            // string must be end with mask
+            return (NULL != find_sub_str_with_joker(pszTxt + strlen(pszTxt)-strlen(pszMask), pszMask, strlen(pszMask)))?
+                           true : false;
+
+          // Search first uiLenMask characters from mask in text
+          pcsz pEnd = find_sub_str_with_joker(pszTxt, pszMask, uiLenMask);
+
+          if (!pEnd)
+            // Mask not found
+            return false;
+
+          pszTxt = pEnd;
+          pszMask += uiLenMask;
+        }
+        break;
+
+      default:
+        if( *(pszMask++) != *(pszTxt++) )
+          return false;
+        break;
+    }
+  }
+
+  if( *pszTxt )
+    // End of string not reached
+    return false;
+
+  return true;
+}
+
+//---------------------------------------------------------------------------
+// StringWork::trim
+//---------------------------------------------------------------------------
+void StringWork::trim()
+{
+  if( the_string_.size() > 0 )
+  {
+    int iFirstNoWhite = 0;
+    int iLastNoWhite = the_string_.size()-1;
+
+    // Search for first non-white character
+    for( ; iFirstNoWhite <= iLastNoWhite; iFirstNoWhite++ )
+    {
+      if( !isspace(the_string_[iFirstNoWhite]) )
+        break;
+    }
+
+    // Search for last non-white character
+    for( ; iLastNoWhite > iFirstNoWhite; iLastNoWhite-- )
+    {
+      if( !isspace(the_string_[iLastNoWhite]) )
+        break;
+    }
+
+    // Extract sub-string
+    the_string_ = the_string_.substr(iFirstNoWhite, iLastNoWhite - iFirstNoWhite + 1);
+  }
+}
+
+//---------------------------------------------------------------------------
+// StringWork::printf
+//---------------------------------------------------------------------------
+int StringWork::printf(pcsz pszFormat, ...)
+{
+  LOCK(&g_acScratchBuf)
+  va_list argptr;
+  va_start(argptr, pszFormat);
+  VSNPRINTF(g_acScratchBuf, g_iScratchLen, pszFormat, argptr);
+  va_end(argptr);
+
+  the_string_ = g_acScratchBuf;
+  return the_string_.size();
+}
+
+//---------------------------------------------------------------------------
+// StringWork::split
+//---------------------------------------------------------------------------
+void StringWork::split(char c, std::vector<std::string> *pvecstr, bool bClearVector)
+{
+  // Clear vector
+  if( bClearVector )
+    pvecstr->clear();
+  std::string strToken;
+  while( !the_string_.empty() )
+  {
+    if( 0 != extract_token(c, &strToken) )
+      pvecstr->push_back(strToken);
+  }
+}
+
+//---------------------------------------------------------------------------
+// StringWork::split (const version)
+//---------------------------------------------------------------------------
+void StringWork::split(char c, std::vector<std::string> *pvecstr, bool bClearVector) const
+{
+  // Clear vector
+  if( bClearVector )
+    pvecstr->clear();
+  std::string strToken;
+  std::string strTmp(the_string_);
+  while( !strTmp.empty() )
+  {
+    if( 0 != StringWork(strTmp).extract_token(c, &strToken) )
+      pvecstr->push_back(strToken);
+  }
+}
+
+//---------------------------------------------------------------------------
+// StringWork::join
+//---------------------------------------------------------------------------
+void StringWork::join(const std::vector<std::string> &vecStr, char cSep)
+{
+  the_string_.erase();
+  for( uint32 ui=0; ui < vecStr.size(); ui++ )
+  {
+    if( 0 < ui )
+      the_string_ += cSep;
+    the_string_ += vecStr[ui];
+  }
+}
+
+//---------------------------------------------------------------------------
+// StringWork::remove_item
+//---------------------------------------------------------------------------
+bool StringWork::remove_item(const std::string &strItem, char cSep)
+{
+  std::string::size_type uiPos = the_string_.find(strItem);
+  if( uiPos == std::string::npos )
+    return false;
+
+  if( the_string_ == strItem )
+  {
+    the_string_.erase();
+    return true;
+  }
+
+  std::vector<std::string> vecstr;
+  split(cSep, &vecstr);
+  for( std::vector<std::string>::iterator it = vecstr.begin(); it != vecstr.end(); it++ )
+  {
+    if( *it == strItem )
+    {
+      vecstr.erase(it);
+      join(vecstr, cSep);
+      return true;
+    }
+  }
+  join(vecstr, cSep);
+  return false;
+}
+
+//---------------------------------------------------------------------------
+// StringWork::lower
+//---------------------------------------------------------------------------
+void StringWork::to_lower()
+{
+  for(uint32 ui=0; ui < the_string_.size(); ui++)
+    the_string_.replace(ui, 1, 1, tolower(the_string_.c_str()[ui]));
+}
+
+//---------------------------------------------------------------------------
+// StringWork::upper
+//---------------------------------------------------------------------------
+void StringWork::to_upper()
+{
+  for(uint32 ui=0; ui < the_string_.size(); ui++)
+    the_string_.replace(ui, 1, 1, toupper(the_string_.c_str()[ui]));
+}
+
+//---------------------------------------------------------------------------
+// StringWork::replace
+//---------------------------------------------------------------------------
+void StringWork::replace(pcsz pszSrc, pcsz pszDst)
+{
+  pcsz pBeg = NULL, pFind = NULL;
+
+  int iLenSrc = strlen(pszSrc);
+  if( iLenSrc == 0 )
+    // Avoid infinite loop
+    return;
+
+  int iLenDst = strlen(pszDst);
+  int iOffset = 0;
+  for(;;)
+  {
+    pBeg = the_string_.c_str() + iOffset;
+    pFind = strstr(pBeg, pszSrc);
+
+    if( !pFind )
+      return;
+
+    // Do replace
+    the_string_.replace(pFind - pBeg + iOffset, iLenSrc, pszDst);
+    // replace again after replacement
+    iOffset += pFind - pBeg + iLenDst;
+  }
+}
+
+//---------------------------------------------------------------------------
+// StringWork::replace
+//---------------------------------------------------------------------------
+void StringWork::replace(char cSrc, char cDst)
+{
+  if ( !strchr(the_string_.c_str(), cSrc) )
+    return; // Nothing to do
+
+  for( uint32 uiPos = 0; uiPos < the_string_.size(); uiPos++ )
+    if( cSrc == the_string_[uiPos] )
+      the_string_.replace(uiPos, 1, 1, cDst);
+}
+
+//---------------------------------------------------------------------------
+// StringWork::hash
+//---------------------------------------------------------------------------
+uint32 StringWork::hash() const
+{
+  // Very basic implementation !
+  int64 modulo = (int64(2) << 31) - 1;
+  int64 hash64 = 0;
+  uint32 length = the_string_.size();
+  for( uint32 i = 0; i < length; i++ )
+    hash64 = (31 * hash64 + the_string_[i]) % modulo;
+
+  return (uint32)(hash64); 
+}
+
+//---------------------------------------------------------------------------
+// StringWork::hash64
+//---------------------------------------------------------------------------
+uint64 StringWork::hash64() const
+{
+  // Implementation of the FNV-1a algorithm (http://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function)
+  uint64 hash64 = uint64(14695981039346656037ULL);
+  uint32 length = the_string_.size();
+  for( uint32 i = 0; i < length; i++ )
+    hash64 = (hash64 ^ the_string_[i]) * uint64(1099511628211ULL);
+
+  return hash64; 
+}
+
+//=============================================================================
+//
+// String
+//
+//=============================================================================
 const String String::nil = "";
 //---------------------------------------------------------------------------
 // Build a string using C-like format
@@ -390,6 +1040,7 @@ bool String::end_with(char c) const
   return false;
 }
 
+/* redefined whithin the StringWork class
 //---------------------------------------------------------------------------
 // Internal utility function
 // Look for occurence for a string in another
@@ -431,6 +1082,7 @@ static pcsz find_sub_str_with_joker(pcsz pszSrc, pcsz pMask, uint32 uiLenMask)
   // Not found
   return NULL;
 }
+*/
 
 //---------------------------------------------------------------------------
 // String::match
