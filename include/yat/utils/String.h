@@ -39,6 +39,7 @@
 #define __YAT_STRING_H__
 
 #include <yat/CommonHeader.h>
+#include <yat/utils/NonCopyable.h>
 
 // STL headers
 #include <string>
@@ -79,44 +80,20 @@ typedef const char *   pcsz;
 typedef char *         psz;
 
 // ============================================================================
-//! \class StringWork
-//! \brief Manipulations on std::string class object.
-//! This class contains a set of string high-level manipulations algorithms. 
-//! It uses a reference on an existing std::string object.
-//! This class should replace the deprecated yat::String
+//! \class StringUtil
+//! \brief Manipulations on a std::string objects.
 //! \verbatim
 //! std::string str =" foo-bar ";
-//! yat::StringWork strw(str);
-//! strw.trim();
+//! yat::StringUtil::trim(&str);
 //! std::out << str;
 //! \endverbatim
 // ============================================================================
-class YAT_DECL StringWork
+class YAT_DECL StringUtil : public yat::NonCopyable
 {
 public:
 
   //! \brief Empty string - useful when need a const string &.
   static const std::string empty;
-
-  //! \brief Constructor from std::string object
-  //!        get a reference on it
-  //! \param a_string the string object
-  //! \warning the std::string object must not be deleted before this objet dies
-  StringWork(std::string& a_string) : the_string_(a_string) 
-  { }
-
-  //! \brief get access to the std::std::string object
-  //!        in order to use natives methods
-  std::string& get() { return the_string_; }
-  
-  //! \brief conversion operator
-  operator std::string&() { return the_string_; }
-  
-  //! \brief assignement operator
-  StringWork& operator=(const StringWork& other);
-  
-  //! \brief assignement operator
-  StringWork& operator=(const std::string& other);
   
   //! \brief Builds a std::string with a C-std::string like format.
   //! \param pszFormat The std::string format.
@@ -127,39 +104,39 @@ public:
   //!
   //! Returns true if std::strings are equal, false otherwise.
   //! \param str The source std::string.
-  bool is_equal(const std::string &str) const;
+  static bool is_equal(const std::string& str, const std::string& other);
 
   //! \brief Compares std::string in a no case sensitive way.
   //!
   //! Returns true if std::strings are equal, false otherwise.
   //! \param str The source std::string.
-  bool is_equal_no_case(const std::string &str) const;
+  static bool is_equal_no_case(const std::string& str, const std::string& other);
 
   //! \brief Tests the first character.
   //!
   //! Returns true if the std::string starts with this character, false otherwise.
   //! \param c The character.
-  bool start_with(char c) const;
+  static bool start_with(const std::string& str, char c);
   
   //! \brief Tests the first character with that of another std::string.
   //!
   //! Returns true if the std::strings start with the same character, false otherwise.
   //! \param pcszStart The source std::string.
   //! \param bNoCase If set to true, the test is not case sensitive.
-  bool start_with(pcsz pcszStart, bool bNoCase=false) const;
+  static bool start_with(const std::string& str, pcsz pcszStart, bool bNoCase=false);
   
   //! \brief Tests the last character.
   //!
   //! Returns true if the std::string ends with this character, false otherwise.
   //! \param c The character.
-  bool end_with(char c) const;
+  static bool end_with(const std::string& str, char c);
   
   //! \brief Tests the last character with that of another std::string.
   //!
   //! Returns true if the std::strings end with the same character, false otherwise.
   //! \param pcszEnd The source std::string.
   //! \param bNoCase If set to true, the test is not case sensitive.
-  bool end_with(pcsz pcszEnd, bool bNoCase=false) const;
+  static bool end_with(const std::string& str, pcsz pcszEnd, bool bNoCase=false);
 
   //! \name Token extraction
   //@{ 
@@ -181,7 +158,7 @@ public:
   //! The function looks for the first separator occurrence. The extracted token is removed from the std::string.
   //! \param c Separator.
   //! \param[out] pstrToken %std::string object receiving the extracted token.
-  ExtractTokenRes extract_token(char c, std::string *pstrToken);
+  static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken);
   
   //! \brief Looks for a token, from right to left.
   //! 
@@ -189,7 +166,7 @@ public:
   //! The function looks for the first separator occurrence. The extracted token is removed from the std::string.
   //! \param c Separator.
   //! \param[out] pstrToken Extracted token.
-  ExtractTokenRes extract_token_right(char c, std::string *pstrToken);
+  static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken);
   
   //! \brief Looks for enclosed token, from left to right.
   //! 
@@ -198,7 +175,7 @@ public:
   //! \param cLeft Left separator.
   //! \param cRight Right separator.
   //! \param[out] pstrToken Extracted token.
-  ExtractTokenRes extract_token(char cLeft, char cRight, std::string *pstrToken);
+  static ExtractTokenRes extract_token(std::string* str_p, char cLeft, char cRight, std::string *pstrToken);
   
   //! \brief Looks for enclosed token, from right to left.
   //! 
@@ -207,7 +184,7 @@ public:
   //! \param cLeft Left separator.
   //! \param cRight Right separator.
   //! \param[out] pstrToken Extracted token.
-  ExtractTokenRes extract_token_right(char cLeft, char cRight, std::string *pstrToken);
+  static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight, std::string *pstrToken);
   
   //@}
 
@@ -220,7 +197,7 @@ public:
   //! \param pszLeft List of possible left enclosure characters.
   //! \param pszRight List of possible right enclosure characters.
   //! \remark \<pszLeft\> and \<pszRight\> must have the same length.
-  bool remove_enclosure(psz pszLeft, psz pszRight);
+  static bool remove_enclosure(std::string* str_p, psz pszLeft, psz pszRight);
 
   //! \brief Removes characters that enclose std::string: quotes, parenthesis, etc...
   //!
@@ -228,7 +205,7 @@ public:
   //! ex: RemoveEnclosure("'", "'") -\> removes quotes in a std::string like 'std::string'.
   //! \param cLeft Left enclosure character.
   //! \param cRight Right enclosure character.
-  bool remove_enclosure(char cLeft, char cRight);
+  static bool remove_enclosure(std::string* str_p, char cLeft, char cRight);
 
   //! \brief Tests if std::string matches with mask containing '*' and '?' jokers.
   //!
@@ -237,7 +214,7 @@ public:
   //! - '*': match any number of characters.
   //! - '?': match one character.
   //! \param pszMask The mask.
-  bool match(pcsz pszMask) const;
+  static bool match(const std::string& str, pcsz pszMask);
 
   //! \brief Tests if std::string matches with mask containing '*' and '?' jokers.
   //!
@@ -246,17 +223,23 @@ public:
   //! - '*': match any number of characters.
   //! - '?': match one character.
   //! \param strMask The mask.
-  bool match(const std::string &strMask) const;
+  static bool match(const std::string& str, const std::string &strMask);
 
-  //! \brief Removes white spaces at beginning and end of std::string.
-  void trim();
+  //! \brief Removes white spaces at beginning and end of string.
+  static void trim(std::string* str_p);
+
+  //! \brief Removes white spaces at beginning of string.
+  static void trim_left(std::string* str_p);
+
+  //! \brief Removes white spaces at end of string.
+  static void trim_right(std::string* str_p);
 
   //! \brief Builds a std::string with the specified format.
   //!
   //! Returns the std::string size.
   //! \param pszFormat The format.
   //! \param ... The std::string.
-  int printf(pcsz pszFormat, ...);
+  static int printf(std::string* str_p, pcsz pszFormat, ...);
 
   //! \brief Splits the std::string.
   //!
@@ -266,7 +249,7 @@ public:
   //! \param c Separator.
   //! \param[out] pvecstr Pointer to a vector of std::strings.
   //! \param bClearVector If set to true, the vector is cleared.
-  void split(char c, std::vector<std::string> *pvecstr, bool bClearVector=true);
+  static void split(std::string* str_p, char c, std::vector<std::string> *pvecstr, bool bClearVector=true);
 
   //! \brief Splits the std::string.
   //!
@@ -276,7 +259,7 @@ public:
   //! \param c Separator.
   //! \param[out] pvecstr Pointer to a vector of std::strings.
   //! \param bClearVector If set to true, the vector is cleared.
-  void split(char c, std::vector<std::string> *pvecstr, bool bClearVector=true) const;
+  static void split(const std::string& str, char c, std::vector<std::string> *pvecstr, bool bClearVector=true);
 
   //! \brief Splits the std::string.
   //!
@@ -287,7 +270,18 @@ public:
   //! \param[out] pstrRight Right part of the split std::string.
   //! \param bPreserve If set to true, *this* std::string is preserved, else, *this* is
   //! the left part of the split std::string.
-  void split(char c, std::string *pstrLeft, std::string *pstrRight, bool bPreserve=false);
+  static void split(const std::string& str, char c, std::string *pstrLeft, std::string *pstrRight);
+
+  //! \brief Splits the std::string.
+  //!
+  //! The std::string is split in 2 tokens separated with the specified separator.
+  //!
+  //! \param c Separator.
+  //! \param[out] pstrLeft Left part of the split std::string.
+  //! \param[out] pstrRight Right part of the split std::string.
+  //! \param bPreserve If set to true, *this* std::string is preserved, else, *this* is
+  //! the left part of the split std::string.
+  void split(std::string* str_p, char c, std::string *pstrLeft, std::string *pstrRight);
 
   //! \brief Joins std::strings from a std::string vector, using specified separator.
   //!
@@ -295,7 +289,7 @@ public:
   //! For instance: join (\<str1, str2\>, ";") gives: str1;str2 
   //! \param vecStr The source vector.
   //! \param cSep %std::string separator.
-  void join(const std::vector<std::string> &vecStr, char cSep=',');
+  static void join(std::string* str_p, const std::vector<std::string> &vecStr, char cSep=',');
 
   //! \brief Removes items separated by a specific separator.
   //!
@@ -303,33 +297,33 @@ public:
   //! Returns true if any item was found, false otherwise.
   //! \param strItem Item to find and remove.
   //! \param cSep Items separator.
-  bool remove_item(const std::string &strItem, char cSep=',');
+  static bool remove_item(std::string* str_p, const std::string &strItem, char cSep=',');
 
   //! \brief Converts std::string to lowercase.
-  void to_lower();
+  static void to_lower(std::string* str_p);
 
   //! \brief Converts std::string to uppercase.
-  void to_upper();
+  static void to_upper(std::string* str_p);
 
   //! \brief Finds and replaces a std::string.
   //! \param pszSrc %std::string to replace.
   //! \param pszDst Substitution std::string.
-  void replace(pcsz pszSrc, pcsz pszDst);
+  static void replace(std::string* str_p, pcsz pszSrc, pcsz pszDst);
 
   //! \brief Finds and replaces one character.
   //!
   //! \param cSrc Character to replace.
   //! \param cDst Substitution character.
-  void replace(char cSrc, char cDst);
+  static void replace(std::string* str_p, char cSrc, char cDst);
 
   //! \brief Returns a 32 bits hash code.
-  uint32 hash() const;
+  static uint32 hash(const std::string& str);
   
   //! \brief Returns the hash code using the FNV-1a algorithm.
   //!
   //! Calculates a 64 bits hash code. See details of the algorithm 
   //! on http://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function.
-  uint64 hash64() const;
+  static uint64 hash64(const std::string& str);
 
   //! \brief Converts string content to numeric type \<_T\>.
   //! 
@@ -339,9 +333,9 @@ public:
   //! \param _throw If set to true, throws an exception if conversion fails.
   //! \exception SOFTWARE_ERROR Thrown if conversion fails.
   template <class T>
-  T to_num(bool _throw = true)
+  static T to_num(const std::string& str, bool _throw = true)
   {
-    ISStream iss(the_string_.c_str());
+    ISStream iss(str.c_str());
 
     T num_val;
 
@@ -351,7 +345,7 @@ public:
       {
         OSStream desc;
         desc << "conversion from string to num failed [" 
-             << the_string_
+             << str
              << "]"
              << std::ends;
         THROW_YAT_ERROR ("SOFTWARE_ERROR",
@@ -370,7 +364,7 @@ public:
   //! \param _throw If set to true, throws an exception if conversion fails.
   //! \exception SOFTWARE_ERROR Thrown if conversion fails.
   template <class T>
-  void from_num(const T& number, bool _throw = true)
+  static void from_num(std::string* str_p, const T& number, bool _throw = true)
   {
     OSStream oss;
 
@@ -389,11 +383,8 @@ public:
       }
     }
 
-    the_string_ = oss.str();
+    (*str_p) = oss.str();
   } 
-  
-private:
-  std::string& the_string_;
 };
 
 // ============================================================================
@@ -461,7 +452,7 @@ public:
   //! Returns true if strings are equal, false otherwise.
   //! \param str The source string.
   bool is_equal(const String &str) const;
-
+    
   //! \brief Compares string in a no case sensitive way.
   //!
   //! Returns true if strings are equal, false otherwise.
