@@ -359,7 +359,7 @@ inline bool operator<(SharedPtr<T, L> const & a, SharedPtr<U, L> const & b)
 template < class T, class U >
 inline bool operator==( const SharedPtr<T>& a, const SharedPtr<U>& b )
 {
-  return a.get == b.get();
+  return a.get() == b.get();
 }
 
 // ============================================================================
