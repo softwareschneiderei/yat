@@ -144,7 +144,7 @@ void FileName::set_full_name(pcsz pszFileName)
   {
     // relative name: add current working directory
     char cbuf[_MAX_PATH];
-    /* char* ignored = */ getcwd(cbuf, _MAX_PATH);
+    char* ignored = getcwd(cbuf, _MAX_PATH);
     m_strFile = String::str_format("%s/%s", cbuf, PSZ(strFileName));
   }
 
