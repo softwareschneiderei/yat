@@ -467,6 +467,7 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
 
   // Buffer
   char aBuf[s_copy_bloc_size];
+  ::memset(aBuf, 0, s_copy_bloc_size);
 
   // Get last modified time
   Time tmLastMod;
@@ -487,12 +488,12 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
     int64 llSize = llTotalSize;
     ssize_t lReaded=0, lWritten=0;
     size_t lToRead = 0;
-    
+
     // progression init
     int64 cl_start = Time::microsecs();
     if( m_progress_target_p )
       m_progress_target_p->on_start(name_ext(), llTotalSize);
-    
+
     while( llSize )
     {
       lToRead = s_copy_bloc_size;
@@ -508,14 +509,15 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
       }
 
       lWritten = write(fdst, aBuf, lToRead);
-      if( lWritten < 0 )
+      // MANTIS 26069
+      if( lWritten < 0 || lWritten != lToRead )
       {
         String strErr = String::str_format(ERR_WRITING_FILE, PSZ(fDst.full_name()));
         ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
       }
 
       llSize -= lWritten;
-      
+
       // progression
       if( m_progress_target_p )
       {
@@ -534,17 +536,17 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
       double secs = (Time::microsecs() - cl_start) / MICROSEC_PER_SEC;
       m_progress_target_p->on_complete(name_ext(), llTotalSize, secs);
     }
-    
+
     close(fsrc);
     close(fdst);
-    
+
     if( llSize > 0 )
     {
       // The copy was canceled
       fDst.remove();
       return;
     }
-    
+
     // Copy last modifitation date
     fDst.set_mod_time(tmLastMod);
   }
@@ -554,7 +556,7 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
     close(fdst);
     throw ex;
   }
-  
+
   // if root copy file metadata: access mode, owner & group
   if( bKeepMetaData && 0 == geteuid() )
   {
