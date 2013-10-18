@@ -8,15 +8,15 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
 //
 // Contributors form the TANGO community:
-// see AUTHORS file 
+// see AUTHORS file
 //
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -24,7 +24,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -114,7 +114,7 @@ long calc_julian_date(int iY, int iM, int iD, int *piDeltaDays=NULL)
   }
 
   // Year in Gregorian calendar
-  // Applying reform : 
+  // Applying reform :
   if( iY > 1582 || (iY == 1582 && iM > 12 ) || (iY == 1582 && iM == 12 && iD > 19) )
     iDeltaDays = 10;
 
@@ -281,7 +281,7 @@ void JJToDate(long lJJ, int16 *piYear, uint8 *puiMonth, uint8 *puiDay)
 //----------------------------------------------------------------------------
 double LocalBias()
 {
-  double diff = double(yat::CurrentTime().raw_value() - 
+  double diff = double(yat::CurrentTime().raw_value() -
                        yat::CurrentTime(true).raw_value()) / MICROSEC_PER_SEC ;
   return diff;
 }
@@ -303,10 +303,10 @@ void DateFields::clear()
 //----------------------------------------------------------------------------
 int DateFields::is_empty() const
 {
-  return year == 0 && 
-         month == 0 && 
-         day == 0 && 
-         hour == 0 && 
+  return year == 0 &&
+         month == 0 &&
+         day == 0 &&
+         hour == 0 &&
          min == 0 &&
          sec == 0.;
 }
@@ -331,12 +331,12 @@ uint8 Time::nb_days_in_month(uint8 iMonth, int16 iYear)
     case 10:// october
     case 12:// december
       return 31;
-   
+
     case 2: // februar : depend of year
       if( (iYear%4 == 0 && iYear < 1582) ||
           (iYear%4 == 0 && ( (iYear%100) || !(iYear%400) )) )
         return 29; // leap years
-      else 
+      else
         return 28; // ordinary years
 
     default : // other months
@@ -371,14 +371,14 @@ pcsz Time::month_name(uint8 iMonth)
 // Time::set_current
 //----------------------------------------------------------------------------
 void Time::set_current(bool bUt)
-{  
+{
   #ifdef WIN32
     SYSTEMTIME sysTm;
     if( bUt )
       GetSystemTime(&sysTm);
     else
       GetLocalTime(&sysTm);
-    set(sysTm.wYear, (uint8)sysTm.wMonth, (uint8)sysTm.wDay, (uint8)sysTm.wHour, (uint8)sysTm.wMinute, 
+    set(sysTm.wYear, (uint8)sysTm.wMonth, (uint8)sysTm.wDay, (uint8)sysTm.wHour, (uint8)sysTm.wMinute,
         (double)sysTm.wSecond + ((double)sysTm.wMilliseconds)/1000.0);
 
   #else
@@ -396,7 +396,7 @@ void Time::set_current(bool bUt)
     else
       localtime_r(&lTm, &tmCurrent);
 
-    set(tmCurrent.tm_year+1900, tmCurrent.tm_mon+1, tmCurrent.tm_mday, tmCurrent.tm_hour, 
+    set(tmCurrent.tm_year+1900, tmCurrent.tm_mon+1, tmCurrent.tm_mday, tmCurrent.tm_hour,
         tmCurrent.tm_min, (double)tmCurrent.tm_sec + ((double)lMs /1000.));
   #endif
 }
@@ -421,7 +421,7 @@ void Time::UT_to_local()
 // Time::get
 //----------------------------------------------------------------------------
 void Time::get(DateFields *pDF) const
-{              
+{
   // Retreive Julian date
   long lJJ = julian_date();
 
@@ -453,7 +453,7 @@ void Time::get(DateFields *pDF) const
 
   // Week of year
   int16 iDay = pDF->day_of_year - pDF->day_of_week;
-  pDF->week_of_year = iDay / 7; 
+  pDF->week_of_year = iDay / 7;
   if( iDay >= 0 )
     pDF->week_of_year++;
 }
@@ -473,9 +473,9 @@ void Time::set(const DateFields &df) throw(yat::Exception)
 
     // Check fields
     if( uiMonth > 12 || uiMonth < 1 ||
-        df.day < 1 || df.day > nb_days_in_month(uiMonth, iYear) || 
+        df.day < 1 || df.day > nb_days_in_month(uiMonth, iYear) ||
         df.hour > 24 ||
-        df.min > 59 || 
+        df.min > 59 ||
         df.sec < 0 || df.sec >= 60. )
     {
       throw Exception(DATE_SET_ERR, DATE_BAD_ARGS, "Time::Set");
@@ -483,17 +483,17 @@ void Time::set(const DateFields &df) throw(yat::Exception)
 
     // Julian day at 12.
     double dJJ = calc_julian_date(df.year, df.month , df.day);
-    m_llTime = int64(dJJ * SEC_PER_DAY) * int64(MICROSEC_PER_SEC) + 
+    m_llTime = int64(dJJ * SEC_PER_DAY) * int64(MICROSEC_PER_SEC) +
                int64(df.hour * SEC_PER_HOUR) * int64(MICROSEC_PER_SEC) +
                int64(df.min * SEC_PER_MIN) * int64(MICROSEC_PER_SEC) +
                int64(df.sec * MICROSEC_PER_SEC);
   }
 }
- 
+
 //----------------------------------------------------------------------------
 // Time::set
 //----------------------------------------------------------------------------
-void Time::set(int16 iYear, uint8 uiMonth, uint8 uiDay, 
+void Time::set(int16 iYear, uint8 uiMonth, uint8 uiDay,
                uint8 uiHour, uint8 uiMin, double dSec)
 {
   DateFields df;
@@ -532,7 +532,7 @@ uint8 Time::Name() const               \
   DateFields df;                     \
   get(&df);                           \
   return df.Name;                  \
-}                                     
+}
 
 IMPLEMENT_DATEFIELD(hour)
 IMPLEMENT_DATEFIELD(day)
@@ -558,7 +558,7 @@ uint8 Time::minute() const
   get(&df);
   return df.min;
 }
- 
+
 //----------------------------------------------------------------------------
 // Time::set_year
 //----------------------------------------------------------------------------
@@ -579,7 +579,7 @@ int16 Time::year() const
   get(&df);
   return df.year;
 }
- 
+
 //----------------------------------------------------------------------------
 // Time::set_sec
 //----------------------------------------------------------------------------
@@ -592,7 +592,7 @@ void Time::set_second(double dSec)
 }
 
 //----------------------------------------------------------------------------
-// Time::sec 
+// Time::sec
 //----------------------------------------------------------------------------
 double Time::second() const
 {
@@ -634,7 +634,7 @@ void Time::set_julian_date(long lJulianDate)
 }
 
 //----------------------------------------------------------------------------
-// Time::day_of_week 
+// Time::day_of_week
 //----------------------------------------------------------------------------
 uint8 Time::day_of_week() const
 {
@@ -692,7 +692,7 @@ double Time::double_unix() const
 //----------------------------------------------------------------------------
 void Time::set_double_unix(double dRefSec)
 {
-  m_llTime = (int64(JULIAN_REF_UNIX) * int64(SEC_PER_DAY) * int64(1000) + 
+  m_llTime = (int64(JULIAN_REF_UNIX) * int64(SEC_PER_DAY) * int64(1000) +
              int64(dRefSec * 1000)) * int64(1000);
 }
 
@@ -715,14 +715,14 @@ String Time::to_local_ISO8601() const
     dTZ = -dTZ;
 
   int iSec = int(dTZ + 0.5);
-   
+
   int iHourBias = iSec / 3600;
   int iMinBias = (iSec - (3600 * iHourBias)) / 60;
 
   // Split date into fields
   DateFields df;
   get(&df);
-  
+
   strDate = String::str_format(PSZ(strFmt), df.year, df.month, df.day,
                               df.hour, df.min, uint32(df.sec + 0.5), iHourBias, iMinBias);
   return strDate;
@@ -739,7 +739,7 @@ String Time::to_ISO8601() const
   // Split date into fields
   DateFields df;
   get(&df);
-  
+
   strDate = String::str_format(PSZ(strFmt), df.year, df.month, df.day,
                               df.hour, df.min, uint32(df.sec + 0.5));
   return strDate;
@@ -756,7 +756,7 @@ String Time::to_ISO8601_ms_TU() const
   // Split date into fields
   DateFields df;
   get(&df);
-  
+
   strDate = String::str_format(PSZ(strFmt), df.year, df.month, df.day,
                               df.hour, df.min, df.sec);
   return strDate;
@@ -775,7 +775,7 @@ String Time::to_ISO8601_ms() const
   // Split date into fields
   DateFields df;
   get(&df);
-  
+
   strDate = String::str_format(PSZ(strFmt), df.year, df.month, df.day,
                               df.hour, df.min, df.sec);
   return strDate;
@@ -800,14 +800,14 @@ String Time::to_local_ISO8601_ms() const
     dTZ = -dTZ;
 
   int iSec = int(dTZ + 0.5);
-   
+
   int iHourBias = iSec / 3600;
   int iMinBias = (iSec - (3600 * iHourBias)) / 60;
 
   // Split date into fields
   DateFields df;
   get(&df);
-  
+
   strDate = String::str_format(PSZ(strFmt), df.year, df.month, df.day,
                               df.hour, df.min, df.sec, iHourBias, iMinBias);
   return strDate;
@@ -829,7 +829,7 @@ String Time::to_inter(bool bMillis) const
   // Split date into fields
   DateFields df;
   get(&df);
-  
+
   if( bMillis )
     strDate = String::str_format(PSZ(strFmt), df.year, df.month, df.day,
                               df.hour, df.min, df.sec);
@@ -860,17 +860,16 @@ bool Time::is_daylight_saving_time()
       return true;
     return false;
   #else
-    long lTm, lMs;
+    long lTm;
     struct timeval tv;
     struct timezone tzp;
     gettimeofday(&tv, &tzp);
     lTm = tv.tv_sec;
-    lMs = tv.tv_usec/1000;
 
     // Convert from 'time_t' format to 'struct tm' format
     struct tm tmCurrent;
     localtime_r(&lTm, &tmCurrent);
-    
+
     if( tmCurrent.tm_isdst > 0 )
       return true;
     return false;
