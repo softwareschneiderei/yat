@@ -746,6 +746,34 @@ void StringUtil::replace(std::string* str_p, char cSrc, char cDst)
 }
 
 //---------------------------------------------------------------------------
+// StringUtil::substitute
+//---------------------------------------------------------------------------
+void StringUtil::substitute(std::string* str_p, pcsz pszCharSet, char cReplacement)
+{
+  for( std::size_t pos = str_p->find_first_of(pszCharSet); 
+       pos != std::string::npos;
+       pos = str_p->find_first_of(pszCharSet)
+     )
+  {
+    str_p->replace(pos, 1, 1, cReplacement);
+  }
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::remove
+//---------------------------------------------------------------------------
+void StringUtil::remove(std::string* str_p, pcsz pszCharSet)
+{
+  for( std::size_t pos = str_p->find_first_of(pszCharSet); 
+       pos != std::string::npos;
+       pos = str_p->find_first_of(pszCharSet)
+     )
+  {
+    str_p->replace(pos, 1, "");
+  }
+}
+
+//---------------------------------------------------------------------------
 // StringUtil::hash
 //---------------------------------------------------------------------------
 uint32 StringUtil::hash(const std::string& str)
