@@ -70,6 +70,15 @@ namespace yat
 #define SAFE_RELEASE(P) if (P) { P->release(); P = 0; } else (void)0
 //-----------------------------------------------------------------------------
 #define _CPTC(X) static_cast<const char*>(X)
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+// Expanding Macros into string constants
+// The MACRO_TO_STRING macro calls _STR_EXPAND with its argument. The parameter is checked for macro
+// expansions and evaluated by the preprocessor before being passed to _STR_EXPAND which quotes it.
+//-----------------------------------------------------------------------------
+#define __STR_EXPAND__(tok) #tok
+#define YAT_MACRO_TO_STRING(tok) __STR_EXPAND__(tok)
 
 //-----------------------------------------------------------------------------
 // ASSERTION
