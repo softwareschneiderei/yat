@@ -57,7 +57,8 @@
 
 #if defined YAT_LINUX || defined YAT_WIN32 && _MSC_VER > 1200
   // Variadic macro supported starting in C99
-  #define PSZ_FMT(...) yat::String::str_format(__VA_ARGS__).c_str()
+  #define PSZ_FMT(...) yat::StringUtil::str_format(__VA_ARGS__).c_str()
+  #define YAT_STR_FMT(...) yat::StringUtil::str_format(__VA_ARGS__)
 #endif
 
 // vsnprintf function
@@ -315,6 +316,18 @@ public:
   //! \param cSrc Character to replace.
   //! \param cDst Substitution character.
   static void replace(std::string* str_p, char cSrc, char cDst);
+
+  //! \brief Substitute occurences of characters by a single one
+  //!
+  //! \param pszCharSet Characters set to substitute.
+  //! \param cDst Substitution character.
+  static void substitute(std::string* str_p, pcsz pszCharSet, char cReplacement);
+
+  //! \brief Remove occurences of characters
+  //!
+  //! \param pszCharSet Characters set to remove.
+  //! \param cDst Substitution character.
+  static void remove(std::string* str_p, pcsz pszCharSet);
 
   //! \brief Returns a 32 bits hash code.
   static uint32 hash(const std::string& str);
