@@ -57,7 +57,7 @@ namespace yat
 //----------------------------------------------------------------------------
 // FileName::set
 //----------------------------------------------------------------------------
-void FileName::set(const String &strFullName)
+void FileName::set(const std::string& strFullName)
 {
   set_full_name(PSZ(strFullName));
 
@@ -66,7 +66,7 @@ void FileName::set(const String &strFullName)
     m_strFile += SEP_PATH;
 }
 
-void FileName::set(const String &_strPath, const String &_strName)
+void FileName::set(const std::string& _strPath, const std::string& _strName)
 {
   String strPath = _strPath;
   String strName = _strName;
@@ -83,7 +83,7 @@ void FileName::set(const String &_strPath, const String &_strName)
   set(strFullName);
 }
 
-void FileName::set(const String &strPath, const String &strName, const  String &strExt)
+void FileName::set(const std::string& strPath, const std::string& strName, const std::string& strExt)
 {
   set(strPath, strName + "." + strExt);
 }
@@ -246,7 +246,7 @@ void FileName::rmdir(bool bRecursive, bool bContentOnly) throw( Exception )
 //----------------------------------------------------------------------------
 // FileName::rename
 //----------------------------------------------------------------------------
-void FileName::rename(const String &strNewName) throw( Exception )
+void FileName::rename(const std::string& strNewName) throw( Exception )
 {
   if( !m_strFile.empty() )
     if( ::rename(PSZ(m_strFile), PSZ(strNewName)) )
@@ -262,7 +262,7 @@ void FileName::rename(const String &strNewName) throw( Exception )
 //-------------------------------------------------------------------
 // FileName::dir_copy
 //-------------------------------------------------------------------
-void FileName::dir_copy(const String &strDest, bool bCreateDir, mode_t modeDir, uid_t uid, gid_t gid) throw( Exception )
+void FileName::dir_copy(const std::string& strDest, bool bCreateDir, mode_t modeDir, uid_t uid, gid_t gid) throw( Exception )
 {
   FileName fnDst;
 
@@ -422,7 +422,7 @@ String TempFileName::GenerateRandomName()
 //-------------------------------------------------------------------
 // TempFileName::TempFileName(path)
 //-------------------------------------------------------------------
-TempFileName::TempFileName(const String &strPath)
+TempFileName::TempFileName(const std::string& strPath)
 {
   set(strPath, GenerateRandomName());
 }
@@ -468,7 +468,7 @@ void File::load(MemBuf *pBuf) throw(Exception)
 //-------------------------------------------------------------------
 // File::load(String*)
 //-------------------------------------------------------------------
-void File::load(String *pString) throw(Exception)
+void File::load(std::string *pString) throw(Exception)
 {
   MemBuf buf;
   load(&buf);
@@ -478,7 +478,7 @@ void File::load(String *pString) throw(Exception)
 //-------------------------------------------------------------------
 // File::save
 //-------------------------------------------------------------------
-void File::save(const String &strContent) throw(Exception)
+void File::save(const std::string& strContent) throw(Exception)
 {
   // Open destination file
   FILE *fi = fopen(PSZ(full_name()), "wb");
@@ -506,7 +506,7 @@ void File::save(const String &strContent) throw(Exception)
 //-----------------------------------------------------------------------------
 // CfgFile::CfgFile
 //-----------------------------------------------------------------------------
-CfgFile::CfgFile(const String &strFile) : File(strFile) { }
+CfgFile::CfgFile(const std::string& full_name) : File(full_name) { }
 
 //-----------------------------------------------------------------------------
 // CfgFile::load
@@ -515,59 +515,129 @@ void CfgFile::load() throw(Exception)
 {
   try
   {
-    String strContent;
-    File::load(&strContent);
+    std::string content;
+    File::load(&content);
+    load_from_string(content);
     String strLine;
-
-    // Create a 'default' section
-    Section aSection;
-    m_strSection = "default";
-    m_dictSection[m_strSection] = aSection;
-
-    while( !strContent.empty() )
-    {
-      // Extract next line
-      strContent.extract_token('\n', &strLine);
-      // Supress blank characters at the begining and the end of the string
-      strLine.trim();
-      // Pass blank line and comments line
-      if( strLine.match("#*") || strLine.empty() )
-        continue;
-
-      if( strLine.match("[*]") )
-      {  // Section declaration
-        Section aSection;
-        strLine.extract_token('[', ']', &m_strSection);
-        m_strSection.trim();
-        m_dictSection[m_strSection] = aSection;
-        continue;
-      }
-
-      if( strLine.match("*=*") )
-      {
-        String strParamName;
-        strLine.extract_token('=', &strParamName);
-        strLine.trim();
-        strParamName.trim();
-        m_dictSection[m_strSection].m_dictParameters[strParamName] = strLine;
-
-      }
-      else
-        m_dictSection[m_strSection].m_vecSingleValues.push_back(strLine);
-    }
   }
-  catch (Exception &)
+  catch (Exception& e)
   {
-    throw;
+    throw e;
+  }
+}
+
+//-----------------------------------------------------------------------------
+// CfgFile::load
+//-----------------------------------------------------------------------------
+void CfgFile::load(const std::string& file_full_name) throw(Exception)
+{
+  m_dictSection.clear();
+  m_strSection = "";
+  set(file_full_name);
+  load();
+}
+
+//-----------------------------------------------------------------------------
+// CfgFile::load
+//-----------------------------------------------------------------------------
+void CfgFile::load_from_string(const std::string& _content)
+{
+  std::string content = _content;
+  std::string line;
+
+  // Create a 'default' section
+  Section aSection;
+  m_strSection = "default";
+  m_dictSection[m_strSection] = aSection;
+  bool is_object = false;
+  Objects::iterator obj_iterator;
+  Parameters* current_obj_parameters_p = NULL;
+  
+  while( !content.empty() )
+  {
+    // Extract next line
+    yat::StringUtil::extract_token(&content, '\n', &line);
+    // Supress blank characters at the begining and the end of the string
+    yat::StringUtil::trim(&line);
+    
+    if( line.empty() || yat::StringUtil::match(line, "-*") )
+    { // empty line or line begining by a '-' break objet and is passed
+      is_object = false;
+      continue;
+    }
+
+    // Pass comments line
+    if( yat::StringUtil::match(line, "#*") )
+      continue;
+    
+    if( yat::StringUtil::match(line, "[*]") )
+    {  // Section declaration
+      Section aSection;
+      yat::StringUtil::extract_token(&line, '[', ']', &m_strSection);
+      yat::StringUtil::trim(&m_strSection);
+      m_dictSection[m_strSection] = aSection;
+      is_object = false;
+      continue;
+    }
+
+    if( yat::StringUtil::match(line, "*=*") )
+    { // New parameter
+      std::string strParamName;
+      yat::StringUtil::extract_token(&line, '=', &strParamName);
+      yat::StringUtil::trim(&line);
+      yat::StringUtil::trim(&strParamName);
+      
+      if( !is_object )
+        m_dictSection[m_strSection].m_dictParameters[strParamName] = line;
+      else
+      {
+        //(obj_iterator->second)[strParamName] = line;
+        (*current_obj_parameters_p)[strParamName] = line;
+      }
+      continue;
+    }
+    
+    if( yat::StringUtil::match(line, "*:") )
+    { // New object
+      std::string strObjectType;
+      yat::StringUtil::extract_token(&line, ':', &strObjectType);
+      yat::StringUtil::trim(&line);
+      yat::StringUtil::trim(&strObjectType);
+      is_object = true;
+      Objects::iterator it1 = m_dictSection[m_strSection].m_objects.find(strObjectType);
+      if( it1 == m_dictSection[m_strSection].m_objects.end() )
+      {
+        it1 = m_dictSection[m_strSection].m_objects.insert(m_dictSection[m_strSection].m_objects.end(), std::pair<std::string, ObjectCollection>(strObjectType, ObjectCollection()));
+      }
+      it1->second.push_back(Parameters());
+      current_obj_parameters_p = &(it1->second.back());
+      //obj_iterator = m_dictSection[m_strSection].m_objects.insert(std::pair<std::string, Parameters>(strObjectType, Parameters()));
+      continue;
+    }
+
+    m_dictSection[m_strSection].m_vecSingleValues.push_back(line);
+    is_object = false;
   }
   // Set cursor on default section
   m_strSection = "default";
 }
 
 //-----------------------------------------------------------------------------
+// CfgFile::get_sections
+//-----------------------------------------------------------------------------
+void CfgFile::get_sections(std::list<std::string>* list_p) const
+{
+  for( std::map<std::string, Section>::const_iterator cit = m_dictSection.begin();
+       cit != m_dictSection.end(); ++cit )
+  {
+    list_p->push_back(cit->first);
+  }
+}
+
+//-----------------------------------------------------------------------------
 // CfgFile::get_values
 //-----------------------------------------------------------------------------
-const CfgFile::Values &CfgFile::get_values(const String &strSection)
+const CfgFile::Values &CfgFile::get_values(const std::string& strSection) const
 {
   if( strSection.empty() )
     return m_dictSection[m_strSection].m_vecSingleValues;
@@ -576,9 +646,48 @@ const CfgFile::Values &CfgFile::get_values(const String &strSection)
 }
 
 //-----------------------------------------------------------------------------
+// CfgFile::has_object
+//-----------------------------------------------------------------------------
+bool CfgFile::has_object(const std::string& object_type) const
+{
+  Objects::const_iterator cit = m_dictSection[m_strSection].m_objects.find(object_type);
+  if( cit != m_dictSection[m_strSection].m_objects.end() )
+    return true;
+  return false;
+}
+
+//-----------------------------------------------------------------------------
+// CfgFile::get_objects
+//-----------------------------------------------------------------------------
+const CfgFile::ObjectCollection& CfgFile::get_objects(const std::string& object_type) const
+{
+  Objects::const_iterator cit = m_dictSection[m_strSection].m_objects.find(object_type);
+  if( cit != m_dictSection[m_strSection].m_objects.end() )
+    return cit->second;
+  
+  throw yat::Exception( "NO_DATA",
+                        PSZ_FMT("No such objects: %s", PSZ(object_type)),
+                        "CfgFile::get_objects" );
+}
+
+//-----------------------------------------------------------------------------
+// CfgFile::get_unique_object
+//-----------------------------------------------------------------------------
+const CfgFile::Parameters& CfgFile::get_unique_object(const std::string& object_name) const
+{
+  Objects::const_iterator cit = m_dictSection[m_strSection].m_objects.find(object_name);
+  if( cit != m_dictSection[m_strSection].m_objects.end() )
+    return cit->second[0];
+  
+  throw yat::Exception( "NO_DATA",
+                        PSZ_FMT("No such object: %s", PSZ(object_name)),
+                        "CfgFile::get_object" );
+}
+
+//-----------------------------------------------------------------------------
 // CfgFile::get_parameters
 //-----------------------------------------------------------------------------
-const CfgFile::Parameters &CfgFile::get_parameters()
+const CfgFile::Parameters &CfgFile::get_parameters() const
 {
   return m_dictSection[m_strSection].m_dictParameters;
 }
@@ -586,13 +695,13 @@ const CfgFile::Parameters &CfgFile::get_parameters()
 //-----------------------------------------------------------------------------
 // CfgFile::GetParamValue
 //-----------------------------------------------------------------------------
-String CfgFile::get_param_value(const String &strParamName)
+std::string CfgFile::get_param_value(const std::string& strParamName) const
 {
   CfgFile::Parameters::const_iterator cit =
           m_dictSection[m_strSection].m_dictParameters.find(strParamName);
 
   if( cit == m_dictSection[m_strSection].m_dictParameters.end() )
-    return String::nil;
+    return yat::StringUtil::empty;
 
   return cit->second;
 }
@@ -600,7 +709,7 @@ String CfgFile::get_param_value(const String &strParamName)
 //-----------------------------------------------------------------------------
 // CfgFile::has_parameter
 //-----------------------------------------------------------------------------
-bool CfgFile::has_parameter(const String &strParamName)
+bool CfgFile::has_parameter(const std::string& strParamName) const
 {
   CfgFile::Parameters::const_iterator cit =
           m_dictSection[m_strSection].m_dictParameters.find(strParamName);
@@ -611,9 +720,9 @@ bool CfgFile::has_parameter(const String &strParamName)
 //-----------------------------------------------------------------------------
 // CfgFile::set_section
 //-----------------------------------------------------------------------------
-bool CfgFile::set_section(const String &strSection, bool bThrowException) throw( Exception )
+bool CfgFile::set_section(const std::string& strSection, bool bThrowException) const throw( Exception )
 {
-  std::map<String, Section>::iterator it = m_dictSection.find(strSection);
+  std::map<std::string, Section>::iterator it = m_dictSection.find(strSection);
   if( it != m_dictSection.end() )
     m_strSection = strSection;
   else if( bThrowException )
@@ -630,7 +739,7 @@ bool CfgFile::set_section(const String &strSection, bool bThrowException) throw(
 //-----------------------------------------------------------------------------
 // DirectoryWatcher::Entry::Entry
 //-----------------------------------------------------------------------------
-DirectoryWatcher::Entry::Entry(const String &strFullName)
+DirectoryWatcher::Entry::Entry(const std::string& strFullName)
 {
   ptrFile = new FileName(strFullName);
   ptrFile->mod_time(&tmLastModTime);
@@ -640,7 +749,7 @@ DirectoryWatcher::Entry::Entry(const String &strFullName)
 //-----------------------------------------------------------------------------
 // DirectoryWatcher::DirectoryWatcher
 //-----------------------------------------------------------------------------
-DirectoryWatcher::DirectoryWatcher(const String &strDirectoryPath, WatchMode eMode) throw(Exception)
+DirectoryWatcher::DirectoryWatcher(const std::string& strDirectoryPath, WatchMode eMode) throw(Exception)
 {
   set(strDirectoryPath);
   m_tmDirModTime.set_long_unix(0);
@@ -651,7 +760,9 @@ DirectoryWatcher::DirectoryWatcher(const String &strDirectoryPath, WatchMode eMo
   {
     FileEnum fe(full_name(), FileEnum::ENUM_ALL);
     while( fe.find() )
-      m_mapEntry[fe.full_name().hash64()] = new Entry(fe.full_name());
+    {
+      m_mapEntry[yat::StringUtil::hash64(fe.full_name())] = new Entry(fe.full_name());
+    }
   }
 }
 
@@ -725,7 +836,7 @@ void DirectoryWatcher::get_changes(FileNamePtrVector *pvecNewFilesPtr,
     FileEnum fe(full_name(), FileEnum::ENUM_ALL);
     while( fe.find() )
     {
-      uint64 hashFile = fe.full_name().hash64();
+      uint64 hashFile = yat::StringUtil::hash64(fe.full_name());
       
       if( m_mapEntry.find(hashFile) != m_mapEntry.end() )
       {
