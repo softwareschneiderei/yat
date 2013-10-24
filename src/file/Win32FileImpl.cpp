@@ -56,7 +56,7 @@ namespace yat
 //----------------------------------------------------------------------------
 // FileName::access_from_string
 //----------------------------------------------------------------------------
-mode_t FileName::access_from_string(const String &strAccess)
+mode_t FileName::access_from_string(const std::string& strAccess)
 {
   mode_t mode = 0;
   return mode;
@@ -377,7 +377,7 @@ bool FileName::link_exist() const throw( Exception )
 //----------------------------------------------------------------------------
 // FileName::make_sym_link
 //----------------------------------------------------------------------------
-void FileName::make_sym_link(const String &strTarget, uid_t uid, gid_t gid) const throw( Exception )
+void FileName::make_sym_link(const std::string& strTarget, uid_t uid, gid_t gid) const throw( Exception )
 {
 }
 
@@ -485,7 +485,7 @@ void FileName::set_mod_time(const Time& tm) const throw( Exception )
 //-------------------------------------------------------------------
 // FileName::copy
 //-------------------------------------------------------------------
-void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
+void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Exception )
 {
   if( !file_exist() )
   { // File doesn't exists
@@ -508,7 +508,7 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
 //-------------------------------------------------------------------
 // FileName::move
 //-------------------------------------------------------------------
-void FileName::move(const String &strDest) throw( Exception )
+void FileName::move(const std::string& strDest) throw( Exception )
 {
   if( !file_exist() )
   { // File doesn't exists
@@ -589,7 +589,7 @@ void FileName::set_copy_bloc_size(size_t)
 //-------------------------------------------------------------------
 // FileEnum::FileEnum WIN32
 //-------------------------------------------------------------------
-FileEnum::FileEnum(const String &strPath, EEnumMode eMode) throw(BadPathException)
+FileEnum::FileEnum(const std::string& strPath, EEnumMode eMode) throw(BadPathException)
 {
   // Dynamic allocation of WIN32_FIND_DATA => no need to include winbase.h
   m_pfindData = new WIN32_FIND_DATA;
@@ -611,7 +611,7 @@ FileEnum::~FileEnum()
 //-------------------------------------------------------------------
 // FileEnum::init WIN32
 //-------------------------------------------------------------------
-void FileEnum::init(const String &strPath, EEnumMode eMode) throw(BadPathException)
+void FileEnum::init(const std::string& strPath, EEnumMode eMode) throw(BadPathException)
 {
   close();
   m_eMode = eMode;

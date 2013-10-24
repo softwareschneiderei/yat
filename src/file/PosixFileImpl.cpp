@@ -56,7 +56,7 @@ size_t FileName::s_copy_bloc_size = 1048576;
 //----------------------------------------------------------------------------
 // FileName::access_from_string
 //----------------------------------------------------------------------------
-mode_t FileName::access_from_string(const String &strAccess)
+mode_t FileName::access_from_string(const std::string& strAccess)
 {
   mode_t mode = 0;
   sscanf(PSZ(strAccess), "%o", &mode);
@@ -329,7 +329,7 @@ bool FileName::link_exist() const throw( Exception )
 //----------------------------------------------------------------------------
 // FileName::make_sym_link
 //----------------------------------------------------------------------------
-void FileName::make_sym_link(const String &strTarget, uid_t uid, gid_t gid) const throw( Exception )
+void FileName::make_sym_link(const std::string& strTarget, uid_t uid, gid_t gid) const throw( Exception )
 {
   int iRc = symlink(PSZ(strTarget), PSZ(full_name()));
   if( iRc )
@@ -425,7 +425,7 @@ void FileName::set_mod_time(const Time& tm) const throw( Exception )
 //-------------------------------------------------------------------
 // FileName::copy
 //-------------------------------------------------------------------
-void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
+void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Exception )
 {
   if( !file_exist() )
   { // File doesn't exists
@@ -439,7 +439,7 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
     fDst.set(fDst.path(), name_ext());
 
   // Self copy ?
-  if( full_name().is_equal(fDst.full_name()) )
+  if( m_strFile == fDst.full_name() )
   {
     String strErr = String::str_format(ERR_COPY_FAILED, PSZ(full_name()), PSZ(fDst.full_name()));
     throw Exception("FILE_ERROR", PSZ(strErr), "FileName::copy");
@@ -575,7 +575,7 @@ void FileName::copy(const String &strDst, bool bKeepMetaData) throw( Exception )
 //-------------------------------------------------------------------
 // FileName::move
 //-------------------------------------------------------------------
-void FileName::move(const String &strDest) throw( Exception )
+void FileName::move(const std::string& strDest) throw( Exception )
 {
   if( !file_exist() )
   { // File doesn't exists
@@ -722,7 +722,7 @@ void FileName::set_copy_bloc_size(size_t size)
 //-------------------------------------------------------------------
 // Initialisation
 //-------------------------------------------------------------------
-FileEnum::FileEnum(const String &strPath, EEnumMode eMode) throw(BadPathException)
+FileEnum::FileEnum(const std::string& strPath, EEnumMode eMode) throw(BadPathException)
 {
   m_dirDir = NULL;
   init(strPath, eMode);
@@ -739,7 +739,7 @@ FileEnum::~FileEnum()
 //-------------------------------------------------------------------
 // FileEnum::init
 //-------------------------------------------------------------------
-void FileEnum::init(const String &strPath, EEnumMode eMode) throw(BadPathException)
+void FileEnum::init(const std::string& strPath, EEnumMode eMode) throw(BadPathException)
 {
   close();
   m_eMode = eMode;
