@@ -456,6 +456,17 @@ template <typename T> void Task::wait_msg_handled (size_t msg_type,
   this->wait_msg_handled(m, tmo_msecs);
 }
 
+// ============================================================================
+//! \struct TaskExiter
+//! \brief 'Deleter' object to instanciate when using yat::SharedPtr<yat::Task>
+// ============================================================================
+struct TaskExiter
+{
+  //! \brief operator().
+  //! \param object The object to delete.
+  void operator()(Task* task);
+};
+
 } // namespace
 
 #if defined (YAT_INLINE_IMPL)
