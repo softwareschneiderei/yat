@@ -622,4 +622,20 @@ size_t Task::clear_pending_messages (size_t msg_type)
   return this->msg_q_.clear_pending_messages(msg_type);
 }
 
+// ======================================================================
+// TaskExiter::operator()
+// ======================================================================
+void TaskExiter::operator()(Task* task)
+{
+  try
+  {
+    YAT_TRACE( "Exiting Task object @" << (void*)task );
+    task->exit();
+  }
+  catch(...)
+  {
+  }
+}
+
+
 } // namespace
