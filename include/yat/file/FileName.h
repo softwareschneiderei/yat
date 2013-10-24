@@ -37,6 +37,8 @@
 #ifndef __YAT_FILE_NAME_H__
 #define __YAT_FILE_NAME_H__
 
+#include <list>
+
 #include <yat/CommonHeader.h>
 #include <yat/utils/String.h>
 #include <yat/memory/SharedPtr.h>
@@ -152,7 +154,7 @@ const char FILE_CYGDRIVE[] = "\\cygdrive\\";
 //! \brief Makes a symbolic link on a file.
 //! \param strLink Created link.
 //! \param strTarget The file to link to.
-int MakeLink(const String &strLink, const String &strTarget);
+int MakeLink(const std::string& strLink, const std::string& strTarget);
 
 
 // ============================================================================
@@ -366,12 +368,12 @@ public:
   //! 
   //! The specified name can be a path name, a file name or a full path file name.
   //! \param strFileName %File name.
-  FileName(const String &strFileName): m_progress_target_p(0) { set(strFileName); }
+  FileName(const std::string& strFileName): m_progress_target_p(0) { set(strFileName); }
 
   //! \brief Constructor from file and path names.
   //! \param strPath Path name.
   //! \param strName %File name.
-  FileName(const String &strPath, const String &strName): m_progress_target_p(0)  { set(strPath, strName); }
+  FileName(const std::string& strPath, const std::string& strName): m_progress_target_p(0)  { set(strPath, strName); }
 
   //! \brief Tests if filename is a path.
   //! 
@@ -402,14 +404,14 @@ public:
   //!
   //! Converts separators according to the current operating system (UNIX\<--\>DOS).
   //! \param strFullName Full file name.
-  void set(const String &strFullName);
+  void set(const std::string& strFullName);
 
   //! \brief Sets file and path names.
   //!
   //! Converts separators according to the current operating system (UNIX\<--\>DOS).
   //! \param strPath Path name.
   //! \param strName %File name.
-  void set(const String &strPath, const String &strName);
+  void set(const std::string& strPath, const std::string& strName);
 
   //! \brief Sets file, path and extension names.
   //!
@@ -417,7 +419,7 @@ public:
   //! \param strPath Path name.
   //! \param strName %File name.
   //! \param strExt %File extension name.
-  void set(const String &strPath, const String &strName, const  String &strExt);
+  void set(const std::string& strPath, const std::string& strName, const std::string& strExt);
 
   //! \brief Sets full file name.
   //!
@@ -433,10 +435,10 @@ public:
   //! \brief Gets access mode from a string in a UNIX like format (ie "rwxrwxrwx").
   //! \param strAccess Input format.
   //! \remark Not implemented for WINDOWS plateform.
-  static mode_t access_from_string(const String &strAccess);
+  static mode_t access_from_string(const std::string& strAccess);
 
   //! \brief Gets full file name.
-  const String &full_name() const { return m_strFile; }
+  const std::string& full_name() const { return m_strFile; }
 
   //! \brief Gets file path.
   String path() const;
@@ -481,7 +483,7 @@ public:
   //! \param gid Group identifier.
   //! \exception FILE_ERROR Thrown if link creation fails or if owner modification fails.
   //! \remark Not implemented for WINDOWS plateform.
-  void make_sym_link(const String &strTarget, uid_t uid = (uid_t)-1, gid_t gid = (uid_t)-1) const
+  void make_sym_link(const std::string& strTarget, uid_t uid = (uid_t)-1, gid_t gid = (uid_t)-1) const
     throw(Exception);
 
   //! \brief Deletes file.
@@ -507,7 +509,7 @@ public:
   //! \param uid User identifier.
   //! \param gid Group identifier.
   //! \exception BAD_PATH Thrown if destination directory name format is not correct.
-  void dir_copy(const String &strDest, bool bCreateDir=false, mode_t modeDir = 0, uid_t uid = (uid_t)-1, gid_t gid = (uid_t)-1) 
+  void dir_copy(const std::string& strDest, bool bCreateDir=false, mode_t modeDir = 0, uid_t uid = (uid_t)-1, gid_t gid = (uid_t)-1) 
     throw(Exception);
 
   //! \brief Returns file size in bytes.
@@ -525,7 +527,7 @@ public:
   //! \brief Renames the file.
   //! \param strNewName New file name.
   //! \exception FILE_ERROR Thrown if file renaming fails.
-  void rename(const String &strNewName) 
+  void rename(const std::string& strNewName) 
     throw(Exception);
   
   //! \brief Copies the file to the specified destination.
@@ -535,14 +537,14 @@ public:
   //! \exception FILE_NOT_FOUND Thrown if *this* file doesn't exist.
   //! \exception FILE_ERROR Thrown if file copy fails.
   //! \todo implement the progress notifications on Windows using the CopyFileEx functions family
-  void copy(const String &strDest, bool bKeepMetaData=false) 
+  void copy(const std::string& strDest, bool bKeepMetaData=false) 
     throw(Exception);
   
   //! \brief Moves file to specified destination.
   //! \param strDest Destination file or directory.
   //! \exception FILE_NOT_FOUND Thrown if *this* file doesn't exist.
   //! \exception FILE_ERROR Thrown if file moving fails.  
-  void move(const String &strDest) 
+  void move(const std::string& strDest) 
     throw(Exception);
 
   //! \brief Returns file last modification date & time.
@@ -650,13 +652,13 @@ class YAT_DECL File: public FileName
 
   //! \brief Constructor from full file name.
   //! \param strFileName %File name.
-  File(const String &strFileName)
+  File(const std::string& strFileName)
   { set(strFileName); }
 
   //! \brief Constructor from path and file name. 
   //! \param strPath Path name.
   //! \param strName %File name.
-  File(const String &strPath, const String &strName)
+  File(const std::string& strPath, const std::string& strName)
   { set(strPath, strName); }
 
   //! \brief Loads the specified MemBuf object with file content.
@@ -672,13 +674,13 @@ class YAT_DECL File: public FileName
   //! \<pString\> must have been allocated by the caller.
   //! \param pString Pointer to the string to load.
   //! \exception FILE_ERROR Thrown if file opening or reading fails.
-  void load(String *pString) 
+  void load(std::string *pString) 
     throw(Exception);
 
   //! \brief Saves the specified string in the file.
   //! \param strContent String to save.
   //! \exception FILE_ERROR Thrown if file opening or writing fails.
-  void save(const String &strContent) 
+  void save(const std::string& strContent) 
     throw(Exception);
 };
 
@@ -705,7 +707,7 @@ public:
   //!
   //! %File name is generated by a random function.
   //! \param strPath Path name.
-  TempFileName(const String &strPath);
+  TempFileName(const std::string& strPath);
 };  
 
 // ============================================================================
@@ -759,7 +761,7 @@ public:
   //! \param strPath Directory path to enumerate.
   //! \param eMode Enumeration mode.
   //! \exception BAD_PATH Thrown if specified path is not correct.
-  FileEnum(const String &strPath, EEnumMode eMode=ENUM_FILE) 
+  FileEnum(const std::string& strPath, EEnumMode eMode=ENUM_FILE) 
     throw(BadPathException);
 
   //! \brief Destructor.
@@ -770,7 +772,7 @@ public:
   //! \param strPath Path to enumerate.
   //! \param eMode Enumeration mode.
   //! \exception BAD_PATH Thrown if specified path is not correct.
-  void init(const String &strPath, EEnumMode eMode=ENUM_FILE) 
+  void init(const std::string& strPath, EEnumMode eMode=ENUM_FILE) 
     throw(BadPathException);
 
   //! \brief Finds next file in directory.
@@ -793,6 +795,11 @@ public:
 //!   \[section\]\n
 //!   key=value\n
 //!   \<string\>\n
+//!   object:\n
+//!   member=value\n
+//!   -\n
+//!
+//! It adds objects definitions capability over the '.ini' specification
 //!
 //! Inherits from File class.
 // ============================================================================
@@ -800,61 +807,92 @@ class YAT_DECL CfgFile : public File
 {
 public:
   //! \brief List of values.
-  typedef std::vector<String> Values;
-  //! \brief Map of (key, values).
-  typedef std::map<String, String> Parameters;
-
+  typedef std::vector<std::string> Values;
+  //! \brief Map of (key, value).
+  typedef std::map<std::string, std::string> Parameters;
+  //! \brief (key, value) vector
+  typedef std::vector<Parameters> ObjectCollection;
+  //! \brief Map of vector of (key, value)
+  typedef std::map<std::string, ObjectCollection> Objects;
+  
 private:
   class Section
   {
   public:
     Values m_vecSingleValues;
     Parameters m_dictParameters;
+    Objects m_objects;
   };
 
-  std::map<String, Section> m_dictSection;
-  String m_strSection;
-
+  mutable std::map<std::string, Section> m_dictSection;
+  mutable std::string m_strSection;
+  
 public:
   //! \brief Constructor.
   //! \param strFile %File name.
-  CfgFile(const String &strFile);
+  CfgFile(const std::string& strFile);
 
-  //! \brief Reads a "windows config file" style file.
+  //! \brief Default Constructor.
+  CfgFile() { }
+
+  //! \brief Reads the configuration file.
   //!
   //! \exception FILE_ERROR Thrown if file opening or reading fails.
   void load() 
     throw(Exception);
 
+  //! \brief Reads the configuration file.
+  //!
+  //! \exception FILE_ERROR Thrown if file opening or reading fails.
+  void load( const std::string& file_full_name )
+    throw(Exception);
+
+  //! \brief Reads from a string.
+  //!
+  void load_from_string(const std::string& input);
+
+  //! \brief get section names
+  void get_sections(std::list<std::string>* list_p ) const;
+  
   //! \brief Sets the current section.
   //! \param strSection New section name.
   //! \param bThrowException If set to true, exceptions are thrown.
   //! \exception NO_DATA Thrown if section not found.
-  bool set_section(const String &strSection, bool bThrowException=true) 
+  bool set_section(const std::string& strSection, bool bThrowException=true) const
     throw( Exception );
-
+    
   //! \brief Gets section values.
   //!
   //! Returns a vector of \<values\>.
   //! \param strSection Section name. If set to NULL, gets current section values.
-  const Values &get_values(const String &strSection=String::nil);
+  const Values& get_values(const std::string& strSection=String::nil) const;
 
   //! \brief Gets section dictionary.
   //!
   //! Returns a map of (\<value name\>, \<value\>).
-  const Parameters &get_parameters();
+  const Parameters& get_parameters() const;
+  
+  //! \brief Check if section contains at least one object of the specified type
+  bool has_object(const std::string& object_type) const;
+  
+  //! \brief Get section's objects collection by object type name
+  const ObjectCollection& get_objects(const std::string& object_type) const;
+  
+  //! \brief Get section's unique object according to its type
+  const Parameters& get_unique_object(const std::string& object_name) const;
   
   //! \brief Tests if a value name is found in the current section.
   //! 
   //! Returns true if the value name is found, false otherwise.
   //! \param strParamName Value name.
-  bool has_parameter(const String &strParamName);
+  bool has_parameter(const std::string& strParamName) const;
   
   //! \brief Gets a value from its name, in the current section.
   //!
   //! Returns nil string if value name not found in the section.
   //! \param strParamName Value name.
-  String get_param_value(const String &strParamName);
+  std::string get_param_value(const std::string& strParamName) const;
+
 };
 
 #define FOR_EACH_VALUES_IN_CFG_SECTION(cfg_file, section, x) \
@@ -896,7 +934,7 @@ private:
     Time tmLastModTime;
     bool bRemoved;
     
-    Entry(const String& strFullName);
+    Entry(const std::string& strFullName);
   };
   
   typedef yat::SharedPtr<Entry> EntryPtr;
@@ -916,7 +954,7 @@ public:
   //! \param strDirectoryPath Directory path to whatch.
   //! \param eMode Watch mode.
   //! \exception BAD_PATH Thrown if specified path is not correct.
-  DirectoryWatcher(const String &strDirectoryPath, WatchMode eMode = ENUM_FIRST)
+  DirectoryWatcher(const std::string& strDirectoryPath, WatchMode eMode = ENUM_FIRST)
      throw( Exception);
   
   //! \brief Gets new, changed and removed file names since last call.
