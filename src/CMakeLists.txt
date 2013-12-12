@@ -18,6 +18,7 @@ set (source_files
   threading/SyncAccess.cpp
   threading/Task.cpp
   time/Time.cpp
+  utils/CommandLine.cpp
   utils/Logging.cpp
   utils/String.cpp
   utils/StringTemplate.cpp

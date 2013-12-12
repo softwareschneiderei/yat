@@ -26,8 +26,8 @@ libyat_la_SOURCES = \
 	file/FileName.cpp \
 	file/PosixFileImpl.cpp \
 	memory/MemBuf.cpp \
-  system/PosixSysUtilsImpl.cpp \
-  time/Time.cpp \
+	system/PosixSysUtilsImpl.cpp \
+	time/Time.cpp \
 	utils/String.cpp \
 	utils/StringTemplate.cpp \
 	utils/StringTokenizer.cpp \
