@@ -2,7 +2,7 @@ project (yat)
 cmake_minimum_required (VERSION 2.6)
 
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
-set(VERSION "1.7.17")
+set(VERSION "1.7.18")
 
 # check for 64 bit
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
