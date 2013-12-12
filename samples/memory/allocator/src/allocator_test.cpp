@@ -93,7 +93,7 @@ MyClass::Allocator * MyClass::cache = 0;
 int main(int argc, char* argv[])
 {
   size_t nb = 10;
-  size_t bs = 1000000;
+  size_t bs = 1000;
   size_t tt = nb * bs;
 
   yat::Timer t;
@@ -101,13 +101,14 @@ int main(int argc, char* argv[])
 #if USE_YAT_ALLOCATOR
   
 #if USE_YAT_CACHED_ALLOCATOR
-  
+
   std::cout << "preallocating " 
             << nb * bs
             << " instances"
             << std::endl;
   
   t.restart();
+
 #endif
   
   MyClass::init(nb, bs);
