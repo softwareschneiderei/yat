@@ -66,11 +66,13 @@ public:
   //! \exception SOFTWARE_ERROR Thrown if conversion fails.
   static _T to_num (const std::string& _s, bool _throw = true)
   {
-    ISStream iss(_s.c_str());
+    std::istringstream iss(_s.c_str());
 
     _T num_val;
 
-    if ( (iss >> num_val) == false )
+    iss >> num_val;
+
+    if ( oss.fail() )
     {
       if (_throw)
       {
@@ -96,9 +98,11 @@ public:
   //! \exception SOFTWARE_ERROR Thrown if conversion fails.
   static std::string to_string (const _T & _t, bool _throw = true)
   {
-    OSStream oss;
+    std::ostringstream oss;
 
-    if ( (oss << std::fixed << _t) == false )
+    oss << std::fixed << _t;
+    
+    if ( oss.fail() )
     {
       if (_throw)
       {
