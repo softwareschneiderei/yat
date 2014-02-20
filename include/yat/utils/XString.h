@@ -72,7 +72,7 @@ public:
 
     iss >> num_val;
 
-    if ( oss.fail() )
+    if ( iss.fail() )
     {
       if (_throw)
       {

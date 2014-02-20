@@ -380,6 +380,10 @@ public:
   //! Returns true if the filename is a path, false otherwise.
   bool is_path_name() const;
 
+  //! \brief join path fragment with current path
+  //! 
+  void join(const std::string& fragment);
+
   //! \brief Tests if file name is an existing path.
   //! 
   //! Returns true if the file name is an existing path, false otherwise.
