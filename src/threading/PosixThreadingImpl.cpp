@@ -38,6 +38,7 @@
 // DEPENDENCIES
 // ----------------------------------------------------------------------------
 #include <errno.h>
+#include <iostream>
 #include <sys/time.h>
 #include <yat/threading/Utilities.h>
 #include <yat/threading/Mutex.h>
@@ -492,7 +493,7 @@ void Thread::join (Thread::IOArg * oarg_)
   //- return the "thread result"
   if (oarg_)
     *oarg_ = this->m_oarg;
-
+  
   //- commit suicide
   delete this;
 }

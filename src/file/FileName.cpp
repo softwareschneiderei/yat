@@ -89,6 +89,14 @@ void FileName::set(const std::string& strPath, const std::string& strName, const
 }
 
 //----------------------------------------------------------------------------
+// FileName::join
+//----------------------------------------------------------------------------
+void FileName::join(const std::string& fragment)
+{
+  set(path() + fragment, name_ext());
+}
+
+//----------------------------------------------------------------------------
 // FileName::is_path_name
 //----------------------------------------------------------------------------
 bool FileName::is_path_name() const
