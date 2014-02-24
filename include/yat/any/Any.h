@@ -266,10 +266,9 @@ namespace yat
 
     //! \brief Cast function from *const* Any type to *const* \<ValueType\> type.
     //! \param operand Const value to cast.
-    //! \exception error Thrown if cast conversion fails.
+    //! \exception yat::Exception Thrown if cast conversion fails.
     template<typename ValueType>
-    const ValueType & any_cast (const Any & operand) 
-        throw (yat::Exception)
+    const ValueType & any_cast (const Any & operand)
     {
         const ValueType * result = any_cast<ValueType>(&operand);
     
@@ -285,10 +284,9 @@ namespace yat
     //! \brief Supposed to be used when trying to cast something exchanged between to RTTI contexts (e.g. a process and a shared lib)
     //! 
     //! \param operand Const value to cast.
-    //! \exception error Thrown if cast conversion fails.
+    //! \exception yat::Exception Thrown if cast conversion fails.
     template<typename ValueType>
-    const ValueType & any_cast_ext (const Any & operand) 
-        throw (yat::Exception)
+    const ValueType & any_cast_ext (const Any & operand)
     {
         const ValueType * result = any_cast_ext<ValueType>(&operand);
     
@@ -302,10 +300,9 @@ namespace yat
 
     //! \brief Cast function from Any type to \<ValueType\> type.
     //! \param operand Value to cast.
-    //! \exception error Thrown if cast conversion fails.
+    //! \exception yat::Exception Thrown if cast conversion fails.
     template<typename ValueType>
-    ValueType & any_cast (Any & operand) 
-      throw (yat::Exception)
+    ValueType & any_cast (Any & operand)
     {
         ValueType * result = any_cast<ValueType>(&operand);
     
@@ -320,10 +317,9 @@ namespace yat
     //! \brief Cast function from Any type to \<ValueType\> type. 
     //! \brief Supposed to be used when trying to cast something exchanged between to RTTI contexts (e.g. a process and a shared lib)
     //! \param operand Value to cast.
-    //! \exception error Thrown if cast conversion fails.
+    //! \exception yat::Exception Thrown if cast conversion fails.
     template<typename ValueType>
-    ValueType & any_cast_ext (Any & operand) 
-      throw (yat::Exception)
+    ValueType & any_cast_ext (Any & operand)
     {
         ValueType * result = any_cast_ext<ValueType>(&operand);
     

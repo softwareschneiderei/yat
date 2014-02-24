@@ -103,8 +103,7 @@ public:
   //!
   //! In case the thread is running, the priority is immediately applied.
   //! \param p Priority.
-  void priority (Priority p)
-    throw (Exception);
+  void priority (Priority p);
 
   //! \brief Returns the current priority of the thread.
   Thread::Priority priority ();
@@ -131,14 +130,12 @@ public:
   //! \brief Causes the thread to be detached.  
   //!
   //! In this case, the thread executes the run() member function.
-  void start ()
-    throw (Exception);
+  void start ();
 
   //! \brief Causes the thread to be undetached.
   //!
   //! In this case, the thread executes the run_undetached() member function.
-  void start_undetached ()
-    throw (Exception);
+  void start_undetached ();
 
 protected:
   //! \brief This constructor is used in a derived class. 
@@ -158,8 +155,7 @@ protected:
   //! \exception ToBeDefined Thrown in case the thread is either "not running" or "terminated".
   //! \exception ToBeDefined Thrown in case the thread is "detached".
   //! \exception ToBeDefined Thrown in case the underlying OS "wait for the thread to terminate" call fails.
-  void join (Thread::IOArg *)
-    throw (Exception);
+  void join (Thread::IOArg *);
 
   //! \brief The Thread destructor cannot be called by user (except via a derived class).
   //! Use exit() instead. 

@@ -70,8 +70,7 @@ public:
   //! \param clear If set to "true", clears the associated memory block (i.e. sets each
   //! byte to 0), does nothing ortherwise.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  Buffer (size_t capacity = 0, bool clear = false)
-    throw (Exception);
+  Buffer (size_t capacity = 0, bool clear = false);
  
   //! \brief Memory copy constructor. 
   //!
@@ -79,15 +78,13 @@ public:
   //! \param length The number of elements of type \<T\> to be copied into the buffer.
   //! \param base Address of the memory block to copy into the buffer.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  Buffer (size_t length, const T *base)
-    throw (Exception);
+  Buffer (size_t length, const T *base);
 
   //! \brief Copy constructor.
   //!
   //! \param buf The source buffer.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  Buffer (const Buffer<T> &buf)
-    throw (Exception);
+  Buffer (const Buffer<T> &buf);
 
   //! \brief Destructor. 
   //! 
@@ -161,8 +158,7 @@ public:
   //! \param keep_content If set to true, the current buffer content is maintained 
   //! (might be truncated if new capacity < current buffer capacity).
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  virtual void capacity (size_t new_capacity, bool keep_content = false)
-    throw (Exception);
+  virtual void capacity (size_t new_capacity, bool keep_content = false);
   
   //! \brief Returns true is the buffer is empty, false otherwise.
   bool empty () const;
@@ -200,8 +196,7 @@ public:
   //! \param width Width of the image in pixels.
   //! \param height Height of the image in pixels.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  ImageBuffer (size_t width = 0, size_t height = 0)
-    throw (Exception);
+  ImageBuffer (size_t width = 0, size_t height = 0);
  
   //! \brief Memory copy Constructor.
   //! 
@@ -210,15 +205,13 @@ public:
   //! \param height Height of the image in pixels.
   //! \param base Address of the block to copy.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  ImageBuffer (size_t width, size_t height, const T *base)
-    throw (Exception);
+  ImageBuffer (size_t width, size_t height, const T *base);
 
   //! \brief Copy Constructor.
   //!
   //! \param im The source image.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  ImageBuffer (const ImageBuffer<T>& im)
-    throw (Exception);
+  ImageBuffer (const ImageBuffer<T>& im);
 
   //! \brief Constructor (with data). 
   //! 
@@ -226,8 +219,7 @@ public:
   //! \param height Height of the image in pixels.
   //! \param buf Buffer to copy data from.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  ImageBuffer (size_t width, size_t height, const yat::Buffer<T>& buf)
-    throw (Exception);
+  ImageBuffer (size_t width, size_t height, const yat::Buffer<T>& buf);
 
   //! \brief Destructor.
   virtual ~ImageBuffer();
@@ -242,8 +234,7 @@ public:
   void set_dimensions (size_t width, size_t height);
 
   //! \brief Changes the dimensions of the array and preserve data.
-  void resize (size_t new_width, size_t new_height)
-    throw (Exception);
+  void resize (size_t new_width, size_t new_height);
 
   //! \brief Operator=.
   //! 
@@ -289,8 +280,7 @@ protected:
   //! \param  capacity Maximum number of elements of type \<T\>
   //! that can be stored into the buffer.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  SharedBuffer (size_t capacity = 0)
-    throw (Exception);
+  SharedBuffer (size_t capacity = 0);
  
   //! \brief Memory copy constructor. 
   //! 
@@ -298,16 +288,14 @@ protected:
   //! \param length Number of elements of type \<T\> to be copied into the buffer. 
   //! \param base Address of the block to copy.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  SharedBuffer (size_t length, const T *base)
-    throw (Exception);
+  SharedBuffer (size_t length, const T *base);
 
   //! \brief Copy constructor. 
   //! 
   //! Uses allocator associated with the source buffer.
   //! \param buf The source buffer.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  SharedBuffer (const Buffer<T> &buf)
-    throw (Exception);
+  SharedBuffer (const Buffer<T> &buf);
 
   //! \brief Destructor. 
   //!
@@ -315,8 +303,7 @@ protected:
   virtual ~SharedBuffer ();
 
   //! \brief Returns a "shallow" copy of the shared buffer (avoids deep copy).
-  SharedBuffer * duplicate ()
-    throw (Exception);
+  SharedBuffer * duplicate ();
 };
 
 // ============================================================================
@@ -341,16 +328,14 @@ public:
   //! \brief Default constructor.
   //!
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  CircularBuffer ()
-    throw (Exception);
+  CircularBuffer ();
 
   //! \brief Constructor.
   //!
   //! \param capacity Maximum number of elements of type \<T\>
   //! that can be stored into the buffer.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  CircularBuffer (size_t capacity)
-    throw (Exception);
+  CircularBuffer (size_t capacity);
   
   //! \brief Destructor. 
   //!
@@ -370,8 +355,7 @@ public:
   //! Push is ignored if data buffer is frozen.
   //! \exception PROGRAMMING_ERROR Thrown when circular buffer is not 
   //! initialized properly (ex: capacity set to 0).
-  void push (T new_element)
-    throw (Exception);
+  void push (T new_element);
 
   //! \brief Freezes the buffer.
   //!
@@ -386,15 +370,13 @@ public:
   //! \brief Returns the "chronologically ordered" circular buffer's content.
   //!
   //! \exception INTERNAL_ERROR Thrown on unexpected buffer size.
-  const yat::Buffer<T> & ordered_data ()
-    throw (Exception);
+  const yat::Buffer<T> & ordered_data ();
 
   //! \brief Sets the buffer capacity to the specified value.
   //! 
   //! \param capacity New maximum number of elements of type \<T\> stored in the buffer.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  virtual void capacity (size_t capacity)
-    throw (Exception);
+  virtual void capacity (size_t capacity);
 
 private:
   //- Locling stategy.

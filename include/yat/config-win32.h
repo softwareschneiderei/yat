@@ -103,6 +103,7 @@ typedef unsigned short yat_uint16_t;
  */
 namespace yat
 {
+  typedef unsigned char int8;
   typedef unsigned char uint8;
   typedef unsigned char byte;
 

@@ -13,24 +13,24 @@
    <name>TimeoutTester</name>
    <description>a yat::Timeout test</description>
    <build>
-       <plugins>
-           <plugin>
-               <groupId>org.freehep</groupId>
-               <artifactId>freehep-nar-plugin</artifactId>
-                  <configuration>
-                    <cpp>
-                        <includePaths>
-                          <includePath>${project.basedir}/src</includePath>
-                        </includePaths>
-                        <options>
-                            <option>-Wno-uninitialized</option>
-                            <option>-Wno-unused-parameter</option>
-                            <option>-Wno-unused-variable</option>
-                        </options>
-                    </cpp>  
-                </configuration>  
-           </plugin>
-       </plugins>
+    <plugins>
+      <plugin>
+        <groupId>org.freehep</groupId>
+        <artifactId>freehep-nar-plugin</artifactId>
+        <configuration>
+          <cpp>
+            <includePaths>
+              <includePath>${project.basedir}/src</includePath>
+            </includePaths>
+            <options>
+                <option>-Wno-uninitialized</option>
+                <option>-Wno-unused-parameter</option>
+                <option>-Wno-unused-variable</option>
+            </options>
+          </cpp>
+        </configuration>
+      </plugin>
+    </plugins>
    </build>
   <scm>
     <connection>${scm.connection.svn.tango-cs}:share/yat</connection>

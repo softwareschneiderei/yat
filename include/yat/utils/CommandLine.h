@@ -117,7 +117,7 @@ public:
   //! \param iArgc Number of arguments.
   //! \param ppszArgv List of arguments.
   //! \exception BAD_ARGS Thrown if arguments are not valid.
-  bool read(int iArgc, char **ppszArgv) throw (Exception);
+  bool read(int iArgc, char **ppszArgv);
 
   //! \brief Shows command's usage.
   //!
@@ -182,7 +182,7 @@ private:
   //- Display "bad option" error message
   //-
   //- return always false
-  void bad_option(const String &strOpt) throw (Exception);
+  void bad_option(const String &strOpt);
 
   //- Show usage
   //-

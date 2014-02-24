@@ -132,12 +132,6 @@ public:
 
   //- overloads the delete operator (makes class "cachable")
   void operator delete (void *);
-
-  //-TODO: impl this...
-  static void pre_alloc (size_t _nobjs) throw (Exception) {};
-
-  //-TODO: impl this...
-  static void release_pre_alloc () {};
 #endif
 
   //! \brief Message factory. 
@@ -149,8 +143,7 @@ public:
   //! \exception OUT_OF_MEMORY Thrown if allocation fails due to lack of memory.
   static Message * allocate (size_t msg_type, 
                              size_t msg_priority = DEFAULT_MSG_PRIORITY,
-                             bool waitable = false)
-    throw (Exception);
+                             bool waitable = false);
 
   //! \brief Default contructor.
   explicit Message ();
@@ -225,27 +218,21 @@ public:
   //! \param _data Data buffer pointer.
   //! \param _transfer_ownership True if data is deleted with message.
   //! \exception OUT_OF_MEMORY Thrown if allocation fails due to lack of memory.
-  template <typename T> void attach_data (T * _data, bool _transfer_ownership = true)
-    throw (Exception);
-
+  template <typename T> void attach_data (T * _data, bool _transfer_ownership = true);
   //! \brief Template function to associate any type of data to a message (makes a copy of _data).
   //!
   //! Example : 
   //! \verbatim m.attach_data<double>(myDouble); \endverbatim
   //! \param _data Data buffer.
   //! \exception OUT_OF_MEMORY Thrown if allocation fails due to lack of memory.
-  template <typename T> void attach_data (const T & _data)
-    throw (Exception);
-
+  template <typename T> void attach_data (const T & _data);
   //! \brief Template function that returns the message associated data.
   //!
   //! Data is left in message and will be deleted with message.
   //! Example : 
   //! \verbatim myDouble = m.get_data<double>(); \endverbatim
   //! \exception RUNTIME_ERROR Thrown if wrong data type put in \<T\>.
-  template <typename T> T& get_data () const
-    throw (Exception);
-
+  template <typename T> T& get_data () const;
   //! \brief Template function that detaches data from message, 
   //! i.e. data is not left in the message and will not be deleted with message.
   //!
@@ -254,9 +241,7 @@ public:
   //! \verbatim m.detach_data<double>(myDouble); \endverbatim
   //! \param _data Data buffer.
   //! \exception RUNTIME_ERROR Thrown if wrong data type specified.
-  template <typename T> void detach_data (T*& _data) const
-    throw (Exception);
-
+  template <typename T> void detach_data (T*& _data) const;
   //! \brief Template function that detaches data from message, 
   //! i.e. data is not left in the message and will not be deleted with message.
   //!
@@ -276,9 +261,7 @@ public:
   //! 
   //! Default value = false.
   //! \exception MEMORY_ERROR Thrown if associated Condition allocation fails on lack of memory.
-  void make_waitable ()
-    throw (Exception);
-
+  void make_waitable ();
   //! \brief Is message waitable ?
   //! 
   //! Returns true if message is waitable, false otherwise.
@@ -290,9 +273,7 @@ public:
   //! message was processed. Returns true otherwise. 
   //! \param tmo_ms Timeout in ms.
   //! \exception PROGRAMMING_ERROR Thrown in case the message is not "waitable".
-  bool wait_processed (unsigned long tmo_ms)
-    throw (Exception);
-
+  bool wait_processed (unsigned long tmo_ms);
   //! \brief Notifies to awaiting threads (on wait_processed())that the message is handled.
   void processed ();
 
@@ -380,7 +361,6 @@ protected:
 // Message::attach_data 
 //---------------------------------------------
 template <typename T> void Message::attach_data (T * _data, bool _transfer_ownership)
-  throw (Exception)
 {
   //- try to avoid GenericContainer<T> reallocation
   if (this->msg_data_)
@@ -418,7 +398,6 @@ template <typename T> void Message::attach_data (T * _data, bool _transfer_owner
 // Message::attach_data (makes a copy of _data)
 //---------------------------------------------
 template <typename T> void Message::attach_data (const T & _data)
-  throw (Exception)
 {
   //- try to avoid GenericContainer<T> reallocation
   if (this->msg_data_)
@@ -456,7 +435,6 @@ template <typename T> void Message::attach_data (const T & _data)
 // Message::get_data
 //---------------------------------------------
 template <typename T> T& Message::get_data () const
-  throw (Exception)
 {
   GenericContainer<T> * c = 0;
   try
@@ -482,7 +460,6 @@ template <typename T> T& Message::get_data () const
 // Message::detach_data
 //---------------------------------------------
 template <typename T> void Message::detach_data (T*& _data) const
-  throw (Exception)
 {
   _data = yat::any_cast<T>(this->msg_data_, true);
   if (! _data)

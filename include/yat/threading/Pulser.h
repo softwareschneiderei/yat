@@ -143,14 +143,12 @@ public:
   //! \brief Starts the pulser.
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
-  virtual void start ()
-    throw (Exception);
+  virtual void start ();
   
   //! \brief Stops the pulser synchronously.
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
-  virtual void stop ()
-    throw (Exception);
+  virtual void stop ();
 
   //! \brief Changes the pulser's period.
   //! \param p_msecs The new period in msecs.

@@ -41,7 +41,6 @@ namespace yat
 // Task::post
 // ============================================================================
 YAT_INLINE void Task::post (size_t msg_type, size_t tmo_msecs)
-  throw (Exception)
 {
   Message * m = new (std::nothrow) Message(msg_type);
   if (! m)
@@ -57,7 +56,6 @@ YAT_INLINE void Task::post (size_t msg_type, size_t tmo_msecs)
 // Task::wait_msg_handled
 // ============================================================================
 YAT_INLINE void Task::wait_msg_handled (size_t msg_type, size_t tmo_msecs)
-    throw (Exception)
 {
   Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, true);
   if (! m)
@@ -157,7 +155,6 @@ YAT_INLINE size_t Task::actual_timeout () const
 // Task::post
 // ============================================================================
 YAT_INLINE void Task::post (yat::Message * _msg, size_t _tmo_msecs)
-  throw (Exception)
 {
   this->msg_q_.post (_msg, _tmo_msecs);
 }

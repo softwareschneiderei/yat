@@ -42,18 +42,18 @@
  *  Deprecated. Use new definitions below
  */
 #include <stdint.h>
-typedef uint8_t yat_uint8_t;             //CORBA::Char
-typedef int16_t yat_int16_t;             //CORBA::Short
-typedef uint16_t yat_uint16_t;           //CORBA::UShort
+typedef int8_t   yat_int8_t;            //CORBA::Char
+typedef uint8_t  yat_uint8_t;           //CORBA::UChar
+typedef int16_t  yat_int16_t;           //CORBA::Short
+typedef uint16_t yat_uint16_t;          //CORBA::UShort
 #if __WORDSIZE == 64
 typedef int yat_int32_t;                //CORBA::Long
 typedef unsigned int yat_uint32_t;      //CORBA::ULong
 #else
-typedef long yat_int32_t;                //CORBA::Long
-typedef unsigned long yat_uint32_t;      //CORBA::ULong
+typedef long yat_int32_t;               //CORBA::Long
+typedef unsigned long yat_uint32_t;     //CORBA::ULong
 #endif
 
-//yat_{u}int64_t;
 #if __WORDSIZE == 64
 typedef long yat_int64_t;                //CORBA::LongLong
 typedef unsigned long yat_uint64_t;      //CORBA::ULongLong
@@ -67,6 +67,7 @@ typedef unsigned long long yat_uint64_t; //CORBA::ULongLong
  */
 namespace yat
 {
+  typedef int8_t   int8;
   typedef uint8_t  uint8;
   typedef uint8_t  byte; 
   typedef int16_t  int16;

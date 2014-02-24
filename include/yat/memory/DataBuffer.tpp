@@ -54,7 +54,6 @@ namespace yat
 // ============================================================================
 template <typename T>
 Buffer<T>::Buffer (size_t _capacity, bool _clear)
-    throw (Exception)
  : base_(0), capacity_(0), length_(0)
 {
   //- allocate the buffer 
@@ -70,7 +69,6 @@ Buffer<T>::Buffer (size_t _capacity, bool _clear)
 // ============================================================================
 template <typename T>
 Buffer<T>::Buffer (size_t _length, const T* _base)
-    throw (Exception) 
  : base_(0), capacity_(0), length_(0)
 {
   //- allocate the buffer 
@@ -86,7 +84,6 @@ Buffer<T>::Buffer (size_t _length, const T* _base)
 // ============================================================================
 template <typename T> 
 Buffer<T>::Buffer (const Buffer<T>& _src)
-    throw (Exception)
  : base_(0), capacity_(0), length_(0)
 {
   //- allocate the buffer 
@@ -112,7 +109,6 @@ Buffer<T>::~Buffer()
 // ============================================================================
 template <typename T> 
 void Buffer<T>::capacity (size_t _new_capacity, bool _keep_content)
-    throw (Exception)
 {
   //- special case: do (almost) nothing
   if (this->capacity_ == _new_capacity)
@@ -177,7 +173,6 @@ void Buffer<T>::capacity (size_t _new_capacity, bool _keep_content)
 // ======================================================================
 template <typename T>
 ImageBuffer<T>::ImageBuffer (size_t _width, size_t _height)
-    throw (Exception)
 : Buffer<T>(_width * _height, true),
   width_(_width),
   height_(_height)
@@ -190,7 +185,6 @@ ImageBuffer<T>::ImageBuffer (size_t _width, size_t _height)
 // ======================================================================
 template <typename T>
 ImageBuffer<T>::ImageBuffer (size_t _width, size_t _height, const T *base)
-    throw (Exception) 
 : Buffer<T>(_width * _height, base),
   width_(_width),
   height_(_height)
@@ -202,7 +196,6 @@ ImageBuffer<T>::ImageBuffer (size_t _width, size_t _height, const T *base)
 // ======================================================================
 template <typename T>
 ImageBuffer<T>::ImageBuffer (const ImageBuffer<T>& im)
-    throw (Exception)
 : Buffer<T>(im),
   width_(im.width_),
   height_(im.height_)
@@ -223,7 +216,6 @@ ImageBuffer<T>::~ImageBuffer ()
 // ======================================================================
 template <typename T>
 void ImageBuffer<T>::resize (size_t new_width, size_t new_height)
-    throw (Exception)
 {
 #ifndef min
 #  define min(a,b) ( ((a) < (b)) ? (a) : (b) )
@@ -272,7 +264,6 @@ void ImageBuffer<T>::resize (size_t new_width, size_t new_height)
 // ============================================================================
 template <typename T>
 SharedBuffer<T>::SharedBuffer (size_t _capacity)
-  throw (Exception)
   : Buffer<T>(_capacity), SharedObject()
 {
  //- noop ctor
@@ -283,7 +274,6 @@ SharedBuffer<T>::SharedBuffer (size_t _capacity)
 // ============================================================================
 template <typename T>
 SharedBuffer<T>::SharedBuffer(size_t _length,  const T* _base)
-  throw (Exception)
   : Buffer<T>(_length, _base), SharedObject()
 {
  //- noop ctor
@@ -294,7 +284,6 @@ SharedBuffer<T>::SharedBuffer(size_t _length,  const T* _base)
 // ============================================================================
 template <typename T> 
 SharedBuffer<T>::SharedBuffer(const Buffer<T>& _src)
-  throw (Exception)
   : Buffer<T>(_src), SharedObject()
 {
  //- noop ctor
@@ -317,7 +306,6 @@ SharedBuffer<T>::~SharedBuffer()
 // ============================================================================
 template <typename T, typename L>
 CircularBuffer<T,L>::CircularBuffer()
-  throw (Exception)
   : wp_(0), 
     frozen_(false),
     data_ (0),
@@ -332,7 +320,6 @@ CircularBuffer<T,L>::CircularBuffer()
 // ============================================================================
 template <typename T, typename L>
 CircularBuffer<T,L>::CircularBuffer(size_t _capacity)
-    throw (Exception)
   : wp_(0), 
     frozen_(false),
     data_ (0),
@@ -389,7 +376,6 @@ void CircularBuffer<T,L>::clear ()
 // ============================================================================
 template <typename T, typename L> 
 void CircularBuffer<T,L>::capacity (size_t _capacity)
-  throw (Exception)
 {
   yat::AutoMutex<L> guard(this->lock_);
   
@@ -425,7 +411,6 @@ void CircularBuffer<T,L>::fill(const T& _val)
 // ============================================================================
 template <typename T, typename L>
 void CircularBuffer<T,L>::push(T _data)
-  throw (Exception)
 { 
   yat::AutoMutex<L> guard(this->lock_);
   
@@ -459,7 +444,6 @@ void CircularBuffer<T,L>::push(T _data)
 // ============================================================================
 template <typename T, typename L> 
 const Buffer<T> & CircularBuffer<T,L>::ordered_data ()
-  throw (Exception)
 {
   yat::AutoMutex<L> guard(this->lock_);
   

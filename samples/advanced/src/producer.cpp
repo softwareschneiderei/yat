@@ -31,7 +31,6 @@ Producer::~Producer (void)
 // Producer::handle_message
 // ============================================================================
 void Producer::handle_message (yat::Message& _msg)
-	throw (yat::Exception)
 {
 	//- YAT_TRACE("Producer::handle_message");
 

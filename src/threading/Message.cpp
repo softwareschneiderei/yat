@@ -66,7 +66,6 @@ namespace yat
 // Message::allocate 
 // ============================================================================
 Message * Message::allocate (size_t _msg_type, size_t _msg_priority, bool _waitable)
-  throw (Exception)
 {
   YAT_TRACE_STATIC("Message::allocate");  
   
@@ -221,7 +220,6 @@ void Message::dump () const
 // Message::make_waitable 
 // ============================================================================
 void Message::make_waitable ()
-  throw (Exception)
 { 
   if (this->cond_)
     return;

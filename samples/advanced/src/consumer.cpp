@@ -31,7 +31,6 @@ Consumer::~Consumer (void)
 // Consumer::handle_message
 // ============================================================================
 void Consumer::handle_message (yat::Message& _msg)
-	throw (yat::Exception)
 {
 	//- YAT_TRACE("Consumer::handle_message");
 
@@ -87,7 +86,6 @@ void Consumer::handle_message (yat::Message& _msg)
 // Consumer::parse_objects
 // ============================================================================
 void Consumer::parse_objects (size_t no)
-  throw (yat::Exception)
 {
   //- parse new objects
   const size_t max = this->index + no;

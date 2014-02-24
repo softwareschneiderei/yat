@@ -154,8 +154,7 @@ public:
   //!
   //! \exception TIMEOUT_EXPIRED Thrown on timeout expiration, if *throw_on_post_msg_timeout* is set 
   //! to true.
-  int post (yat::Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO)
-    throw (Exception);
+  int post (yat::Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO);
 
   //! \brief Extracts next message from the message queue. 
   //!
@@ -225,8 +224,7 @@ private:
   bool wait_not_full_i (size_t tmo_msecs);
 
   //- inserts a msg according to its priority.
-  void insert_i (Message * msg)
-    throw (Exception);
+  void insert_i (Message * msg);
 
   //- increments the pending charge.
   void inc_pending_charge_i (Message * msg);

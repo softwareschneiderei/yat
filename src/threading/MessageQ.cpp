@@ -220,7 +220,6 @@ size_t MessageQ::clear_i (bool notify_waiters)
 // MessageQ::post
 // ============================================================================
 int MessageQ::post (yat::Message * msg, size_t _tmo_msecs)
-  throw (Exception)
 {
   YAT_TRACE("MessageQ::post");
 
@@ -523,7 +522,6 @@ static bool insert_msg_criterion (Message * const m1, Message * const m2)
 // MessageQ::insert_i
 // ============================================================================
 void MessageQ::insert_i (Message * _msg)
-  throw (Exception)
 {
   DEBUG_ASSERT(_msg != 0);
   

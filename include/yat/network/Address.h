@@ -92,8 +92,7 @@ protected:
   //!
   //! \param host The host name to resolve.
   //! \exception INVALID_HOST Thrown if could not resolve IP address for host.
-  void ns_lookup (const std::string& host)
-    throw (Exception);
+  void ns_lookup (const std::string& host);
 
   //! \brief Port number.
   size_t m_port;
