@@ -57,7 +57,6 @@ public:
 
 protected:
 	virtual void handle_message (yat::Message& msg)
-		throw (yat::Exception)
   {
     switch ( msg.type() )  
     {
@@ -126,7 +125,6 @@ Pulser::~Pulser ()
 // Pulser::start
 // ============================================================================
 void Pulser::start () 
-  throw (Exception)
 {
   YAT_TRACE("Pulser::start");
  
@@ -146,7 +144,6 @@ void Pulser::start ()
 // Pulser::stop
 // ============================================================================
 void Pulser::stop () 
-  throw (Exception)
 {
   YAT_TRACE("Pulser::stop");
  

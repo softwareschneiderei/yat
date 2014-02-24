@@ -58,18 +58,18 @@ class YAT_DECL IPlugInObjectWithAttr : public yat::IPlugInObject
 public:
   //! \brief Enumerates the object's attributes.
   //! \param[out] list List of attributes.
-  virtual void enumerate_attributes( yat::PlugInAttrInfoList& list) const
-    throw (yat::Exception) = 0;
+  //! \exception yat::Exception 
+  virtual void enumerate_attributes( yat::PlugInAttrInfoList& list) const = 0;
 
   //! \brief Enumerates the object's properties.
   //! \param[out] prop_infos List of properties.
-  virtual void enumerate_properties( yat::PlugInPropInfos& prop_infos ) const
-    throw (yat::Exception) = 0;
+  //! \exception yat::Exception
+  virtual void enumerate_properties( yat::PlugInPropInfos& prop_infos ) const = 0;
   
   //! \brief Sets the object's properties.
   //! \param[in] prop_values List of properties to set.
-  virtual void set_properties( yat::PlugInPropValues& prop_values )
-    throw (yat::Exception) = 0;
+  //! \exception yat::Exception 
+  virtual void set_properties( yat::PlugInPropValues& prop_values ) = 0;
 };
 
 } // namespace

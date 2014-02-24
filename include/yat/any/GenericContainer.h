@@ -265,7 +265,6 @@ public:
   //! \exception RUNTIME_ERROR Thrown if could not extract data from GenericContainer
   //! [empty].
   T & get_content ()
-    throw (Exception)
   {
     if (! ptr_)
     {
@@ -332,8 +331,7 @@ const T * any_cast (const Container * c)
 //! \exception RUNTIME_ERROR Thrown if could not extract data from GenericContainer 
 //! [attached data type is not of specified type].
 template<typename T>
-const T & any_cast (const Container & c) 
-  throw (yat::Exception)
+const T & any_cast (const Container & c)
 {
   const T * t = any_cast<T>(&c);
   if (! t)
@@ -351,8 +349,7 @@ const T & any_cast (const Container & c)
 //! \exception RUNTIME_ERROR Thrown if could not extract data from GenericContainer 
 //! [attached data type is not of specified type].
 template<typename T>
-T & any_cast (Container & c) 
-  throw (yat::Exception)
+T & any_cast (Container & c)
 {
   T * t = any_cast<T>(&c, false);
   if (! t)

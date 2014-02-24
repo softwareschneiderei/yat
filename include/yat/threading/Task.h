@@ -127,8 +127,7 @@ public:
   //!
   //! \param tmo_msecs Timeout in ms.
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  virtual void go (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception);
+  virtual void go (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
     
   //! \brief Starts the task synchronously using the specified message 
   //! and wait the specified time
@@ -140,15 +139,13 @@ public:
   //! \exception PROGRAMMING_ERROR Thrown in case the specified message:
   //!   * is not of type TASK_INIT
   //!   * is not "waitable".
-  virtual void go (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception);
+  virtual void go (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
   
   //! \brief Starts the task synchronously and wait the specified time
   //! (i.e. wait for the INIT message to be handled).
   //! \param tmo_msecs Timeout in ms.
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  virtual void go_synchronously (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception);
+  virtual void go_synchronously (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
     
   //! \brief Starts the task synchronously using the specified message and wait 
   //! the specified time
@@ -159,16 +156,14 @@ public:
   //! \exception PROGRAMMING_ERROR Thrown in case the specified message:
   //!   * is not of type TASK_INIT
   //!   * is not "waitable".
-  virtual void go_synchronously (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception);
+  virtual void go_synchronously (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
 
   //! \brief Starts the task asynchronously 
   //! (i.e. does NOT wait for the INIT message to be handled, but still waits
   //! for the message to be posted).
   //! \param tmo_msecs Timeout for INIT message posting in ms.
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  virtual void go_asynchronously (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception);
+  virtual void go_asynchronously (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
     
   //! \brief Starts the task asynchronously (i.e. does NOT wait for the specified init 
   //! message to be handled, but still waits for the message to be posted).
@@ -176,15 +171,13 @@ public:
   //! \param tmo_msecs Timeout for message posting.
   //! \exception PROGRAMMING_ERROR Thrown in case the specified message is not of type TASK_INIT
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  virtual void go_asynchronously (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception);
+  virtual void go_asynchronously (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
 
   //! \brief Aborts the task (join with the underlying thread before returning).
   //!
   //! Provides an implementation to the Thread::exit pure virtual method.
   //! \exception SOFTWARE_ERROR Thrown when EXIT message allocation fails.
-  virtual void exit ()
-    throw (Exception);
+  virtual void exit ();
 
   //! \brief Posts a message to the task asynchronously (i.e. does NOT wait for the message 
   //! to be handled, but still waits for the message to be posted).
@@ -192,8 +185,7 @@ public:
   //! \param tmo_msecs Timeout in ms.
   //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  void post (Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO)
-    throw (Exception);
+  void post (Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO);
     
   //! \brief Posts the specified message type to the task asynchronously (i.e. does NOT wait for 
   //! the message to be handled, but still waits for the message to be posted).
@@ -201,8 +193,7 @@ public:
   //! \param tmo_msecs Timeout in ms.
   //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  void post (size_t msg_type, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception);
+  void post (size_t msg_type, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
 
   //! \brief Posts the specified message type with specified data to the task asynchronously
   //! (i.e. does NOT wait for the message to be handled, but still waits for the message to be posted).
@@ -212,8 +203,7 @@ public:
   //! \param tmo_msecs Timeout in ms.
   //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  template <typename T> void post (size_t msg_type, T * data, bool transfer_ownership, size_t tmo_msecs)
-    throw (Exception);
+  template <typename T> void post (size_t msg_type, T * data, bool transfer_ownership, size_t tmo_msecs);
 
   //! \brief Posts the specified message type with specified data to the task asynchronously
   //! (i.e. does NOT wait for the message to be handled, but still waits for the message to be posted).
@@ -222,8 +212,7 @@ public:
   //! \param tmo_msecs Timeout in ms.
   //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  template <typename T> void post (size_t msg_type, const T & data, size_t tmo_msecs)
-    throw (Exception);
+  template <typename T> void post (size_t msg_type, const T & data, size_t tmo_msecs);
 
   //! \brief Posts the specified message to the task then waits for this message to be handled
   //! (synchronous approach).
@@ -231,8 +220,7 @@ public:
   //! \param tmo_msecs Timeout in ms.
   //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  void wait_msg_handled (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception);
+  void wait_msg_handled (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
 
   //! \brief Posts the specified message type to the task then waits for this message to be handled
   //! (synchronous approach).
@@ -240,8 +228,7 @@ public:
   //! \param tmo_msecs Timeout in ms.
   //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  void wait_msg_handled (size_t msg_type, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS)
-    throw (Exception);
+  void wait_msg_handled (size_t msg_type, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
 
   //! \brief Posts the specified message type with specified data to the task then waits for the message to be handled 
   //! (synchronous approach).
@@ -251,8 +238,7 @@ public:
   //! \param tmo_msecs Timeout in ms.
   //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  template <typename T> void wait_msg_handled (size_t msg_type, T * data, bool transfer_ownership, size_t tmo_msecs)
-    throw (Exception);
+  template <typename T> void wait_msg_handled (size_t msg_type, T * data, bool transfer_ownership, size_t tmo_msecs);
 
   //! \brief Posts the specified message type with specified data to the task then waits for the message to be handled 
   //! (synchronous approach).
@@ -261,8 +247,7 @@ public:
   //! \param tmo_msecs Timeout in ms.
   //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  template <typename T> void wait_msg_handled (size_t msg_type, const T & data, size_t tmo_msecs)
-    throw (Exception);
+  template <typename T> void wait_msg_handled (size_t msg_type, const T & data, size_t tmo_msecs);
 
   //! \brief Timeout message period mutator.
   //! \param p_msecs Timeout in ms.
@@ -342,8 +327,7 @@ protected:
   //! \brief Message handler (pure virtual function).
   //! \param msg Message to handle.
   //! \remark After processing message, do NOT release the message (done by yat).
-  virtual void handle_message (yat::Message& msg)
-     throw (yat::Exception) = 0;
+  virtual void handle_message (yat::Message& msg) = 0;
 
   //! \brief Returns the underlying message queue.
   MessageQ & message_queue ();
@@ -388,7 +372,6 @@ template <typename T> void Task::post (size_t msg_type,
                                        T * data, 
                                        bool transfer_ownership,  
                                        size_t tmo_msecs)
-  throw (Exception)
 {
   Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, false);
   if (! m)
@@ -406,7 +389,6 @@ template <typename T> void Task::post (size_t msg_type,
 template <typename T> void Task::post (size_t msg_type,  
                                        const T & data,  
                                        size_t tmo_msecs)
-  throw (Exception)
 {
   Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, false);
   if (! m)
@@ -425,7 +407,6 @@ template <typename T> void Task::post (size_t msg_type,
                                                      T * data, 
                                                      bool transfer_ownership,  
                                                      size_t tmo_msecs)
-    throw (Exception)
 {
   Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, true);
   if (! m)
@@ -443,7 +424,6 @@ template <typename T> void Task::post (size_t msg_type,
 template <typename T> void Task::wait_msg_handled (size_t msg_type,  
                                                    const T & data,  
                                                    size_t tmo_msecs)
-  throw (Exception)
 {
   Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, true);
   if (! m)

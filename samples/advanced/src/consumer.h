@@ -27,12 +27,10 @@ public:
 
 protected:
 	//- handle_message -----------------------
-	virtual void handle_message (yat::Message& msg)
-		throw (yat::Exception);
+	virtual void handle_message (yat::Message& msg);
 
 private:
   size_t index;
   
-  void parse_objects (size_t no)
-    throw (yat::Exception);
+  void parse_objects (size_t no);
 };

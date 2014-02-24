@@ -156,8 +156,7 @@ Task::~Task ()
 // ============================================================================
 // Task::go_synchronously
 // ============================================================================
-void Task::go_synchronously (size_t _tmo_ms) 
-  throw (Exception)
+void Task::go_synchronously (size_t _tmo_ms)
 {
   YAT_TRACE("Task::go_synchronously");
  
@@ -167,8 +166,7 @@ void Task::go_synchronously (size_t _tmo_ms)
 // ============================================================================
 // Task::go
 // ============================================================================
-void Task::go (size_t _tmo_ms) 
-  throw (Exception)
+void Task::go (size_t _tmo_ms)
 {
   YAT_TRACE("Task::go");
  
@@ -193,8 +191,7 @@ void Task::go (size_t _tmo_ms)
 // ============================================================================
 // Task::go_synchronously
 // ============================================================================
-void Task::go_synchronously (Message * _msg, size_t _tmo_ms) 
-  throw (Exception)
+void Task::go_synchronously (Message * _msg, size_t _tmo_ms)
 {
   YAT_TRACE("Task::go_synchronously");
  
@@ -204,8 +201,7 @@ void Task::go_synchronously (Message * _msg, size_t _tmo_ms)
 // ============================================================================
 // Task::go
 // ============================================================================
-void Task::go (Message * _msg, size_t _tmo_ms) 
-   throw (Exception)
+void Task::go (Message * _msg, size_t _tmo_ms)
 {
   YAT_TRACE("Task::go");
 
@@ -228,8 +224,7 @@ void Task::go (Message * _msg, size_t _tmo_ms)
 // ============================================================================
 // Task::go_asynchronously
 // ============================================================================
-void Task::go_asynchronously (size_t _tmo_ms) 
-  throw (Exception)
+void Task::go_asynchronously (size_t _tmo_ms)
 {
   YAT_TRACE("Task::go_asynchronously");
  
@@ -254,8 +249,7 @@ void Task::go_asynchronously (size_t _tmo_ms)
 // ============================================================================
 // Task::go_asynchronously
 // ============================================================================
-void Task::go_asynchronously (Message * _msg, size_t _tmo_ms) 
-  throw (Exception)
+void Task::go_asynchronously (Message * _msg, size_t _tmo_ms)
 {
   YAT_TRACE("Task::go_asynchronously");
  
@@ -435,8 +429,7 @@ void * Task::run_undetached (void *)
 // ======================================================================
 // Task::exit
 // ======================================================================
-void Task::exit () 
-  throw (Exception)
+void Task::exit ()
 {
   YAT_TRACE("Task::exit");
 
@@ -524,8 +517,7 @@ void Task::exit ()
 // ======================================================================
 // Task::wait_msg_handled
 // ======================================================================
-void Task::wait_msg_handled (Message * _msg, size_t _tmo_ms) 
-  throw (Exception)
+void Task::wait_msg_handled (Message * _msg, size_t _tmo_ms)
 {
   YAT_TRACE("Task::wait_msg_handled");
 

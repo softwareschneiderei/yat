@@ -38,8 +38,7 @@ public:
 
 protected:
 	//- handle_message -----------------------
-	virtual void handle_message (yat::Message& msg)
-		throw (yat::Exception);
+	virtual void handle_message (yat::Message& msg);
 
 private:
   //- num of ctrl msg received

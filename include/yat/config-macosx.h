@@ -47,6 +47,7 @@
  *  Deprecated. Use new definitions below
  */
 #include <stdint.h>
+typedef int8_t   yat_int8_t;
 typedef uint8_t  yat_uint8_t;
 typedef int16_t  yat_int16_t;
 typedef uint16_t yat_uint16_t;
@@ -60,6 +61,7 @@ typedef uint64_t yat_uint64_t;
  */
 namespace yat
 {
+  typedef int8_t   int8;
   typedef uint8_t  uint8;
   typedef uint8_t  byte;  // another name for 8-bit integer
   typedef int16_t  int16;

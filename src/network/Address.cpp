@@ -105,7 +105,6 @@ Address& Address::operator= (const Address & _addr)
 // Address::ns_lookup
 // ----------------------------------------------------------------------------
 void Address::ns_lookup (const std::string& _host_ipaddr_or_name)
-  throw (Exception)
 {
   YAT_TRACE("Address::ns_lookup");
 

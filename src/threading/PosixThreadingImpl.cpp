@@ -358,7 +358,6 @@ Thread::~Thread ()
 // Thread::start [detatched thread]
 // ----------------------------------------------------------------------------
 void Thread::start ()
-  throw (Exception)
 {
   YAT_TRACE("Thread::start");
   //- mark the thread as detached
@@ -371,7 +370,6 @@ void Thread::start ()
 // Thread::start_undetached [undetatched thread]
 // ----------------------------------------------------------------------------
 void Thread::start_undetached ()
-  throw (Exception)
 {
   YAT_TRACE("Thread::start_undetached");
   //- mark the thread as undetached
@@ -453,7 +451,6 @@ void Thread::spawn ()
 // Thread::join
 // ----------------------------------------------------------------------------
 void Thread::join (Thread::IOArg * oarg_)
-  throw (Exception)
 {
   YAT_TRACE("Thread::join");
 
@@ -502,7 +499,6 @@ void Thread::join (Thread::IOArg * oarg_)
 // Thread::priority
 // ----------------------------------------------------------------------------
 void Thread::priority (Priority _p)
-  throw (Exception)
 {
   YAT_TRACE("Thread::priority");
 

@@ -52,7 +52,6 @@ Consumer::~Consumer (void)
 // Consumer::handle_message
 // ============================================================================
 void Consumer::handle_message (yat::Message& _msg)
-	throw (yat::Exception)
 {
 	//- YAT_TRACE("Consumer::handle_message");
 

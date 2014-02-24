@@ -135,7 +135,6 @@ YAT_INLINE void Message::user_data (void* _ud)
 // Message::wait_processed
 // ============================================================================
 YAT_INLINE bool Message::wait_processed (unsigned long _tmo_ms)
-  throw (Exception)
 {
   YAT_TRACE("Message::wait_processed");
   

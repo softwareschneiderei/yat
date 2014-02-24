@@ -100,7 +100,7 @@ void CommandLine::add_arg(pcsz pszDesc, bool bSingle, bool bMandatory)
 //----------------------------------------------------------------------------
 // CommandLine::bad_option
 //----------------------------------------------------------------------------
-void CommandLine::bad_option(const String &strOpt) throw (Exception)
+void CommandLine::bad_option(const String &strOpt)
 {
   std::ostringstream oss;
   oss << "Unrecognized option '" << strOpt << "'";
@@ -112,7 +112,7 @@ void CommandLine::bad_option(const String &strOpt) throw (Exception)
 //----------------------------------------------------------------------------
 // CommandLine::read
 //----------------------------------------------------------------------------
-bool CommandLine::read(int iArgc, char **ppszArgv) throw (Exception)
+bool CommandLine::read(int iArgc, char **ppszArgv)
 {
   // Special options that ignore all others
   add_opt('h', "help", "", "Show this usage");
