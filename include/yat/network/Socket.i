@@ -41,7 +41,6 @@ namespace yat
 // Socket::operator>>
 // ----------------------------------------------------------------------------
 YAT_INLINE size_t Socket::operator>> (Socket::Data & ib)
-  throw (SocketException)
 {
   return this->receive(ib);
 }
@@ -50,7 +49,6 @@ YAT_INLINE size_t Socket::operator>> (Socket::Data & ib)
 // Socket::operator>>
 // ----------------------------------------------------------------------------
 YAT_INLINE size_t Socket::operator>> (std::string & data_str)
-  throw (SocketException)
 {
   return this->receive(data_str);
 }
@@ -59,7 +57,6 @@ YAT_INLINE size_t Socket::operator>> (std::string & data_str)
 // Socket::send
 // ---------------------------------------------------------------------------- 
 YAT_INLINE void Socket::operator<< (const Socket::Data & ob)
-  throw (SocketException) 
 {
   this->send(ob);
 }
@@ -68,7 +65,6 @@ YAT_INLINE void Socket::operator<< (const Socket::Data & ob)
 // Socket::send
 // ---------------------------------------------------------------------------- 
 YAT_INLINE void Socket::operator<< (const std::string& os)
-  throw (SocketException)
 {
   this->send(os);
 }

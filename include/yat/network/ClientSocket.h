@@ -81,28 +81,24 @@ public:
   //! \exception SOCKET_ERROR Thrown when call for host fails.
   //! \remarks May fail if port \<p\> is already reserved by another process or thread. 
   //! It may also fail after the connection is released (see option SOCK_OPT_REUSE_ADDRESS).
-  void bind (size_t _p = 0)
-    throw (SocketException);
+  void bind (size_t _p = 0);
     
   //! \brief Connects to peer socket.
   //!
   //! \param a The peer address.
   //! \exception SOCKET_ERROR Thrown when call for host fails.
-  void connect (const Address & a)
-    throw (SocketException);
+  void connect (const Address & a);
 
   //! \brief Disonnects from peer socket.
   //!
   //! \exception SOCKET_ERROR Thrown when socket descriptor closing fails.
-  void disconnect ()
-    throw (SocketException);
+  void disconnect ();
     
   //! \brief Could we read without blocking?
   //!
   //! Returns true if there is some input data pending, false otherwise.
   //! \exception SOCKET_ERROR Thrown when select fails.
-  bool can_read_without_blocking ()
-    throw (SocketException);
+  bool can_read_without_blocking ();
 
   //! \brief Waits till some data is available for reading or timeout expires.
   //!
@@ -111,8 +107,7 @@ public:
   //! \exception SOCKET_ERROR Thrown when:
   //! - select fails or 
   //! - timeout expires (if \<_throw_exception\> set to true).
-  bool wait_input_data (size_t _tmo_msecs, bool _throw_exception = true)
-    throw (SocketException);
+  bool wait_input_data (size_t _tmo_msecs, bool _throw_exception = true);
 
   //! \brief Is this client socket currently connected?
   //!
