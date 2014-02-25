@@ -796,7 +796,7 @@ size_t Socket::receive (std::string & data_str)
 // ----------------------------------------------------------------------------
 // Socket::receive_from
 // ----------------------------------------------------------------------------
-size_t Socket::receive_from (char * ib, size_t nb)
+size_t Socket::receive_from (char * ib, size_t nb, yat::Address * src_addr)
 {
   YAT_TRACE("yat::Socket::receive_from [char*]");
 
@@ -806,14 +806,14 @@ size_t Socket::receive_from (char * ib, size_t nb)
   ssize_t total_rb = 0;
   bool was_interrupted = false;
 
+  //- remote address
+  struct sockaddr_in sender;
+  socklen_t addr_len = sizeof(sender);
+
   do
   {
-    //- remote address (future)
-    //- struct sockaddr_in remote_addr;
-    //- socklen_t addr_len = sizeof(remote_addr);
-    
     //- read some data
-    rb = ::recvfrom(this->m_os_desc, ib + total_rb, (int)(nb - total_rb), 0, 0, 0);
+    rb = ::recvfrom(this->m_os_desc, ib + total_rb, (int)(nb - total_rb), 0, (struct sockaddr*)&sender, &addr_len);
     
     //- in case of error/exception....
     if ( rb <= 0 )
@@ -856,6 +856,11 @@ size_t Socket::receive_from (char * ib, size_t nb)
   }
   while (was_interrupted);
 
+  if ( src_addr )
+  {
+    *src_addr = yat::Address(inet_ntoa(sender.sin_addr), ntohs(sender.sin_port));
+  }
+
   YAT_LOG("yat::Socket::receive_from::got " << total_rb << " bytes from peer");
 
   return static_cast<size_t>(total_rb);
@@ -864,7 +869,7 @@ size_t Socket::receive_from (char * ib, size_t nb)
 // ----------------------------------------------------------------------------
 // Socket::receive
 // ----------------------------------------------------------------------------
-size_t Socket::receive_from (Socket::Data & ib)
+size_t Socket::receive_from (Socket::Data & ib, yat::Address * src_addr)
 {
   YAT_TRACE("yat::Socket::receive_from [Socket::Data]");
 
@@ -878,7 +883,7 @@ size_t Socket::receive_from (Socket::Data & ib)
   }
 
   //- get some data from socket
-  size_t rb = this->receive_from(ib.base(), ib.capacity());
+  size_t rb = this->receive_from(ib.base(), ib.capacity(), src_addr);
 
   //- set buffer length ti actual number of bytes read
   ib.force_length(rb);
@@ -889,7 +894,7 @@ size_t Socket::receive_from (Socket::Data & ib)
 // ----------------------------------------------------------------------------
 // Socket::receive_from
 // ----------------------------------------------------------------------------
-size_t Socket::receive_from (std::string & data_str)
+size_t Socket::receive_from (std::string & data_str, yat::Address * src_addr)
 {
   YAT_TRACE("yat::Socket::receive_from [std::string]");
 
@@ -917,7 +922,7 @@ size_t Socket::receive_from (std::string & data_str)
   this->m_buffer.clear();
 
   //- get some data from socket
-  size_t rb = this->receive_from(this->m_buffer.base(), this->m_buffer.capacity());
+  size_t rb = this->receive_from(this->m_buffer.base(), this->m_buffer.capacity(), src_addr);
 
   try
   {

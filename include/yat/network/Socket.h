@@ -206,7 +206,7 @@ public:
   //! - connection has been reset/closed by peer or
   //! - operation may block the caller (for non blocking socket) or
   //! - reception fails.
-  size_t receive_from (char * ib, size_t nb);
+  size_t receive_from (char * ib, size_t nb, yat::Address * src_addr = 0);
 
   //! \brief Receives (i.e. reads) data from the socket.
   //!
@@ -219,7 +219,7 @@ public:
   //! - reception fails.
   //! \remarks Reads up to \c ib.capacity() bytes on the socket. Upon return,
   //!  \c ib.length() will give the actual number of bytes read.
-  size_t receive_from (Socket::Data & ib);
+  size_t receive_from (Socket::Data & ib, yat::Address * src_addr = 0);
 
   //! \brief Receives (i.e. reads) data from the socket.
   //!
@@ -233,7 +233,7 @@ public:
   //! - reception fails.
   //! \remarks Read up to \c yat::Socket::MAX_RD_BYTES bytes.
   //! Upon return, the string size will equal the actual number of bytes read.
-  size_t receive_from (std::string & is);
+  size_t receive_from (std::string & is, yat::Address * src_addr = 0);
   
   //! \brief Receives (i.e. reads) data from the socket.
   //!
