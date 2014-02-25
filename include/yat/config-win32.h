@@ -79,6 +79,7 @@
  *  Some integer types.
  *  Deprecated. Use new definitions below
  */
+typedef char yat_int8_t;
 typedef unsigned char yat_uint8_t;
 
 typedef short yat_int16_t;
@@ -103,7 +104,7 @@ typedef unsigned short yat_uint16_t;
  */
 namespace yat
 {
-  typedef unsigned char int8;
+  typedef char int8;
   typedef unsigned char uint8;
   typedef unsigned char byte;
 
