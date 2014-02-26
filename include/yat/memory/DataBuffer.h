@@ -166,6 +166,13 @@ public:
   //! \brief Returns the buffer base address.
   T * base () const;
 
+  //! \brief Transfers underlying data ownership to caller. 
+  //! Capacity is shrinked to buffer.length(). New owner must delete[] the returned buffer.
+  //!
+  //! \param base The buffer base address
+  //! \param length The buffer length (i.e. num of elements of type T)
+  void detach_data (T*& base, size_t& length);  
+
 protected:
 
   //! \brief The buffer base address. 

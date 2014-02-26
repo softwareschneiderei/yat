@@ -100,8 +100,25 @@ template <typename T>
 Buffer<T>::~Buffer()
 {
   SAFE_DELETE_ARRAY(this->base_);
-  this->capacity_ = 0;
+}
+
+// ============================================================================
+// Buffer::detach_buffer
+// ============================================================================
+template <typename T> 
+void Buffer<T>::detach_data (T*& base, size_t& length)
+{
+  //- shrink buffer 
+  this->capacity(this->length_, true);
+    
+  //- transfer content to caller
+  base = this->base_;
+  length = this->length_;
+  
+  //- clear content
+  this->base_ = 0;
   this->length_ = 0;
+  this->capacity_ = 0;
 }
 
 // ============================================================================
