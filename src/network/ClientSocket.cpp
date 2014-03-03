@@ -77,7 +77,6 @@ ClientSocket::~ClientSocket ()
 // ClientSocket::bind
 // ----------------------------------------------------------------------------
 void ClientSocket::bind (size_t _p)
-  throw (SocketException)
 {
   YAT_TRACE("yat::ClientSocket::bind");
 
@@ -88,7 +87,6 @@ void ClientSocket::bind (size_t _p)
 // ClientSocket::connect
 // ----------------------------------------------------------------------------
 void ClientSocket::connect (const Address & _a)
-  throw (SocketException)
 {
   YAT_TRACE("yat::ClientSocket::connect");
 
@@ -109,7 +107,6 @@ void ClientSocket::connect (const Address & _a)
 // ClientSocket::disconnect
 // ----------------------------------------------------------------------------
 void ClientSocket::disconnect ()
-  throw (SocketException)
 {
   YAT_TRACE("yat::ClientSocket::disconnect");
 
@@ -130,7 +127,6 @@ void ClientSocket::disconnect ()
 // ClientSocket::can_read_without_blocking
 // ----------------------------------------------------------------------------
 bool ClientSocket::can_read_without_blocking ()
-  throw (SocketException)
 {
   YAT_TRACE("yat::ClientSocket::can_read_without_blocking");
 
@@ -141,7 +137,6 @@ bool ClientSocket::can_read_without_blocking ()
 // ClientSocket::wait_input_data
 // ----------------------------------------------------------------------------
 bool ClientSocket::wait_input_data (size_t _tmo, bool _throw)
-  throw (SocketException)
 {
   YAT_TRACE("yat::ClientSocket::wait_input_data");
  

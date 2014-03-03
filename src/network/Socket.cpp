@@ -107,7 +107,6 @@ size_t Socket::m_default_rd_buffer_size = DEFAULT_RD_BYTES;
 // Socket::init
 // ----------------------------------------------------------------------------
 void Socket::init ()
-  throw (SocketException)
 {
   if (Socket::init_done)
     return;
@@ -130,7 +129,6 @@ void Socket::init ()
 // Socket::terminate
 // ----------------------------------------------------------------------------
 void Socket::terminate ()
-  throw (SocketException)
 {
   //-noop
 }
@@ -177,7 +175,6 @@ Socket::~Socket ()
 // Socket::open
 // ----------------------------------------------------------------------------
 void Socket::open ()
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::open");
 
@@ -211,7 +208,6 @@ void Socket::open ()
 // Socket::close
 // ----------------------------------------------------------------------------
 void Socket::close ()
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::close");
 
@@ -240,7 +236,6 @@ void Socket::close ()
 // Socket::get_protocol
 // ----------------------------------------------------------------------------
 Socket::Protocol Socket::get_protocol () const
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::get_protocol");
 
@@ -251,7 +246,6 @@ Socket::Protocol Socket::get_protocol () const
 // Socket::get_address
 // ----------------------------------------------------------------------------
 Address Socket::get_address () const
-  throw (SocketException)
 {
 
   YAT_TRACE("yat::Socket::get_address");
@@ -282,7 +276,6 @@ Address Socket::get_address () const
 // Socket::bind
 // ----------------------------------------------------------------------------
 void Socket::bind (size_t _port)
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::bind");
 
@@ -308,7 +301,6 @@ void Socket::bind (size_t _port)
 // Socket::listen_to_incoming_connections
 // ----------------------------------------------------------------------------
 void Socket::listen_to_incoming_connections (size_t n)
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::listen_to_incoming_connections");
 
@@ -326,7 +318,6 @@ void Socket::listen_to_incoming_connections (size_t n)
 // Socket::accept_incoming_connections
 // ----------------------------------------------------------------------------
 Socket::OSDescriptor Socket::accept_incoming_connections ()
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::accept_incoming_connections");
 
@@ -352,7 +343,6 @@ Socket::OSDescriptor Socket::accept_incoming_connections ()
 // Socket::connect
 // ----------------------------------------------------------------------------
 void Socket::connect (const Address & _addr)
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::connect");
 
@@ -383,7 +373,6 @@ void Socket::connect (const Address & _addr)
 // Socket::select
 // ----------------------------------------------------------------------------
 bool Socket::select (size_t _tmo_msecs)
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::select");
 
@@ -413,7 +402,6 @@ bool Socket::select (size_t _tmo_msecs)
 // Socket::yat_to_native_option
 // ----------------------------------------------------------------------------
 int Socket::yat_to_native_option (Socket::Option _opt) const
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::yat_to_native_option");
 
@@ -461,7 +449,6 @@ int Socket::yat_to_native_option (Socket::Option _opt) const
 // Socket::status
 // ----------------------------------------------------------------------------
 int Socket::status () const
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::status");
 
@@ -515,7 +502,6 @@ void _get_sock_option_ (Socket::OSDescriptor _socket_desc,
 // Socket::get_option
 // ----------------------------------------------------------------------------
 int Socket::get_option (Socket::Option _opt) const
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::get_option");
 
@@ -611,7 +597,6 @@ void set_sock_option (Socket::OSDescriptor _socket_desc,
 // Socket::set_option
 // ----------------------------------------------------------------------------
 void Socket::set_option (Socket::Option _opt, int _value)
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::set_option");
 
@@ -670,7 +655,6 @@ void Socket::set_option (Socket::Option _opt, int _value)
 // Socket::receive
 // ----------------------------------------------------------------------------
 size_t Socket::receive (char * ib, size_t nb)
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::receive [char*]");
 
@@ -734,7 +718,6 @@ size_t Socket::receive (char * ib, size_t nb)
 // Socket::receive
 // ----------------------------------------------------------------------------
 size_t Socket::receive (Socket::Data & ib)
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::receive [Socket::Data]");
 
@@ -760,7 +743,6 @@ size_t Socket::receive (Socket::Data & ib)
 // Socket::receive
 // ----------------------------------------------------------------------------
 size_t Socket::receive (std::string & data_str)
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::receive [std::string]");
 
@@ -812,10 +794,156 @@ size_t Socket::receive (std::string & data_str)
 }
 
 // ----------------------------------------------------------------------------
+// Socket::receive_from
+// ----------------------------------------------------------------------------
+size_t Socket::receive_from (char * ib, size_t nb)
+{
+  YAT_TRACE("yat::Socket::receive_from [char*]");
+
+  CHECK_SOCK_DESC("yat::Socket::receive_from");
+
+  ssize_t rb = 0;
+  ssize_t total_rb = 0;
+  bool was_interrupted = false;
+
+  do
+  {
+    //- remote address (future)
+    //- struct sockaddr_in remote_addr;
+    //- socklen_t addr_len = sizeof(remote_addr);
+    
+    //- read some data
+    rb = ::recvfrom(this->m_os_desc, ib + total_rb, (int)(nb - total_rb), 0, 0, 0);
+    
+    //- in case of error/exception....
+    if ( rb <= 0 )
+    {
+      //- connection may have been reset/closed by peer
+      if ( rb == 0 )
+      {
+        THROW_SOCKET_ERROR(SoErr_ConnectionClosed,
+                           "OS <recv> call failed",
+                           "yat::Socket::receive_from");
+      }
+      //- operation may block caller (for non blocking socket)
+      if ( this->current_op_is_blocking() )
+      {
+        THROW_SOCKET_ERROR(SoErr_WouldBlock,
+                           "OS <recv> call failed",
+                           "yat::Socket::receive_from");
+      }
+#if ! defined(WIN32)
+      if (errno == EINTR)
+      {
+        was_interrupted = true;
+        continue;
+      }
+#else
+      if ( ::WSAGetLastError() == WSAECONNRESET )
+      {
+        this->close();
+        THROW_SOCKET_ERROR(SoErr_ConnectionClosed,
+                           "OS <recv> call failed",
+                           "yat::Socket::receive_from");
+      }
+#endif
+      //- reamining error cases
+      THROW_SOCKET_ERROR(err_no,
+                         "OS <recv> call failed",
+                         "yat::Socket::receive_from");
+    }
+    total_rb += rb;
+  }
+  while (was_interrupted);
+
+  YAT_LOG("yat::Socket::receive_from::got " << total_rb << " bytes from peer");
+
+  return static_cast<size_t>(total_rb);
+}
+
+// ----------------------------------------------------------------------------
+// Socket::receive
+// ----------------------------------------------------------------------------
+size_t Socket::receive_from (Socket::Data & ib)
+{
+  YAT_TRACE("yat::Socket::receive_from [Socket::Data]");
+
+  CHECK_SOCK_DESC("yat::Socket::receive");
+
+  if ( ! ib.capacity() )
+  {
+    THROW_SOCKET_ERROR(SoErr_Other,
+                       "invalid yat::Buffer [destination buffer has a null capacity]",
+                       "yat::Socket::receive_from");
+  }
+
+  //- get some data from socket
+  size_t rb = this->receive_from(ib.base(), ib.capacity());
+
+  //- set buffer length ti actual number of bytes read
+  ib.force_length(rb);
+
+  return rb;
+}
+
+// ----------------------------------------------------------------------------
+// Socket::receive_from
+// ----------------------------------------------------------------------------
+size_t Socket::receive_from (std::string & data_str)
+{
+  YAT_TRACE("yat::Socket::receive_from [std::string]");
+
+  CHECK_SOCK_DESC("yat::Socket::receive_from");
+
+  //- we may have to reallocate our local buffer
+  try
+  {
+    this->m_buffer.capacity(Socket::m_default_rd_buffer_size);
+  }
+  catch (const Exception&)
+  {
+    THROW_SOCKET_ERROR(SoErr_OutOfMemory,
+                           "yat::Buffer reallocation failed",
+                           "yat::Socket::receive_from");
+  }
+  catch (...)
+  {
+    THROW_SOCKET_ERROR(SoErr_OutOfMemory,
+                           "yat::Buffer reallocation failed",
+                           "yat::Socket::receive_from");
+  }
+
+  //- clear buffer content
+  this->m_buffer.clear();
+
+  //- get some data from socket
+  size_t rb = this->receive_from(this->m_buffer.base(), this->m_buffer.capacity());
+
+  try
+  {
+    //- transfer data from local buffer to caller' std::string
+    data_str.assign(this->m_buffer.base(), rb);
+  }
+  catch (const std::exception &)
+  {
+    THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR,
+                           "std::exception caught [std::string error]",
+                           "yat::Socket::receive_from");
+  }
+  catch (...)
+  {
+    THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR,
+                           "unknown exception caught [from std::string member function]",
+                           "yat::Socket::receive_from");
+  }
+
+  return rb;
+}
+
+// ----------------------------------------------------------------------------
 // Socket::send
 // ---------------------------------------------------------------------------- 
 void Socket::send (const char * ob, size_t nb)
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::send");
 
@@ -864,7 +992,6 @@ void Socket::send (const char * ob, size_t nb)
 // Socket::send
 // ---------------------------------------------------------------------------- 
 void Socket::send (const Socket::Data & ob)
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::send [Socket::Data]");
 
@@ -878,7 +1005,6 @@ void Socket::send (const Socket::Data & ob)
 // Socket::send
 // ---------------------------------------------------------------------------- 
 void Socket::send (const std::string & os)
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::send [std::string]");
 
@@ -892,7 +1018,6 @@ void Socket::send (const std::string & os)
 // Socket::set_blocking_mode
 // ----------------------------------------------------------------------------
 void Socket::set_blocking_mode ()
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::set_blocking_mode");
 
@@ -928,7 +1053,6 @@ void Socket::set_blocking_mode ()
 // Socket::set_non_blocking_mode
 // ----------------------------------------------------------------------------
 void Socket::set_non_blocking_mode ()
-  throw (SocketException)
 {
   YAT_TRACE("yat::Socket::set_non_blocking_mode");
 
