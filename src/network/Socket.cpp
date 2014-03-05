@@ -9,7 +9,7 @@
 //
 // The thread native implementation has been initially inspired by omniThread
 // - the threading support library that comes with omniORB. 
-// see http://omniorb.sourceforge.net/ for more about omniORB.
+// see http://omniorb.sourceforge.net/ for more aout omniORB.
 //
 // Contributors form the TANGO community:
 // See AUTHORS file 
@@ -436,6 +436,9 @@ int Socket::yat_to_native_option (Socket::Option _opt) const
     case SOCK_OPT_OTIMEOUT: 
       native_opt = SO_SNDTIMEO; 
       break;
+    case SOCK_OPT_OPAQUE_1:
+      native_opt = IP_ADD_MEMBERSHIP;
+      break;
     default: 
       THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR, 
                          "invalid socket option specified [programming error - check code]", 
@@ -648,6 +651,32 @@ void Socket::set_option (Socket::Option _opt, int _value)
                          "invalid or unsupported socket option", 
                          "yat::Socket::set_option");
       break;
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Socket::join_multicast_group
+// ----------------------------------------------------------------------------
+void Socket::join_multicast_group (const yat::Address& interface_addr, const yat::Address& multicast_addr)
+{
+  if ( yat::Socket::UDP_PROTOCOL != this->get_protocol()  )
+  {
+    throw yat::SocketException("SOCKET_ERROR", 
+                               "failed to join the mulitacast group - wrong IP protocol [must be a UDP socket]", 
+                               "yat::Socket::join_multicast_group", 
+                               SocketException::yat_to_native_error(SoErr_Other)); 
+  } 
+  
+  //- multicast group descriptor
+  struct ip_mreq mg;
+  mg.imr_multiaddr.s_addr = inet_addr(multicast_addr.get_ip_address().c_str());
+  mg.imr_interface.s_addr = inet_addr(interface_addr.get_ip_address().c_str());
+  if ( ::setsockopt(this->m_os_desc, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mg, sizeof(mg)) )
+  {
+    throw yat::SocketException("SOCKET_ERROR", 
+                               "failed to join the mulitacast group - os call to ::setsockopt failed", 
+                               "yat::Socket::join_multicast_group", 
+                               SocketException::yat_to_native_error(SoErr_Other)); 
   }
 }
 

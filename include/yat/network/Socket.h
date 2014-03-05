@@ -103,7 +103,9 @@ public:
     //! Size of send buffer (in bytes).
     SOCK_OPT_OBUFFER_SIZE,
     //! Time out period for send operations (in seconds).
-    SOCK_OPT_OTIMEOUT
+    SOCK_OPT_OTIMEOUT,
+    //! private option (do not use directly).
+    SOCK_OPT_OPAQUE_1
   };
     
   //! \brief YAT socket internal intialization cooking.
@@ -312,7 +314,13 @@ public:
   //!
   //! \param dbs Default buffer size (in bytes).
   static void default_rd_buffer_size (size_t dbs);
-
+  
+  //! \brief Join the specified multicast group on the specified local interface
+  //!
+  //! \param interface_addr Local network interface address.
+  //! \param multicast_addr Multicast address of the group to join.
+  void join_multicast_group (const yat::Address& interface_addr, const yat::Address& multicast_addr);
+  
 protected:
   //! \brief Constructs new socket.
   //! 
@@ -380,7 +388,7 @@ protected:
   //! Returns the level to use for the specified option in the socket \c getsockopt() function.
   //! \param o YAT socket option.
   int option_level (Option o) const;
-
+  
 private:
   //- The associated protocol.
   Protocol m_protocol;

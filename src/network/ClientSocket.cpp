@@ -154,5 +154,5 @@ bool ClientSocket::wait_input_data (size_t _tmo, bool _throw)
   return true;
 }
 
-} //- namespace yat
 
+} //- namespace yat
