@@ -207,6 +207,20 @@ public:
   
   //! \brief Resets the MessageQ Statistics.
   void reset_statistics ();
+
+  //! \brief Enable/disable timeout messages.
+  //! \param enable True = enabled, false = disabled.
+  void enable_timeout_msg (bool enable);
+
+  //! \brief Returns timeout messages handling status.
+  bool timeout_msg_enabled () const;
+
+  //! \brief Enable/disable periodic messages.
+  //! \param enable True = enabled, false = disabled.
+  void enable_periodic_msg (bool enable);
+
+  //! \brief Returns period messages handling status.
+  bool periodic_msg_enabled () const;
   
 private:
   //- periodic msg tmo expired?
