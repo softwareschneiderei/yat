@@ -157,4 +157,36 @@ YAT_INLINE const MessageQ::Statistics & MessageQ::statistics ()
   return this->stats_;
 }
 
+// ============================================================================
+// MessageQ::enable_timeout_msg
+// ============================================================================
+YAT_INLINE void MessageQ::enable_timeout_msg (bool b)
+{
+  enable_timeout_msg_ = b;
+}
+
+// ============================================================================
+// MessageQ::timeout_msg_enabled
+// ============================================================================
+YAT_INLINE bool MessageQ::timeout_msg_enabled () const
+{
+  return enable_timeout_msg_;
+}
+
+// ============================================================================
+// MessageQ::enable_periodic_msg
+// ============================================================================
+YAT_INLINE void MessageQ::enable_periodic_msg (bool b)
+{
+  enable_periodic_msg_ = b;
+}
+
+// ============================================================================
+// MessageQ::periodic_msg_enabled
+// ============================================================================
+YAT_INLINE bool MessageQ::periodic_msg_enabled () const
+{
+  return enable_periodic_msg_;
+}
+
 } //- namespace
