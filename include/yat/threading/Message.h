@@ -230,10 +230,15 @@ public:
   //!
   //! Data is left in message and will be deleted with message.
   //! Example : 
-  //! \verbatim myDouble = m.get_data<double>(); \endverbatim
+  //! \verbatim T &t = m.get_data<T>(); \endverbatim
   //! \exception RUNTIME_ERROR Thrown if wrong data type put in \<T\>.
   template <typename T> T& get_data () const;
-  //! \brief Template function that detaches data from message, 
+  //! \brief Template function that returns the message associated data.
+  //!
+  //! Data is left in message and will be deleted with message.
+  //! \exception RUNTIME_ERROR Thrown if wrong data type put in \<T\>.
+  template <typename T> void get_data (T*& data) const;
+  //! \brief Template function that detaches data from message,
   //! i.e. data is not left in the message and will not be deleted with message.
   //!
   //! Before extracting data, checks specified type and data type.
@@ -454,6 +459,31 @@ template <typename T> T& Message::get_data () const
                     "Message::get_data");
   }
   return c->get_content();
+}
+
+//---------------------------------------------
+// Message::get_data
+//---------------------------------------------
+template <typename T> void Message::get_data (T*& data) const
+{
+  GenericContainer<T> * c = 0;
+  try
+  {
+    c = dynamic_cast<GenericContainer<T>*>(this->msg_data_);
+    if (c == 0)
+    {
+      THROW_YAT_ERROR("RUNTIME_ERROR",
+                      "could not extract data from message [attached data type is not the requested type]",
+                      "Message::get_data");
+    }
+  }
+  catch(const std::bad_cast&)
+  {
+    THROW_YAT_ERROR("RUNTIME_ERROR",
+                    "could not extract data from message [attached data type is not the requested type]",
+                    "Message::get_data");
+  }
+  data = c->get_content(false);
 }
 
 //---------------------------------------------
