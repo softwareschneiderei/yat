@@ -10,8 +10,9 @@
 //-----------------------------------------------------------------------------
 // MyObject
 //-----------------------------------------------------------------------------
-struct MyObject
+class MyObject
 {
+public:
   MyObject ( const std::string& s )
     : some_attribute(s)
   {
@@ -26,6 +27,20 @@ struct MyObject
   std::string some_attribute;
 };
 
+class MyDerivedObject : public MyObject
+{
+public:
+  MyDerivedObject ( const std::string& s ) : MyObject(s)
+  {
+  	std::cout << "MyDerivedObject::calling ctor" << std::endl;
+  }
+  ~MyDerivedObject()
+  {
+    std::cout << "MyDerivedObject::calling dtor" << std::endl;
+  }
+};
+
+
 //-----------------------------------------------------------------------------
 // DUMP MACRO
 //-----------------------------------------------------------------------------
@@ -38,14 +53,23 @@ struct MyObject
             << ptr.use_count() \
             << "]" \
             << std::endl
-            
+
+// Expanding Macros into string constants
+// The STR macro calls the STR_EXPAND macro with its argument. The parameter is checked for macro
+// expansions and evaluated by the preprocessor before being passed to STR_EXPAND which quotes it
+#define STR_EXPAND(tok) #tok
+#define STR(tok) STR_EXPAND(tok)
+
 //-----------------------------------------------------------------------------
 // MAIN
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
   typedef yat::SharedPtr<MyObject> MyObjectPtr;
+  typedef yat::SharedPtr<MyDerivedObject> MyDerivedObjectPtr;
 
+  std::cout << STR(VERSION) << std::endl;
+  
   MyObjectPtr foo ( new MyObject("foo-sp") );
  
   MyObjectPtr bar ( new MyObject("bar-sp") );
@@ -112,5 +136,11 @@ int main(int argc, char* argv[])
 
   std::cout << std::endl; //-----------------------------------------------------
 
+  MyDerivedObjectPtr foo2( new MyDerivedObject("foo2-sp"));
+  
+  foo = foo2;
+  
+  if( foo == foo2 ) ;
+  
   return 0;
 }
