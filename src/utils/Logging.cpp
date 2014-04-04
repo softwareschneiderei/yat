@@ -109,7 +109,7 @@ ILogTarget *LogManager::current_log_target()
 //----------------------------------------------------------------------------
 // LogManager::init
 //----------------------------------------------------------------------------
-void LogManager::init(int iMinLevel, const String &_strFilter)
+void LogManager::init(int iMinLevel, const std::string &_strFilter)
 {
   // Get a reference to the singleton object
   LogManager &o = *Instance();
@@ -128,7 +128,7 @@ void LogManager::init(int iMinLevel, const String &_strFilter)
 //----------------------------------------------------------------------------
 // LogManager::log
 //----------------------------------------------------------------------------
-void LogManager::log(ELogLevel eLevel, pcsz pszType, const String &strMsg)
+void LogManager::log(ELogLevel eLevel, pcsz pszType, const std::string& strMsg)
 {
   // Get a reference to the singleton
   LogManager &o = *Instance();
@@ -140,7 +140,7 @@ void LogManager::log(ELogLevel eLevel, pcsz pszType, const String &strMsg)
 
   // verbose messages filtering
   if( o.m_setTypes.size() > 0 &&
-      o.m_setTypes.find(String(pszType)) == o.m_setTypes.end() && LOG_VERBOSE == eLevel )
+      o.m_setTypes.find(std::string(pszType)) == o.m_setTypes.end() && LOG_VERBOSE == eLevel )
     // Type not found in filter set
     return;
   
@@ -157,15 +157,15 @@ void LogManager::log(ELogLevel eLevel, pcsz pszType, const String &strMsg)
 //----------------------------------------------------------------------------
 // DefaultLogHandler::log
 //----------------------------------------------------------------------------
-void DefaultLogHandler::log(ELogLevel eLevel, pcsz pszType, const String &strMsg)
+void DefaultLogHandler::log(ELogLevel eLevel, pcsz pszType, const std::string& strMsg)
 {
   // Formatting message
   CurrentTime dtCur;
-  String strLogDate = String::str_format("%4d-%02d-%02d,%02d:%02d:%02.3f", 
+  std::string strLogDate = yat::StringUtil::str_format("%4d-%02d-%02d,%02d:%02d:%02.3f", 
                                         dtCur.year(), dtCur.month(), dtCur.day(),
                                         dtCur.hour(), dtCur.minute(), dtCur.second());
   
-  String strLevel;
+  std::string strLevel;
   switch( eLevel )
   {
     case LOG_EMERGENCY:
@@ -239,7 +239,7 @@ LogForward::LogForward(pfn_log_fwd pfn_log_fwd)
 //----------------------------------------------------------------------------
 // LogForward::Log
 //----------------------------------------------------------------------------
-void LogForward::log(ELogLevel eLevel, pcsz pszType, const String &strMsg)
+void LogForward::log(ELogLevel eLevel, pcsz pszType, const std::string& strMsg)
 {
   if( m_pfn_log_fwd )
     m_pfn_log_fwd(eLevel, pszType, PSZ(strMsg));
@@ -254,7 +254,7 @@ void LogForward::log(ELogLevel eLevel, pcsz pszType, const String &strMsg)
   va_start(argptr, pszFormat);                                  \
   VSNPRINTF(g_acScratchBuf, g_iScratchLen, pszFormat, argptr);  \
   va_end(argptr);                                               \
-  String strMsg = g_acScratchBuf;                               \
+  std::string strMsg = g_acScratchBuf;                               \
   LogManager::log(level, pszType, strMsg);
 
 // Log functions
@@ -267,5 +267,15 @@ void log_error(pcsz pszType, pcsz pszFormat, ...)     { YAT_LOG_MSG(LOG_ERROR) }
 void log_critical(pcsz pszType, pcsz pszFormat, ...)  { YAT_LOG_MSG(LOG_CRITICAL) }
 void log_alert(pcsz pszType, pcsz pszFormat, ...)     { YAT_LOG_MSG(LOG_ALERT) }
 void log_emergency(pcsz pszType, pcsz pszFormat, ...) { YAT_LOG_MSG(LOG_EMERGENCY) }
+
+void log_result(const std::string& msg)    { LogManager::log(LOG_RESULT, "res", msg); }
+void log_verbose(const std::string& msg)   { LogManager::log(LOG_VERBOSE, "vbs", msg); }
+void log_info(const std::string& msg)      { LogManager::log(LOG_INFO, "inf", msg); }
+void log_notice(const std::string& msg)    { LogManager::log(LOG_NOTICE, "not", msg); }
+void log_warning(const std::string& msg)   { LogManager::log(LOG_WARNING, "wrn", msg); }
+void log_error(const std::string& msg)     { LogManager::log(LOG_ERROR, "err", msg); }
+void log_critical(const std::string& msg)  { LogManager::log(LOG_CRITICAL, "crt", msg); }
+void log_alert(const std::string& msg)     { LogManager::log(LOG_ALERT, "alt", msg); }
+void log_emergency(const std::string& msg) { LogManager::log(LOG_EMERGENCY, "emg", msg); }
 
 } // namespace
