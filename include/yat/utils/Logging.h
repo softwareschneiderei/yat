@@ -97,7 +97,7 @@ public:
   //! \param eLevel Log level.
   //! \param pszType %Message type.
   //! \param strMsg %Message to log.
-  virtual void log(ELogLevel eLevel, pcsz pszType, const String &strMsg)=0;
+  virtual void log(ELogLevel eLevel, pcsz pszType, const std::string &strMsg)=0;
 };
 
 //! \brief Log target stack, for logging redirection.
@@ -116,7 +116,7 @@ public:
   //! \param eLevel Log level.
   //! \param pszType %Message type.
   //! \param strMsg %Message to log.
-  void log(ELogLevel eLevel, pcsz pszType, const String &strMsg);
+  void log(ELogLevel eLevel, pcsz pszType, const std::string &strMsg);
 };
 
 // ============================================================================
@@ -142,7 +142,7 @@ private:
   int         m_iMinLevel;
 
   //- Logged messages types
-  std::set<String>  m_setTypes;
+  std::set<std::string>  m_setTypes;
 
   //- Add a new log target to the stack
   static void push_log_target(ILogTarget *pLogTarget);
@@ -160,13 +160,13 @@ public:
   //! The logged messages will be filtered with severity level and types.
   //! \param iMinLevel Minimum severity level.
   //! \param strFilter List (separator = '|') of message types used for message filtering.
-  static void init(int iMinLevel, const String &strFilter=String::nil);
+  static void init(int iMinLevel, const std::string &strFilter= yat::StringUtil::empty);
 
   //! \brief Logs a message.
   //! \param eLevel Log level.
   //! \param pszType %Message type.
   //! \param strMsg %Message to log.
-  static void log(ELogLevel eLevel, pcsz pszType, const String &strMsg);
+  static void log(ELogLevel eLevel, pcsz pszType, const std::string &strMsg);
 
   //! \brief Gets the minimum log level taken into account.
   static int min_level() { return Instance()->m_iMinLevel; }
@@ -202,7 +202,7 @@ public:
   //! \param eLevel Log level.
   //! \param pszType %Message type.
   //! \param strMsg %Message to log.
-  virtual void log(ELogLevel eLevel, pcsz pszType, const String &strMsg);
+  virtual void log(ELogLevel eLevel, pcsz pszType, const std::string &strMsg);
 };
 
 // ============================================================================
@@ -298,6 +298,46 @@ YAT_DECL void log_alert(pcsz pszType, pcsz pszFormat, ...);
 //! \param ... %Message text.
 YAT_DECL void log_emergency(pcsz pszType, pcsz pszFormat, ...);
 
+//! \brief Logs a result message.
+//! \param msg Message
+YAT_DECL void log_result(const std::string& msg);
+
+//! \brief Logs a verbose message.
+//! \param msg Message
+YAT_DECL void log_verbose(const std::string& msg);
+
+//! \brief Logs an information message.
+//! \param msg Message
+YAT_DECL void log_info(const std::string& msg);
+
+//! \brief Logs a notice message.
+//! \param msg Message
+YAT_DECL void log_notice(const std::string& msg);
+
+//! \brief Logs a warning message.
+//! \param msg Message
+YAT_DECL void log_warning(const std::string& msg);
+
+//! \brief Logs an error message.
+//! \param pszType %Message type.
+//! \param pszFormat %Message format (printf like).
+//! \param ... %Message text.
+YAT_DECL void log_error(const std::string& msg);
+
+//! \brief Logs a critical message.
+//! \param pszType %Message type.
+//! \param pszFormat %Message format (printf like).
+//! \param ... %Message text.
+YAT_DECL void log_critical(const std::string& msg);
+
+//! \brief Logs an alert message.
+//! \param msg Message
+YAT_DECL void log_alert(const std::string& msg);
+
+//! \brief Logs an emergency message.
+//! \param msg Message
+YAT_DECL void log_emergency(const std::string& msg);
+
 //@} Log functions
 
 } // namespace
@@ -311,7 +351,8 @@ YAT_DECL void log_emergency(pcsz pszType, pcsz pszFormat, ...);
 
 // Useful macros when not using messages type information
 #define YAT_LOG_EXCEPTION(e)        LOG_EXCEPTION("exc", e)
-#define YAT_LOG_VERBOSE(...)     yat::log_verbose("dbg", __VA_ARGS__)
+#define YAT_LOG_VERBOSE(...)     yat::log_verbose("vbs", __VA_ARGS__)
+#define YAT_LOG_RESULT(...)       yat::log_result("res", __VA_ARGS__)
 #define YAT_LOG_INFO(...)           yat::log_info("inf", __VA_ARGS__)
 #define YAT_LOG_NOTICE(...)       yat::log_notice("not", __VA_ARGS__)
 #define YAT_LOG_WARNING(...)     yat::log_warning("wrn", __VA_ARGS__)
@@ -330,13 +371,14 @@ do {                                                          \
   yat::LogManager::log(level, type, oss.str());               \
 } while(0)
 
-#define YAT_VERBOSE_STREAM(s)   YAT_MSG_STREAM(yat::LOG_VERBOSE, "dbg", s)
+#define YAT_VERBOSE_STREAM(s)   YAT_MSG_STREAM(yat::LOG_VERBOSE, "vbs", s)
+#define YAT_RESULT_STREAM(s)    YAT_MSG_STREAM(yat::LOG_RESULT, "res", s)
 #define YAT_INFO_STREAM(s)      YAT_MSG_STREAM(yat::LOG_INFO, "inf", s)
 #define YAT_WARNING_STREAM(s)   YAT_MSG_STREAM(yat::LOG_WARNING, "wrn", s)
 #define YAT_NOTICE_STREAM(s)    YAT_MSG_STREAM(yat::LOG_NOTICE, "not", s)
 #define YAT_ERROR_STREAM(s)     YAT_MSG_STREAM(yat::LOG_ERROR, "err", s)
 #define YAT_CRITICAL_STREAM(s)  YAT_MSG_STREAM(yat::LOG_CRITICAL, "crt", s)
 #define YAT_ALERT_STREAM(s)     YAT_MSG_STREAM(yat::LOG_ALERT, "alt", s)
-#define YAT_EMERGENCY_STREAM(s) YAT_MSG_STREAM(yat::LOG_EMERGENCY, "alt", s)
+#define YAT_EMERGENCY_STREAM(s) YAT_MSG_STREAM(yat::LOG_EMERGENCY, "emg", s)
 
 #endif
