@@ -128,6 +128,7 @@ void PlugInManager::unload_all( void )
   {
     unload( *it );
   }
+  m_plugIns.clear();
 }
 
 //==============================================================================
