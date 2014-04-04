@@ -434,7 +434,7 @@ public:
   //! \brief Converts separators according to the current operating system
   //! (UNIX\<--\>DOS).
   //! \param pstr String to convert (input\/output argument).
-  static void convert_separators(String *pstr);
+  static void convert_separators(std::string* pstr);
 
   //! \brief Gets access mode from a string in a UNIX like format (ie "rwxrwxrwx").
   //! \param strAccess Input format.
