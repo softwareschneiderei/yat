@@ -135,7 +135,7 @@ void FileName::set_full_name(pcsz pszFileName)
     return;
   }
 
-  String strFileName = pszFileName;
+  std::string strFileName = pszFileName;
 
   // Convert separators
   convert_separators(&strFileName);
@@ -253,7 +253,7 @@ String FileName::rel_name(const char* pszPath) const
 //----------------------------------------------------------------------------
 // FileName::convert_separators
 //----------------------------------------------------------------------------
-void FileName::convert_separators(String *pstr)
+void FileName::convert_separators(std::string *pstr)
 {
   char *ptc = new char[pstr->length()+1];
   char *pStart = ptc;
