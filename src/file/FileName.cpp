@@ -39,6 +39,7 @@
 //=============================================================================
 #include <yat/time/Time.h>
 #include <yat/file/FileName.h>
+#include <yat/utils/Logging.h>
 
 #include <fcntl.h>
 #include <stdlib.h>
@@ -558,6 +559,8 @@ void CfgFile::load_from_string(const std::string& _content)
   m_strSection = "default";
   m_dictSection[m_strSection] = aSection;
   bool is_object = false;
+  bool is_multiline = false;
+  std::string param_name, param_value;
   Objects::iterator obj_iterator;
   Parameters* current_obj_parameters_p = NULL;
   
@@ -568,16 +571,37 @@ void CfgFile::load_from_string(const std::string& _content)
     // Supress blank characters at the begining and the end of the string
     yat::StringUtil::trim(&line);
     
-    if( line.empty() || yat::StringUtil::match(line, "-*") )
-    { // empty line or line begining by a '-' break objet and is passed
+    if( is_multiline )
+    { // multi-lines value mode
+      if( !yat::StringUtil::match(line, "*\\") )
+        is_multiline = false;
+      else
+        line = line.substr(0, line.size() - 1);
+      
+      // Concat line content
+      param_value += "\n" + line;
+      
+      if( !is_multiline )
+      {
+        yat::StringUtil::trim(&param_value);
+        if( !is_object )
+          m_dictSection[m_strSection].m_dictParameters[param_name] = param_value;
+        else
+          (*current_obj_parameters_p)[param_name] = param_value;
+      }
+      continue;
+    }
+    
+    if( line.empty() || yat::StringUtil::match(line, "#*") )
+      // empty lines or comments lines are passed
+      continue;
+    
+    if( yat::StringUtil::match(line, "-*") )
+    { // lines begining by a '-' means end of objects
       is_object = false;
       continue;
     }
 
-    // Pass comments line
-    if( yat::StringUtil::match(line, "#*") )
-      continue;
-    
     if( yat::StringUtil::match(line, "[*]") )
     {  // Section declaration
       Section aSection;
@@ -590,17 +614,23 @@ void CfgFile::load_from_string(const std::string& _content)
 
     if( yat::StringUtil::match(line, "*=*") )
     { // New parameter
-      std::string strParamName;
-      yat::StringUtil::extract_token(&line, '=', &strParamName);
-      yat::StringUtil::trim(&line);
-      yat::StringUtil::trim(&strParamName);
+      yat::StringUtil::extract_token(&line, '=', &param_name);
+      param_value = line;
+      yat::StringUtil::trim(&param_value);
+      yat::StringUtil::trim(&param_name);
       
-      if( !is_object )
-        m_dictSection[m_strSection].m_dictParameters[strParamName] = line;
+      if( yat::StringUtil::match(param_value, "*\\") )
+      { // Multi-lines value
+        // Remove the '\'
+        param_value = param_value.substr(0, param_value.size() - 1);
+        is_multiline = true;
+      }
       else
       {
-        //(obj_iterator->second)[strParamName] = line;
-        (*current_obj_parameters_p)[strParamName] = line;
+        if( !is_object )
+          m_dictSection[m_strSection].m_dictParameters[param_name] = param_value;
+        else
+          (*current_obj_parameters_p)[param_name] = param_value;
       }
       continue;
     }
@@ -626,6 +656,16 @@ void CfgFile::load_from_string(const std::string& _content)
     m_dictSection[m_strSection].m_vecSingleValues.push_back(line);
     is_object = false;
   }
+  
+  if( is_multiline )
+  {
+    log_warning("Last line of the cfg file " + full_name() + " ends with a '\\'. May be it's incomplete.");
+    if( !is_object )
+      m_dictSection[m_strSection].m_dictParameters[param_name] = line;
+    else
+      (*current_obj_parameters_p)[param_name] = line;
+  }
+
   // Set cursor on default section
   m_strSection = "default";
 }
