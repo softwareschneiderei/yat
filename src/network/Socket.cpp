@@ -2,18 +2,14 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2012  N.Leclercq & The Tango Community
+// Copyright (C) 2006-2014 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
 // - the threading support library that comes with omniORB. 
-// see http://omniorb.sourceforge.net/ for more aout omniORB.
-//
-// Contributors form the TANGO community:
-// See AUTHORS file 
-//
+// see http://omniorb.sourceforge.net/ for more about omniORB.
 // The YAT library is free software; you can redistribute it and/or modify it 
 // under the terms of the GNU General Public License as published by the Free 
 // Software Foundation; either version 2 of the License, or (at your option) 
@@ -390,7 +386,7 @@ bool Socket::select (size_t _tmo_msecs)
   FD_ZERO(&sock_list);
   FD_SET(this->m_os_desc, &sock_list);
   
-  int status = ::select(this->m_os_desc + 1, &sock_list, (fd_set*)0, (fd_set*)0, &tv);
+  int status = ::select(static_cast<int>(this->m_os_desc + 1), &sock_list, (fd_set*)0, (fd_set*)0, &tv);
   if (-1 == status)
   {
     THROW_SOCKET_ERROR(err_no, "OS <select> call failed", "yat::Socket::select");
