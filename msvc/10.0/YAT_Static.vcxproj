@@ -166,12 +166,6 @@
     <ClCompile Include="..\..\src\network\SocketException.cpp" />
     <ClCompile Include="..\..\src\plugin\PlugIn.cpp" />
     <ClCompile Include="..\..\src\plugin\PlugInManager.cpp" />
-    <ClCompile Include="..\..\src\plugin\PlugInUnix.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="..\..\src\plugin\PlugInWin32.cpp" />
     <ClCompile Include="..\..\src\system\Win32SysUtilsImpl.cpp" />
     <ClCompile Include="..\..\src\threading\Barrier.cpp" />
@@ -194,8 +188,6 @@
     <ClInclude Include="..\..\include\yat\bitsstream\BitsStream.h" />
     <ClInclude Include="..\..\include\yat\bitsstream\Endianness.h" />
     <ClInclude Include="..\..\include\yat\CommonHeader.h" />
-    <ClInclude Include="..\..\include\yat\config-linux.h" />
-    <ClInclude Include="..\..\include\yat\config-macosx.h" />
     <ClInclude Include="..\..\include\yat\config-win32.h" />
     <ClInclude Include="..\..\include\yat\Exception.h" />
     <ClInclude Include="..\..\include\yat\file\FileName.h" />
@@ -205,6 +197,7 @@
     <ClInclude Include="..\..\include\yat\memory\DataBuffer.h" />
     <ClInclude Include="..\..\include\yat\memory\MemBuf.h" />
     <ClInclude Include="..\..\include\yat\memory\SharedPtr.h" />
+    <ClInclude Include="..\..\include\yat\memory\UniquePtr.h" />
     <ClInclude Include="..\..\include\yat\network\Address.h" />
     <ClInclude Include="..\..\include\yat\network\ClientSocket.h" />
     <ClInclude Include="..\..\include\yat\network\Socket.h" />
