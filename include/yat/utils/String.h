@@ -287,6 +287,15 @@ public:
   //! \param cSep %std::string separator.
   static void join(std::string* str_p, const std::vector<std::string> &vecStr, char cSep=',');
 
+  //! \brief Joins std::strings from a std::string vector, using specified separator.
+  //!
+  //! Replaces *this* std::string with the result.
+  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2 
+  //! \param vecStr The source vector.
+  //! \param cSep %std::string separator.
+  //! \return a std::string with the result
+  static std::string join(const std::vector<std::string> &vecStr, char cSep=',');
+
   //! \brief Removes items separated by a specific separator.
   //!
   //! For instance: std::string like "item1,item2,item3,...". \n
