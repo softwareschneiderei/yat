@@ -650,6 +650,16 @@ void StringUtil::join(std::string* str_p, const std::vector<std::string> &vecStr
 }
 
 //---------------------------------------------------------------------------
+// StringUtil::join
+//---------------------------------------------------------------------------
+std::string StringUtil::join(const std::vector<std::string> &vecStr, char cSep)
+{
+  std::string s;
+  join( &s, vecStr, cSep);
+  return s;
+}
+
+//---------------------------------------------------------------------------
 // StringUtil::remove_item
 //---------------------------------------------------------------------------
 bool StringUtil::remove_item(std::string* str_p, const std::string &strItem, char cSep)
