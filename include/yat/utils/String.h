@@ -367,7 +367,7 @@ public:
              << std::ends;
         THROW_YAT_ERROR ("SOFTWARE_ERROR",
                          desc.str().c_str(),
-                         "StringWork::to_num");
+                         "StringUtil::to_num");
       }
       return 0;
     }
@@ -396,11 +396,39 @@ public:
              << std::ends;
         THROW_YAT_ERROR ("SOFTWARE_ERROR",
                          desc.str().c_str(),
-                         "StringWork::from_num");
+                         "StringUtil::from_num");
       }
     }
 
     (*str_p) = oss.str();
+  }
+  
+  //! \brief Return a new string from numeric type \<T\> value.
+  //!
+  //! \param number The \<T\> type value to convert.
+  //! \param _throw If set to true, throws an exception if conversion fails.
+  //! \exception SOFTWARE_ERROR Thrown if conversion fails.
+  template <class T>
+  static std::string to_string(const T& number, bool _throw = true)
+  {
+    OSStream oss;
+
+    if ( (oss << std::fixed << number) == false )
+    {
+      if (_throw)
+      {
+        OSStream desc;
+        desc << "conversion from num to string failed [" 
+             << number
+             << "]"
+             << std::ends;
+        THROW_YAT_ERROR ("SOFTWARE_ERROR",
+                         desc.str().c_str(),
+                         "StringUtil::from_num");
+      }
+    }
+
+    return oss.str();
   } 
 };
 
