@@ -226,37 +226,46 @@ namespace yat
   {
     this->errors.push_back(_error);
   }
+
+  // ============================================================================
+  // Exception::to_string
+  // ============================================================================
+  std::string Exception::to_string () const
+  {
+    yat::OSStream oss;
+    for (size_t e = 0; e < this->errors.size(); e++)
+    {
+      oss << "\tErr["
+          << e
+          << "]:reason..."
+          << this->errors[e].reason
+          << std::endl
+          << "\tErr["
+          << e
+          << "]:desc....."
+          << this->errors[e].desc
+          << std::endl
+          << "\tErr["
+          << e
+          << "]:desc....."
+          << this->errors[e].origin
+          << std::endl
+          << "\tErr["
+          << e
+          << "]:code....."
+          << this->errors[e].code
+          << std::endl;
+    }
+    return oss.str(); 
+  }
   
   // ============================================================================
   // Exception::dump
   // ============================================================================
   void Exception::dump () const
   {
-    std::cout << "-- yat::Exception ---------------------------" << std::endl;
-    for (size_t e = 0; e < this->errors.size(); e++)
-    {
-      std::cout << "\tErr[" 
-                << e << "]:reason..." 
-                << this->errors[e].reason 
-                << std::endl; 
-              
-      std::cout << "\tErr[" 
-                << e << "]:desc....." 
-                << this->errors[e].desc
-                << std::endl;  
-              
-      std::cout << "\tErr[" 
-                << e 
-                << "]:desc....." 
-                << this->errors[e].origin 
-                << std::endl; 
-              
-      std::cout << "\tErr[" 
-                << e 
-                << "]:code....." 
-                << this->errors[e].code
-                << std::endl; 
-    }
+    std::cout << "-- yat::Exception ----------------------------" << std::endl;
+    std::cout << this->to_string()                                << std::endl; 
     std::cout << "----------------------------------------------" << std::endl;
   }
 
