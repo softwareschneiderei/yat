@@ -228,7 +228,10 @@ namespace yat
     //! \brief Pushes the specified error into the error list.
     //! \param error Error.
     void push_error (const Error& error);
-    
+
+    //! \brief Concatenates the whole exception stack as a single string then return it
+    std::string to_string () const;
+ 
     //! \brief Dumps the content of the exception's error list towards standard output.
     virtual void dump () const;
 
