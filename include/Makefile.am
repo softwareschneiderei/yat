@@ -36,24 +36,38 @@ nobase_include_HEADERS =  \
 	yat/threading/Condition.h \
 	yat/threading/Implementation.h \
 	yat/threading/Message.h \
+	yat/threading/Message.i \
 	yat/threading/MessageQ.h \
+	yat/threading/MessageQ.i \
 	yat/threading/Mutex.h \
 	yat/threading/ReadersWriterMutex.h \
 	yat/threading/Pulser.h \
 	yat/threading/Semaphore.h \
 	yat/threading/SharedObject.h \
+	yat/threading/SharedObject.i \
 	yat/threading/Task.h \
+	yat/threading/Task.i \
 	yat/threading/Thread.h \
 	yat/threading/Utilities.h \
 	yat/threading/SyncAccess.h \
+	yat/threading/impl/PosixConditionImpl.i \
+	yat/threading/impl/PosixSemaphoreImpl.i \
+	yat/threading/impl/PosixThreadingImpl.h  \
+	yat/threading/impl/WinNtConditionImpl.i \
+	yat/threading/impl/WinNtSemaphoreImpl.i \
+	yat/threading/impl/WinNtThreadingImpl.h \
+	yat/threading/impl/PosixMutexImpl.i \
+	yat/threading/impl/PosixThreadImpl.i \
+	yat/threading/impl/PosixThreadingImpl.i \
+	yat/threading/impl/WinNtMutexImpl.i \
+	yat/threading/impl/WinNtThreadImpl.i \
 	yat/time/Timer.h \
 	yat/time/Time.h \
 	yat/utils/Callback.h \
 	yat/utils/CommandLine.h \
 	yat/utils/Logging.h \
 	yat/utils/NonCopyable.h \
-	yat/utils/ReferenceCounter.h \ \
-	yat/utils/Signal.h \
+	yat/utils/ReferenceCounter.h \
 	yat/utils/Singleton.h \
 	yat/utils/String.h \
 	yat/utils/StringTemplate.h \
