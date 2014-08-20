@@ -94,6 +94,7 @@ typedef enum
   TASK_INIT = 0,
   TASK_TIMEOUT,
   TASK_PERIODIC,
+  TASK_WAKEUP,
   TASK_EXIT,
   //--------------------
   FIRST_USER_MSG

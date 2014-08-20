@@ -108,7 +108,12 @@ YAT_INLINE size_t Task::get_timeout_msg_period () const
 // ============================================================================
 YAT_INLINE void Task::enable_periodic_msg (bool b)
 {
+  bool was_not_enabled = ! this->msg_q_.enable_periodic_msg_;
   this->msg_q_.enable_periodic_msg_ = b;
+  if ( was_not_enabled && this->msg_q_.enable_periodic_msg_ && this->received_init_msg_ )
+  {
+    this->post(TASK_WAKEUP);
+  }
 }
 
 // ============================================================================

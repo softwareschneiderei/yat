@@ -347,7 +347,7 @@ yat::Message * MessageQ::next_message (size_t _tmo_msecs)
   MutexLock guard(this->lock_);
 
   //- wait for the messageQ to contain at least one message or tmo expired
-  if (! this->wait_not_empty_i(_tmo_msecs))
+  if ( ! this->wait_not_empty_i(_tmo_msecs) )
   {
     //- <wait_not_empty_i> returned <false> : means no msg in msg queue after <_tmo_msecs>
     YAT_LOG("MessageQ::next_message::tmo expired [MessageQ::wait_not_empty_i returned false]");

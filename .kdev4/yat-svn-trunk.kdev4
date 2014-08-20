@@ -3,9 +3,9 @@ BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x00)
 
 [MakeBuilder]
 Additional Options=-DenableCheckRelease=false
-Default Make Environment Profile=TangoEnv
 Default Target=install
 Make Binary=mvn
+Number Of Jobs=1
 
 [Project]
 VersionControlSupport=kdevsubversion

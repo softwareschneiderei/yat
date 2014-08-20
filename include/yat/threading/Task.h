@@ -352,6 +352,9 @@ private:
 
   //- should we process msg under critical section?
   bool lock_msg_handling_;
+  
+  //- true if TASK_INIT msg received, false ortherwise
+  bool received_init_msg_;
 
 #if defined (YAT_DEBUG)
   //- some statistics counter

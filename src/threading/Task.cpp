@@ -115,7 +115,8 @@ Task::Task (const Task::Config& cfg)
     periodic_msg_enabled_(cfg.enable_periodic_msg),
     periodic_msg_period_ms_ (cfg.periodic_msg_period_ms),
     user_data_ (cfg.user_data),
-    lock_msg_handling_ (cfg.lock_msg_handling)
+    lock_msg_handling_ (cfg.lock_msg_handling),
+    received_init_msg_(false)
 {
   YAT_TRACE("Task::Task");
 
@@ -276,10 +277,9 @@ void * Task::run_undetached (void *)
 #endif
 
   //- init flag - set to true when TASK_INIT received
-  bool received_init_msg = false;
+  this->received_init_msg_ = false;
 
-  //- exit flag - set to true when TASK_EXIT received
-  bool received_exit_msg = false;
+
 
   size_t msg_type;
   Message * msg = 0;
@@ -300,10 +300,13 @@ void * Task::run_undetached (void *)
     msg = this->msg_q_.next_message (tmo);
     //- mark TASK_INIT has received
     if ( msg && msg->type() == TASK_INIT )
-      received_init_msg = true;
+      this->received_init_msg_ = true;
   }
-  while ( ! received_init_msg );
+  while ( ! this->received_init_msg_ );
 
+  //- exit flag - set to true when TASK_EXIT received
+  bool received_exit_msg = false;
+  
   //- enter thread's main loop 
   while ( ! received_exit_msg )
   {
@@ -324,15 +327,22 @@ void * Task::run_undetached (void *)
         this->next_msg_counter++;
 #endif
         //- get next message
-        msg = this->msg_q_.next_message (tmo);
+        msg = this->msg_q_.next_message(tmo);
         //- do not handle TASK_INIT twice
-        if (msg && msg->type() == TASK_INIT && received_init_msg)
+        if (msg && msg->type() == TASK_INIT && this->received_init_msg_)
         {
           msg->release();
           msg = 0;
         }
       }
       while (! msg);
+      //- special case: ignore self-posted WAKEUP msg
+      if (msg->type() == TASK_WAKEUP)
+      {
+        msg->release();
+        msg = 0;
+        continue;
+      }
     }
       
 #if defined (YAT_DEBUG)
