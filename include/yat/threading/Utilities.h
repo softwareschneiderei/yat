@@ -77,6 +77,12 @@ public:
   //! \param nanosecs Nanoseconds precision of time.
   static void sleep (long secs, long nanosecs = 0);
 
+  //! \brief Returns number of concurrent threads supported by the implementation.
+  //! The value should be considered only a hint.
+  //! If the value is not well defined or not computable, returns 0
+  //! \note equivalent to c++11 std::thread::hardware_concurrency
+  static unsigned int harware_concurrency();
+
   //! \brief Calculates an absolute time in seconds and nanoseconds, suitable for
   //! use in timed waits (ex: Condition, Semaphore), which is the current 
   //! time plus the given relative offset.

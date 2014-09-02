@@ -40,6 +40,7 @@
 // ----------------------------------------------------------------------------
 #include <errno.h>
 #include <process.h>
+#include <Windows.h>
 #include <yat/threading/Utilities.h>
 #include <yat/threading/Mutex.h>
 #include <yat/threading/Condition.h>
@@ -601,6 +602,17 @@ void ThreadingUtilities::sleep (long _secs, long _nano_secs)
     ::Sleep(MAX_SLEEP_SECONDS * 1000);
   ::Sleep((_secs % MAX_SLEEP_SECONDS) * 1000 + _nano_secs / 1000000);
 }
+
+// ----------------------------------------------------------------------------
+// ThreadingUtilities::hardware_concurrency
+// ----------------------------------------------------------------------------
+unsigned int ThreadingUtilities::harware_concurrency()
+{
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    return sysinfo.dwNumberOfProcessors;
+}
+
 
 // ----------------------------------------------------------------------------
 // ThreadingUtilities::get_time

@@ -38,6 +38,7 @@
 // DEPENDENCIES
 // ----------------------------------------------------------------------------
 #include <errno.h>
+#include <unistd.h>
 #include <iostream>
 #include <sys/time.h>
 #include <yat/threading/Utilities.h>
@@ -610,6 +611,14 @@ void ThreadingUtilities::sleep (long _secs, long _nano_secs)
      ::usleep(_secs * 1000000 + (_nano_secs / 1000));
 
 #endif
+}
+
+// ----------------------------------------------------------------------------
+// ThreadingUtilities::hardware_concurrency
+// ----------------------------------------------------------------------------
+unsigned int ThreadingUtilities::harware_concurrency()
+{
+  return sysconf(_SC_NPROCESSORS_ONLN);
 }
 
 // ----------------------------------------------------------------------------
