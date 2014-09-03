@@ -608,11 +608,10 @@ void ThreadingUtilities::sleep (long _secs, long _nano_secs)
 // ----------------------------------------------------------------------------
 unsigned int ThreadingUtilities::harware_concurrency()
 {
-    SYSTEM_INFO sysinfo;
-    GetSystemInfo(&sysinfo);
-    return sysinfo.dwNumberOfProcessors;
+  SYSTEM_INFO sysinfo;
+  ::GetSystemInfo(&sysinfo);
+  return sysinfo.dwNumberOfProcessors;
 }
-
 
 // ----------------------------------------------------------------------------
 // ThreadingUtilities::get_time

@@ -618,7 +618,7 @@ void ThreadingUtilities::sleep (long _secs, long _nano_secs)
 // ----------------------------------------------------------------------------
 unsigned int ThreadingUtilities::harware_concurrency()
 {
-  return sysconf(_SC_NPROCESSORS_ONLN);
+  return ::sysconf(_SC_NPROCESSORS_ONLN);
 }
 
 // ----------------------------------------------------------------------------
