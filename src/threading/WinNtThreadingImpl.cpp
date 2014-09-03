@@ -40,7 +40,6 @@
 // ----------------------------------------------------------------------------
 #include <errno.h>
 #include <process.h>
-#include <Windows.h>
 #include <yat/threading/Utilities.h>
 #include <yat/threading/Mutex.h>
 #include <yat/threading/Condition.h>
@@ -251,7 +250,6 @@ bool Condition::timed_wait (unsigned long _tmo_msecs)
 
   return no_tmo;
 }
-
 
 // ----------------------------------------------------------------------------
 // Condition::signal
