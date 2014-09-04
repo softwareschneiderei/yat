@@ -106,6 +106,8 @@
                 </excludes>
                 <options>
                   <option>-std=c++0x</option>
+                  <option>-Wstrict-aliasing</option>
+                  <option>-Wno-unused-result</option>
                 </options>
               </cpp>
             </specificConfiguration>
