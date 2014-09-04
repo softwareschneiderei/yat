@@ -1,10 +1,10 @@
-//*******************************************************************************
-//* Copyright (c) 2004-2014 Synchrotron SOLEIL
-//* All rights reserved. This program and the accompanying materials
-//* are made available under the terms of the GNU Lesser Public License v3
-//* which accompanies this distribution, and is available at
-//* http://www.gnu.org/licenses/lgpl.html
-//******************************************************************************
+//----------------------------------------------------------------------------
+// Copyright (c) 2004-2014 Synchrotron SOLEIL
+// All rights reserved. This program and the accompanying materials
+// are made available under the terms of the GNU Lesser Public License v3
+// which accompanies this distribution, and is available at
+// http://www.gnu.org/licenses/lgpl.html
+//----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 // YAT LIBRARY
 //----------------------------------------------------------------------------
@@ -333,7 +333,7 @@ uint32 crc_32_tab[] = {
 };
 
 
-//***************************************************************************
+//---------------------------------------------------------------------------
 // @func API de calcul de CRC 32 bits.
 // Deux utilisations possibles de cette API : 
 //  soit on laisse pulInitValue a NULL, auquel cas elle calcule le crc
@@ -344,7 +344,7 @@ uint32 crc_32_tab[] = {
 //    ulCrc = Crc( p1, uiP1Len, &ulCrc );
 //    ulCrc = Crc( p2, uiP2Len, &ulCrc );
 //    ulCrc = ulCrc ^ 0xFFFFFFFFL;
-//***************************************************************************
+//---------------------------------------------------------------------------
 uint32 crc( const byte *pBuf, uint32 uiLen, uint32 *pulInitValue )
 {
   uint32 ulVal;
