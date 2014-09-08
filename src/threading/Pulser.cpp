@@ -56,20 +56,25 @@ class PulserCoreImpl : public yat::Task
 {
 public:
   PulserCoreImpl (const Pulser::Config& cfg)
-    : cfg_(cfg), pulses_(0)
+    : cfg_(cfg), pulses_(0), job_done_(false)
   {}
 
   ~PulserCoreImpl ()
   {}
 
+   void job_done ()
+   {
+     job_done_ = true;
+   }
+   
 protected:
-	virtual void handle_message (yat::Message& msg)
+  virtual void handle_message (yat::Message& msg)
   {
     switch ( msg.type() )  
     {
-		  case yat::TASK_PERIODIC:
+        case yat::TASK_PERIODIC:
         {
-          if ( ! this->cfg_.callback.is_empty () )
+          if ( ! this->job_done_ && ! this->cfg_.callback.is_empty () )
           {
             try
             {
@@ -77,7 +82,7 @@ protected:
             }
             catch ( ... ) {}
           }
-          if ( this->cfg_.num_pulses && ( ++this->pulses_ >= this->cfg_.num_pulses ) )
+          if ( this->job_done_ || (this->cfg_.num_pulses && ( ++this->pulses_ >= this->cfg_.num_pulses )) )
           {
             this->enable_periodic_msg(false);
           }
@@ -91,9 +96,8 @@ protected:
 private:
   Pulser::Config cfg_;
   size_t pulses_;
+  bool job_done_;
 };
-
-
 
 // ======================================================================
 // Pulser::Config::Config
@@ -153,12 +157,8 @@ void Pulser::start ()
 void Pulser::stop () 
 {
   YAT_TRACE("Pulser::stop");
- 
-  if ( this->impl_ )
-  {
-    this->impl_->exit();
-    this->impl_ = 0;
-  }
+  
+  this->impl_->job_done();
 }
 
 // ============================================================================
