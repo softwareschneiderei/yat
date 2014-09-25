@@ -158,7 +158,8 @@ void Pulser::stop ()
 {
   YAT_TRACE("Pulser::stop");
   
-  this->impl_->job_done();
+  if ( this->impl_ )
+    this->impl_->job_done();
 }
 
 // ============================================================================
