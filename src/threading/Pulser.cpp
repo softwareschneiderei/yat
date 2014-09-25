@@ -45,6 +45,7 @@
 // DEPENDENCIES
 // ============================================================================
 #include <yat/threading/Pulser.h>
+#include <boost/concept_check.hpp>
 
 namespace yat
 {
@@ -54,35 +55,77 @@ namespace yat
 // ======================================================================
 class PulserCoreImpl : public yat::Task
 {
+  typedef enum
+  {
+    START_MSG = yat::FIRST_USER_MSG,
+    STOP_MSG,
+    SUSPEND_MSG,
+    RESUME_MSG
+  } PulserCoreImplMsgType;
+  
 public:
   PulserCoreImpl (const Pulser::Config& cfg)
-    : cfg_(cfg), pulses_(0), job_done_(false)
+    : cfg_(cfg), pulses_(0)
   {}
 
   ~PulserCoreImpl ()
   {}
 
-   void job_done ()
-   {
-     job_done_ = true;
-   }
-   
+  void start () {    
+    this->post(START_MSG);
+  }
+
+  void stop () {
+    this->post(STOP_MSG);
+  }
+  
+  void suspend () {
+    this->post(SUSPEND_MSG);
+  }
+
+  void resume () {
+    this->post(RESUME_MSG);
+  }
+  
 protected:
   virtual void handle_message (yat::Message& msg)
   {
     switch ( msg.type() )  
     {
+        case START_MSG:
+        {
+          this->pulses_ = 0;
+          this->set_periodic_msg_period(this->cfg_.period_in_msecs);
+          this->enable_periodic_msg(true);
+        }
+        break;
+        case RESUME_MSG:
+        {
+          this->enable_periodic_msg(true);
+        }
+        break;
+        case STOP_MSG:
+        case SUSPEND_MSG:
+        {
+          this->enable_periodic_msg(false);
+        }
+        break;
         case yat::TASK_PERIODIC:
         {
-          if ( ! this->job_done_ && ! this->cfg_.callback.is_empty () )
+          if ( this->cfg_.callback.is_empty() )
           {
-            try
-            {
-              this->cfg_.callback(this->cfg_.user_data);
-            }
-            catch ( ... ) {}
+            this->enable_periodic_msg(false);
+            return;
           }
-          if ( this->job_done_ || (this->cfg_.num_pulses && ( ++this->pulses_ >= this->cfg_.num_pulses )) )
+          try
+          {
+            this->cfg_.callback(this->cfg_.user_data);
+          }
+          catch ( ... ) 
+          {
+            //- noop
+          }
+          if ( this->cfg_.num_pulses && ( ++this->pulses_ == this->cfg_.num_pulses ) )           
           {
             this->enable_periodic_msg(false);
           }
@@ -96,7 +139,6 @@ protected:
 private:
   Pulser::Config cfg_;
   size_t pulses_;
-  bool job_done_;
 };
 
 // ======================================================================
@@ -117,6 +159,9 @@ Pulser::Pulser (const Pulser::Config& cfg)
   : cfg_(cfg), impl_(0)
 {
   YAT_TRACE("Pulser::Pulser");
+  
+  this->impl_ = new PulserCoreImpl(this->cfg_);
+  this->impl_->go(); 
 }
 
 // ======================================================================
@@ -138,17 +183,9 @@ Pulser::~Pulser ()
 void Pulser::start () 
 {
   YAT_TRACE("Pulser::start");
- 
+  
   if ( this->impl_ )
-  {
-    this->resume();
-    return;
-  }
-
-  this->impl_ = new PulserCoreImpl(this->cfg_);
-  this->impl_->enable_periodic_msg(true);
-  this->impl_->set_periodic_msg_period(this->cfg_.period_in_msecs);
-  this->impl_->go(); 
+    this->impl_->start();
 }
 
 // ============================================================================
@@ -159,7 +196,7 @@ void Pulser::stop ()
   YAT_TRACE("Pulser::stop");
   
   if ( this->impl_ )
-    this->impl_->job_done();
+    this->impl_->stop();
 }
 
 // ============================================================================
@@ -191,7 +228,7 @@ void Pulser::suspend ()
   YAT_TRACE("Pulser::suspend");
   
   if ( this->impl_ )
-    this->impl_->enable_periodic_msg(false);
+    this->impl_->suspend();
 }
 
 // ============================================================================
@@ -202,7 +239,7 @@ void Pulser::resume ()
   YAT_TRACE("Pulser::resume");
   
   if ( this->impl_ )
-    this->impl_->enable_periodic_msg(true);
+    this->impl_->resume();
 }
 
 } // namespace
