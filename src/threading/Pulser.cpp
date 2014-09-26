@@ -45,7 +45,6 @@
 // DEPENDENCIES
 // ============================================================================
 #include <yat/threading/Pulser.h>
-#include <boost/concept_check.hpp>
 
 namespace yat
 {
