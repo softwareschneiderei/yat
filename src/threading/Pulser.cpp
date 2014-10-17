@@ -91,25 +91,25 @@ protected:
   {
     switch ( msg.type() )  
     {
-        case START_MSG:
+      case START_MSG:
         {
           this->pulses_ = 0;
           this->set_periodic_msg_period(this->cfg_.period_in_msecs);
           this->enable_periodic_msg(true);
         }
         break;
-        case RESUME_MSG:
+      case RESUME_MSG:
         {
           this->enable_periodic_msg(true);
         }
         break;
-        case STOP_MSG:
-        case SUSPEND_MSG:
+      case STOP_MSG:
+      case SUSPEND_MSG:
         {
           this->enable_periodic_msg(false);
         }
         break;
-        case yat::TASK_PERIODIC:
+      case yat::TASK_PERIODIC:
         {
           if ( this->cfg_.callback.is_empty() )
           {
@@ -130,8 +130,8 @@ protected:
           }
         } 
         break;
-      default:
-        break;
+    default:
+      break;
     }
   }
 
