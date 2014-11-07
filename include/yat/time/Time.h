@@ -550,6 +550,30 @@ typedef CurrentTime CurrentDate;
 typedef CurrentTime CurrentDateTime;
 
 // ============================================================================
+//! \struct DurationFields 
+//! \brief %Date split in fields.
+//!
+//! This structure provides a duration split in "duration fields", i.e. days, 
+//! hours, minutes, seconds... to microseconds precision.
+// ============================================================================
+struct YAT_DECL DurationFields
+{
+  //! nb Day.
+  uint8  days;
+  //! Hour.
+  uint8  hours;
+  //! Minute.
+  uint8  minutes;
+  //! Second
+  uint8  seconds;
+  //! microsecs
+  uint32 micros;
+
+  //! \brief Clears all fields.
+  void clear();
+};
+
+// ============================================================================
 //! \class Duration 
 //! \brief duration class.
 //! \note  complete the implementation !!!
@@ -559,42 +583,63 @@ typedef CurrentTime CurrentDateTime;
 class YAT_DECL Duration
 {
 public:
-  Duration(long hours, long minutes, long secs, long millis, long micros);
-  Duration(int64 microsecs);
-  Duration();
+  Duration() : m_microsecs(0) { }
+  Duration(yat::int64 microsecs) : m_microsecs(microsecs) { }
+  Duration(double seconds) : m_microsecs( yat::int64(seconds * MICROSEC_PER_SEC) ) { }
 
-  static Duration micro(long micros);
-  static Duration milli(long millis);
-  static Duration sec(long secs);
-  static Duration minute(long minutes);
-  static Duration hour(long hours);
+  /// Distance between t1 and t2, always positive
+  Duration(const yat::Time& t1, const yat::Time& t2);
   
+  /// Set value
+  void total_micros(yat::int64 microsecs) { m_microsecs = microsecs; }
+
+  /// Get total value
+  int64 total_micros() const { return m_microsecs; }
+  
+  /// Get duration fields
+  void get(DurationFields *pDF) const;
+
+  /// Assignement operators
   Duration  operator+(const Duration& other);
   Duration  operator-(const Duration& other);
   Duration  operator/(int n);
   Duration  operator*(int n);
+  Duration  operator/(double factor);
+  Duration  operator*(double factor);
+  Duration  operator+(yat::int64 microsecs);
+  Duration  operator-(yat::int64 microsecs);
+  Duration& operator=(const Duration& other);
   Duration& operator+=(const Duration& other);
+  Duration& operator+=(yat::int64 microsecs);
   Duration& operator-=(const Duration& other);
+  Duration& operator-=(yat::int64 microsecs);
   Duration& operator*=(int n);
   Duration& operator/=(int n);
+  Duration& operator*=(double factor);
+  Duration& operator/=(double factor);
 
-  long hour();
-  long minute();
-  long sec();
-  long milli();
-  long micro();
-  int64 total_micro();
-  long total_milli();
-  long total_sec();
-  double double_sec();
+  /// Duration fields
+  uint16 days() const;
+  uint8 hours() const;
+  uint8 minutes() const;
+  uint8 seconds() const;
+  uint16 millis() const;
+  uint32 micros() const;
+
+  // duration in seconds
+  double total_secs() const;
   
+  ///
   /// Export duration to a string using this format:
-  /// hh:mm:ss.micros
-  std::string to_string();
+  /// <d>d<sep><hh>h<sep><mm>m<sep><ss>s.micros
+  /// @param field separator
+  /// example: 1d:12h:05m:25s.123, with sep = ':'
+  std::string to_string(char sep=':') const;
   
-  /// Import duration from a string having this format:
-  /// hh[:mm:[ss[.micros]]]
-  void from_string(const std::string& duration_string);
+  /// Export duration to a string using the ISO8601 format
+  /// but limited to day periods:
+  /// PnDTnHnMnS
+  std::string to_iso8601() const;
   
 private:
   int64 m_microsecs;   // duration in microsecond precision
@@ -603,19 +648,18 @@ private:
 //==================================================================================================
 // MeanDuration
 //==================================================================================================
-class YAT_DECL MeanDuration
+class YAT_DECL MeanDuration : public Duration
 {
 public:
-  MeanDuration();
+  MeanDuration(): m_count(0) {}
 
-  void add( const Duration& duration );
-  void reset();
+  void add( const Duration& d ) 
+       { m_mean.total_micros( ( m_mean.total_micros() * m_count + d.total_micros() ) / ++m_count ); }
   std::size_t n() const { return m_count; }
   const Duration& get() const { return m_mean; }
 
 private:
   std::size_t m_count;
-  bool        m_initialized;
   Duration    m_mean;
 };
 
