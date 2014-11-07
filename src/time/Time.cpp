@@ -896,4 +896,346 @@ CurrentTime::CurrentTime(bool bUT)
   set_current(bUT);
 }
 
+//===========================================================================
+// DurationFields 
+//===========================================================================
+void DurationFields::clear()
+{
+  days = hours = minutes = seconds = micros = 0;
+}
+
+//===========================================================================
+// Duration
+//===========================================================================
+
+//----------------------------------------------------------------------------
+// Duration::Duration
+//----------------------------------------------------------------------------
+Duration::Duration(const yat::Time& t1, const yat::Time& t2)
+{
+  if( t1.raw_value() > t2.raw_value() )
+    m_microsecs = t1.raw_value() - t2.raw_value();
+  else
+    m_microsecs = t2.raw_value() - t1.raw_value();
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator=
+//----------------------------------------------------------------------------
+Duration& Duration::operator=(const Duration& other)
+{
+  m_microsecs = other.m_microsecs;
+  return *this;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator+=
+//----------------------------------------------------------------------------
+Duration& Duration::operator+=(yat::int64 microsecs)
+{
+  m_microsecs += microsecs;
+  return *this;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator+=
+//----------------------------------------------------------------------------
+Duration& Duration::operator+=(const Duration& other)
+{
+  m_microsecs += other.m_microsecs;
+  return *this;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator-=
+//----------------------------------------------------------------------------
+Duration& Duration::operator-=(yat::int64 microsecs)
+{
+  if( m_microsecs > microsecs )
+    m_microsecs -= microsecs;
+  else
+    m_microsecs = 0;
+  return *this;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator-=
+//----------------------------------------------------------------------------
+Duration& Duration::operator-=(const Duration& other)
+{
+  if( m_microsecs > other.m_microsecs )
+    m_microsecs -= other.m_microsecs;
+  else
+    m_microsecs = 0;
+  return *this;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator+
+//----------------------------------------------------------------------------
+Duration Duration::operator+(const Duration& other)
+{
+  Duration d;
+  d.m_microsecs = m_microsecs + other.m_microsecs;
+  return d;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator+
+//----------------------------------------------------------------------------
+Duration Duration::operator+(yat::int64 microsecs)
+{
+  Duration d;
+  d.m_microsecs = m_microsecs + microsecs;
+  return d;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator-
+//----------------------------------------------------------------------------
+Duration Duration::operator-(const Duration& other)
+{
+  Duration d;
+  if( m_microsecs > other.m_microsecs )
+    d.m_microsecs = m_microsecs - other.m_microsecs;
+  return d;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator-
+//----------------------------------------------------------------------------
+Duration Duration::operator-(yat::int64 microsecs)
+{
+  Duration d;
+  if( m_microsecs > microsecs )
+    d.m_microsecs = m_microsecs - microsecs;
+  return d;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator*=
+//----------------------------------------------------------------------------
+Duration& Duration::operator*=(int n)
+{
+  if( n >= 0 )
+    m_microsecs *= n;
+  return *this;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator/=
+//----------------------------------------------------------------------------
+Duration& Duration::operator/=(int n)
+{
+  if( n > 0 )
+    m_microsecs /= n;
+  return *this;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator*=
+//----------------------------------------------------------------------------
+Duration& Duration::operator*=(double factor)
+{
+  if( factor >= 0 )
+    m_microsecs = yat::int64( m_microsecs * factor );
+  return *this;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator/=
+//----------------------------------------------------------------------------
+Duration& Duration::operator/=(double factor)
+{
+  if( factor > 0 )
+    m_microsecs = yat::int64( m_microsecs / factor );
+  return *this;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator*
+//----------------------------------------------------------------------------
+Duration Duration::operator*(int n)
+{
+  Duration d;
+  if( n >= 0 )
+    d.m_microsecs = m_microsecs * n;
+  else
+    d.m_microsecs = m_microsecs;
+  return d;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator/
+//----------------------------------------------------------------------------
+Duration Duration::operator/(int n)
+{
+  Duration d;
+  if( n > 0 )
+    d.m_microsecs = m_microsecs / n;
+  else
+    d.m_microsecs = m_microsecs;
+  return d;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator*
+//----------------------------------------------------------------------------
+Duration Duration::operator*(double factor)
+{
+  Duration d;
+  if( factor >= 0 )
+    d.m_microsecs = yat::int64(m_microsecs * factor);
+  else
+    d.m_microsecs = m_microsecs;
+  return d;
+}
+
+//----------------------------------------------------------------------------
+// Duration::operator/
+//----------------------------------------------------------------------------
+Duration Duration::operator/(double factor)
+{
+  Duration d;
+  if( factor > 0 )
+    d.m_microsecs = yat::int64(m_microsecs / factor);
+  else
+    d.m_microsecs = m_microsecs;
+  return d;
+}
+
+//----------------------------------------------------------------------------
+// Duration::get
+//----------------------------------------------------------------------------
+void Duration::get(DurationFields *pDF) const
+{
+  pDF->days = (m_microsecs / MICROSEC_PER_SEC) / SEC_PER_DAY;
+  // Hour, minutes, seconds
+  uint32 ulSec = uint32((m_microsecs / int64(MICROSEC_PER_SEC)) % int64(SEC_PER_DAY));
+  pDF->hours = (uint8)(ulSec / SEC_PER_HOUR);
+  ulSec -= pDF->hours * SEC_PER_HOUR;
+  pDF->minutes = (uint8)(ulSec / SEC_PER_MIN);
+  pDF->seconds = (uint8)(ulSec - pDF->minutes * SEC_PER_MIN);
+  // Retreive micro-seconds
+  pDF->micros = m_microsecs % MICROSEC_PER_SEC;
+}
+
+//----------------------------------------------------------------------------
+// Duration::days
+//----------------------------------------------------------------------------
+uint16 Duration::days() const
+{
+  DurationFields df;
+  get(&df);
+  return df.days;
+}
+
+//----------------------------------------------------------------------------
+// Duration::hours
+//----------------------------------------------------------------------------
+uint8 Duration::hours() const
+{
+  DurationFields df;
+  get(&df);
+  return df.hours;
+}
+
+//----------------------------------------------------------------------------
+// Duration::minutes
+//----------------------------------------------------------------------------
+uint8 Duration::minutes() const
+{
+  DurationFields df;
+  get(&df);
+  return df.minutes;
+}
+
+//----------------------------------------------------------------------------
+// Duration::seconds
+//----------------------------------------------------------------------------
+uint8 Duration::seconds() const
+{
+  DurationFields df;
+  get(&df);
+  return df.seconds;
+}
+
+//----------------------------------------------------------------------------
+// Duration::millis
+//----------------------------------------------------------------------------
+uint16 Duration::millis() const
+{
+  DurationFields df;
+  get(&df);
+  return df.micros / 1000;
+}
+
+//----------------------------------------------------------------------------
+// Duration::micros
+//----------------------------------------------------------------------------
+uint32 Duration::micros() const
+{
+  DurationFields df;
+  get(&df);
+  return df.micros;
+}
+
+//----------------------------------------------------------------------------
+// Duration::total_secs
+//----------------------------------------------------------------------------
+double Duration::total_secs() const
+{
+  return (double)m_microsecs / MICROSEC_PER_SEC;
+}
+
+//----------------------------------------------------------------------------
+// Duration::to_string
+//----------------------------------------------------------------------------
+std::string Duration::to_string(char sep) const
+{
+  DurationFields df;
+  get(&df);
+  std::string duration;
+
+  if(  df.days > 0 )
+    yat::StringUtil::printf(&duration, "%dd%s%02dh%s%02dm%s%02ds.%03d",
+                                       df.days, &sep, df.hours, &sep, df.minutes, &sep, df.seconds, df.micros / 1000);
+  else if( df.hours > 0 )
+    yat::StringUtil::printf(&duration, "%02dh%s%02dm%s%02ds.%03d",
+                                       df.hours, &sep, df.minutes, &sep, df.seconds,  df.micros / 1000 );
+  else if( df.minutes > 0 )
+    yat::StringUtil::printf(&duration, "%02dm%s%02ds.%03d",
+                                       df.minutes, &sep, df.seconds,  df.micros / 1000 );
+  else
+    yat::StringUtil::printf(&duration, "%02ds.%03d",
+                                       df.seconds,  df.micros / 1000 );
+
+  return duration;
+}
+
+//----------------------------------------------------------------------------
+// Duration::to_iso8601
+//----------------------------------------------------------------------------
+std::string Duration::to_iso8601() const
+{
+  DurationFields df;
+  get(&df);
+  std::string duration;
+
+  if(  df.days > 0 )
+    yat::StringUtil::printf(&duration, "%02dDT%02dH%02dM%02dS",
+                                       df.days, df.hours, df.minutes, df.seconds );
+  else if( df.hours > 0 )
+    yat::StringUtil::printf(&duration, "T%02dH%02dM%02dS",
+                                       df.hours, df.minutes, df.seconds );
+  else if( df.minutes > 0 )
+    yat::StringUtil::printf(&duration, "T%02dM%02dS",
+                                       df.minutes, df.seconds );
+  else
+    yat::StringUtil::printf(&duration, "T%02dS",
+                                       df.seconds );
+
+  return duration;
+}
+
 }
