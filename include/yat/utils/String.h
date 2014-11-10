@@ -362,8 +362,9 @@ public:
     ISStream iss(str.c_str());
 
     T num_val;
+    iss >> num_val;
 
-    if( (iss >> num_val) == false )
+    if( iss.fail() )
     {
       if( _throw )
       {

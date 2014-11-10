@@ -651,10 +651,10 @@ private:
 class YAT_DECL MeanDuration : public Duration
 {
 public:
-  MeanDuration(): m_count(0) {}
+  MeanDuration(): m_count(0), m_mean() {}
 
   void add( const Duration& d ) 
-       { m_mean.total_micros( ( m_mean.total_micros() * m_count + d.total_micros() ) / ++m_count ); }
+       { ++m_count; m_mean.total_micros( ( m_mean.total_micros() * (m_count - 1) + d.total_micros() ) / m_count ); }
   std::size_t n() const { return m_count; }
   const Duration& get() const { return m_mean; }
 
