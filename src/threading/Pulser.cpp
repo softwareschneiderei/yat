@@ -59,7 +59,8 @@ class PulserCoreImpl : public yat::Task
     START_MSG = yat::FIRST_USER_MSG,
     STOP_MSG,
     SUSPEND_MSG,
-    RESUME_MSG
+    RESUME_MSG,
+    NUM_PULSES_CHANGED
   } PulserCoreImplMsgType;
   
 public:
@@ -86,6 +87,14 @@ public:
     this->post(RESUME_MSG);
   }
   
+  size_t get_num_pulses () const {
+    return this->cfg_.num_pulses;
+  }
+  
+  void set_num_pulses (size_t num_pulses) {
+    this->post(NUM_PULSES_CHANGED, num_pulses);
+  }
+  
 protected:
   virtual void handle_message (yat::Message& msg)
   {
@@ -109,6 +118,11 @@ protected:
           this->enable_periodic_msg(false);
         }
         break;
+      case NUM_PULSES_CHANGED:
+        {
+          this->cfg_.num_pulses = msg.get_data<size_t>();
+        }
+        break;
       case yat::TASK_PERIODIC:
         {
           if ( this->cfg_.callback.is_empty() )
@@ -130,8 +144,8 @@ protected:
           }
         } 
         break;
-    default:
-      break;
+      default:
+        break;
     }
   }
 
@@ -217,6 +231,27 @@ size_t Pulser::get_period () const
   YAT_TRACE("Pulser::get_period");
 
   return this->impl_ ? this->impl_->get_periodic_msg_period() : 0;
+}
+
+// ============================================================================
+// Pulser::set_num_pulses
+// ============================================================================
+void Pulser::set_num_pulses (size_t num_pulses)
+{
+  YAT_TRACE("Pulser::set_num_pulses");
+
+  if ( this->impl_ )
+    this->impl_->set_num_pulses(num_pulses);
+}
+  
+// ============================================================================
+// Pulser::get_num_pulses
+// ============================================================================
+size_t Pulser::get_num_pulses () const
+{
+  YAT_TRACE("Pulser::get_num_pulses");
+
+  return this->impl_ ? this->impl_->get_num_pulses() : 0;
 }
 
 // ============================================================================

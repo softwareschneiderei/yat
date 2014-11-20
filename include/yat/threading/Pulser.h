@@ -164,6 +164,13 @@ public:
   //! \brief Returns the pulser's in msecs.
   size_t get_period () const;
 
+  //! \brief Changes the number of pulses to be generated.
+  //! \param num_pulses The new number of pulses.
+  void set_num_pulses (size_t num_pulses);
+  
+  //! \brief Returns the number of pulses to be generated.
+  size_t get_num_pulses () const;
+  
   //! \brief Suspends the Pulser activity
   void suspend ();
 
