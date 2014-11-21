@@ -648,7 +648,7 @@ private:
 //==================================================================================================
 // MeanDuration
 //==================================================================================================
-class YAT_DECL MeanDuration : public Duration
+class YAT_DECL MeanDuration
 {
 public:
   MeanDuration(): m_count(0), m_mean() {}
