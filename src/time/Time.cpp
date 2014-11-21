@@ -1038,7 +1038,7 @@ Duration& Duration::operator/=(int n)
 Duration& Duration::operator*=(double factor)
 {
   if( factor >= 0 )
-    m_microsecs = yat::int64( m_microsecs * factor );
+    m_microsecs = yat::int64( double(m_microsecs) * factor );
   return *this;
 }
 
@@ -1048,7 +1048,7 @@ Duration& Duration::operator*=(double factor)
 Duration& Duration::operator/=(double factor)
 {
   if( factor > 0 )
-    m_microsecs = yat::int64( m_microsecs / factor );
+    m_microsecs = yat::int64( double(m_microsecs) / factor );
   return *this;
 }
 
@@ -1085,7 +1085,7 @@ Duration Duration::operator*(double factor)
 {
   Duration d;
   if( factor >= 0 )
-    d.m_microsecs = yat::int64(m_microsecs * factor);
+    d.m_microsecs = yat::int64(double(m_microsecs) * factor);
   else
     d.m_microsecs = m_microsecs;
   return d;
@@ -1098,7 +1098,7 @@ Duration Duration::operator/(double factor)
 {
   Duration d;
   if( factor > 0 )
-    d.m_microsecs = yat::int64(m_microsecs / factor);
+    d.m_microsecs = yat::int64(double(m_microsecs) / factor);
   else
     d.m_microsecs = m_microsecs;
   return d;
@@ -1198,14 +1198,14 @@ std::string Duration::to_string(char sep) const
   std::string duration;
 
   if(  df.days > 0 )
-    yat::StringUtil::printf(&duration, "%dd%s%02dh%s%02dm%s%02ds.%03d",
-                                       df.days, &sep, df.hours, &sep, df.minutes, &sep, df.seconds, df.micros / 1000);
+    yat::StringUtil::printf(&duration, "%dd%c%02dh%c%02dm%c%02ds.%03d",
+                                       df.days, sep, df.hours, sep, df.minutes, sep, df.seconds, df.micros / 1000);
   else if( df.hours > 0 )
-    yat::StringUtil::printf(&duration, "%02dh%s%02dm%s%02ds.%03d",
-                                       df.hours, &sep, df.minutes, &sep, df.seconds,  df.micros / 1000 );
+    yat::StringUtil::printf(&duration, "%02dh%c%02dm%c%02ds.%03d",
+                                       df.hours, sep, df.minutes, sep, df.seconds,  df.micros / 1000 );
   else if( df.minutes > 0 )
-    yat::StringUtil::printf(&duration, "%02dm%s%02ds.%03d",
-                                       df.minutes, &sep, df.seconds,  df.micros / 1000 );
+    yat::StringUtil::printf(&duration, "%02dm%c%02ds.%03d",
+                                       df.minutes, sep, df.seconds,  df.micros / 1000 );
   else
     yat::StringUtil::printf(&duration, "%02ds.%03d",
                                        df.seconds,  df.micros / 1000 );
