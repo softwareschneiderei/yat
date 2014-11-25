@@ -631,10 +631,17 @@ public:
   
   ///
   /// Export duration to a string using this format:
+  /// <d>d<sep><hh>h<sep><mm>m<sep><ss>s
+  /// @param field separator
+  /// example: 1d:12h:05m:25s, with sep = ':'
+  std::string to_string(char sep=':') const;
+  
+  ///
+  /// Export duration to a string using this format:
   /// <d>d<sep><hh>h<sep><mm>m<sep><ss>s.micros
   /// @param field separator
   /// example: 1d:12h:05m:25s.123, with sep = ':'
-  std::string to_string(char sep=':') const;
+  std::string to_string_millis(char sep=':') const;
   
   /// Export duration to a string using the ISO8601 format
   /// but limited to day periods:

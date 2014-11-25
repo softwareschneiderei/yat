@@ -1189,9 +1189,9 @@ double Duration::total_secs() const
 }
 
 //----------------------------------------------------------------------------
-// Duration::to_string
+// Duration::to_string_millis
 //----------------------------------------------------------------------------
-std::string Duration::to_string(char sep) const
+std::string Duration::to_string_millis(char sep) const
 {
   DurationFields df;
   get(&df);
@@ -1209,6 +1209,31 @@ std::string Duration::to_string(char sep) const
   else
     yat::StringUtil::printf(&duration, "%02ds.%03d",
                                        df.seconds,  df.micros / 1000 );
+
+  return duration;
+}
+
+//----------------------------------------------------------------------------
+// Duration::to_string
+//----------------------------------------------------------------------------
+std::string Duration::to_string(char sep) const
+{
+  DurationFields df;
+  get(&df);
+  std::string duration;
+
+  if(  df.days > 0 )
+    yat::StringUtil::printf(&duration, "%dd%c%02dh%c%02dm%c%02ds",
+                                       df.days, sep, df.hours, sep, df.minutes, sep, df.seconds);
+  else if( df.hours > 0 )
+    yat::StringUtil::printf(&duration, "%02dh%c%02dm%c%02ds",
+                                       df.hours, sep, df.minutes, sep, df.seconds);
+  else if( df.minutes > 0 )
+    yat::StringUtil::printf(&duration, "%02dm%c%02ds",
+                                       df.minutes, sep, df.seconds);
+  else
+    yat::StringUtil::printf(&duration, "%02ds",
+                                       df.seconds);
 
   return duration;
 }
