@@ -59,6 +59,168 @@ namespace yat
     throw exception; \
   }
 
+//! \brief Macros set used to ensure all kind of exceptions will be catched and
+//! \brief when one want to not stop at the 1st exception when one have to execute a set of
+//! \brief statements whatever the exceptions those statements may throw
+//! \verbatim
+//!
+//! YAT_INIT_TRY_CATCH
+//! YAT_TRY( statement 1 )
+//! YAT_TRY( statement 2 )
+//! ...
+//! YAT_TRY_WITH_MSG( statement i, "error message", "error origin" )
+//! ...
+//! YAT_TRY( statement n )
+//! YAT_THROW
+//!
+//! \endverbatim
+//!
+
+//---------------------------------
+//! YAT_INIT_TRY_CATCH
+//! \brief Initialize try..catch..throw sequence
+//---------------------------------
+#define YAT_INIT_TRY_CATCH \
+  yat::Exception _the_yat_exception_;
+
+#define __YAT_CATCH_YAT__ \
+    catch( yat::Exception& e ) \
+    { _the_yat_exception_.errors.insert( _the_yat_exception_.errors.end(), e.errors.begin(), e.errors.end() ); }
+
+#define __YAT_CATCH_STD__ \
+    catch( std::exception& e ) \
+    { _the_yat_exception_.push_error("ERROR", PSZ_FMT("Standard system error occured: %s", e.what()), "stdlib"); } \
+
+#define __YAT_CATCH_OTHER__ \
+    catch( ... ) \
+    { _the_yat_exception_.push_error("ERROR", "!!!Unknown error occured!!!", "Unknown"); }
+
+//---------------------------------
+//! YAT_TRY
+//! \brief try a statement and catch exceptions
+//---------------------------------
+#define YAT_TRY( statement ) \
+  do \
+  { \
+    try  { statement; } \
+    __YAT_CATCH_YAT__ \
+    __YAT_CATCH_STD__ \
+    __YAT_CATCH_OTHER__ \
+  } while(0)
+
+#define __YAT_CATCH_YAT_WITH_MSG__( reason, msg, org ) \
+    catch( yat::Exception& e ) \
+    { \
+      _the_yat_exception_.errors.insert( _the_yat_exception_.errors.end(), e.errors.begin(), e.errors.end() ); \
+      _the_yat_exception_.push_error(reason, msg, org); \
+    }
+
+#define __YAT_CATCH_STD_WITH_MSG__( reason, msg, org ) \
+    catch( std::exception& e ) \
+    { \
+      _the_yat_exception_.push_error("ERROR", PSZ_FMT("Standard system error occured: %s", e.what()), "stdlib"); \
+      _the_yat_exception_.push_error(reason, msg, org); \
+    }
+    
+#define __YAT_CATCH_OTHER_WITH_MSG__( msg, org ) \
+    catch( ... ) \
+    { \
+      _the_yat_exception_.push_error("ERROR", "!!!Unknown error occured!!!", "Unknown"); \
+      _the_yat_exception_.push_error(reason, msg, org); \
+    }
+
+//---------------------------------
+//! YAT_TRY_WITH_MSG
+//! \brief try a statement, catch exceptions and add an error message if needed
+//---------------------------------
+#define YAT_TRY_WITH_MSG( statement, reason, msg, org ) \
+  do \
+  { \
+    try  { statement; } \
+    __YAT_CATCH_YAT_WITH_MSG__( reason, msg, org ) \
+    __YAT_CATCH_STD_WITH_MSG__( reason, msg, org ) \
+    __YAT_CATCH_OTHER_WITH_MSG__( reason, msg, org ) \
+  } while(0)
+
+//---------------------------------
+//! YAT_THROW
+//! \brief throw the yat::Exception to finish the try..catch..throw sequence
+//---------------------------------
+#define YAT_THROW \
+  do \
+  { \
+    if( !_the_yat_exception_.errors.empty() ) { throw _the_yat_exception_; } \
+  } while (0)
+
+//---------------------------------
+//! YAT_THROW_WITH_MSG
+//! \brief throw the yat::Exception with a new message to finish the try..catch..throw sequence
+//---------------------------------
+#define YAT_THROW_WITH_MSG( reason, msg, org ) \
+  do \
+  { \
+    if( !_the_yat_exception_.errors.empty() ) \
+    { \
+       _the_yat_exception_.push_error(reason, msg, org); \
+      throw _the_yat_exception_; \
+    } \
+  } while (0)
+
+//---------------------------------
+//! YAT_TRY_CATCH_THROW
+//! \brief Macro that try a single statement and transform all kind of exceptions
+//! \brief into a yat::Exception then throw it
+//---------------------------------
+#define __YAT_CATCH_THROW__  catch( yat::Exception& e ) { throw e; }
+
+#define __YAT_CATCH_THROW_STD__ \
+    catch( std::exception& e ) \
+    { THROW_YAT_ERROR("ERROR", PSZ_FMT("Standard system error occured: %s", e.what()), "stdlib"); } \
+
+#define __YAT_CATCH_THROW_OTHER__ \
+    catch( ... ) \
+    { THROW_YAT_ERROR("ERROR", "!!!Unknown error occured!!!", "Unknown"); }
+
+#define YAT_TRY_CATCH_THROW( statement ) \
+  do \
+  { \
+    try  { statement; } \
+    __YAT_CATCH_THROW__ \
+    __YAT_CATCH_THROW_STD__ \
+    __YAT_CATCH_THROW_STD__ \
+  } while(0)
+
+//---------------------------------
+//! YAT_TRY_CATCH_THROW_WITH_MSG
+//! \brief Macro that try a single statement and transform all kind of exceptions 
+//! \brief into a yat::Exception then throw it with a new error message on top level
+//---------------------------------
+#define __YAT_CATCH_THROW_WITH_MSG__(reason, msg, org) \
+  catch( yat::Exception& e ) { RETHROW_YAT_ERROR( e, reason, msg, org ); }
+
+#define __YAT_CATCH_THROW_STD_WITH_MSG__( reason, msg, org ) \
+  catch( std::exception& e ) \
+  { e.push_error( "ERROR", PSZ_FMT("Standard system error occured: %s", e.what()), "stdlib" ); \
+    e.push_error( reason, msg, org ); \
+    throw e; \
+  } \
+
+#define __YAT_CATCH_THROW_OTHER_WITH_MSG__( reason, msg, org ) \
+  catch( ... ) \
+  { e.push_error( "ERROR", "!!!Unknown error occured!!!", "Unknown" ); \
+    e.push_error( reason, , msg, org ); \
+    throw e; \
+  }
+  
+#define YAT_TRY_CATCH_THROW_WITH_MSG( statement, reason, msg, org ) \
+  do \
+  { \
+    try  { statement; } \
+    __YAT_CATCH_THROW_WITH_MSG__( reason, msg, org ) \
+    __YAT_CATCH_THROW_STD_WITH_MSG__( reason, msg, org ) \
+    __YAT_CATCH_THROW_OTHER_WITH_MSG__( reason, msg, org ) \
+  } while(0)
+
   // ============================================================================
   //! \brief Error severity.
   // ============================================================================
