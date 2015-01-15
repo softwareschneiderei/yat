@@ -122,7 +122,7 @@ namespace yat
       _the_yat_exception_.push_error(reason, msg, org); \
     }
     
-#define __YAT_CATCH_OTHER_WITH_MSG__( msg, org ) \
+#define __YAT_CATCH_OTHER_WITH_MSG__( reason, msg, org ) \
     catch( ... ) \
     { \
       _the_yat_exception_.push_error("ERROR", "!!!Unknown error occured!!!", "Unknown"); \
@@ -179,7 +179,7 @@ namespace yat
 
 #define __YAT_CATCH_THROW_OTHER__ \
     catch( ... ) \
-    { THROW_YAT_ERROR("ERROR", "!!!Unknown error occured!!!", "Unknown"); }
+    { THROW_YAT_ERROR("ERROR", "!!!Unknown error occured!!!", "Unknown origin"); }
 
 #define YAT_TRY_CATCH_THROW( statement ) \
   do \
@@ -200,16 +200,20 @@ namespace yat
 
 #define __YAT_CATCH_THROW_STD_WITH_MSG__( reason, msg, org ) \
   catch( std::exception& e ) \
-  { e.push_error( "ERROR", PSZ_FMT("Standard system error occured: %s", e.what()), "stdlib" ); \
-    e.push_error( reason, msg, org ); \
-    throw e; \
+  { \
+    yat::Exception ex; \
+    ex.push_error( "ERROR", PSZ_FMT("Standard system error occured: %s", e.what()), "stdlib" ); \
+    ex.push_error( reason, msg, org ); \
+    throw ex; \
   } \
 
 #define __YAT_CATCH_THROW_OTHER_WITH_MSG__( reason, msg, org ) \
   catch( ... ) \
-  { e.push_error( "ERROR", "!!!Unknown error occured!!!", "Unknown" ); \
-    e.push_error( reason, , msg, org ); \
-    throw e; \
+  { \
+    yat::Exception ex; \
+    ex.push_error( "ERROR", "!!!Unknown error occured!!!", "Unknown origin" ); \
+    ex.push_error( reason, msg, org ); \
+    throw ex; \
   }
   
 #define YAT_TRY_CATCH_THROW_WITH_MSG( statement, reason, msg, org ) \
