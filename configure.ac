@@ -12,6 +12,7 @@ AM_INIT_AUTOMAKE([-Wall -Werror])
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
+AM_PROG_AR
 AC_PROG_LIBTOOL
 
 # Checks for libraries.

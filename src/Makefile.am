@@ -1,5 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 lib_LTLIBRARIES = libyat.la
 
 libyat_la_LDFLAGS = -version-info 1:0:0
