@@ -703,7 +703,9 @@ private:
 } //- namespace
 
 //! Convenience declarations. To prepare a smooth move to C++ 11
-#define SHARED_PTR(T) yat::SharedPtr<T, yat::NullMutex>
-#define THREADSAFE_SHARED_PTR(T) yat::SharedPtr<T, yat::Mutex>
+#define YAT_SHARED_PTR(T) yat::SharedPtr<T, yat::NullMutex>
+#define YAT_WEAK_PTR(T) yat::WeakPtr<T, yat::NullMutex>
+#define YAT_THREADSAFE_SHARED_PTR(T) yat::SharedPtr<T, yat::Mutex>
+#define YAT_THREADSAFE_WEAK_PTR(T) yat::WeakPtr<T, yat::Mutex>
 
 #endif //- _YAT_SHARED_PTR_H_
