@@ -322,9 +322,8 @@ public:
   
   //! \brief Join the specified multicast group on the specified local interface
   //!
-  //! \param interface_addr Local network interface address.
-  //! \param multicast_addr Multicast address of the group to join.
-  void join_multicast_group (const yat::Address& interface_addr, const yat::Address& multicast_addr);
+  //! \param multicast_group_addr Multicast address of the group to join.
+  void join_multicast_group (const yat::Address& multicast_group_addr);
   
 protected:
   //! \brief Constructs new socket.

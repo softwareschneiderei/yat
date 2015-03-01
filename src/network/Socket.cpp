@@ -661,7 +661,7 @@ void Socket::set_option (Socket::Option _opt, int _value)
 // ----------------------------------------------------------------------------
 // Socket::join_multicast_group
 // ----------------------------------------------------------------------------
-void Socket::join_multicast_group (const yat::Address& interface_addr, const yat::Address& multicast_addr)
+void Socket::join_multicast_group (const yat::Address& multicast_group_addr)
 {
   if ( yat::Socket::UDP_PROTOCOL != this->get_protocol()  )
   {
@@ -673,8 +673,8 @@ void Socket::join_multicast_group (const yat::Address& interface_addr, const yat
   
   //- multicast group descriptor
   struct ip_mreq mg;
-  mg.imr_multiaddr.s_addr = inet_addr(multicast_addr.get_ip_address().c_str());
-  mg.imr_interface.s_addr = inet_addr(interface_addr.get_ip_address().c_str());
+  mg.imr_multiaddr.s_addr = inet_addr(multicast_group_addr.get_ip_address().c_str());
+  mg.imr_interface.s_addr = htonl(INADDR_ANY);
   if ( ::setsockopt(this->m_os_desc, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mg, sizeof(mg)) )
   {
     throw yat::SocketException("SOCKET_ERROR", 
