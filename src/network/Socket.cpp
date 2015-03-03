@@ -671,7 +671,6 @@ void Socket::join_multicast_group (const yat::Address& multicast_group_addr)
                                SocketException::yat_to_native_error(SoErr_Other)); 
   } 
   
-  //- multicast group descriptor
   struct ip_mreq mg;
   mg.imr_multiaddr.s_addr = inet_addr(multicast_group_addr.get_ip_address().c_str());
   mg.imr_interface.s_addr = htonl(INADDR_ANY);
@@ -681,6 +680,50 @@ void Socket::join_multicast_group (const yat::Address& multicast_group_addr)
                                "failed to join the mulitacast group - os call to ::setsockopt failed", 
                                "yat::Socket::join_multicast_group", 
                                SocketException::yat_to_native_error(SoErr_Other)); 
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Socket::join_multicast_group
+// ----------------------------------------------------------------------------
+void Socket::join_multicast_group (const yat::Address& multicast_group_addr, const yat::Address& local_interface_addr)
+{
+  if ( yat::Socket::UDP_PROTOCOL != this->get_protocol()  )
+  {
+    throw yat::SocketException("SOCKET_ERROR", 
+                               "failed to join the mulitacast group - wrong IP protocol [must be a UDP socket]", 
+                               "yat::Socket::join_multicast_group", 
+                               SocketException::yat_to_native_error(SoErr_Other)); 
+  } 
+  
+  struct ip_mreq mg;
+  mg.imr_multiaddr.s_addr = inet_addr(multicast_group_addr.get_ip_address().c_str());
+  mg.imr_interface.s_addr = inet_addr(local_interface_addr.get_ip_address().c_str());
+  if ( ::setsockopt(this->m_os_desc, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mg, sizeof(mg)) )
+  {
+    throw yat::SocketException("SOCKET_ERROR", 
+                               "failed to join the mulitacast group - os call to ::setsockopt failed", 
+                               "yat::Socket::join_multicast_group", 
+                               SocketException::yat_to_native_error(SoErr_Other)); 
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Socket::attach_to_network_interface
+// ----------------------------------------------------------------------------
+void Socket::attach_to_network_interface (const yat::Address& local_interface_addr)
+{
+  struct in_addr addr;
+  
+  ::memset(&addr, 0, sizeof(addr));
+  
+  addr.s_addr = inet_addr(local_interface_addr.get_ip_address().c_str());
+  
+  if ( ::setsockopt(this->m_os_desc, IPPROTO_IP, IP_MULTICAST_IF, &addr, sizeof(addr)) )
+  {
+    THROW_SOCKET_ERROR(err_no, 
+                       "OS <setsockopt> call failed", 
+                       "yat::Socket::attach_to_network_interface");
   }
 }
 

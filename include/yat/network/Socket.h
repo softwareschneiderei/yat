@@ -97,7 +97,7 @@ public:
     SOCK_OPT_LINGER, 
     //! Disable the Nagle algorithm for packet coalescing.
     SOCK_OPT_NO_DELAY,
-    //! %Socket protocol type.
+    //! Socket protocol type.
     SOCK_OPT_PROTOCOL_TYPE,
     //! Allow reuse of a TCP address without delay.
     SOCK_OPT_REUSE_ADDRESS,
@@ -320,10 +320,21 @@ public:
   //! \param dbs Default buffer size (in bytes).
   static void default_rd_buffer_size (size_t dbs);
   
-  //! \brief Join the specified multicast group on the specified local interface
+  //! \brief Join the specified multicast group (on ANY network interface)
   //!
   //! \param multicast_group_addr Multicast address of the group to join.
   void join_multicast_group (const yat::Address& multicast_group_addr);
+  
+  //! \brief Join the specified multicast group on the specified local interface
+  //!
+  //! \param multicast_group_addr Multicast address of the group to join.
+  //! \param local_interface_addr Local network interface.
+  void join_multicast_group (const yat::Address& multicast_group_addr, const yat::Address& local_interface_addr);
+  
+  //! \brief Attach the socket to the specified network interface (i.e. set the IP_MULTICAST_IF socket option)
+  //!
+  //! \param local_interface_addr The local network interface.
+  void attach_to_network_interface (const yat::Address& local_interface_addr);
   
 protected:
   //! \brief Constructs new socket.
