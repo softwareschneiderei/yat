@@ -713,6 +713,19 @@ void Socket::join_multicast_group (const yat::Address& multicast_group_addr, con
 // ----------------------------------------------------------------------------
 void Socket::attach_to_network_interface (const yat::Address& local_interface_addr)
 {
+#ifdef WIN32
+  
+  DWORD dwip = inet_addr(local_interface_addr.get_ip_address().c_str());
+  
+  if ( ::setsockopt(this->m_os_desc, IPPROTO_IP, IP_MULTICAST_IF, (char*)&dwip, sizeof(dwip)) )
+  {
+    THROW_SOCKET_ERROR(err_no, 
+                       "OS <setsockopt> call failed", 
+                       "yat::Socket::attach_to_network_interface");
+  }
+  
+#else
+  
   struct in_addr addr;
   
   ::memset(&addr, 0, sizeof(addr));
@@ -725,6 +738,8 @@ void Socket::attach_to_network_interface (const yat::Address& local_interface_ad
                        "OS <setsockopt> call failed", 
                        "yat::Socket::attach_to_network_interface");
   }
+  
+#endif
 }
 
 // ----------------------------------------------------------------------------
