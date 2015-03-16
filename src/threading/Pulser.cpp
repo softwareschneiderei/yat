@@ -92,7 +92,7 @@ public:
   }
   
   void set_num_pulses (size_t num_pulses) {
-    this->post(NUM_PULSES_CHANGED, num_pulses);
+    this->post(NUM_PULSES_CHANGED, num_pulses, 1000);
   }
   
 protected:

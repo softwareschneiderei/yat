@@ -67,19 +67,19 @@ YAT_INLINE Thread::State Thread::state_i () const
 // ----------------------------------------------------------------------------
 YAT_INLINE void Thread::sleep (unsigned long _msecs)
 {
-#define kNSECS_PER_SEC  1000000000
-#define kNSECS_PER_MSEC 1000000
+#define kNSECS_PER_SEC  1000000000.
+#define kNSECS_PER_MSEC 1000000.
 
   unsigned long secs = 0;
-  unsigned long nanosecs = kNSECS_PER_MSEC * _msecs;
+  double nanosecs = kNSECS_PER_MSEC * _msecs;
 
-	while (nanosecs >= kNSECS_PER_SEC)
-	{
-		secs += 1;
-		nanosecs -= kNSECS_PER_SEC;
-	}
+  while ( nanosecs >= kNSECS_PER_SEC )
+  {
+    secs += 1;
+    nanosecs -= kNSECS_PER_SEC;
+  }
 
-  ThreadingUtilities::sleep(secs, nanosecs);
+  ThreadingUtilities::sleep(secs, static_cast<unsigned long>(nanosecs));
 
 #undef kNSECS_PER_MSEC
 #undef kNSECS_PER_SEC
