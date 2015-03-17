@@ -94,10 +94,14 @@ public:
   //! \brief Waits until N threads call \link wait wait \endlink, where N equals the 
   //! count provided to the constructor for the Barrier object. 
   //!
+  //! \param tmo_msecs Wait timeout in milliseconds. Wait forever, if set to zero (the default).
+  //!
+  //! \exception TIMEOUT_EXPIRED Thrown on timeout expiration (in case tmo_msecs not null).
+  //!
   //! \remarks 
   //! If the barrier is destroyed before wait() can return, the behavior is 
   //! undefined.
-  void wait ();
+  void wait (size_t tmo_msecs = 0);
 
 private:
   //- The number of threads to synchronize (involved threads).
