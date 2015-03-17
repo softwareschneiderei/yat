@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2014 Synchrotron SOLEIL
+// Copyright (c) 2004-2015 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -95,7 +95,7 @@ public:
   //! count provided to the constructor for the Barrier object. 
   //!
   //! \param tmo_msecs Wait timeout in milliseconds. Wait forever, if set to zero (the default).
-  //!
+  //!s
   //! \exception TIMEOUT_EXPIRED Thrown on timeout expiration (in case tmo_msecs not null).
   //!
   //! \remarks 
