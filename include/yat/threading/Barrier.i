@@ -36,7 +36,7 @@ namespace yat
 // ----------------------------------------------------------------------------
 // Barrier::has_expired
 // ----------------------------------------------------------------------------
-YAT_INLINE bool Barrier::has_expired () const
+YAT_INLINE bool Barrier::has_expired ()
 {
   //- enter critical section
   MutexLock guard(this->m_mutex);

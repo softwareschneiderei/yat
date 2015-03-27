@@ -104,7 +104,7 @@ public:
   void wait (size_t tmo_msecs = 0);
 
   //! \brief Returns true if the N threads called wait on the barrier, returns false otherwise.
-  void has_expired () const;
+  bool has_expired ();
 
 
 private:
