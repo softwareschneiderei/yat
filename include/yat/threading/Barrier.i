@@ -33,5 +33,15 @@
 namespace yat
 {
 
+// ----------------------------------------------------------------------------
+// Barrier::has_expired
+// ----------------------------------------------------------------------------
+YAT_INLINE bool Barrier::has_expired () const
+{
+  //- enter critical section
+  MutexLock guard(this->m_mutex);
+  
+  return this->m_waiters_count == this->m_thread_count;
+}
 
 } //- namespace

@@ -77,17 +77,23 @@ void Barrier::wait (size_t tmo_msecs)
   //- enter critical section
   MutexLock guard(this->m_mutex);
 
+  //- are all expected threads waiting on the barrier?
+  if ( this->m_waiters_count == this->m_thread_count )
+  {
+    THROW_YAT_ERROR("PROGRAMMING_ERROR",
+                    "barrier has expired! [hint: did a thread called 'wait' twice of the same barrier?]",
+                    "Barrier::wait");
+  }
+  
   //- increment waiters count
   this->m_waiters_count++;
 
   YAT_LOG("Barrier::wait::thread " << DUMP_THREAD_UID << "::about to wait on Barrier");
 
   //- are all expected threads waiting on the barrier?
-  if ( this->m_waiters_count == m_thread_count )
+  if ( this->m_waiters_count == this->m_thread_count )
   {
     YAT_LOG("Barrier::wait::all expected waiters present. Reset/notify Barrier...");
-    //- reset the barrier
-    this->m_waiters_count = 0;
     //- notify all waiters
     this->m_condition.broadcast();
     //- done: return 

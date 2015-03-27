@@ -95,13 +95,17 @@ public:
   //! count provided to the constructor for the Barrier object. 
   //!
   //! \param tmo_msecs Wait timeout in milliseconds. Wait forever, if set to zero (the default).
-  //!s
+  //!
   //! \exception TIMEOUT_EXPIRED Thrown on timeout expiration (in case tmo_msecs not null).
   //!
   //! \remarks 
   //! If the barrier is destroyed before wait() can return, the behavior is 
   //! undefined.
   void wait (size_t tmo_msecs = 0);
+
+  //! \brief Returns true if the N threads called wait on the barrier, returns false otherwise.
+  void has_expired () const;
+
 
 private:
   //- The number of threads to synchronize (involved threads).
