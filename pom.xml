@@ -9,7 +9,7 @@
   </parent>
   <groupId>fr.soleil.lib</groupId>
   <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
-  <version>1.9.13-SNAPSHOT</version>
+  <version>1.9.14-SNAPSHOT</version>
   <packaging>nar</packaging>
   <name>YAT</name>
   <description>Yet Another Toolkit Library</description>
@@ -28,8 +28,8 @@
     </developer>
   </developers>
   <scm>
-    <connection>${scm.connection.svn.tango-cs}:share/yat/trunk</connection>
-    <developerConnection>${scm.developerConnection.cvs.svn.tango-cs}:share/yat/trunk</developerConnection>
+    <connection>${scm.connection.svn.tango-cs}/share/yat/trunk</connection>
+    <developerConnection>${scm.developerConnection.svn.tango-cs}/share/yat/trunk</developerConnection>
     <url>${scm.url.svn.tango-cs}/share/yat/trunk</url>
   </scm>
   <build>
