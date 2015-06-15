@@ -43,6 +43,10 @@
 # define YAT_DEBUG
 #endif
 
+#ifndef YAT_PROJECT_VERSION
+  #define YAT_PROJECT_VERSION "version not provided!"
+#endif
+
 #include <assert.h>
 #include <yat/Portability.h>
 #include <yat/Inline.h>
