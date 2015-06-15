@@ -66,7 +66,7 @@ public:
   //!
   //! Returns true if template has been evaluated, false otherwise.
   //! \param[in,out] pstrSymbol Variable to evaluate, will contain the result.
-  virtual bool value(String *pstrSymbol)=0;
+  virtual bool value(std::string *pstrSymbol)=0;
 };
 
 // ============================================================================
@@ -99,8 +99,8 @@ private:
   std::list<ISymbolInterpreter *> m_lstInterpreter;
   NotFoundReplacement       m_eNotFoundReplacement;
   
-  bool PrivProcess(String *pstrTemplate, bool bRecurse, std::set<String> &setEvaluatedSymbols);
-  bool PrivProcessVar(String *pstrVar, bool bRecurse, bool bDeepEvaluation, std::set<String> &setEvaluatedSymbols);
+  bool PrivProcess(std::string *pstrTemplate, bool bRecurse, std::set<std::string> &setEvaluatedSymbols);
+  bool PrivProcessVar(std::string *pstrVar, bool bRecurse, bool bDeepEvaluation, std::set<std::string> &setEvaluatedSymbols);
 
 public:
   //! \brief Constructor.
@@ -119,7 +119,7 @@ public:
   //!
   //! Returns true if evaluation is done, false otherwise.
   //! \param[in,out] pstrSymbol Symbol to evaluate, will contain the result.
-  bool value(String *pstrSymbol);
+  bool value(std::string *symbol);
 
   //! \brief Processes a template string.
   //!
@@ -127,6 +127,12 @@ public:
   //! done by symbol interpreters.
   //! Returns true if evaluation is done, false otherwise.
   //! \param[in,out] pstrTemplate %String to evaluate, will contain the result.
+  bool substitute(std::string *pstrTemplate);
+
+  //! \deprecated
+  bool value(String *pstrSymbol);
+
+  //! \deprecated
   bool substitute(String *pstrTemplate);
 };
 
@@ -144,7 +150,7 @@ public:
   //!
   //! Returns true if template has been evaluated, false otherwise.
   //! \param[in,out] pstrVar Variable to evaluate, will contain the result.
-  virtual bool value(String *pstrVar);
+  virtual bool value(std::string *pstrVar);
 };
 
 } // namespace
