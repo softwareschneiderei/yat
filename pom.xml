@@ -50,6 +50,10 @@
             <includePaths>
               <includePath>include</includePath>
             </includePaths>
+            <defines>
+              <define>YAT_PROJECT_VERSION="${project.version}"</define>
+              <define>YAT_PROJECT_NAME="${project.name}"</define>
+            </defines>
           </cpp>
           <specificConfigurations>
             <specificConfiguration>
