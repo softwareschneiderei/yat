@@ -67,7 +67,7 @@ public:
   //! \param strVar Environment variable name.
   //! \param pstrValue Environment variable value.
   //! \param pszDef Default value.
-  static bool get_env(const String &strVar, String *pstrValue, const char *pszDef=NULL);
+  static bool get_env(const std::string &strVar, std::string *pstrValue, const char *pszDef=NULL);
 
   //! \brief Executes a command line.
   //! \param pszCmdLine The command line to execute.
