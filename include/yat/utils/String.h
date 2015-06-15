@@ -46,6 +46,7 @@
 // STL headers
 #include <string>
 #include <vector>
+#include <deque>
 
 #if defined YAT_WIN32 && _MSC_VER > 1200
     // Deprecated POSX definitions with VC8+
@@ -217,7 +218,8 @@ public:
   //! - '*': match any number of characters.
   //! - '?': match one character.
   //! \param pszMask The mask.
-  static bool match(const std::string& str, pcsz pszMask);
+  //! \param pvectokens elements that match '*' and '?' can be pushed in a vector
+  static bool match(const std::string& str, pcsz pszMask, std::vector<std::string> *pvectokens=0);
 
   //! \brief Tests if std::string matches with mask containing '*' and '?' jokers.
   //!
@@ -225,8 +227,9 @@ public:
   //! The mask can contain:
   //! - '*': match any number of characters.
   //! - '?': match one character.
+  //! \param pvectokens elements that match '*' and '?' can be pushed in a vector
   //! \param strMask The mask.
-  static bool match(const std::string& str, const std::string &strMask);
+  static bool match(const std::string& str, const std::string &strMask, std::vector<std::string> *pvectokens=0);
 
   //! \brief Removes white spaces at beginning and end of string.
   static void trim(std::string* str_p);
@@ -266,6 +269,26 @@ public:
 
   //! \brief Splits the std::string.
   //!
+  //! The std::string is split in tokens separated with the specified separator.
+  //! The extracted tokens are put in the std::string deque, while *this* std::string is
+  //! preserved.
+  //! \param c Separator.
+  //! \param[out] p_deque Pointer to a vector of std::strings.
+  //! \param bClear If set to true, the deque is cleared first.
+  static void split(std::string* str_p, char c, std::deque<std::string> *p_deque, bool bClear=true);
+
+  //! \brief Splits the std::string.
+  //!
+  //! The std::string is split in tokens separated with the specified separator.
+  //! The extracted tokens are put in the std::string deque, while *this* std::string is
+  //! preserved.
+  //! \param c Separator.
+  //! \param[out] p_deque Pointer to a deque of std::strings.
+  //! \param bClear If set to true, the deque is cleared first.
+  static void split(const std::string& str, char c, std::deque<std::string> *p_deque, bool bClear=true);
+
+  //! \brief Splits the std::string.
+  //!
   //! The std::string is split in 2 tokens separated with the specified separator.
   //!
   //! \param c Separator.
@@ -302,6 +325,23 @@ public:
   //! \param cSep %std::string separator.
   //! \return a std::string with the result
   static std::string join(const std::vector<std::string> &vecStr, char cSep=',');
+
+  //! \brief Joins std::strings from a std::string vector, using specified separator.
+  //!
+  //! Replaces *this* std::string with the result.
+  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2 
+  //! \param deque The source deque.
+  //! \param cSep %std::string separator.
+  static void join(std::string* str_p, const std::deque<std::string> &deque, char cSep=',');
+
+  //! \brief Joins std::strings from a std::string vector, using specified separator.
+  //!
+  //! Replaces *this* std::string with the result.
+  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2 
+  //! \param deque The source deque.
+  //! \param cSep %std::string separator.
+  //! \return a std::string with the result
+  static std::string join(const std::deque<std::string> &deque, char cSep=',');
 
   //! \brief Removes items separated by a specific separator.
   //!
@@ -443,7 +483,7 @@ public:
 // ============================================================================
 //! \class String 
 //! \brief Extended string class.
-//! \deprecated use yat::StringWork instead
+//! \deprecated use yat::StringUtil instead
 //!
 //! This class is an extension of the std::string class: it provides additional
 //! string manipulation functions, such as token extraction, enclosure deletion, 
