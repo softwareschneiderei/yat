@@ -402,7 +402,7 @@ bool StringUtil::end_with(const std::string& str, char c)
 // Look for occurence for a string in another
 // Take care of '?' that match any character
 //---------------------------------------------------------------------------
-static pcsz find_sub_str_with_joker(pcsz pszSrc, pcsz pMask, uint32 uiLenMask)
+static pcsz find_sub_str_with_joker(pcsz pszSrc, pcsz pMask, uint32 uiLenMask, std::vector<std::string>* tokens_p)
 {
   if (strlen(pszSrc) < uiLenMask)
     return NULL; // No hope
@@ -421,6 +421,10 @@ static pcsz find_sub_str_with_joker(pcsz pszSrc, pcsz pMask, uint32 uiLenMask)
       {
         if (pszSrc[uiOffSrc] != cMask)
           break;
+      }
+      else if( tokens_p )
+      {
+        tokens_p->push_back( std::string(1, pszSrc[uiOffSrc]) );
       }
   
       // Next char
@@ -442,15 +446,15 @@ static pcsz find_sub_str_with_joker(pcsz pszSrc, pcsz pMask, uint32 uiLenMask)
 //---------------------------------------------------------------------------
 // StringUtil::match
 //---------------------------------------------------------------------------
-bool StringUtil::match(const std::string& str, const std::string &strMask)
+bool StringUtil::match(const std::string& str, const std::string &strMask, std::vector<std::string>* tokens_p)
 {
-  return match(str, PSZ(strMask));
+  return match(str, PSZ(strMask), tokens_p);
 }
 
 //---------------------------------------------------------------------------
 // StringUtil::match
 //---------------------------------------------------------------------------
-bool StringUtil::match(const std::string& str, pcsz pszMask)
+bool StringUtil::match(const std::string& str, pcsz pszMask, std::vector<std::string>* tokens_p)
 {
   pcsz pszTxt = str.c_str();
   while (*pszMask)
@@ -471,6 +475,9 @@ bool StringUtil::match(const std::string& str, pcsz pszMask)
       case '?': // joker at one position
         if (!*pszTxt)
           return true; // no match
+
+        if( tokens_p )
+          tokens_p->push_back( std::string(1, *pszTxt) );
 
         pszTxt++;
         pszMask++;
@@ -494,15 +501,17 @@ bool StringUtil::match(const std::string& str, pcsz pszMask)
             uiLenMask = static_cast<yat::uint32>(pEndMask - pszMask);
           else
             // string must be end with mask
-            return (NULL != find_sub_str_with_joker(pszTxt + strlen(pszTxt)-strlen(pszMask), pszMask, strlen(pszMask)))?
-                           true : false;
+            return (NULL != find_sub_str_with_joker( pszTxt + strlen(pszTxt)-strlen(pszMask), pszMask, strlen(pszMask), tokens_p ) ) ? true : false;
 
           // Search first uiLenMask characters from mask in text
-          pcsz pEnd = find_sub_str_with_joker(pszTxt, pszMask, uiLenMask);
+          pcsz pEnd = find_sub_str_with_joker(pszTxt, pszMask, uiLenMask, tokens_p);
 
           if (!pEnd)
             // Mask not found
             return false;
+
+          if( tokens_p )
+            tokens_p->push_back( std::string(pszTxt, pEnd - pszTxt) );
 
           pszTxt = pEnd;
           pszMask += uiLenMask;
@@ -643,6 +652,39 @@ void StringUtil::split(const std::string& str, char c, std::vector<std::string> 
 }
 
 //---------------------------------------------------------------------------
+// StringUtil::split
+//---------------------------------------------------------------------------
+void StringUtil::split(std::string* str_p, char c, std::deque<std::string> *deque_p, bool bClear)
+{
+  // Clear vector
+  if( bClear )
+    deque_p->clear();
+  std::string strToken;
+  while( !(*str_p).empty() )
+  {
+    if( 0 != extract_token(str_p, c, &strToken) )
+      deque_p->push_back(strToken);
+  }
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::split (const version)
+//---------------------------------------------------------------------------
+void StringUtil::split(const std::string& str, char c, std::deque<std::string> *deque_p, bool bClear)
+{
+  // Clear vector
+  if( bClear )
+    deque_p->clear();
+  std::string strToken;
+  std::string tmp(str);
+  while( !tmp.empty() )
+  {
+    if( 0 != extract_token(&tmp, c, &strToken) )
+      deque_p->push_back(strToken);
+  }
+}
+
+//---------------------------------------------------------------------------
 // StringUtil::join
 //---------------------------------------------------------------------------
 void StringUtil::join(std::string* str_p, const std::vector<std::string> &vecStr, char cSep)
@@ -663,6 +705,30 @@ std::string StringUtil::join(const std::vector<std::string> &vecStr, char cSep)
 {
   std::string s;
   join( &s, vecStr, cSep);
+  return s;
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::join
+//---------------------------------------------------------------------------
+void StringUtil::join(std::string* str_p, const std::deque<std::string> &deque, char cSep)
+{
+  (*str_p).erase();
+  for( uint32 ui=0; ui < deque.size(); ui++ )
+  {
+    if( 0 < ui )
+      (*str_p) += cSep;
+    (*str_p) += deque[ui];
+  }
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::join
+//---------------------------------------------------------------------------
+std::string StringUtil::join(const std::deque<std::string> &deque, char cSep)
+{
+  std::string s;
+  join( &s, deque, cSep);
   return s;
 }
 
@@ -1107,50 +1173,6 @@ bool String::end_with(char c) const
   return false;
 }
 
-/* redefined whithin the StringWork class
-//---------------------------------------------------------------------------
-// Internal utility function
-// Look for occurence for a string in another
-// Take care of '?' that match any character
-//---------------------------------------------------------------------------
-static pcsz find_sub_str_with_joker(pcsz pszSrc, pcsz pMask, uint32 uiLenMask)
-{
-  if (strlen(pszSrc) < uiLenMask)
-    return NULL; // No hope
-
-  // while mask len < string len 
-  while( *(pszSrc + uiLenMask - 1) ) 
-  {
-    uint32 uiOffSrc = 0; // starting offset in mask and sub-string
-    
-    // Tant qu'on n'est pas au bout du masque
-    while (uiOffSrc < uiLenMask)
-    {
-      char cMask = pMask[uiOffSrc];
-      
-      if (cMask != '?') // In case of '?' it always match
-      {
-        if (pszSrc[uiOffSrc] != cMask)
-          break;
-      }
-  
-      // Next char
-      uiOffSrc++;
-    }
-
-    // String matched !
-    if (uiOffSrc == uiLenMask)
-      return pszSrc + uiLenMask;
-
-    // Next sub-string
-    pszSrc++;
-  }
-
-  // Not found
-  return NULL;
-}
-*/
-
 //---------------------------------------------------------------------------
 // String::match
 //---------------------------------------------------------------------------
@@ -1206,11 +1228,11 @@ bool String::match(pcsz pszMask) const
             uiLenMask = static_cast<yat::uint32>(pEndMask - pszMask);
           else
             // string must be end with mask
-            return (NULL != find_sub_str_with_joker(pszTxt + strlen(pszTxt)-strlen(pszMask), pszMask, strlen(pszMask)))?
+            return (NULL != find_sub_str_with_joker(pszTxt + strlen(pszTxt)-strlen(pszMask), pszMask, strlen(pszMask), 0))?
                            true : false;
 
           // Search first uiLenMask characters from mask in text
-          pcsz pEnd = find_sub_str_with_joker(pszTxt, pszMask, uiLenMask);
+          pcsz pEnd = find_sub_str_with_joker(pszTxt, pszMask, uiLenMask, 0);
 
           if (!pEnd)
             // Mask not found
