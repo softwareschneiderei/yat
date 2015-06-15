@@ -78,17 +78,17 @@ void StringTemplate::remove_symbol_interpreter(ISymbolInterpreter *pInterpreter)
 //----------------------------------------------------------------------------
 // StringTemplate::substitute
 //----------------------------------------------------------------------------
-bool StringTemplate::substitute(String *pstrTemplate)
+bool StringTemplate::substitute(std::string *pstrTemplate)
 {
-  String strEval, strTmp;
-  String strTmpl = *pstrTemplate;
-  String strVar, strValue;
+  std::string strEval, strTmp;
+  std::string strTmpl = *pstrTemplate;
+  std::string strVar, strValue;
   bool bNotReturnValue = false;
 
   while( strTmpl.size() > 0 )
   {
     // Search for a variable
-    String::size_type uiFirstPos = strTmpl.find("$(");
+    std::string::size_type uiFirstPos = strTmpl.find("$(");
     if( String::npos != uiFirstPos )
     {
       // Search for matching ')'. Take care of nested variables
@@ -132,9 +132,17 @@ bool StringTemplate::substitute(String *pstrTemplate)
 }
 
 //----------------------------------------------------------------------------
+// StringTemplate::substitute
+//----------------------------------------------------------------------------
+bool StringTemplate::substitute(String *pstrTemplate)
+{
+  return substitute( (std::string*)pstrTemplate );
+}
+
+//----------------------------------------------------------------------------
 // StringTemplate::value
 //----------------------------------------------------------------------------
-bool StringTemplate::value(String *pstrVar)
+bool StringTemplate::value(std::string *pstrVar)
 {
   std::list<ISymbolInterpreter *>::iterator itInterpreter = m_lstInterpreter.begin();
 
@@ -159,10 +167,21 @@ bool StringTemplate::value(String *pstrVar)
   return false;
 }
 
+//----------------------------------------------------------------------------
+// StringTemplate::value
+//----------------------------------------------------------------------------
+bool StringTemplate::value(String *pstrVar)
+{
+  return value( (std::string*)pstrVar );
+}
+
 //=============================================================================
 // EnvVariableInterpreter
 //=============================================================================
-bool EnvVariableInterpreter::value(String *pstrVar)
+//----------------------------------------------------------------------------
+// EnvVariableInterpreter::value
+//----------------------------------------------------------------------------
+bool EnvVariableInterpreter::value(std::string *pstrVar)
 {
   return SysUtils::get_env(*pstrVar, pstrVar);
 }
