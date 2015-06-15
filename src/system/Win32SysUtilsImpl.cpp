@@ -50,7 +50,7 @@ namespace yat
 //----------------------------------------------------------------------------
 // SysUtils::GetEnv
 //----------------------------------------------------------------------------
-bool SysUtils::get_env(const String &strVar, String *pstrValue, const char *pszDef)
+bool SysUtils::get_env(const std::string &strVar, std::string *pstrValue, const char *pszDef)
 {
   LOCK(&g_acScratchBuf);
   if ( ::GetEnvironmentVariable(PSZ(strVar), g_acScratchBuf, g_iScratchLen) == 0 )

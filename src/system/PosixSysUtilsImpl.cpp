@@ -55,7 +55,7 @@ namespace yat
 //----------------------------------------------------------------------------
 // SysUtils::get_env
 //----------------------------------------------------------------------------
-bool SysUtils::get_env(const String &strVar, String *pstrValue, const char *pszDef)
+bool SysUtils::get_env(const std::string &strVar, std::string *pstrValue, const char *pszDef)
 {
   char *pszBuf = ::getenv(PSZ(strVar));
   if ( pszBuf == NULL )
