@@ -48,6 +48,9 @@
 namespace yat
 {
 
+#define _STR_(s) #s
+#define YAT_XSTR(s) _STR_(s)
+
 // ============================================================================
 //! \class Version 
 //! \brief Class aimed to manage versions numbers information about a project's modules
