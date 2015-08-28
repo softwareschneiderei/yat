@@ -383,6 +383,6 @@ inline bool operator==( const UniquePtr<T, D>& a, const UniquePtr<U, E>& b )
 } //- namespace
 
 //! Convenience declaration in order to prepare a smooth move to C++ 11
-#define YAT_UNIQUE_PTR(T) yat::Unique<T>
+#define YAT_UNIQUE_PTR(T) yat::UniquePtr<T>
 
 #endif //- _YAT_UNIQUE_PTR_H_
