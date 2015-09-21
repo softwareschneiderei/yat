@@ -73,6 +73,17 @@ YAT_INLINE void Buffer<T>::force_length (size_t _new_length)
 }
 
 // ============================================================================
+// Buffer::memcpy
+// ============================================================================
+template <typename T>
+YAT_INLINE void Buffer<T>::memcpy (const void *src, size_t num_elements, size_t offset)
+{
+  ::memcpy(this->base_ + offset, src, num_elements * sizeof(T));
+ 
+  this->force_length(this->length_ + num_elements);
+}
+
+// ============================================================================
 // Buffer::capacity
 // ============================================================================
 template <typename T>

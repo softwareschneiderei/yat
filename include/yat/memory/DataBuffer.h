@@ -145,6 +145,15 @@ public:
   //! \brief Returns the number of elements currently stored into the buffer. 
   size_t length () const;
   
+  //! \brief Copy n elments of type T from the specified source to the buffer. 
+  //! The number of bytes actually copied is n * sizeof(T). 
+  //! The copied data is placed into the buffer at 'buffer base' address + offset.
+  //! The buffer length is then set to current length + num_elements.
+  //!
+  //! \param num_elements Number of elements of type T to be copied.
+  //! \param offset Offset in number of elements from the buffer base address.
+  void memcpy (const void *src, size_t num_elements, size_t offset = 0);
+  
   //! \brief Artificially changes the buffer length. 
   //!
   //! \param new_length New number of elements.
