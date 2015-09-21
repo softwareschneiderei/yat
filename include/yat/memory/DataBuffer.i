@@ -29,7 +29,7 @@
 /*!
  * \author See AUTHORS file
  */
- 
+
 namespace yat
 {
 
@@ -70,17 +70,6 @@ YAT_INLINE void Buffer<T>::force_length (size_t _new_length)
     this->length_ = this->capacity_;
   else
     this->length_ = _new_length;
-}
-
-// ============================================================================
-// Buffer::memcpy
-// ============================================================================
-template <typename T>
-YAT_INLINE void Buffer<T>::memcpy (const void *src, size_t num_elements, size_t offset)
-{
-  ::memcpy(this->base_ + offset, src, num_elements * sizeof(T));
- 
-  this->force_length(this->length_ + num_elements);
 }
 
 // ============================================================================
@@ -160,7 +149,7 @@ YAT_INLINE Buffer<T>& Buffer<T>::operator= (const Buffer<T>& src)
   if (this->capacity_ < src.length_)
     this->capacity(src.length_);
     
-  ::memcpy(this->base_, src.base_, src.length_ * sizeof(T));
+  std::memcpy(this->base_, src.base_, src.length_ * sizeof(T));
   
   this->length_ = src.length_;
   

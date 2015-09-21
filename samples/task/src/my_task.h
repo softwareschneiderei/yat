@@ -35,7 +35,7 @@
 // ============================================================================
 //  SharedBuffer: a thread safe shared data buffer 
 // ============================================================================
-class SharedBuffer : public yat::Buffer<double>, private yat::SharedObject
+class SharedBuffer : public yat::Buffer<double>, public yat::SharedObject
 {
 public:
   //- explicit public ctor
@@ -55,24 +55,10 @@ public:
   //- returns a "shallow" copy of this shared object (avoids deep copy).
   //- increments the shared reference count by 1 (thread safe).
   SharedBuffer* duplicate ()
-    { return reinterpret_cast<SharedBuffer*>(yat::SharedObject::duplicate()); }
-  
-  //- decrements the shared reference count by 1.
-  //- in case it drops to 0 then self delete the instance (thread safe).
-  void release ()
-    { yat::SharedObject::release(); } 
-    
-  //- returns the current value of object's reference counter 
-  int reference_count () const
-    { return yat::SharedObject::reference_count(); } 
-  
-  //- lock the underlying buffer 
-  void lock ()
-    { yat::SharedObject::lock(); } 
-    
-  //- unlock the underlying buffer 
-  void unlock ()
-    { yat::SharedObject::unlock(); } 
+    { 
+      yat::SharedObject::duplicate();
+      return this;
+    }
 };
 
 // ============================================================================

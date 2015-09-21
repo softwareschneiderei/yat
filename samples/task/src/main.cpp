@@ -98,8 +98,9 @@ int main(int argc, char* argv[])
       SharedBuffer* sb = new SharedBuffer();
       sb->capacity(i + 1);
       sb->memcpy(data.base(), i + 1);
-      dt->post(kDATA_MSG, sb, false);
-
+      std::cout << "SharedBuffer* sb.length = " << sb->length() << std::endl;
+      dt->post(kDATA_MSG, sb->duplicate(), false);
+      sb->release();
       //- simulate some time consuming activity
       yat::ThreadingUtilities::sleep(0, 100000);
     }

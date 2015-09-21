@@ -179,6 +179,17 @@ void Buffer<T>::capacity (size_t _new_capacity, bool _keep_content)
 }
 
 // ============================================================================
+// Buffer::memcpy
+// ============================================================================
+template <typename T>
+void Buffer<T>::memcpy (const void *src, size_t num_elements, size_t offset)
+{
+  std::memcpy(this->base_ + offset, src, num_elements * sizeof(T));
+ 
+  this->force_length(this->length_ + num_elements);
+}
+
+// ============================================================================
 // Class : ImageBuffer
 // ============================================================================
 // ======================================================================

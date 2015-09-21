@@ -44,7 +44,7 @@
 // ============================================================================
 // DEPENDENCIES
 // ============================================================================
-#include <string.h>
+#include <cstring>
 #include <yat/threading/SharedObject.h>
 
 namespace yat 
