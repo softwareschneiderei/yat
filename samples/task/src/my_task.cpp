@@ -16,6 +16,20 @@
 // ============================================================================
 #include "my_task.h"
 
+#  define YAT_LOG(s) \
+    do \
+    { \
+       std::cout << "[this:" \
+                 << std::hex \
+                 << (void *)this \
+                 << std::dec \
+                 << "]::" \
+                 << __FUNCTION__ \
+                 << "::" \
+                 << s \
+                 << std::endl; \
+    } while (0)
+    
 // ============================================================================
 // Consumer::Consumer
 // ============================================================================
@@ -110,6 +124,15 @@ void Consumer::handle_message (yat::Message& _msg)
         yat::ThreadingUtilities::sleep(0, 10000);
   		}
   		break;
+    //- kDATA_MSG -------------------
+    case kDATA_MSG:
+      {
+        //- code relative to the task's tmo handling goes here
+        SharedBuffer* sb = _msg.detach_data<SharedBuffer>();
+        YAT_LOG("got a SharedBuffer containing " << sb->length() << " elements");
+        sb->release();
+      }
+      break;
   	default:
   		YAT_LOG("Consumer::handle_message::unhandled msg type received");
   		break;

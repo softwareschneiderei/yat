@@ -19,16 +19,80 @@
 // ============================================================================
 #include <iostream>
 #include <yat/threading/Task.h>
+#include <yat/memory/DataBuffer.h>
 
 // ============================================================================
 // SOME USER DEFINED MESSAGES
 // ============================================================================
-#define kDUMMY_MSG (yat::FIRST_USER_MSG + 1000)
+#define kDUMMY_MSG 10000
+#define kDATA_MSG  10001
 
 // ============================================================================
 // SOME USER DEFINED MESSAGE PRIORITIES
 // ============================================================================
 #define kDUMMY_MSG_PRIORITY adtb::MAX_USER_PRIORITY
+
+// ============================================================================
+//  SharedBuffer: a thread safe shared data buffer 
+// ============================================================================
+class SharedBuffer : public yat::Buffer<double>, private yat::SharedObject
+{
+public:
+  //- explicit public ctor
+  explicit SharedBuffer ()
+   : yat::Buffer<double>(), yat::SharedObject()
+    {
+      //- noop ctor
+    }
+   
+  //- private dtor
+  virtual ~SharedBuffer ()
+    { 
+      static size_t cnt = 0;
+      std::cout << "SharedBuffer dtor called " << ++cnt << " times" << std::endl; 
+    }
+    
+  //- returns a "shallow" copy of this shared object (avoids deep copy).
+  //- increments the shared reference count by 1 (thread safe).
+  SharedBuffer* duplicate ()
+    { return reinterpret_cast<SharedBuffer*>(yat::SharedObject::duplicate()); }
+  
+  //- decrements the shared reference count by 1.
+  //- in case it drops to 0 then self delete the instance (thread safe).
+  void release ()
+    { yat::SharedObject::release(); } 
+    
+  //- returns the current value of object's reference counter 
+  int reference_count () const
+    { return yat::SharedObject::reference_count(); } 
+  
+  //- lock the underlying buffer 
+  void lock ()
+    { yat::SharedObject::lock(); } 
+    
+  //- unlock the underlying buffer 
+  void unlock ()
+    { yat::SharedObject::unlock(); } 
+};
+
+// ============================================================================
+//  AutoSharedBuffer: auto lock/unlock a SharedBuffer
+// ============================================================================
+class AutoSharedBuffer
+{
+public:
+  //- ctor
+  AutoSharedBuffer (SharedBuffer& sdb) 
+   : m_sdb(sdb)
+    { m_sdb.lock(); }
+   
+  //- dtor
+  virtual ~AutoSharedBuffer ()
+    { m_sdb.unlock(); }
+  
+private:
+   SharedBuffer& m_sdb;
+};
 
 // ============================================================================
 // class: Consumer

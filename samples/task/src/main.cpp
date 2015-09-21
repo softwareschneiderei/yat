@@ -60,6 +60,7 @@ int main(int argc, char* argv[])
     return 0;
   }
 
+ /*
   for (size_t i = 0; i < kNUM_MSGS; i++)
   {
     try
@@ -83,7 +84,39 @@ int main(int argc, char* argv[])
       YAT_LOG_STATIC("unknown except. caught - could not post msg#" << i);
     }
   }
+*/
+ 
+  yat::Buffer<double> data(kNUM_MSGS);
+  for ( size_t i = 0; i < kNUM_MSGS; i++ )
+    data[i] = 1. * i;
+  data.force_length(kNUM_MSGS);
+  
+  for (size_t i = 0; i < kNUM_MSGS; i++)
+  {
+    try
+    {
+      SharedBuffer* sb = new SharedBuffer();
+      sb->capacity(i + 1);
+      sb->memcpy(data.base(), i + 1);
+      dt->post(kDATA_MSG, sb, false);
 
+      //- simulate some time consuming activity
+      yat::ThreadingUtilities::sleep(0, 100000);
+    }
+    catch (const std::bad_alloc&)
+    {
+      YAT_LOG_STATIC("std::bad_alloc except. caught - could not post msg#" << i);
+    }
+    catch (const yat::Exception&)
+    {
+      YAT_LOG_STATIC("tango except. caught - could not post msg#" << i);
+    }
+    catch (...)
+    {
+      YAT_LOG_STATIC("unknown except. caught - could not post msg#" << i);
+    }
+  }
+  
   try
   {
     dt->exit();
