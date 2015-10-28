@@ -74,7 +74,7 @@ bool SysUtils::get_env(const std::string &strVar, std::string *pstrValue, const 
 //----------------------------------------------------------------------------
 bool SysUtils::exec(const char* pszCmdLine, const char *, int bBackground, bool, int *puiReturnCode)
 {
-  String sCmd = pszCmdLine;
+  std::string sCmd = pszCmdLine;
   if( bBackground )
     // Background task
     sCmd += "&";
@@ -92,7 +92,7 @@ bool SysUtils::exec_as(const char* pszCmdLine, const char *, int bBackground, bo
 {
   int rc = 0;
 
-  String sCmd = pszCmdLine;
+  std::string sCmd = pszCmdLine;
   if( bBackground )
     // Background task
     sCmd += "&";
