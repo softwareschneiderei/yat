@@ -307,7 +307,7 @@ public:
   //! \param[out] pstrRight Right part of the split std::string.
   //! \param bPreserve If set to true, *this* std::string is preserved, else, *this* is
   //! the left part of the split std::string.
-  void split(std::string* str_p, char c, std::string *pstrLeft, std::string *pstrRight);
+  static void split(std::string* str_p, char c, std::string *pstrLeft, std::string *pstrRight);
 
   //! \brief Joins std::strings from a std::string vector, using specified separator.
   //!
@@ -477,7 +477,7 @@ public:
     }
 
     return oss.str();
-  } 
+  }
 };
 
 // ============================================================================
