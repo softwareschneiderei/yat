@@ -89,12 +89,12 @@ bool StringTemplate::substitute(std::string *pstrTemplate)
   {
     // Search for a variable
     std::string::size_type uiFirstPos = strTmpl.find("$(");
-    if( String::npos != uiFirstPos )
+    if( std::string::npos != uiFirstPos )
     {
       // Search for matching ')'. Take care of nested variables
-      String::size_type uiMatchPos = strTmpl.find_first_of(')', uiFirstPos + 2);
+      std::string::size_type uiMatchPos = strTmpl.find_first_of(')', uiFirstPos + 2);
 
-      if( String::npos != uiMatchPos )
+      if( std::string::npos != uiMatchPos )
       {
         // complete result string
         strEval += strTmpl.substr(0, uiFirstPos);
