@@ -292,7 +292,7 @@ class YAT_DECL FileName
 {
 protected:
   //! %File name.
-  String m_strFile;  
+  std::string m_strFile;  
 
 #ifdef YAT_LINUX
   static size_t s_copy_bloc_size;
@@ -448,22 +448,22 @@ public:
   const std::string& full_name() const { return m_strFile; }
 
   //! \brief Gets file path.
-  String path() const;
+  std::string path() const;
 
   //! \brief Gets filename without path and extension.
-  String name() const;
+  std::string name() const;
 
   //! \brief Gets directory name (last path component before file name).
-  String dir_name() const;
+  std::string dir_name() const;
 
   //! \brief Gets filename relative to specified path.
-  String rel_name(const char* pszPath) const;
+  std::string rel_name(const char* pszPath) const;
 
   //! \brief Gets filename (with its extension) without path.
-  String name_ext() const;
+  std::string name_ext() const;
 
   //! \brief Gets file extension.
-  String ext() const;
+  std::string ext() const;
 
   //! \brief Creates a directory with specified rights.
   //!
@@ -704,7 +704,7 @@ private:
   static long s_lLastNumber;
 
   //- Generate file name
-  String GenerateRandomName();
+  std::string GenerateRandomName();
 
 public:
   //! \brief Default constructor.
@@ -760,7 +760,7 @@ protected:
 #endif
 
   //! Current path.
-  String m_strPath;    
+  std::string m_strPath;    
 
 public:
 
@@ -872,7 +872,7 @@ public:
   //!
   //! Returns a vector of \<values\>.
   //! \param strSection Section name. If set to NULL, gets current section values.
-  const Values& get_values(const std::string& strSection=String::nil) const;
+  const Values& get_values(const std::string& strSection="") const;
 
   //! \brief Gets section dictionary.
   //!
