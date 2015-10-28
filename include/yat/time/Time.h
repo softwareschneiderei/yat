@@ -407,24 +407,24 @@ public:
   void from_ISO8601(const char* pszISO8601);
 
   //! \brief Gets the date in a local time ISO8601 format.
-  String to_local_ISO8601() const;
+  std::string to_local_ISO8601() const;
 
   //! \brief Gets the date in a local time ISO8601 format with milliseconds.
-  String to_local_ISO8601_ms() const;
+  std::string to_local_ISO8601_ms() const;
 
   //! \brief Gets the date in ISO8601 format.
-  String to_ISO8601() const;
+  std::string to_ISO8601() const;
 
   //! \brief Gets the date in ISO8601 format with milliseconds.
-  String to_ISO8601_ms() const;
+  std::string to_ISO8601_ms() const;
 
   //! \brief Gets the date in a UTC ISO8601 format with milliseconds.
-  String to_ISO8601_ms_TU() const;
+  std::string to_ISO8601_ms_TU() const;
 
   //! \brief Gets the date in the international format.
   //!
   //! \param bMillis If set to true, the output format is with milliseconds.
-  String to_inter(bool bMillis=true) const;
+  std::string to_inter(bool bMillis=true) const;
 
   //@} Text methods
 
