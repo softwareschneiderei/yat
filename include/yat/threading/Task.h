@@ -445,6 +445,7 @@ template <typename T> void Task::wait_msg_handled (size_t msg_type,
 // ============================================================================
 //! \struct TaskExiter
 //! \brief 'Deleter' object to instanciate when using yat::SharedPtr<yat::Task>
+//! \brief or with implicite instantiation whith yat::UniquePtr<yat::Task, yat::TaskExiter>
 // ============================================================================
 struct TaskExiter
 {
