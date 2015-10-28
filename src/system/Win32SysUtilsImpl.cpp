@@ -74,11 +74,11 @@ bool SysUtils::exec(const char* pszCmdLine, const char *pszDefDir, int bBackgrou
   // First of all we want to known if the command line refer to a executable or a document
   // Because of a different behavior of the GetMessage() function
   bool bIsExecutable;
-  String strCommandLine = pszCmdLine;
-  String strCmd;
-  strCommandLine.trim();
+  std::string strCommandLine = pszCmdLine;
+  std::string strCmd;
+  StringUtil::trim(&strCommandLine);
 
-  if ( strCommandLine.start_with('"') )
+  if ( StringUtil::start_with(strCommandLine, '"') )
   { // the executable name of path may contains spaces. Normaly the method caller have
     // demilited the command with quotes.
     int iQuotIndex = strCmd.find('"');
@@ -91,17 +91,17 @@ bool SysUtils::exec(const char* pszCmdLine, const char *pszDefDir, int bBackgrou
     strCmd = strCommandLine.substr(1, iQuotIndex);
   }
   else
-    strCommandLine.extract_token(' ', &strCmd);
+    StringUtil::extract_token(&strCommandLine, ' ', &strCmd);
 
   // strCmd is the first argument, e.g the name of a executable or a document
   // Extract the extention
-  String strExt;
-  String strCmdDummy = strCmd;
-  rc = strCmdDummy.extract_token_right('.', &strExt );
-  if( rc != String::SEP_FOUND )
+  std::string strExt;
+  std::string strCmdDummy = strCmd;
+  rc = StringUtil::extract_token_right(&strCmdDummy, '.', &strExt );
+  if( rc != StringUtil::SEP_FOUND )
   {
     // No extension => we consider it's a executable
-    strExt = String::nil;
+    strExt.clear();
     bIsExecutable = true;
   }
   else
