@@ -700,10 +700,10 @@ void Time::set_double_unix(double dRefSec)
 //----------------------------------------------------------------------------
 // Time::to_local_ISO8601
 //----------------------------------------------------------------------------
-String Time::to_local_ISO8601() const
+std::string Time::to_local_ISO8601() const
 {
-  String strDate;
-  String strFmt;
+  std::string strDate;
+  std::string strFmt;
 
   double dTZ = LocalBias();
   if( dTZ < 0 )
@@ -724,7 +724,7 @@ String Time::to_local_ISO8601() const
   DateFields df;
   get(&df);
 
-  strDate = String::str_format(PSZ(strFmt), df.year, df.month, df.day,
+  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
                               df.hour, df.min, uint32(df.sec + 0.5), iHourBias, iMinBias);
   return strDate;
 }
@@ -732,16 +732,16 @@ String Time::to_local_ISO8601() const
 //----------------------------------------------------------------------------
 // Time::to_ISO8601
 //----------------------------------------------------------------------------
-String Time::to_ISO8601() const
+std::string Time::to_ISO8601() const
 {
-  String strDate;
-  String strFmt = "%04d-%02d-%02dT%02d:%02d:%02dZ";
+  std::string strDate;
+  std::string strFmt = "%04d-%02d-%02dT%02d:%02d:%02dZ";
 
   // Split date into fields
   DateFields df;
   get(&df);
 
-  strDate = String::str_format(PSZ(strFmt), df.year, df.month, df.day,
+  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
                               df.hour, df.min, uint32(df.sec + 0.5));
   return strDate;
 }
@@ -749,16 +749,16 @@ String Time::to_ISO8601() const
 //----------------------------------------------------------------------------
 // Time::to_ISO8601_ms_TU
 //----------------------------------------------------------------------------
-String Time::to_ISO8601_ms_TU() const
+std::string Time::to_ISO8601_ms_TU() const
 {
-  String strDate;
-  String strFmt = "%04d-%02d-%02dT%02d:%02d:%06.3lfZ";
+  std::string strDate;
+  std::string strFmt = "%04d-%02d-%02dT%02d:%02d:%06.3lfZ";
 
   // Split date into fields
   DateFields df;
   get(&df);
 
-  strDate = String::str_format(PSZ(strFmt), df.year, df.month, df.day,
+  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
                               df.hour, df.min, df.sec);
   return strDate;
 }
@@ -766,10 +766,10 @@ String Time::to_ISO8601_ms_TU() const
 //----------------------------------------------------------------------------
 // Time::to_ISO8601_ms
 //----------------------------------------------------------------------------
-String Time::to_ISO8601_ms() const
+std::string Time::to_ISO8601_ms() const
 {
-  String strDate;
-  String strFmt;
+  std::string strDate;
+  std::string strFmt;
 
   strFmt = "%04d-%02d-%02dT%02d:%02d:%06.3lf";
 
@@ -777,7 +777,7 @@ String Time::to_ISO8601_ms() const
   DateFields df;
   get(&df);
 
-  strDate = String::str_format(PSZ(strFmt), df.year, df.month, df.day,
+  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
                               df.hour, df.min, df.sec);
   return strDate;
 }
@@ -785,10 +785,10 @@ String Time::to_ISO8601_ms() const
 //----------------------------------------------------------------------------
 // Time::to_local_ISO8601_ms
 //----------------------------------------------------------------------------
-String Time::to_local_ISO8601_ms() const
+std::string Time::to_local_ISO8601_ms() const
 {
-  String strDate;
-  String strFmt;
+  std::string strDate;
+  std::string strFmt;
 
   double dTZ = LocalBias();
   if( dTZ < 0 )
@@ -809,7 +809,7 @@ String Time::to_local_ISO8601_ms() const
   DateFields df;
   get(&df);
 
-  strDate = String::str_format(PSZ(strFmt), df.year, df.month, df.day,
+  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
                               df.hour, df.min, df.sec, iHourBias, iMinBias);
   return strDate;
 }
@@ -817,10 +817,10 @@ String Time::to_local_ISO8601_ms() const
 //----------------------------------------------------------------------------
 // Time::to_inter
 //----------------------------------------------------------------------------
-String Time::to_inter(bool bMillis) const
+std::string Time::to_inter(bool bMillis) const
 {
-  String strDate;
-  String strFmt;
+  std::string strDate;
+  std::string strFmt;
 
   if( bMillis )
     strFmt = "%04d-%02d-%02d %02d:%02d:%06.3lf";
@@ -832,10 +832,10 @@ String Time::to_inter(bool bMillis) const
   get(&df);
 
   if( bMillis )
-    strDate = String::str_format(PSZ(strFmt), df.year, df.month, df.day,
+    strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
                               df.hour, df.min, df.sec);
   else
-    strDate = String::str_format(PSZ(strFmt), df.year, df.month, df.day,
+    strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
                               df.hour, df.min, int(df.sec+0.5));
 
   return strDate;
