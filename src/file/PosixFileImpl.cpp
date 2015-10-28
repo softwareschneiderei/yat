@@ -94,13 +94,13 @@ bool FileName::path_exist() const
     strPath = strPath.substr(0, strPath.size()-1);
     iRc = stat(PSZ(strPath), &st);
     if( iRc && errno != ENOENT )
-      ThrowExceptionFromErrno(PSZ(String::str_format(ERR_STAT_FAILED, PSZ(strPath))), "FileName::path_exist");
+      ThrowExceptionFromErrno(PSZ(StringUtil::str_format(ERR_STAT_FAILED, PSZ(strPath))), "FileName::path_exist");
   }
   else
   {
     iRc = stat(pszPath, &st);
     if( iRc && errno != ENOENT )
-      ThrowExceptionFromErrno(PSZ(String::str_format(ERR_STAT_FAILED, pszPath)), "FileName::path_exist");
+      ThrowExceptionFromErrno(PSZ(StringUtil::str_format(ERR_STAT_FAILED, pszPath)), "FileName::path_exist");
   }
   return !iRc && (st.st_mode & S_IFDIR);
 }
@@ -160,7 +160,7 @@ void FileName::set_full_name(pcsz pszFileName)
 //-------------------------------------------------------------------
 // FileName::rel_name
 //-------------------------------------------------------------------
-String FileName::rel_name(const char* pszPath) const
+std::string FileName::rel_name(const char* pszPath) const
 {
   FileName fnRef(pszPath);
 
@@ -170,7 +170,7 @@ String FileName::rel_name(const char* pszPath) const
   if (!p || !pRef)
     return m_strFile;
 
-  String str;
+  std::string str;
   bool bClimbStarted = false;
   for(;;)
   {
@@ -182,17 +182,17 @@ String FileName::rel_name(const char* pszPath) const
       // No more parts in file name
       while( pRef1 )
       {
-        str = String("../") + str;
+        str = std::string("../") + str;
         pRef1 = strchr(pRef1+1, SEP_PATH);
       }
-      str += String(p+1);
+      str += std::string(p+1);
       return str;
     }
 
     if( !pRef1 )
     {
       // No more reference
-      str += String(p+1);
+      str += std::string(p+1);
       return str;
     }
 
@@ -202,7 +202,7 @@ String FileName::rel_name(const char* pszPath) const
         strncmp(p, pRef, p1-p) )
     {
       // Different directory
-      str = String("../") + str;
+      str = std::string("../") + str;
       bClimbStarted = true;
       str.append(p+1, p1-p);
     }
@@ -239,7 +239,7 @@ void FileName::convert_separators(std::string *pstr)
 void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const
   throw( Exception )
 {
-  String str = path();
+  std::string str = path();
   if( str.empty() )
     return;
 
@@ -325,7 +325,7 @@ bool FileName::link_exist() const throw( Exception )
 /* Probably stupid... no file => no link!
   else if( iRc )
   {
-    String strErr = String::str_format(ERR_TEST_LINK, PSZ(full_name()));
+    std::string strErr = StringUtil::str_format(ERR_TEST_LINK, PSZ(full_name()));
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::link_exist");
   }
 */
@@ -586,7 +586,7 @@ void FileName::move(const std::string& strDest) throw( Exception )
 {
   if( !file_exist() )
   { // File doesn't exists
-    String strErr = String::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
+    std::string strErr = StringUtil::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
     throw FileNotFoundException(PSZ(strErr), "FileName::move");
   }
 
@@ -637,7 +637,7 @@ FileName::FSType FileName::file_system_type() const throw( Exception )
   int iRc = statfs(PSZ(path()), &buf);
   if( iRc )
   {
-    String strErr = String::str_format(ERR_FSTYPE, PSZ(path()));
+    std::string strErr = StringUtil::str_format(ERR_FSTYPE, PSZ(path()));
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::file_system_type");
   }
   return FSType(buf.f_type);
@@ -652,7 +652,7 @@ fsid_t FileName::file_system_id() const throw( Exception )
   int iRc = statfs(PSZ(path()), &buf);
   if( iRc )
   {
-    String strErr = String::str_format(ERR_FSTYPE, PSZ(path()));
+    std::string strErr = StringUtil::str_format(ERR_FSTYPE, PSZ(path()));
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::file_system_type");
   }
   return buf.f_fsid;
@@ -666,7 +666,7 @@ void FileName::chmod(mode_t mode) throw( Exception )
   int iRc = ::chmod(PSZ(full_name()), mode);
   if( iRc )
   {
-    String strErr = String::str_format(ERR_CHMOD_FAILED, PSZ(full_name()), mode);
+    std::string strErr = StringUtil::str_format(ERR_CHMOD_FAILED, PSZ(full_name()), mode);
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::chmod");
   }
 }
@@ -679,7 +679,7 @@ void FileName::chown(uid_t uid, gid_t gid) throw( Exception )
   int iRc = ::chown(PSZ(full_name()), uid, gid);
   if( iRc )
   {
-    String strErr = String::str_format(ERR_CHOWN_FAILED, PSZ(full_name()), uid, gid);
+    std::string strErr = StringUtil::str_format(ERR_CHOWN_FAILED, PSZ(full_name()), uid, gid);
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::chown");
   }
 }
@@ -689,7 +689,7 @@ void FileName::chown(uid_t uid, gid_t gid) throw( Exception )
 //-------------------------------------------------------------------
 void FileName::ThrowExceptionFromErrno(const char *pszDesc, const char *pszOrigin) const
 {
-  String strDesc = String::str_format("%s. %s", pszDesc, strerror(errno));
+  std::string strDesc = StringUtil::str_format("%s. %s", pszDesc, strerror(errno));
   switch( errno )
   {
     case EIO:
@@ -756,14 +756,14 @@ void FileEnum::init(const std::string& strPath, EEnumMode eMode) throw(BadPathEx
   m_dirDir = opendir(PSZ(path()));
   if( NULL == m_dirDir )
   {
-    String strErr = String::str_format(ERR_CANNOT_ENUM_DIR, PSZ(path()));
+    std::string strErr = StringUtil::str_format(ERR_CANNOT_ENUM_DIR, PSZ(path()));
     throw BadPathException(PSZ(strErr), "FileEnum::Init");
   }
 
   m_strPath = strPath; // Save initial path.
 
   // translate win separator to unix superator
-  m_strPath.replace(SEP_PATHDOS, SEP_PATHUNIX);
+  StringUtil::replace( &m_strPath, SEP_PATHDOS, SEP_PATHUNIX );
 }
 
 //-------------------------------------------------------------------
@@ -772,11 +772,11 @@ void FileEnum::init(const std::string& strPath, EEnumMode eMode) throw(BadPathEx
 bool FileEnum::find() throw(BadPathException, FileNotFoundException, Exception)
 {
   struct dirent *dirEntry;
-  String str;
+  std::string str;
   while( (dirEntry = readdir(m_dirDir)) != NULL )
   {
     str = dirEntry->d_name;
-    if( str.is_equal(".") == false && str.is_equal("..") == false )
+    if( StringUtil::is_equal( str, "." ) == false && StringUtil::is_equal( str, ".." ) == false )
     {
       // Set new file name
       set(m_strPath, dirEntry->d_name);

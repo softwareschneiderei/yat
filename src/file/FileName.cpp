@@ -71,15 +71,15 @@ void FileName::set(const std::string& strFullName)
 
 void FileName::set(const std::string& _strPath, const std::string& _strName)
 {
-  String strPath = _strPath;
-  String strName = _strName;
+  std::string strPath = _strPath;
+  std::string strName = _strName;
 
   convert_separators(&strPath);
   convert_separators(&strName);
 
-  String strFullName;
+  std::string strFullName;
 
-  if( strPath.end_with(SEP_PATH) )
+  if( StringUtil::end_with(strPath, SEP_PATH) )
     strFullName = strPath + strName;
   else
     strFullName = strPath + SEP_PATH + strName;
@@ -104,7 +104,7 @@ void FileName::join(const std::string& fragment)
 //----------------------------------------------------------------------------
 bool FileName::is_path_name() const
 {
-  if( m_strFile.end_with(SEP_PATH) )
+  if( StringUtil::end_with( m_strFile, SEP_PATH ) )
     return true;
   return false;
 }
@@ -112,13 +112,13 @@ bool FileName::is_path_name() const
 //----------------------------------------------------------------------------
 // FileName::path
 //----------------------------------------------------------------------------
-String FileName::path() const
+std::string FileName::path() const
 {
-  String strPath = String::nil;
+  std::string strPath;
 
   // Backward search for first separator
-  String::size_type iLastSepPos = m_strFile.find_last_of(SEP_PATH);
-  if( String::npos != iLastSepPos )
+  std::string::size_type iLastSepPos = m_strFile.find_last_of(SEP_PATH);
+  if( std::string::npos != iLastSepPos )
    // Found
    strPath = m_strFile.substr(0, iLastSepPos + 1);
 
@@ -128,18 +128,18 @@ String FileName::path() const
 //----------------------------------------------------------------------------
 // FileName::name
 //----------------------------------------------------------------------------
-String FileName::name() const
+std::string FileName::name() const
 {
-  String strName = String::nil;
+  std::string strName;
 
   // Backward search for first separator
-  String::size_type iLastSepPos = m_strFile.find_last_of(SEP_PATH);
-  if( String::npos == iLastSepPos )
+  std::string::size_type iLastSepPos = m_strFile.find_last_of(SEP_PATH);
+  if( std::string::npos == iLastSepPos )
     // If not found  : no path
     iLastSepPos = 0;
 
-  String::size_type iExtPos = m_strFile.find_last_of(SEP_EXT);
-  if( String::npos == iExtPos )
+  std::string::size_type iExtPos = m_strFile.find_last_of(SEP_EXT);
+  if( std::string::npos == iExtPos )
     iExtPos = m_strFile.length();
 
   strName = m_strFile.substr(iLastSepPos + 1, iExtPos - iLastSepPos - 1);
@@ -150,17 +150,18 @@ String FileName::name() const
 //----------------------------------------------------------------------------
 // FileName::dir_name
 //----------------------------------------------------------------------------
-String FileName::dir_name() const
+std::string FileName::dir_name() const
 {
-  String strName = String::nil;
+  std::string strName;
 
   // Backward search for last separator
-  String::size_type iLastSepPos = m_strFile.find_last_of(SEP_PATH);
-  if ( String::npos == iLastSepPos ) {
-    return String::nil;
+  std::string::size_type iLastSepPos = m_strFile.find_last_of(SEP_PATH);
+  if ( std::string::npos == iLastSepPos ) 
+  {
+    return "";
   }
-  String::size_type iPreviousSepPos = m_strFile.rfind(SEP_PATH, iLastSepPos - 1);
-  if ( String::npos == iPreviousSepPos ) {
+  std::string::size_type iPreviousSepPos = m_strFile.rfind(SEP_PATH, iLastSepPos - 1);
+  if ( std::string::npos == iPreviousSepPos ) {
     return m_strFile.substr(0, iLastSepPos);
   }
   return m_strFile.substr(iPreviousSepPos + 1, iLastSepPos - iPreviousSepPos - 1);
@@ -169,9 +170,9 @@ String FileName::dir_name() const
 //----------------------------------------------------------------------------
 // FileName::name_ext
 //----------------------------------------------------------------------------
-String FileName::name_ext() const
+std::string FileName::name_ext() const
 {
-  String strFileName = name();
+  std::string strFileName = name();
   if( ext().size() > 0 )
     strFileName += '.' + ext();
   return strFileName;
@@ -180,15 +181,15 @@ String FileName::name_ext() const
 //----------------------------------------------------------------------------
 // FileName::ext
 //----------------------------------------------------------------------------
-String FileName::ext() const
+std::string FileName::ext() const
 {
-  String strExt = String::nil;
+  std::string strExt;
 
   // Search backward for extension separator
-  String::size_type iExtPos = m_strFile.find_last_of(SEP_EXT);
+  std::string::size_type iExtPos = m_strFile.find_last_of(SEP_EXT);
   // Backward search for last separator
-  String::size_type iLastSepPos = m_strFile.find_last_of(SEP_PATH);
-  if( String::npos != iExtPos && iExtPos > iLastSepPos )
+  std::string::size_type iLastSepPos = m_strFile.find_last_of(SEP_PATH);
+  if( std::string::npos != iExtPos && iExtPos > iLastSepPos )
     // Separator found
     strExt = m_strFile.substr(iExtPos + 1);
 
@@ -204,7 +205,7 @@ void FileName::remove() throw( Exception )
   {
     if( unlink(PSZ(full_name())) )
     {
-      String strErr = String::str_format(ERR_CANNOT_REMOVE_FILE, PSZ(full_name()));
+      std::string strErr = StringUtil::str_format(ERR_CANNOT_REMOVE_FILE, PSZ(full_name()));
       ThrowExceptionFromErrno(PSZ(strErr), "FileName::remove");
     }
   }
@@ -216,7 +217,7 @@ void FileName::remove() throw( Exception )
 void FileName::rmdir(bool bRecursive, bool bContentOnly) throw( Exception )
 {
   if( !is_path_name() )
-    throw BadPathException(PSZ(String::str_format(ERR_DELETE_DIRECTORY, PSZ(full_name()))), "FileName::rmdir");
+    throw BadPathException(PSZ(StringUtil::str_format(ERR_DELETE_DIRECTORY, PSZ(full_name()))), "FileName::rmdir");
 
   if( !m_strFile.empty() )
   {
@@ -230,7 +231,7 @@ void FileName::rmdir(bool bRecursive, bool bContentOnly) throw( Exception )
       {
         if( ::rmdir(PSZ(full_name())) )
         {
-          String strErr = String::str_format(ERR_CANNOT_REMOVE_FILE, PSZ(full_name()));
+          std::string strErr = StringUtil::str_format(ERR_CANNOT_REMOVE_FILE, PSZ(full_name()));
           ThrowExceptionFromErrno(PSZ(strErr), "FileName::rmdir");
         }
       }
@@ -262,7 +263,7 @@ void FileName::rename(const std::string& strNewName) throw( Exception )
   if( !m_strFile.empty() )
     if( ::rename(PSZ(m_strFile), PSZ(strNewName)) )
     {
-      String strErr = String::str_format(ERR_CANNOT_RENAME_FILE, PSZ(m_strFile));
+      std::string strErr = StringUtil::str_format(ERR_CANNOT_RENAME_FILE, PSZ(m_strFile));
       ThrowExceptionFromErrno(PSZ(strErr), "FileName::rename");
     }
  
@@ -289,7 +290,7 @@ void FileName::dir_copy(const std::string& strDest, bool bCreateDir, mode_t mode
   }
 
   if( !fnDst.is_path_name() )
-    throw BadPathException(PSZ(String::str_format(ERR_BAD_DEST_PATH, PSZ(fnDst.full_name()))),
+    throw BadPathException(PSZ(StringUtil::str_format(ERR_BAD_DEST_PATH, PSZ(fnDst.full_name()))),
                            "FileName::dir_copy");
 
   // Recursively copying sub-directories
@@ -311,7 +312,7 @@ void FileName::recursive_chmod(mode_t modeFile, mode_t modeDir, bool bCurrentLev
 {
   if( !path_exist() )
   { // File doesn't exists
-    String strErr = String::str_format(ERR_DIR_NOT_FOUND, PSZ(full_name()));
+    std::string strErr = StringUtil::str_format(ERR_DIR_NOT_FOUND, PSZ(full_name()));
     throw FileNotFoundException(PSZ(strErr), "FileName::recursive_chmod");
   }
 
@@ -338,7 +339,7 @@ void FileName::recursive_chmod_file(mode_t mode) throw( Exception )
 {
   if( !path_exist() )
   { // File doesn't exists
-    String strErr = String::str_format(ERR_DIR_NOT_FOUND, PSZ(full_name()));
+    std::string strErr = StringUtil::str_format(ERR_DIR_NOT_FOUND, PSZ(full_name()));
     throw FileNotFoundException(PSZ(strErr), "FileName::recursive_chmod_file");
   }
 
@@ -361,7 +362,7 @@ void FileName::recursive_chmod_dir(mode_t mode) throw( Exception )
 {
   if( !path_exist() )
   { // File doesn't exists
-    String strErr = String::str_format(ERR_DIR_NOT_FOUND, PSZ(full_name()));
+    std::string strErr = StringUtil::str_format(ERR_DIR_NOT_FOUND, PSZ(full_name()));
     throw FileNotFoundException(PSZ(strErr), "FileName::recursive_chmod_dir");
   }
 
@@ -381,7 +382,7 @@ void FileName::recursive_chown(uid_t uid, gid_t gid) throw( Exception )
 {
   if( !path_exist() )
   { // File doesn't exists
-    String strErr = String::str_format(ERR_DIR_NOT_FOUND, PSZ(full_name()));
+    std::string strErr = StringUtil::str_format(ERR_DIR_NOT_FOUND, PSZ(full_name()));
     throw FileNotFoundException(PSZ(strErr), "FileName::recursive_chmod");
   }
 
@@ -421,13 +422,13 @@ long TempFileName::s_lLastNumber = 0;
 //-------------------------------------------------------------------
 // TempFileName::GenerateRandomName
 //-------------------------------------------------------------------
-String TempFileName::GenerateRandomName()
+std::string TempFileName::GenerateRandomName()
 {
   if( !s_lLastNumber )
     // Initialize random sequence
     s_lLastNumber = CurrentTime().long_unix();
 
-  return String::str_format("temp%lx", s_lLastNumber++);
+  return StringUtil::str_format("temp%lx", s_lLastNumber++);
 }
 
 //-------------------------------------------------------------------
@@ -451,7 +452,7 @@ void File::load(MemBuf *pBuf) throw(Exception)
   FILE *fi = fopen(PSZ(full_name()), "rb");
   if( NULL == fi )
   {
-    String strErr = String::str_format(ERR_OPEN_FILE, PSZ(full_name()));
+    std::string strErr = StringUtil::str_format(ERR_OPEN_FILE, PSZ(full_name()));
     throw Exception("FILE_ERROR", PSZ(strErr), "File::Load");
   }
 
@@ -467,7 +468,7 @@ void File::load(MemBuf *pBuf) throw(Exception)
 
     if( ferror(fi) || 0 == lReaded )
     {
-      String strErr = String::str_format(ERR_READING_FILE, PSZ(full_name()));
+      std::string strErr = StringUtil::str_format(ERR_READING_FILE, PSZ(full_name()));
       throw Exception("FILE_ERROR", PSZ(strErr), "File::Load");
     }
     lTotalReaded += lReaded;
@@ -495,7 +496,7 @@ void File::save(const std::string& strContent) throw(Exception)
   FILE *fi = fopen(PSZ(full_name()), "wb");
   if( NULL == fi )
   {
-    String strErr = String::str_format(ERR_OPEN_FILE, PSZ(full_name()));
+    std::string strErr = StringUtil::str_format(ERR_OPEN_FILE, PSZ(full_name()));
     throw Exception("FILE_ERROR", PSZ(strErr), "File::Load");
   }
 
@@ -503,8 +504,8 @@ void File::save(const std::string& strContent) throw(Exception)
   int iRc = fputs(PSZ(strContent), fi);
   if( EOF == iRc )
   {
-    String strErr;
-    strErr.printf("Cannot write in file '%s'", PSZ(full_name()));
+    std::string strErr;
+    StringUtil::printf(&strErr, "Cannot write in file '%s'", PSZ(full_name()));
     throw Exception("FILE_ERROR", PSZ(strErr), "File::Save");
   }
   fclose(fi);
@@ -529,7 +530,7 @@ void CfgFile::load() throw(Exception)
     std::string content;
     File::load(&content);
     load_from_string(content);
-    String strLine;
+    std::string strLine;
   }
   catch (Exception& e)
   {
@@ -569,13 +570,13 @@ void CfgFile::load_from_string(const std::string& _content)
   while( !content.empty() )
   {
     // Extract next line
-    yat::StringUtil::extract_token(&content, '\n', &line);
+    StringUtil::extract_token(&content, '\n', &line);
     // Supress blank characters at the begining and the end of the string
-    yat::StringUtil::trim(&line);
+    StringUtil::trim(&line);
     
     if( is_multiline )
     { // multi-lines value mode
-      if( !yat::StringUtil::match(line, "*\\") )
+      if( !StringUtil::match(line, "*\\") )
         is_multiline = false;
       else
         line = line.substr(0, line.size() - 1);
@@ -585,7 +586,7 @@ void CfgFile::load_from_string(const std::string& _content)
       
       if( !is_multiline )
       {
-        yat::StringUtil::trim(&param_value);
+        StringUtil::trim(&param_value);
         if( !is_object )
           m_dictSection[m_strSection].m_dictParameters[param_name] = param_value;
         else
@@ -594,34 +595,34 @@ void CfgFile::load_from_string(const std::string& _content)
       continue;
     }
     
-    if( line.empty() || yat::StringUtil::match(line, "#*") )
+    if( line.empty() || StringUtil::match(line, "#*") )
       // empty lines or comments lines are passed
       continue;
     
-    if( yat::StringUtil::match(line, "-*") )
+    if( StringUtil::match(line, "-*") )
     { // lines begining by a '-' means end of objects
       is_object = false;
       continue;
     }
 
-    if( yat::StringUtil::match(line, "[*]") )
+    if( StringUtil::match(line, "[*]") )
     {  // Section declaration
       Section aSection;
-      yat::StringUtil::extract_token(&line, '[', ']', &m_strSection);
-      yat::StringUtil::trim(&m_strSection);
+      StringUtil::extract_token(&line, '[', ']', &m_strSection);
+      StringUtil::trim(&m_strSection);
       m_dictSection[m_strSection] = aSection;
       is_object = false;
       continue;
     }
 
-    if( yat::StringUtil::match(line, "*=*") )
+    if( StringUtil::match(line, "*=*") )
     { // New parameter
-      yat::StringUtil::extract_token(&line, '=', &param_name);
+      StringUtil::extract_token(&line, '=', &param_name);
       param_value = line;
-      yat::StringUtil::trim(&param_value);
-      yat::StringUtil::trim(&param_name);
+      StringUtil::trim(&param_value);
+      StringUtil::trim(&param_name);
       
-      if( yat::StringUtil::match(param_value, "*\\") )
+      if( StringUtil::match(param_value, "*\\") )
       { // Multi-lines value
         // Remove the '\'
         param_value = param_value.substr(0, param_value.size() - 1);
@@ -637,12 +638,12 @@ void CfgFile::load_from_string(const std::string& _content)
       continue;
     }
     
-    if( yat::StringUtil::match(line, "*:") )
+    if( StringUtil::match(line, "*:") )
     { // New object
       std::string strObjectType;
-      yat::StringUtil::extract_token(&line, ':', &strObjectType);
-      yat::StringUtil::trim(&line);
-      yat::StringUtil::trim(&strObjectType);
+      StringUtil::extract_token(&line, ':', &strObjectType);
+      StringUtil::trim(&line);
+      StringUtil::trim(&strObjectType);
       is_object = true;
       Objects::iterator it1 = m_dictSection[m_strSection].m_objects.find(strObjectType);
       if( it1 == m_dictSection[m_strSection].m_objects.end() )
@@ -715,7 +716,7 @@ const CfgFile::ObjectCollection& CfgFile::get_objects(const std::string& object_
   if( cit != m_dictSection[m_strSection].m_objects.end() )
     return cit->second;
   
-  throw yat::Exception( "NO_DATA",
+  throw Exception( "NO_DATA",
                         PSZ_FMT("No such objects: %s", PSZ(object_type)),
                         "CfgFile::get_objects" );
 }
@@ -729,7 +730,7 @@ const CfgFile::Parameters& CfgFile::get_unique_object(const std::string& object_
   if( cit != m_dictSection[m_strSection].m_objects.end() )
     return cit->second[0];
   
-  throw yat::Exception( "NO_DATA",
+  throw Exception( "NO_DATA",
                         PSZ_FMT("No such object: %s", PSZ(object_name)),
                         "CfgFile::get_object" );
 }
@@ -751,7 +752,7 @@ std::string CfgFile::get_param_value(const std::string& strParamName) const
           m_dictSection[m_strSection].m_dictParameters.find(strParamName);
 
   if( cit == m_dictSection[m_strSection].m_dictParameters.end() )
-    return yat::StringUtil::empty;
+    return StringUtil::empty;
 
   return cit->second;
 }
@@ -776,7 +777,7 @@ bool CfgFile::set_section(const std::string& strSection, bool bThrowException) c
   if( it != m_dictSection.end() )
     m_strSection = strSection;
   else if( bThrowException )
-      throw Exception("NO_DATA", PSZ(String::str_format("Section '%s' not found", PSZ(strSection))), "CfgFile::SetSection");
+      throw Exception("NO_DATA", PSZ(StringUtil::str_format("Section '%s' not found", PSZ(strSection))), "CfgFile::SetSection");
   else
     return false;
   return true;
@@ -811,7 +812,7 @@ DirectoryWatcher::DirectoryWatcher(const std::string& strDirectoryPath, WatchMod
     FileEnum fe(full_name(), FileEnum::ENUM_ALL);
     while( fe.find() )
     {
-      m_mapEntry[yat::StringUtil::hash64(fe.full_name())] = new Entry(fe.full_name());
+      m_mapEntry[StringUtil::hash64(fe.full_name())] = new Entry(fe.full_name());
     }
   }
 }
@@ -886,7 +887,7 @@ void DirectoryWatcher::get_changes(FileNamePtrVector *pvecNewFilesPtr,
     FileEnum fe(full_name(), FileEnum::ENUM_ALL);
     while( fe.find() )
     {
-      uint64 hashFile = yat::StringUtil::hash64(fe.full_name());
+      uint64 hashFile = StringUtil::hash64(fe.full_name());
       
       if( m_mapEntry.find(hashFile) != m_mapEntry.end() )
       {
