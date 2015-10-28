@@ -74,10 +74,10 @@ public:
   struct CommandLineOpt
   {
     char   cShortName;
-    String strLongName;
+    std::string strLongName;
     bool   bMandatory;
-    String strDesc;
-    String strValue;
+    std::string strDesc;
+    std::string strValue;
   };
 
   //! \brief Vector of command line options.
@@ -88,7 +88,7 @@ public:
   //=============================================================================
   struct CommandLineArg
   {
-    String strDesc;
+    std::string strDesc;
     bool   bMandatory;
     bool   bSingle;
   };
@@ -101,7 +101,7 @@ public:
   //! These names will be displayed with the *show_usage()* function.
   //! \param strName Command's name.
   //! \param strVersion Command's version.
-  void set_cmd_name_version(const String &strName, const String &strVersion);
+  void set_cmd_name_version(const std::string &strName, const std::string &strVersion);
 
   //! \brief Defines an option for the command line.
   //!
@@ -130,19 +130,19 @@ public:
   //!
   //! \param[out] strAppInfo Additional information about the command
   //! or application.
-  void show_usage(const String &strAppInfo) const;
+  void show_usage(const std::string &strAppInfo) const;
 
   //! \brief Checks if option is defined.
   //!
   //! Returns true if the specified option is defined for the command, false otherwise.
   //! \param[in] strArg The option's name to retrieve.
-  bool is_option(const String &strArg) const;
+  bool is_option(const std::string &strArg) const;
 
   //! \brief Gets options's value.
   //!
   //! Returns the option's value or nil string if not found.
   //! \param[in] strOpt The option's name to retrieve.
-  String option_value(const String &strOpt) const;
+  std::string option_value(const std::string &strOpt) const;
   
   //! \brief Gets the number of initialized arguments.
   //! 
@@ -153,17 +153,17 @@ public:
   //!
   //! Returns the \<i\>th simple argument's value initialized with the *read()* function.
   //! \param i Rank of the simple argument to retrieve.
-  String arg(int i) const;
+  std::string arg(int i) const;
 
 private:
 
-  typedef std::map<String, String> KeyValueMap;
+  typedef std::map<std::string, std::string> KeyValueMap;
   
   //- Current options values
   KeyValueMap m_dictOptValues; 
   
   //- Simples arguments (not options)
-  std::vector<String> m_vecArgs;
+  std::vector<std::string> m_vecArgs;
 
   //- Valid options list
   vecOpts     m_vecOptDefs;
@@ -175,21 +175,21 @@ private:
   KeyValueMap m_dictOpts;
 
   //- Command name
-  String      m_strCmdName;
+  std::string      m_strCmdName;
 
   //- Version
-  String      m_strCmdVersion;
+  std::string      m_strCmdVersion;
 
   //- Find option def from short form
   CommandLineOpt *find_short_opt(const char cOpt);
 
   //- Find option definition from long form
-  CommandLineOpt *find_long_opt(const String &strOpt);
+  CommandLineOpt *find_long_opt(const std::string &strOpt);
 
   //- Display "bad option" error message
   //-
   //- return always false
-  void bad_option(const String &strOpt);
+  void bad_option(const std::string &strOpt);
 
   //- Show usage
   //-
