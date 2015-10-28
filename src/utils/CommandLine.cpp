@@ -66,12 +66,12 @@ CommandLine::CommandLineOpt *CommandLine::find_short_opt(const char cOpt)
 //----------------------------------------------------------------------------
 // CommandLine::find_long_opt
 //----------------------------------------------------------------------------
-CommandLine::CommandLineOpt *CommandLine::find_long_opt(const String &strOpt)
+CommandLine::CommandLineOpt *CommandLine::find_long_opt(const std::string &strOpt)
 {
   vecOpts::iterator itOpt;
   for( itOpt = m_vecOptDefs.begin(); itOpt != m_vecOptDefs.end(); itOpt++ )
   {
-    if( (*itOpt).strLongName.is_equal( strOpt ) )
+    if( StringUtil::is_equal( (*itOpt).strLongName, strOpt ) )
       return &(*itOpt);
   }
   return NULL;
@@ -86,7 +86,7 @@ void CommandLine::add_opt(char cShortName, pcsz pszLongName, pcsz pszValue, pcsz
   opt.cShortName = cShortName;
   opt.strLongName = pszLongName;
   opt.strDesc = pszDesc;
-  opt.strValue = pszValue ? pszValue : yat::String::nil;
+  opt.strValue = pszValue ? pszValue : "";
 
   m_vecOptDefs.push_back(opt);
 }
@@ -107,7 +107,7 @@ void CommandLine::add_arg(pcsz pszDesc, bool bSingle, bool bMandatory)
 //----------------------------------------------------------------------------
 // CommandLine::bad_option
 //----------------------------------------------------------------------------
-void CommandLine::bad_option(const String &strOpt)
+void CommandLine::bad_option(const std::string &strOpt)
 {
   std::ostringstream oss;
   oss << "Unrecognized option '" << strOpt << "'";
@@ -127,8 +127,8 @@ bool CommandLine::read(int iArgc, char **ppszArgv)
   
   for(int i = 1; i < iArgc; i++ )
   {
-    String strArg = ppszArgv[i];
-    if( strArg.start_with( "--" ) )
+    std::string strArg = ppszArgv[i];
+    if( StringUtil::start_with( strArg, "--" ) )
     {
       // Supress "--" before option name
       strArg.erase(0, 2);
@@ -142,7 +142,7 @@ bool CommandLine::read(int iArgc, char **ppszArgv)
       else
         m_dictOptValues[pOpt->strLongName] = "dummy";
     }
-    else if( strArg.start_with( '-') )
+    else if( StringUtil::start_with( strArg, '-') )
     {
       // Supress "-" before option name
       CommandLineOpt *pOpt = find_short_opt(strArg[1]);
@@ -181,7 +181,7 @@ bool CommandLine::read(int iArgc, char **ppszArgv)
   // Check arguments
   else if( m_vecArgDefs.size() > m_vecArgs.size() && m_vecArgDefs[0].bMandatory )
   {
-    String error("Argument missing.");
+    std::string error("Argument missing.");
     std::cerr << error << std::endl;
     show_usage(std::cerr);
     throw Exception("BAD_ARGS", error, "CommandLine::Read");
@@ -193,7 +193,7 @@ bool CommandLine::read(int iArgc, char **ppszArgv)
 //----------------------------------------------------------------------------
 // CommandLine::is_option
 //----------------------------------------------------------------------------
-bool CommandLine::is_option(const String &strOpt) const
+bool CommandLine::is_option(const std::string &strOpt) const
 {
   KeyValueMap::const_iterator it = m_dictOptValues.find(strOpt);
   if( it != m_dictOptValues.end() )
@@ -204,11 +204,11 @@ bool CommandLine::is_option(const String &strOpt) const
 //----------------------------------------------------------------------------
 // CommandLine::option_value
 //----------------------------------------------------------------------------
-String CommandLine::option_value(const String &strOpt) const
+std::string CommandLine::option_value(const std::string &strOpt) const
 {
   KeyValueMap::const_iterator it = m_dictOptValues.find(strOpt);
   if( m_dictOptValues.end() == it )
-    return yat::String::nil;
+    return "";
 
   return it->second;
 }
@@ -224,17 +224,17 @@ int CommandLine::arg_count() const
 //----------------------------------------------------------------------------
 // CommandLine::arg
 //----------------------------------------------------------------------------
-String CommandLine::arg(int i) const
+std::string CommandLine::arg(int i) const
 {
   if( i >= 0 || i < arg_count() )
     return m_vecArgs[i];
-  return yat::String::nil;
+  return "";
 }
 
 //----------------------------------------------------------------------------
 // CommandLine::set_cmd_name_version
 //----------------------------------------------------------------------------
-void CommandLine::set_cmd_name_version(const String &strName, const String &strVersion)
+void CommandLine::set_cmd_name_version(const std::string &strName, const std::string &strVersion)
 {
   m_strCmdName = strName;
   m_strCmdVersion = strVersion;
@@ -279,7 +279,7 @@ bool CommandLine::show_usage(std::ostream &os) const
 //----------------------------------------------------------------------------
 // CommandLine::show_usage
 //----------------------------------------------------------------------------
-void CommandLine::show_usage(const String &strAppInfo) const
+void CommandLine::show_usage(const std::string &strAppInfo) const
 {
   if( !strAppInfo.empty() )
     std::cout << strAppInfo << std::endl;
