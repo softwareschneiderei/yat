@@ -95,23 +95,23 @@ public:
   //! \brief URI components structure.
   struct Fields
   {
-    String scheme;
-    String userinfo;
-    String host;
-    String port;
-    String path;
-    String query;
-    String fragment;
+    std::string scheme;
+    std::string userinfo;
+    std::string host;
+    std::string port;
+    std::string path;
+    std::string query;
+    std::string fragment;
   };
   
 private:
-  std::map<Part, String> m_part;
+  std::map<Part, std::string> m_part;
   
-  void parse(const String& URI) throw ( Exception );
-  String value(Part part) const;
-  static bool check_value(const String& value, const String &accepted_chars, const String& error_desc, bool throw_exception) throw ( Exception );
-  static void split_authority(const String& authority, String* userinfo_ptr, String* host_ptr, String* port_ptr);
-  static bool check_authority(const String& authority, URI::Fields* fields_ptr, bool throw_exception) throw ( Exception );
+  void parse(const std::string& URI) throw ( Exception );
+  std::string value(Part part) const;
+  static bool check_value(const std::string& value, const std::string &accepted_chars, const std::string& error_desc, bool throw_exception) throw ( Exception );
+  static void split_authority(const std::string& authority, std::string* userinfo_ptr, std::string* host_ptr, std::string* port_ptr);
+  static bool check_authority(const std::string& authority, URI::Fields* fields_ptr, bool throw_exception) throw ( Exception );
 
 public:
   //! \brief Constructor from URI.
@@ -119,7 +119,7 @@ public:
   //! Creates an URI object from the regular representation of the URL: a string.
   //! \param uri_string The URI value.
   //! \exception BAD_URI_SYNTAX Thrown if URI syntax is not correct.
-  URI(const String& uri_string) throw ( Exception );
+  URI(const std::string& uri_string) throw ( Exception );
   
   //! \brief Constructor from explicit values.
   //! 
@@ -132,25 +132,25 @@ public:
   URI() { }
   
   //! \brief Gets the URI as a string.
-  String get() const;
+  std::string get() const;
   
   //! \brief Gets a specific part of the URI as a string.
   //!
   //! \param part The URI part to retrieve.
-  String get(Part part) const;
+  std::string get(Part part) const;
 
   //! \brief Sets a specific part of the URI.
   //!
   //! \param part The URI part to set.
   //! \param value Value.
   //! \exception BAD_URI_SYNTAX Thrown if the value syntax is not correct.
-  void set(Part part, const String &value) throw ( Exception ); 
+  void set(Part part, const std::string &value) throw ( Exception ); 
   
   //! \brief Sets the URI.
   //! 
   //! \param value The URI value.
   //! \exception BAD_URI_SYNTAX Thrown if the URI syntax is not correct.
-  void set(const String &value) throw ( Exception ); 
+  void set(const std::string &value) throw ( Exception ); 
   
   //! \brief Checks the syntax of the value of an URI part.
   //!
@@ -159,7 +159,7 @@ public:
   //! \param value The value to check.
   //! \param throw_exception If set to true, throws an exception if an error occurs.
   //! \exception BAD_URI_SYNTAX Thrown if the value syntax is not correct.
-  static bool check(Part part, const String &value, bool throw_exception=false) throw ( Exception );
+  static bool check(Part part, const std::string &value, bool throw_exception=false) throw ( Exception );
 };
 
 
