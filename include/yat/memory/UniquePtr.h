@@ -100,16 +100,6 @@ public:
     PTR_DBG("UniquePtr::UniquePtr()");
   }
 
-  //! \brief Constructor.
-  //! 
-  //! Data pointer is initialized to null value.
-  //! Deleter object is initialized
-  UniquePtr(D d) 
-    : m_p(0), m_deleter(d)
-  {
-    PTR_DBG("UniquePtr::UniquePtr()");
-  }
-
   //! \brief Constructor from data pointer.
   //! \param p Pointer to type \<T\> data.
   UniquePtr ( T* p ) 
@@ -223,16 +213,9 @@ public:
     return p;
   } 
 
-  //! \brief Resets pointer to null value.
-  void reset()
-  {
-    PTR_DBG("SharedPtr::reset()");
-    m_p = 0;
-  } 
-
   //! \brief Resets pointer with new type \<T\> data.
   //! \param p New pointed data.
-  void reset(T * p)
+  void reset(T * p = 0)
   {
     PTR_DBG("UniquePtr<T>::reset(" << std::hex << (void*)p << ")");
     if( m_p )
@@ -249,30 +232,6 @@ public:
     if( m_p )
       m_deleter(m_p);
     cast_copy_data(p);
-  } 
-
-  //! \brief Resets pointer with new type \<T\> data and new type \<D\> deleter.
-  //! \param p New pointed data.
-  //! \param d New deleter.
-  void reset(T* p, D d)
-  {
-    PTR_DBG("UniquePtr<T,D>::reset(" << std::hex << (void*)p << ", d)");
-    if( m_p )
-      m_deleter(m_p);
-    ThisType(p, d).swap(*this);
-  } 
-
-  //! \brief Resets pointer with new type \<T\> data and new type \<D\> deleter.
-  //! \param p New pointed data.
-  //! \param d New deleter.
-  template<typename Y>
-  void reset(Y* p, D d)
-  {
-    PTR_DBG("UniquePtr<T,D>::reset(" << std::hex << (void*)p << ", d)");
-    if( m_p )
-      m_deleter(m_p);
-    cast_copy_data(p);
-    m_deleter = d;
   } 
 
   //! \brief Swaps content with the specified pointer.
@@ -316,6 +275,9 @@ private:
 
   //! Duplication not allowed
   ThisType operator=( ThisType& );
+
+  //! No direct assignation
+  ThisType operator=( T* );
 
   //! Duplication not allowed
   template<typename Y, typename E> 
