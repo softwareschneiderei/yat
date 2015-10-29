@@ -75,6 +75,11 @@ public:
   /// ------------------------------------------
   static std::string get();
 
+  /// ------------------------------------------
+  /// Clear informations
+  /// ------------------------------------------
+  static void clear();
+
 private:
 
   struct Module
