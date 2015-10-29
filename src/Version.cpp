@@ -57,7 +57,8 @@ void Version::set(const std::string& name, const std::string& version)
   s_main_module.name = name;
   s_main_module.version = version;
  
-  s_dependencies.push_back( Module("YAT", YAT_XSTR(YAT_PROJECT_VERSION)) );
+  clear();
+  add_dependency( "YAT", YAT_XSTR(YAT_PROJECT_VERSION) );
 };
 
 /// ------------------------------------------
