@@ -91,4 +91,12 @@ std::string Version::get()
   return oss.str();
 };
 
+/// ------------------------------------------
+/// Version::clear
+/// ------------------------------------------
+void Version::clear()
+{
+  s_dependencies.clear();
+};
+
 } // namespace
