@@ -40,18 +40,83 @@
 #ifndef _YAT_LOGHELPER_H_
 #define _YAT_LOGHELPER_H_
 
+#if defined (YAT_TRACE_THREADSAFE)
+  #include <yat/threading/Mutex.h>
+  #define DECLARE_YAT_TRACE_MUTEX static yat::Mutex s_mtx
+  #define INSTANTIATE_YAT_TRACE_MUTEX yat::Mutex yat::TraceHelper::s_mtx
+  #define YAT_TRACE_LOCK  yat::AutoMutex<yat::Mutex> __yat_lock_trace_log(yat::TraceHelper::s_mtx)
+#else
+  #define YAT_TRACE_LOCK
+  #define DECLARE_YAT_TRACE_MUTEX
+  #define INSTANTIATE_YAT_TRACE_MUTEX
+#endif
+
 /*!
  *  Define the YAT_LOG & YAT_TRACE helper macro depending on the YAT_ENABLE_LOG macro
  *  These macros can be used by yat users to log in their applications
+ *  
+ *  When the YAT_TRACE_THREADSAFE switch is set, then a global mutex is used to avoid 
+ *  trace overlaps when several threads use YAT_TRACE & YAT_LOG at the same time
+ *  The global mutex must be initialized by the client code using INSTANTIATE_YAT_TRACE_MUTEX 
+ *  macro somewhere in a cpp source file
  */
 #if defined (YAT_ENABLE_LOG)
 
 #  include <iostream>
 
+
+# if defined (YAT_ENABLE_TRACE)
+    namespace yat
+    {
+      class YAT_DECL TraceHelper
+      {
+      public:
+        TraceHelper(const char* _func_name, const void * _this = 0 )
+          :  instance(_this), func_name(_func_name)
+        { 
+          YAT_TRACE_LOCK;
+          std::cout << func_name 
+                    << " [this::" 
+                    << std::hex 
+                    << instance 
+                    << std::dec 
+                    << "] <-" 
+                    << std::endl; 
+        };
+
+        ~TraceHelper()
+        { 
+          YAT_TRACE_LOCK;
+          std::cout << func_name 
+                    << " [this::" 
+                    << std::hex 
+                    << instance
+                    << std::dec 
+                    << "] ->" 
+                    << std::endl; 
+        };
+
+      private:
+        const void * instance;
+        const char* func_name;
+      public:
+        DECLARE_YAT_TRACE_MUTEX;
+      };
+    }
+#   define YAT_TRACE(func_name) \
+      yat::TraceHelper yat_trace_helper( (func_name), this )
+#   define YAT_TRACE_STATIC(func_name) \
+      yat::TraceHelper yat_trace_helper( (func_name) )
+# else
+#   define YAT_TRACE(func_name)
+#   define YAT_TRACE_STATIC(func_name)
+# endif
+
 #  define YAT_LOG(s) \
     do \
     { \
-       std::cout << "[this:" \
+      YAT_TRACE_LOCK; \
+      std::cout << "[this:" \
                  << std::hex \
                  << (void *)this \
                  << std::dec \
@@ -65,52 +130,10 @@
 #  define YAT_LOG_STATIC(s) \
     do \
     { \
-       std::cout << s << std::endl; \
+      YAT_TRACE_LOCK; \
+      std::cout << s << std::endl; \
     } while(0)
-
-# if defined (YAT_ENABLE_TRACE)
-    namespace yat
-    {
-      class YAT_DECL TraceHelper
-      {
-      public:
-        TraceHelper::TraceHelper(const char* _func_name, const void * _this = 0 )
-          :  instance(_this), func_name(_func_name)
-        { 
-          std::cout << func_name 
-                    << " [this::" 
-                    << std::hex 
-                    << instance 
-                    << std::dec 
-                    << "] <-" 
-                    << std::endl; 
-        };
-
-        TraceHelper::~TraceHelper()
-        { 
-          std::cout << func_name 
-                    << " [this::" 
-                    << std::hex 
-                    << instance
-                    << std::dec 
-                    << "] ->" 
-                    << std::endl; 
-        };
-
-      private:
-        const void * instance;
-        const char* func_name;
-      };
-    }
-#   define YAT_TRACE(func_name) \
-      yat::TraceHelper yat_trace_helper( (func_name), this )
-#   define YAT_TRACE_STATIC(func_name) \
-      yat::TraceHelper yat_trace_helper( (func_name) )
-# else
-#   define YAT_TRACE(func_name)
-#   define YAT_TRACE_STATIC(func_name)
-# endif
-
+    
 #else
 
 # define YAT_LOG(x)
