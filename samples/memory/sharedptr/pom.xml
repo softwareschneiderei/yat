@@ -44,7 +44,6 @@
        <dependency>
            <groupId>fr.soleil.lib</groupId>
            <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
-           <version>1.7.15-SNAPSHOT</version>
        </dependency>
    </dependencies>
    <developers>
