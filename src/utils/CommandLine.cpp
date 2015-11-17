@@ -111,7 +111,7 @@ void CommandLine::bad_option(const std::string &strOpt)
 {
   std::ostringstream oss;
   oss << "Unrecognized option '" << strOpt << "'";
-  std::cerr << oss << std::endl;
+  std::cerr << oss.str() << std::endl;
   show_usage(std::cerr);
   throw Exception("BAD_ARGS", oss.str(), "CommandLine::bad_option");
 }
