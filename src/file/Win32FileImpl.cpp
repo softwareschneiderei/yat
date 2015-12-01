@@ -148,7 +148,7 @@ void FileName::set_full_name(pcsz pszFileName)
  
   // Warning: strFile may be empty
   if( m_strFile.size() > 0 && 
-      ( m_strFile.start_with("\\\\") ||    // UNC '\\'
+      ( StringUtil::start_with(m_strFile, "\\\\") ||    // UNC '\\'
         m_strFile[1u] == SEP_DSK    ) )   // Drive letter: 'X:'
   { 
     // Absolute name
@@ -170,7 +170,7 @@ void FileName::set_full_name(pcsz pszFileName)
     // - The path name begins with a '/' => UNIX absolute path name.
     //   We insert current media name at begining
     // - For all other cases it's a relative path name
-    if( m_strFile.start_with(FILE_CYGDRIVE) && m_strFile[11u] == '\\' )
+    if( StringUtil::start_with(m_strFile, FILE_CYGDRIVE) && m_strFile[11u] == '\\' )
     {
       // Case of paths like '/cygdrive/<letter>/'
       strDir = StringUtil::str_format("%c:\\", m_strFile[10u]);
@@ -185,10 +185,10 @@ void FileName::set_full_name(pcsz pszFileName)
     else
     {
       // getcwd may not add the traling path separator
-      if( !strDir.end_with(SEP_PATH) )
+      if( !StringUtil::end_with(strDir, SEP_PATH) )
         strDir += SEP_PATH;
 
-      if( m_strFile.is_equal(".") )
+      if( StringUtil::is_equal(m_strFile, ".") )
         m_strFile = strDir;
       else
         m_strFile = strDir + m_strFile;
@@ -623,8 +623,8 @@ void FileEnum::init(const std::string& strPath, EEnumMode eMode) throw(BadPathEx
   m_strFile = strPath;
 
   // translate unix superator to win separator
-  m_strPath.replace(SEP_PATHUNIX, SEP_PATHDOS);
-  m_strFile.replace(SEP_PATHUNIX, SEP_PATHDOS);
+  StringUtil::replace(&m_strPath, SEP_PATHUNIX, SEP_PATHDOS);
+  StringUtil::replace(&m_strFile, SEP_PATHUNIX, SEP_PATHDOS);
 }
 
 //-------------------------------------------------------------------
@@ -651,7 +651,7 @@ bool FileEnum::find() throw(BadPathException, FileNotFoundException, Exception)
       return false;
 
     str = ((WIN32_FIND_DATA *)m_pfindData)->cFileName;
-    if( str.is_equal(".") == false && str.is_equal("..") == false )
+    if( StringUtil::is_equal(str, ".") == false && StringUtil::is_equal(str, "..") == false )
     {
       // Set new file name
       set(m_strPath, str);
