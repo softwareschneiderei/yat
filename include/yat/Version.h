@@ -41,6 +41,7 @@
 #ifndef _YAT_VERSION_H_
 #define _YAT_VERSION_H_
 
+#include <yat/CommonHeader.h>
 
 #include <string>
 #include <vector>
@@ -48,18 +49,18 @@
 namespace yat
 {
 
-#define _STR_(s) #s
-#define YAT_XSTR(s) _STR_(s)
+#define _YAT_STR_(s) #s
+#define YAT_XSTR(s) _YAT_STR_(s)
 
 // ============================================================================
 //! \class Version 
 //! \brief Class aimed to manage versions numbers information about a project's modules
 //!
 // ============================================================================
-class Version
+class YAT_DECL Version
 {
 public:
-
+  
   /// ------------------------------------------
   /// Sets the project informations
   /// ------------------------------------------
