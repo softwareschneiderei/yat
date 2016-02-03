@@ -79,6 +79,14 @@ namespace yat
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
+// Free function fuzzy float point numbers comparison
+//-----------------------------------------------------------------------------
+template<typename T> bool fp_is_equal(T a, T b, T precision)
+{
+  return std::abs( (a-b) / b ) < std::abs(precision);
+}
+
+//-----------------------------------------------------------------------------
 // Expanding Macros into string constants
 // The MACRO_TO_STRING macro calls _STR_EXPAND with its argument. The parameter is checked for macro
 // expansions and evaluated by the preprocessor before being passed to _STR_EXPAND which quotes it.
