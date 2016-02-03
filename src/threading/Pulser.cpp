@@ -218,23 +218,45 @@ Pulser::~Pulser ()
 // ============================================================================
 // Pulser::start
 // ============================================================================
-void Pulser::start (bool sync) 
+void Pulser::start () 
 {
   YAT_TRACE("Pulser::start");
   
   if ( this->impl_ )
-    this->impl_->start(sync);
+    this->impl_->start(false);
+}
+
+// ============================================================================
+// Pulser::start_sync
+// ============================================================================
+void Pulser::start_sync () 
+{
+  YAT_TRACE("Pulser::start_sync");
+  
+  if ( this->impl_ )
+    this->impl_->start(true);
 }
 
 // ============================================================================
 // Pulser::stop
 // ============================================================================
-void Pulser::stop (bool sync) 
+void Pulser::stop () 
 {
   YAT_TRACE("Pulser::stop");
   
   if ( this->impl_ )
-    this->impl_->stop(sync);
+    this->impl_->stop(false);
+}
+
+// ============================================================================
+// Pulser::stop_sync
+// ============================================================================
+void Pulser::stop_sync () 
+{
+  YAT_TRACE("Pulser::stop_sync");
+  
+  if ( this->impl_ )
+    this->impl_->stop(true);
 }
 
 // ============================================================================
@@ -282,23 +304,45 @@ size_t Pulser::get_num_pulses () const
 // ============================================================================
 // Pulser::suspend
 // ============================================================================
-void Pulser::suspend (bool sync) 
+void Pulser::suspend () 
 {
   YAT_TRACE("Pulser::suspend");
   
   if ( this->impl_ )
-    this->impl_->suspend(sync);
+    this->impl_->suspend(false);
+}
+
+// ============================================================================
+// Pulser::suspend_sync
+// ============================================================================
+void Pulser::suspend_sync () 
+{
+  YAT_TRACE("Pulser::suspend_sync");
+  
+  if ( this->impl_ )
+    this->impl_->suspend(true);
 }
 
 // ============================================================================
 // Pulser::resume
 // ============================================================================
-void Pulser::resume (bool sync) 
+void Pulser::resume () 
 {
   YAT_TRACE("Pulser::resume");
   
   if ( this->impl_ )
-    this->impl_->resume(sync);
+    this->impl_->resume(false);
+}
+
+// ============================================================================
+// Pulser::resume_sync
+// ============================================================================
+void Pulser::resume_sync () 
+{
+  YAT_TRACE("Pulser::resume_sync");
+  
+  if ( this->impl_ )
+    this->impl_->resume(true);
 }
 
 // ============================================================================
@@ -310,6 +354,8 @@ bool Pulser::is_done ()
   
   if ( this->impl_ )
     return this->impl_->is_done();
+
+  return true;
 }
 
 } // namespace
