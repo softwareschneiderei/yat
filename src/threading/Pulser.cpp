@@ -71,28 +71,52 @@ public:
   ~PulserCoreImpl ()
   {}
 
-  void start () {    
-    this->post(START_MSG);
+  void start (bool sync)
+  {    
+    if( sync )
+      this->wait_msg_handled(START_MSG);
+    else 
+      this->post(START_MSG);
   }
 
-  void stop () {
-    this->post(STOP_MSG);
+  void stop (bool sync)
+  {
+    if( sync )
+      this->wait_msg_handled(STOP_MSG);
+    else
+      this->post(STOP_MSG);
   }
   
-  void suspend () {
-    this->post(SUSPEND_MSG);
+  void suspend (bool sync)
+  {
+    if( sync )
+      this->wait_msg_handled(SUSPEND_MSG);
+    else
+      this->post(SUSPEND_MSG);
   }
 
-  void resume () {
-    this->post(RESUME_MSG);
+  void resume (bool sync)
+  {
+    if( sync )
+      this->wait_msg_handled(RESUME_MSG);
+    else
+      this->post(RESUME_MSG);
   }
   
   size_t get_num_pulses () const {
     return this->cfg_.num_pulses;
   }
   
+  bool is_running() const {
+    return this->periodic_msg_enabled();
+  }
+  
+  bool is_done() const {
+    return this->pulses_ == this->cfg_.num_pulses;
+  }
+
   void set_num_pulses (size_t num_pulses) {
-    this->post(NUM_PULSES_CHANGED, num_pulses, 1000);
+    this->wait_msg_handled(NUM_PULSES_CHANGED, num_pulses, 1000);
   }
   
 protected:
@@ -109,7 +133,8 @@ protected:
         break;
       case RESUME_MSG:
         {
-          this->enable_periodic_msg(true);
+          if( this->pulses_ < this->cfg_.num_pulses )
+            this->enable_periodic_msg(true);
         }
         break;
       case STOP_MSG:
@@ -193,23 +218,23 @@ Pulser::~Pulser ()
 // ============================================================================
 // Pulser::start
 // ============================================================================
-void Pulser::start () 
+void Pulser::start (bool sync) 
 {
   YAT_TRACE("Pulser::start");
   
   if ( this->impl_ )
-    this->impl_->start();
+    this->impl_->start(sync);
 }
 
 // ============================================================================
 // Pulser::stop
 // ============================================================================
-void Pulser::stop () 
+void Pulser::stop (bool sync) 
 {
   YAT_TRACE("Pulser::stop");
   
   if ( this->impl_ )
-    this->impl_->stop();
+    this->impl_->stop(sync);
 }
 
 // ============================================================================
@@ -257,23 +282,34 @@ size_t Pulser::get_num_pulses () const
 // ============================================================================
 // Pulser::suspend
 // ============================================================================
-void Pulser::suspend () 
+void Pulser::suspend (bool sync) 
 {
   YAT_TRACE("Pulser::suspend");
   
   if ( this->impl_ )
-    this->impl_->suspend();
+    this->impl_->suspend(sync);
 }
 
 // ============================================================================
 // Pulser::resume
 // ============================================================================
-void Pulser::resume () 
+void Pulser::resume (bool sync) 
 {
   YAT_TRACE("Pulser::resume");
   
   if ( this->impl_ )
-    this->impl_->resume();
+    this->impl_->resume(sync);
+}
+
+// ============================================================================
+// Pulser::is_done
+// ============================================================================
+bool Pulser::is_done () 
+{
+  YAT_TRACE("Pulser::is_done");
+  
+  if ( this->impl_ )
+    return this->impl_->is_done();
 }
 
 } // namespace
