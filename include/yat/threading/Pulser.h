@@ -150,12 +150,14 @@ public:
   //! \brief Starts the pulser.
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
-  virtual void start ();
+  //! \param sync if set then use wait_msg_handled to ensure the start action is done before return
+  virtual void start (bool sync=false );
   
   //! \brief Stops the pulser synchronously.
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
-  virtual void stop ();
+  //! \param sync if set then use wait_msg_handled to ensure the stop action is done before return
+  virtual void stop (bool sync=false );
 
   //! \brief Changes the pulser's period.
   //! \param p_msecs The new period in msecs.
@@ -172,10 +174,15 @@ public:
   size_t get_num_pulses () const;
   
   //! \brief Suspends the Pulser activity
-  void suspend ();
+  //! \param sync if set then use wait_msg_handled to ensure the suspend action is done before return
+  void suspend (bool sync=false );
+
+  //! \brief Check the Pulser activity
+  bool is_done ();
 
   //! \brief Resumes the Pulser activity
-  void resume ();
+  //! \param sync if set then use wait_msg_handled to ensure the resume action is done before return
+  void resume (bool sync=false );
 
 private:
   //_ pulser's config
