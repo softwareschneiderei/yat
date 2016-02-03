@@ -151,13 +151,25 @@ public:
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
   //! \param sync if set then use wait_msg_handled to ensure the start action is done before return
-  virtual void start (bool sync=false );
+  virtual void start ();
+  
+  //! \brief Stops the pulser.
+  //!
+  //! \exception An exception is thrown in case the pulser initialization failed.
+  //! \param sync if set then use wait_msg_handled to ensure the stop action is done before return
+  virtual void stop ();
+
+  //! \brief Starts the pulser synchronously.
+  //!
+  //! \exception An exception is thrown in case the pulser initialization failed.
+  //! \param sync if set then use wait_msg_handled to ensure the start action is done before return
+  virtual void start_sync ();
   
   //! \brief Stops the pulser synchronously.
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
   //! \param sync if set then use wait_msg_handled to ensure the stop action is done before return
-  virtual void stop (bool sync=false );
+  virtual void stop_sync ();
 
   //! \brief Changes the pulser's period.
   //! \param p_msecs The new period in msecs.
@@ -175,14 +187,22 @@ public:
   
   //! \brief Suspends the Pulser activity
   //! \param sync if set then use wait_msg_handled to ensure the suspend action is done before return
-  void suspend (bool sync=false );
+  void suspend ();
+
+  //! \brief Suspends the Pulser activity synchronously
+  //! \param sync if set then use wait_msg_handled to ensure the suspend action is done before return
+  void suspend_sync ();
 
   //! \brief Check the Pulser activity
   bool is_done ();
 
-  //! \brief Resumes the Pulser activity
+  //! \brief Resumes the Pulser activity 
   //! \param sync if set then use wait_msg_handled to ensure the resume action is done before return
-  void resume (bool sync=false );
+  void resume ();
+
+  //! \brief Resumes the Pulser activity synchronously
+  //! \param sync if set then use wait_msg_handled to ensure the resume action is done before return
+  void resume_sync ();
 
 private:
   //_ pulser's config
