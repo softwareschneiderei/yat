@@ -41,10 +41,12 @@
 #ifndef _YAT_VERSION_H_
 #define _YAT_VERSION_H_
 
-#include <yat/CommonHeader.h>
 
 #include <string>
 #include <vector>
+
+#include <yat/CommonHeader.h>
+#include <yat/utils/Singleton.h>
 
 namespace yat
 {
@@ -57,7 +59,7 @@ namespace yat
 //! \brief Class aimed to manage versions numbers information about a project's modules
 //!
 // ============================================================================
-class YAT_DECL Version
+class YAT_DECL Version : public yat::Singleton<Version>
 {
 public:
   
@@ -92,8 +94,8 @@ private:
     Module() {}
   };
 
-  static std::vector<Module> s_dependencies;
-  static Module s_main_module;
+  std::vector<Module> m_dependencies;
+  Module              m_main_module;
 };
 
 }
