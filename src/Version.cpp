@@ -46,16 +46,13 @@
 namespace yat
 {
 
-std::vector<Version::Module> Version::s_dependencies;
-Version::Module Version::s_main_module;
-
 /// ------------------------------------------
 /// Version::set
 /// ------------------------------------------
 void Version::set(const std::string& name, const std::string& version)
 {
-  s_main_module.name = name;
-  s_main_module.version = version;
+  instance().m_main_module.name = name;
+  instance().m_main_module.version = version;
  
   clear();
   add_dependency( "YAT", YAT_XSTR(YAT_PROJECT_VERSION) );
@@ -66,7 +63,7 @@ void Version::set(const std::string& name, const std::string& version)
 /// ------------------------------------------
 void Version::add_dependency(const std::string& name, const std::string& version)
 {
-  s_dependencies.push_back( Module(name, version) );
+  instance().m_dependencies.push_back( Module(name, version) );
 };
 
 /// ------------------------------------------
@@ -74,19 +71,19 @@ void Version::add_dependency(const std::string& name, const std::string& version
 /// ------------------------------------------
 std::string Version::get()
 {
-  if( s_main_module.name.empty() )
+  if( instance().m_main_module.name.empty() )
     return "No project information provided";
 
   std::ostringstream oss;
 
-  oss << "Project     : " << s_main_module.name << std::endl;
-  oss << "Version     : " << s_main_module.version << std::endl;
+  oss << "Project     : " << instance().m_main_module.name << std::endl;
+  oss << "Version     : " << instance().m_main_module.version << std::endl;
 
-  for(std::size_t i = 0; i < s_dependencies.size(); ++i )
+  for(std::size_t i = 0; i < instance().m_dependencies.size(); ++i )
   {
     oss << "-----" << std::endl;
-    oss << "Dependency  : " << s_dependencies[i].name << std::endl;
-    oss << "Version     : " << s_dependencies[i].version << std::endl;
+    oss << "Dependency  : " << instance().m_dependencies[i].name << std::endl;
+    oss << "Version     : " << instance().m_dependencies[i].version << std::endl;
   }
 
   return oss.str();
@@ -97,7 +94,7 @@ std::string Version::get()
 /// ------------------------------------------
 void Version::clear()
 {
-  s_dependencies.clear();
+  instance().m_dependencies.clear();
 };
 
 } // namespace
