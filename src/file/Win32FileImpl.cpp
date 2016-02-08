@@ -555,6 +555,31 @@ fsid_t FileName::file_system_id() const throw( Exception )
 }
 
 //-------------------------------------------------------------------
+// FileName::info
+//-------------------------------------------------------------------
+void FileName::info( Info* info_p ) const
+{
+  struct _stat64 st;
+  int rc = _stat64( PSZ(full_name()), &st );
+  if( rc )
+  {
+    info_p->is_exist = false;
+  }
+  else
+  {
+    info_p->is_exist  = true;
+    info_p->size      = st.st_size;
+    info_p->mode      = st.st_mode;
+    info_p->is_file   = st.st_mode & S_IFREG;
+    info_p->is_dir    = st.st_mode & S_IFDIR;
+    info_p->is_link   = false;
+    info_p->uid       = 0;
+    info_p->gid       = 0;
+    mod_time( &(info_p->mod_time), true );
+  }
+}
+
+//-------------------------------------------------------------------
 // FileName::chmod
 //-------------------------------------------------------------------
 void FileName::chmod(mode_t mode) throw( Exception )

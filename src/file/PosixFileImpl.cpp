@@ -44,13 +44,15 @@
 //=============================================================================
 // DEPENDENCIES
 //=============================================================================
-#include <yat/time/Time.h>
-#include <yat/file/FileName.h>
-
 #include <fcntl.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+
+#include <yat/time/Time.h>
+#include <yat/file/FileName.h>
+#include <yat/memory/DataBuffer.h>
 
 namespace yat
 {
@@ -387,10 +389,15 @@ uint64 FileName::size64() const throw( Exception )
 //----------------------------------------------------------------------------
 // FileName::mod_time
 //----------------------------------------------------------------------------
-void FileName::mod_time(Time *pTm, bool bLocalTime) const throw( Exception )
+void FileName::mod_time(Time *pTm, bool bLocalTime, bool stat_link) const throw( Exception )
 {
   struct stat sStat;
-  if( stat(PSZ(full_name()), &sStat) == -1 )
+  int rc = 0;
+  if( stat_link )
+    rc = lstat(PSZ(full_name()), &sStat);
+  else
+    rc = stat(PSZ(full_name()), &sStat);
+  if( rc < 0 )
   {
     std::string strErr = StringUtil::str_format(ERR_CANNOT_GET_FILE_TIME, PSZ(m_strFile));
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::mod_time");
@@ -656,6 +663,46 @@ fsid_t FileName::file_system_id() const throw( Exception )
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::file_system_type");
   }
   return buf.f_fsid;
+}
+
+//-------------------------------------------------------------------
+// FileName::info
+//-------------------------------------------------------------------
+void FileName::info( Info* info_p, bool follow_link ) const
+{
+  struct stat64 st;
+  int rc = 0;
+
+  if( follow_link )
+    rc = stat64( PSZ(full_name()), &st );
+  else
+    rc = lstat64( PSZ(full_name()), &st );
+  std::cout << "rc: " << rc << std::endl;
+  if( rc )
+  {
+    info_p->is_exist = false;
+  }
+  else
+  {
+    info_p->is_exist  = true;
+    info_p->size      = st.st_size;
+    info_p->mode      = st.st_mode;
+    info_p->is_file   = (st.st_mode & S_IFREG) == S_IFREG;
+    info_p->is_dir    = (st.st_mode & S_IFDIR) == S_IFDIR;
+    info_p->is_link   = (st.st_mode & S_IFLNK) == S_IFLNK;
+    info_p->uid       = st.st_uid;
+    info_p->gid       = st.st_gid;
+    mod_time( &(info_p->mod_time), true, !follow_link );
+  }
+
+  if( info_p->is_link )
+  {
+    yat::Buffer<char> buf(1024);
+    long s = readlink( PSZ(full_name()), buf.base(), 1024 );
+    if( s > 0 )
+      info_p->link_to.append( buf.base(), s );
+  }
+  std::cout << "ok"  << std::endl;
 }
 
 //-------------------------------------------------------------------
