@@ -337,6 +337,33 @@ public:
     HFS   = 0xffff
   };
 
+  //! \brief information about a path
+  class Info
+  {
+  public:
+    bool        is_exist;
+    uint64      size;
+    Time        mod_time;
+    uid_t       uid;
+    gid_t       gid;
+    mode_t      mode;
+    bool        is_file;
+    bool        is_dir;
+    bool        is_link;
+    std::string link_to;
+
+    Info() { clear(); }
+
+    void clear()
+    {
+      is_exist = is_file = is_dir = is_link = false;
+      uid = gid = 0;
+      mode = 0;
+      size = 0;
+      link_to.clear();
+    }
+  };
+
   // ============================================================================
   //! \interface IProgress
   //! \brief progress indicator
@@ -382,6 +409,11 @@ public:
   //! 
   //! Returns true if the filename is a path, false otherwise.
   bool is_path_name() const;
+
+  //! \brief Tests if filename is set.
+  //! 
+  //! Returns true if the filename is set, false otherwise.
+  bool is_empty() const { return m_strFile.empty(); }
 
   //! \brief join path fragment with current path
   //! 
@@ -559,7 +591,7 @@ public:
   //! \param bLocalTime If set to true, converts date & time to local time.
   //! \exception FILE_ERROR Thrown if file information access fails.
   //! Specific WIN32 error : file handle creation fails.
-  void mod_time(Time *pTm, bool bLocalTime=false) const 
+  void mod_time(Time *pTm, bool bLocalTime=false, bool stat_link=false) const 
     throw(Exception);
 
   //! \brief Sets file last modification date & time.
@@ -568,6 +600,10 @@ public:
   //! Specific WIN32 error : file handle creation fails.
   void set_mod_time(const Time& tm) const 
     throw(Exception);
+
+  //! \brief get information about the current path
+  //! \param info_p FileName::Info class
+  void info( Info* info_p, bool follow_link=true ) const;
 
   //! \brief Changes file rights.
   //! \param mode %File rights in UNIX like format (ie "rwxrwxrwx").
