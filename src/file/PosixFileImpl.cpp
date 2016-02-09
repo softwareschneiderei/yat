@@ -677,7 +677,6 @@ void FileName::info( Info* info_p, bool follow_link ) const
     rc = stat64( PSZ(full_name()), &st );
   else
     rc = lstat64( PSZ(full_name()), &st );
-  std::cout << "rc: " << rc << std::endl;
   if( rc )
   {
     info_p->is_exist = false;
@@ -702,7 +701,6 @@ void FileName::info( Info* info_p, bool follow_link ) const
     if( s > 0 )
       info_p->link_to.append( buf.base(), s );
   }
-  std::cout << "ok"  << std::endl;
 }
 
 //-------------------------------------------------------------------
