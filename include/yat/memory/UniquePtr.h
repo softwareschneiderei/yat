@@ -170,13 +170,8 @@ public:
     return m_p;
   }
 
-  ThisType operator=( const ThisType& )
-  {
-    throw yat::Exception("NOT_ALLOWED", "operator=() not allowed with UniquePtr objects", "UniquePtr::operator=");
-  }
-
   template<typename Y> 
-  ThisType operator=( const UniquePtr<Y, D>& )
+  ThisType& operator=( const UniquePtr<Y, D>& )
   {
     throw yat::Exception("NOT_ALLOWED", "operator=() not allowed with UniquePtr objects", "UniquePtr::operator=");
   }
@@ -274,14 +269,8 @@ public:
 private:
 
   //! Duplication not allowed
-  ThisType operator=( ThisType& );
-
-  //! No direct assignation
-  ThisType operator=( T* );
-
-  //! Duplication not allowed
   template<typename Y, typename E> 
-  ThisType operator=( UniquePtr<Y, E>& );
+  ThisType& operator=( UniquePtr<Y, E>& );
 
   //- Tries to copy data pointer of foreign type.
   template<typename Y>
