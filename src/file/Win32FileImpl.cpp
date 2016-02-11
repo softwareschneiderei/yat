@@ -420,7 +420,7 @@ uint64 FileName::size64() const throw( Exception )
 //----------------------------------------------------------------------------
 // FileName::mod_time
 //----------------------------------------------------------------------------
-void FileName::mod_time(Time *pTm, bool bLocalTime) const throw( Exception )
+void FileName::mod_time(Time *pTm, bool bLocalTime, bool) const throw( Exception )
 {
   HANDLE hFile = CreateFile(PSZ(full_name()), GENERIC_READ, FILE_SHARE_READ,
                            NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -557,7 +557,7 @@ fsid_t FileName::file_system_id() const throw( Exception )
 //-------------------------------------------------------------------
 // FileName::info
 //-------------------------------------------------------------------
-void FileName::info( Info* info_p ) const
+void FileName::info( Info* info_p, bool ) const
 {
   struct _stat64 st;
   int rc = _stat64( PSZ(full_name()), &st );
