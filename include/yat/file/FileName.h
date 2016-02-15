@@ -382,13 +382,13 @@ public:
     virtual void on_complete(std::string file_name, int64 total_bytes, double elapsed_secs) = 0;
   };
   
+  //- Throws a "FILE_ERROR" yat::Exception.
+  static void ThrowExceptionFromErrno(const char *pszError, const char *pszMethod);
+
 private:
   
   //! progress notification target
   IProgress* m_progress_target_p;
-
-  //- Throws a "FILE_ERROR" yat::Exception.
-  void ThrowExceptionFromErrno(const char *pszError, const char *pszMethod) const;
 
 public:
   //! \brief Default constructor.
@@ -404,6 +404,9 @@ public:
   //! \param strPath Path name.
   //! \param strName %File name.
   FileName(const std::string& strPath, const std::string& strName): m_progress_target_p(0)  { set(strPath, strName); }
+
+  //! \brief virtual d-tor
+  virtual ~FileName() {}
 
   //! \brief Tests if filename is a path.
   //! 
@@ -669,6 +672,9 @@ public:
   //! \remark Not implemented for WINDOWS plateform.
   fsid_t file_system_id() const 
     throw(Exception);
+
+  //! \brief Try to create a r-lock
+  void try_r_lock(bool async) const;
 
   //! Sets the bloc size (in bytes) for file copy operations.
   //! \param size Bloc size in bytes.
@@ -1014,7 +1020,68 @@ public:
   //! Returns true if a new, changed or removed file has been detected, false othsewise.
   bool has_changed();
 };
-    
+
+// ============================================================================
+//! \class LockFile 
+//! \brief Manage locks
+//!
+//! Create lock on a file
+// ============================================================================
+class YAT_DECL LockFile
+{
+public:
+
+  //! lock type
+  enum Type
+  {
+    READ,
+    WRITE
+  };
+
+  //! \brief c-tor
+  LockFile(const FileName& fn, Type t);
+
+  //! \brief d-tor
+  virtual ~LockFile();
+
+  //! \brief try to create the lock
+  //! return 'true' if succeed
+  //! If the file is already locked, return immediately the value 'false'
+  bool try_lock();
+
+  //! \brief lock the file: wait until the file is effectively locked
+  void lock();
+
+  //! \brief unlock previously locked file
+  void unlock();
+
+private:
+
+  FileName   m_file_name;
+  Type       m_type;
+  int        m_fd;
+  int        m_lock_cmd;
+
+  bool priv_lock( int lock_cmd );
+};
+
+// ============================================================================
+//! \class AutoLockFile 
+//! \brief Manage locks
+//!
+//! The AutoLockFile class provides an auto lock/unlock mechanism.\n
+// ============================================================================
+class YAT_DECL AutoLockFile
+{
+public:
+
+  AutoLockFile(LockFile* lock_p);
+  ~AutoLockFile();
+
+private:
+  LockFile* m_lock_p;
+};
+
 }
 
 
