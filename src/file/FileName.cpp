@@ -469,6 +469,7 @@ void File::load(MemBuf *pBuf) throw(Exception)
     if( ferror(fi) || 0 == lReaded )
     {
       std::string strErr = StringUtil::str_format(ERR_READING_FILE, PSZ(full_name()));
+      fclose(fi);
       throw Exception("FILE_ERROR", PSZ(strErr), "File::Load");
     }
     lTotalReaded += lReaded;
@@ -506,6 +507,7 @@ void File::save(const std::string& strContent) throw(Exception)
   {
     std::string strErr;
     StringUtil::printf(&strErr, "Cannot write in file '%s'", PSZ(full_name()));
+    fclose(fi);
     throw Exception("FILE_ERROR", PSZ(strErr), "File::Save");
   }
   fclose(fi);

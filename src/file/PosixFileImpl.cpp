@@ -732,12 +732,17 @@ void FileName::chown(uid_t uid, gid_t gid) throw( Exception )
 //-------------------------------------------------------------------
 // FileName::ThrowExceptionFromErrno
 //-------------------------------------------------------------------
-void FileName::ThrowExceptionFromErrno(const char *pszDesc, const char *pszOrigin) const
+void FileName::ThrowExceptionFromErrno(const char *pszDesc, const char *pszOrigin)
 {
   std::string strDesc = StringUtil::str_format("%s. %s", pszDesc, strerror(errno));
   switch( errno )
   {
     case EIO:
+    case EDEADLK:
+    case EFAULT:
+    case EINTR:
+    case EINVAL:
+    case ENOLCK:
       throw IOException(PSZ(strDesc), pszOrigin);
     case EPERM:
     case EACCES:
@@ -847,6 +852,10 @@ void FileEnum::close()
     closedir(m_dirDir);
 }
 
+//===========================================================================
+// Class TempFileName
+//===========================================================================
+
 //-------------------------------------------------------------------
 // TempFileName::TempFileName
 //-------------------------------------------------------------------
@@ -854,5 +863,131 @@ TempFileName::TempFileName()
 {
   set("/tmp", GenerateRandomName());
 }
+
+//===========================================================================
+// Class LockFile
+//===========================================================================
+
+//-------------------------------------------------------------------
+// LockFile::LockFile
+//-------------------------------------------------------------------
+LockFile::LockFile(const FileName& fn, Type t)
+{
+  m_file_name = fn;
+  m_type = t;
+  m_fd = 0;
+}
+
+//-------------------------------------------------------------------
+// LockFile::LockFile
+//-------------------------------------------------------------------
+LockFile::~LockFile()
+{
+}
+
+//-------------------------------------------------------------------
+// LockFile::priv_lock
+//-------------------------------------------------------------------
+bool LockFile::priv_lock( int lock_cmd )
+{
+  int rc = 0;
+  struct flock fl;
+
+  switch( m_type )
+  {
+    case READ:
+    {
+      m_fd = open( m_file_name.full_name().c_str(), O_RDONLY );
+      if( m_fd < 0 )
+      {
+        std::string strErr = StringUtil::str_format(ERR_OPEN_FILE, PSZ(m_file_name.full_name()));
+        FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::priv_lock");
+      }
+      fl.l_type = F_RDLCK;
+      rc = fcntl( m_fd, lock_cmd, &fl );
+    }
+
+    case WRITE:
+    {
+      m_fd = open( m_file_name.full_name().c_str(), O_WRONLY );
+      if( m_fd < 0 )
+      {
+        std::string strErr = StringUtil::str_format(ERR_OPEN_FILE, PSZ(m_file_name.full_name()));
+        FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::priv_lock");
+      }
+      fl.l_type = F_WRLCK;
+      rc = fcntl( m_fd, lock_cmd, &fl );
+    }
+  }
+
+  if( rc < 0 && (EACCES == errno || EAGAIN == errno) )
+  {
+    // Already locked
+    return false;
+  }
+  else if( rc < 0 )
+  {
+    std::string strErr = StringUtil::str_format("Locking file %s failed", PSZ(m_file_name.full_name()));
+    FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::priv_lock");
+  }
+
+  m_lock_cmd = lock_cmd;
+  return true;
+}
+
+//-------------------------------------------------------------------
+// LockFile::try_lock
+//-------------------------------------------------------------------
+bool LockFile::try_lock()
+{
+  return priv_lock( F_SETLK );
+}
+
+//-------------------------------------------------------------------
+// LockFile::lock
+//-------------------------------------------------------------------
+void LockFile::lock()
+{
+  priv_lock( F_SETLKW ); // Ignore returned value
+}
+
+//-------------------------------------------------------------------
+// LockFile::unlock
+//-------------------------------------------------------------------
+void LockFile::unlock()
+{
+  struct flock fl;
+  fl.l_type = F_UNLCK;
+  int rc = fcntl( m_fd, m_lock_cmd, &fl );
+  close ( m_fd );
+  if( rc < 0 )
+  {
+    std::string strErr = StringUtil::str_format("Unlocking file %s failed", PSZ(m_file_name.full_name()));
+    FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::unlock");
+  }  
+}
+
+//===========================================================================
+// Class AutoLockFile
+//===========================================================================
+//
+//-------------------------------------------------------------------
+// AutoLockFile::AutoLockFile
+//-------------------------------------------------------------------
+AutoLockFile::AutoLockFile(LockFile* lock_p)
+{
+  m_lock_p = lock_p;
+  m_lock_p->lock();
+}
+
+//-------------------------------------------------------------------
+// AutoLockFile::AutoLockFile
+//-------------------------------------------------------------------
+AutoLockFile::~AutoLockFile()
+{
+  m_lock_p->unlock();
+}
+
+
 
 } // namespace
