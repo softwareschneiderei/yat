@@ -963,6 +963,7 @@ void LockFile::lock()
 void LockFile::unlock()
 {
   struct flock fl;
+  memset (&fl, 0, sizeof(fl));
   fl.l_type = F_UNLCK;
   int rc = fcntl( m_fd, m_lock_cmd, &fl );
   close ( m_fd );
