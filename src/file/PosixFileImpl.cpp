@@ -890,7 +890,7 @@ LockFile::~LockFile()
 //-------------------------------------------------------------------
 bool LockFile::priv_lock( int lock_cmd )
 {
-  int rc = 0;
+  int rc = -1;
   struct flock fl;
   memset (&fl, 0, sizeof(fl));
 
@@ -907,6 +907,7 @@ bool LockFile::priv_lock( int lock_cmd )
       fl.l_type = F_RDLCK;
       rc = fcntl( m_fd, lock_cmd, &fl );
     }
+    break;
 
     case WRITE:
     {
@@ -919,6 +920,10 @@ bool LockFile::priv_lock( int lock_cmd )
       fl.l_type = F_WRLCK;
       rc = fcntl( m_fd, lock_cmd, &fl );
     }
+    break;
+
+    default:
+      throw Exception("BAD_ARGUMENT", "Unknown lock type", "FileName::priv_lock");
   }
 
   if( rc < 0 && (EACCES == errno || EAGAIN == errno) )
