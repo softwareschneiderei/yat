@@ -892,6 +892,7 @@ bool LockFile::priv_lock( int lock_cmd )
 {
   int rc = 0;
   struct flock fl;
+  memset (&fl, 0, sizeof(fl));
 
   switch( m_type )
   {
