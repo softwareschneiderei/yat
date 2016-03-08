@@ -81,9 +81,16 @@ namespace yat
 //-----------------------------------------------------------------------------
 // Free function fuzzy float point numbers comparison
 //-----------------------------------------------------------------------------
-template<typename T> bool fp_is_equal(T a, T b, T precision)
+template<typename T>
+inline bool fp_is_equal(T a, T b, T precision)
 {
-  return std::abs( (a-b) / b ) < std::abs(precision);
+  if( std::abs(a-b) < std::abs(precision) ) // work better near zero
+    return true;
+
+  if( std::abs(a) > std::abs(b) )
+    return std::abs(a-b) <= ( std::abs(precision) * std::abs(a) );
+  else
+    return std::abs(b-a) <= ( std::abs(precision) * std::abs(b) );
 }
 
 //-----------------------------------------------------------------------------
