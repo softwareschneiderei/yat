@@ -162,13 +162,13 @@ public:
   //! \brief Starts the pulser synchronously.
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
-  //! \param sync if set then use wait_msg_handled to ensure the start action is done before return
+  //! \notice Ensure the start action is done before return
   virtual void start_sync ();
   
   //! \brief Stops the pulser synchronously.
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
-  //! \param sync if set then use wait_msg_handled to ensure the stop action is done before return
+  //! \notice Ensure the stop action is done before return
   virtual void stop_sync ();
 
   //! \brief Changes the pulser's period.
@@ -186,22 +186,20 @@ public:
   size_t get_num_pulses () const;
   
   //! \brief Suspends the Pulser activity
-  //! \param sync if set then use wait_msg_handled to ensure the suspend action is done before return
   void suspend ();
 
   //! \brief Suspends the Pulser activity synchronously
-  //! \param sync if set then use wait_msg_handled to ensure the suspend action is done before return
+  //! \notice Ensure the suspend action is done before return
   void suspend_sync ();
 
   //! \brief Check the Pulser activity
   bool is_done ();
 
   //! \brief Resumes the Pulser activity 
-  //! \param sync if set then use wait_msg_handled to ensure the resume action is done before return
   void resume ();
 
   //! \brief Resumes the Pulser activity synchronously
-  //! \param sync if set then use wait_msg_handled to ensure the resume action is done before return
+  //! \notice Ensure the resume action is done before return
   void resume_sync ();
 
 private:
