@@ -598,7 +598,7 @@ void FileName::chown(uid_t uid, gid_t gid) throw( Exception )
 //-------------------------------------------------------------------
 // FileName::ThrowExceptionFromErrno
 //-------------------------------------------------------------------
-void FileName::ThrowExceptionFromErrno(const char *pszDesc, const char *pszOrigin) const
+void FileName::ThrowExceptionFromErrno(const char *pszDesc, const char *pszOrigin)
 {
   throw Exception("FILE_ERROR", pszDesc, pszOrigin);     
 }
@@ -725,23 +725,6 @@ TempFileName::TempFileName()
 //===========================================================================
 
 //-------------------------------------------------------------------
-// LockFile::LockFile
-//-------------------------------------------------------------------
-LockFile::LockFile(const FileName& fn, Type t)
-{
-  m_file_name = fn;
-  m_type = t;
-  m_fd = 0;
-}
-
-//-------------------------------------------------------------------
-// LockFile::LockFile
-//-------------------------------------------------------------------
-LockFile::~LockFile()
-{
-}
-
-//-------------------------------------------------------------------
 // LockFile::priv_lock
 //-------------------------------------------------------------------
 bool LockFile::priv_lock( int lock_cmd )
@@ -755,7 +738,8 @@ bool LockFile::priv_lock( int lock_cmd )
 //-------------------------------------------------------------------
 bool LockFile::try_lock()
 {
-  return priv_lock( F_SETLK );
+  // Can't lock file yet on win32
+  return false;
 }
 
 //-------------------------------------------------------------------
@@ -763,7 +747,7 @@ bool LockFile::try_lock()
 //-------------------------------------------------------------------
 void LockFile::lock()
 {
-  priv_lock( F_SETLKW ); // Ignore returned value
+  throw yat::Exception("ERROR", "Can't lock file: unimplemented feature", "LockFile::lock");
 }
 
 //-------------------------------------------------------------------
@@ -771,28 +755,7 @@ void LockFile::lock()
 //-------------------------------------------------------------------
 void LockFile::unlock()
 {
+  throw yat::Exception("ERROR", "Can't unlock file: unimplemented feature", "LockFile::unlock");
 }
-
-//===========================================================================
-// Class AutoLockFile
-//===========================================================================
-//
-//-------------------------------------------------------------------
-// AutoLockFile::AutoLockFile
-//-------------------------------------------------------------------
-AutoLockFile::AutoLockFile(LockFile* lock_p)
-{
-  m_lock_p = lock_p;
-  m_lock_p->lock();
-}
-
-//-------------------------------------------------------------------
-// AutoLockFile::AutoLockFile
-//-------------------------------------------------------------------
-AutoLockFile::~AutoLockFile()
-{
-  m_lock_p->unlock();
-}
-
 
 } // namespace

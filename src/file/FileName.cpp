@@ -597,7 +597,7 @@ void CfgFile::load_from_string(const std::string& _content)
       continue;
     }
     
-    if( line.empty() || StringUtil::match(line, "#*") )
+    if( line.empty() || StringUtil::match(line, "#*") || StringUtil::match(line, ";*") )
       // empty lines or comments lines are passed
       continue;
     
@@ -934,5 +934,136 @@ void DirectoryWatcher::get_changes(FileNamePtrVector *pvecNewFilesPtr,
     }
   }
 }
+
+//===========================================================================
+// Class LockFile
+//===========================================================================
+
+//-------------------------------------------------------------------
+// LockFile::LockFile
+//-------------------------------------------------------------------
+LockFile::LockFile(const FileName& fn, Type t)
+{
+  m_file_name = fn;
+  m_type = t;
+  m_fd = 0;
+}
+
+//-------------------------------------------------------------------
+// LockFile::LockFile
+//-------------------------------------------------------------------
+LockFile::~LockFile()
+{
+}
+
+//------------------------------------------------------------------------------
+// LockFile::async_lock
+//------------------------------------------------------------------------------
+void LockFile::async_lock(Task* task_p, MessageType lock_msg, MessageType err_msg)
+{
+  m_async_ptr.reset( new ASyncLock() );
+
+  m_async_ptr->lock_msg = lock_msg;
+  m_async_ptr->err_msg = err_msg;
+  m_async_ptr->task_p = task_p;
+
+  start_async_lock();
+}
+
+//------------------------------------------------------------------------------
+// LockFile::async_lock
+//------------------------------------------------------------------------------
+void LockFile::async_lock(FileLockCallback lock_cb, FileLockCallback err_cb)
+{
+  m_async_ptr.reset( new ASyncLock() );
+
+  m_async_ptr->lock_msg = 0;
+  m_async_ptr->err_msg = 0;
+  m_async_ptr->task_p = 0;
+  m_async_ptr->lock_callback = lock_cb;
+  m_async_ptr->err_callback = err_cb;
+
+  start_async_lock();
+}
+
+//------------------------------------------------------------------------------
+// LockFile::start_async_lock
+//------------------------------------------------------------------------------
+void LockFile::start_async_lock()
+{
+  yat::Pulser::Config cfg;
+  cfg.period_in_msecs = 1;
+  cfg.num_pulses = 1;
+  cfg.callback = yat::PulserCallback::instanciate(*this, &LockFile::lock_callback);
+  cfg.user_data = 0;
+  m_async_ptr->pulser_ptr.reset( new yat::Pulser(cfg) );
+  m_async_ptr->pulser_ptr->start();
+}
+
+//------------------------------------------------------------------------------
+// LockFile::lock_callback
+//------------------------------------------------------------------------------
+void LockFile::lock_callback( yat::Thread::IOArg )
+{
+  try
+  {
+    lock();
+    if( m_async_ptr->task_p && m_async_ptr->lock_msg > 0 )
+    {
+      m_async_ptr->task_p->post(m_async_ptr->lock_msg);
+    }
+    else if( !m_async_ptr->lock_callback.is_empty() )
+    {
+      m_async_ptr->lock_callback(this);
+    }
+  }
+  catch( const yat::Exception& e )
+  {
+    m_async_ptr->errors = e.errors;
+
+    if( m_async_ptr->task_p && m_async_ptr->err_msg > 0 )
+    {
+      m_async_ptr->task_p->post(m_async_ptr->err_msg);
+    }
+    else if( !m_async_ptr->err_callback.is_empty() )
+    {
+      m_async_ptr->err_callback(this);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+// LockFile::get_errors
+//------------------------------------------------------------------------------
+Exception::ErrorList LockFile::get_errors()
+{
+  if( m_async_ptr ) 
+    return m_async_ptr->errors;
+  return Exception::ErrorList();
+}
+
+//===========================================================================
+// Class AutoLockFile
+//===========================================================================
+//
+//-------------------------------------------------------------------
+// AutoLockFile::AutoLockFile
+//-------------------------------------------------------------------
+AutoLockFile::AutoLockFile(LockFile* lock_p)
+{
+  m_lock_p = lock_p;
+  m_lock_p->lock();
+}
+
+//-------------------------------------------------------------------
+// AutoLockFile::AutoLockFile
+//-------------------------------------------------------------------
+AutoLockFile::~AutoLockFile()
+{
+  m_lock_p->unlock();
+}
+
+
+
 
 } // namespace
