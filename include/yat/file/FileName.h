@@ -44,8 +44,12 @@
 
 #include <yat/CommonHeader.h>
 #include <yat/utils/String.h>
+#include <yat/utils/Callback.h>
 #include <yat/memory/SharedPtr.h>
+#include <yat/memory/UniquePtr.h>
 #include <yat/memory/MemBuf.h>
+#include <yat/threading/Task.h>
+#include <yat/threading/Pulser.h>
 #include <yat/time/Time.h>
 
 #if defined(_MSC_VER)
@@ -1021,11 +1025,15 @@ public:
   bool has_changed();
 };
 
+//! Asynchronous lock callback definition
+YAT_DEFINE_CALLBACK(FileLockCallback, Thread::IOArg);
+
 // ============================================================================
-//! \class LockFile 
+//! \class LockFile
 //! \brief Manage locks
 //!
-//! Create lock on a file
+//! Create a read (i.e. shared) or write (i.e. exclusive) on a file
+//! This class uses the fcntl system call to ensure compatibility with NFS
 // ============================================================================
 class YAT_DECL LockFile
 {
@@ -1044,9 +1052,8 @@ public:
   //! \brief d-tor
   virtual ~LockFile();
 
-  //! \brief try to create the lock
-  //! return 'true' if succeed
-  //! If the file is already locked, return immediately the value 'false'
+  //! \brief try to lock the file, do not wait until the lock is released
+  //! return 'true' if succeed, false if the file is already locked
   bool try_lock();
 
   //! \brief lock the file: wait until the file is effectively locked
@@ -1055,19 +1062,75 @@ public:
   //! \brief unlock previously locked file
   void unlock();
 
+  //!@{
+  //! Experimental feature : asynchronous lock with
+  //! automatic notification
+
+    //! \brief asynchronously lock the file
+    //! \brief when the lock is acquired the callback is called
+    void async_lock(FileLockCallback lock_cb, FileLockCallback err_cb);
+
+    //! \brief asynchronously lock the file
+    //! \brief when the lock is acquired a message is posted
+    void async_lock(Task* task_p, MessageType lock_msg, MessageType err_msg);
+
+    //! \brief get errors list in case of lock failure
+    Exception::ErrorList get_errors();
+
+  //!@}
+
 private:
 
-  FileName   m_file_name;
-  Type       m_type;
-  int        m_fd;
-  int        m_lock_cmd;
+  struct ASyncLock
+  { // async lock related information
+    Task*                task_p;
+    std::size_t          lock_msg;
+    std::size_t          err_msg;
+    FileLockCallback     lock_callback;
+    FileLockCallback     err_callback;
+    UniquePtr<Pulser>    pulser_ptr;
+    Exception::ErrorList errors;
+  };
 
+  FileName             m_file_name;
+  Type                 m_type;
+  int                  m_fd;
+  int                  m_lock_cmd;
+  bool                 m_wait_for_lock; // asynchonously waiting for the lock...
+  UniquePtr<ASyncLock> m_async_ptr;
+  
   bool priv_lock( int lock_cmd );
+  void lock_callback( Thread::IOArg );
+  void start_async_lock();
+};
+
+// ============================================================================
+//! \class RLockFile 
+//! \brief Helper class for read lock
+//!
+//! Create read lock (i.e. shared lock) on a file
+// ============================================================================
+class YAT_DECL RLockFile : public LockFile
+{
+  //! \brief c-tor
+  RLockFile(const FileName& fn) : LockFile(fn, LockFile::READ) {}
+};
+
+// ============================================================================
+//! \class WLockFile 
+//! \brief Helper class for write lock
+//!
+//! Create write lock (i.e. exclusive lock) on a file
+// ============================================================================
+class YAT_DECL WLockFile : public LockFile
+{
+  //! \brief c-tor
+  WLockFile(const FileName& fn) : LockFile(fn, LockFile::WRITE) {}
 };
 
 // ============================================================================
 //! \class AutoLockFile 
-//! \brief Manage locks
+//! \brief Helper class that automatically lock/unlock the file
 //!
 //! The AutoLockFile class provides an auto lock/unlock mechanism.\n
 // ============================================================================
