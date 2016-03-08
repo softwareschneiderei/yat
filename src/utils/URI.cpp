@@ -131,7 +131,6 @@ bool URI::check(URI::Part part, const std::string& value, bool throw_exception) 
 
     case URI::PATH:
       return check_value(value, UNRESERVED + PCT_ENCODED + SUB_DELIMS + ":@", "host", throw_exception);
-      return true;
 
     case URI::QUERY:
       return check_value(value, UNRESERVED + PCT_ENCODED + SUB_DELIMS + ":@/?", "query", throw_exception);
