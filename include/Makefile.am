@@ -17,13 +17,21 @@ nobase_include_HEADERS =  \
 	yat/file/File.h \
 	yat/file/FileName.h \
 	yat/memory/Allocator.h \
+	yat/memory/Allocator.i \
+    yat/memory/Allocator.tpp \
 	yat/memory/DataBuffer.h \
+	yat/memory/DataBuffer.i \
+	yat/memory/DataBuffer.tpp \
 	yat/memory/SharedPtr.h \
+	yat/memory/UniquePtr.h \
 	yat/memory/MemBuf.h \
 	yat/network/Address.h \
+	yat/network/Address.i \
 	yat/network/ClientSocket.h \
+	yat/network/ClientSocket.i \
 	yat/network/SocketException.h \
 	yat/network/Socket.h \
+	yat/network/Socket.i \
 	yat/plugin/IPlugInFactory.h \
 	yat/plugin/IPlugInInfo.h \
 	yat/plugin/IPlugInObject.h \
@@ -34,21 +42,30 @@ nobase_include_HEADERS =  \
 	yat/plugin/PlugInTypes.h \
 	yat/system/SysUtils.h \
 	yat/threading/Barrier.h \
+	yat/threading/Barrier.i \
 	yat/threading/Condition.h \
 	yat/threading/Implementation.h \
 	yat/threading/Message.h \
+	yat/threading/Message.i \
 	yat/threading/MessageQ.h \
+	yat/threading/MessageQ.i \
 	yat/threading/Mutex.h \
 	yat/threading/ReadersWriterMutex.h \
 	yat/threading/Pulser.h \
 	yat/threading/Semaphore.h \
 	yat/threading/SharedObject.h \
+	yat/threading/SharedObject.i \
 	yat/threading/Task.h \
 	yat/threading/Task.i \
 	yat/threading/Thread.h \
 	yat/threading/Utilities.h \
 	yat/threading/SyncAccess.h \
 	yat/threading/impl/PosixThreadingImpl.h \
+	yat/threading/impl/PosixThreadingImpl.i \
+	yat/threading/impl/PosixConditionImpl.i \
+	yat/threading/impl/PosixMutexImpl.i \
+	yat/threading/impl/PosixSemaphoreImpl.i \
+	yat/threading/impl/PosixThreadImpl.i \
 	yat/time/Timer.h \
 	yat/time/Time.h \
 	yat/utils/Callback.h \
@@ -62,6 +79,7 @@ nobase_include_HEADERS =  \
 	yat/utils/StringTemplate.h \
 	yat/utils/StringTokenizer.h \
 	yat/utils/URI.h \
+	yat/utils/Utils.h \
 	yat/utils/XString.h 
 	
 	
