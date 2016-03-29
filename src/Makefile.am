@@ -8,6 +8,7 @@ libyat_la_LDFLAGS = -version-info 1:0:0
 libyat_la_CXXFLAGS = -I$(top_srcdir)/include
 libyat_la_SOURCES = \
 	Exception.cpp \
+  Version.cpp \
 	bitsstream/BitsStream.cpp \
 	bitsstream/Endianness.cpp \
 	network/Address.cpp \

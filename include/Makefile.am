@@ -1,5 +1,6 @@
 nobase_include_HEADERS =  \
 	yat/CommonHeader.h \
+	yat/Version.h \
 	yat/config-linux.h \
 	yat/config-macosx.h \
 	yat/config-win32.h \
@@ -18,7 +19,7 @@ nobase_include_HEADERS =  \
 	yat/file/FileName.h \
 	yat/memory/Allocator.h \
 	yat/memory/Allocator.i \
-    yat/memory/Allocator.tpp \
+  yat/memory/Allocator.tpp \
 	yat/memory/DataBuffer.h \
 	yat/memory/DataBuffer.i \
 	yat/memory/DataBuffer.tpp \

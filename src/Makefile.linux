@@ -23,6 +23,11 @@
 #      Synchrotron SOLEIL
 #------------------------------------------------------------------------------
 
+ifndef MAKE_ENV
+    TANGO_HOME= $(shell pkg-config --variable prefix tango)
+    MAKE_ENV = $(TANGO_HOME)/share/pogo/preferences/
+endif
+
 #=============================================================================
 # ARCH_TYPE
 #=============================================================================
@@ -141,7 +146,7 @@ endif
 #=============================================================================
 #	TANGO.OPT - include standard TANGO compilation options
 #=============================================================================
-include ./build/linux/tango.opt
+include $MAKE_ENV/tango.opt
 
 #=============================================================================
 # SVC_OBJS - is the list of all objects needed in order to build the project
@@ -180,7 +185,7 @@ SVC_OBJS =  $(OBJ_DIR)/bitsstream/BitsStream.a.o \
 #=============================================================================
 #	COMMON_TARGET.OPT - include standard TANGO compilation options
 #=============================================================================
-include ./build/linux/common_target.opt
+include $MAKE_ENV/common_target.opt
 
 cleanall: i386-clean x86_64-clean
 
