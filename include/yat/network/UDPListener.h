@@ -131,7 +131,8 @@ public:
   virtual void exit ()
   {  
     m_go_on = false;
-    join(0);
+    Thread::IOArg dummy = 0;
+    join(&dummy);
   }
 
   //--------------------------------------------------------
