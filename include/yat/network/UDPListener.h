@@ -13,6 +13,7 @@
 #include <yat/network/ClientSocket.h>
 #include <yat/threading/Task.h>
 #include <yat/utils/StringTokenizer.h>
+#include <yat/utils/Logging.h>
 
 namespace yat
 {
