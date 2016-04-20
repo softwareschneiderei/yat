@@ -86,28 +86,6 @@ public:
           uer_notification_msg_id(UDP_LISTENER_NOTIF_DISABLED),
           eos_notification_msg_id(UDP_LISTENER_NOTIF_DISABLED)
     {}
-
-
-    //! \brief constructor
-    Config (const Config& src) 
-        : udp_addr(src.udp_addr),
-          udp_port(src.udp_port),
-          udp_tmo_ms(src.udp_tmo_ms),
-          task_to_notify(src.task_to_notify),
-          uer_notification_msg_id(src.uer_notification_msg_id),
-          eos_notification_msg_id(src.eos_notification_msg_id)
-    {}
-
-    //! \brief copy
-    void operator= (const Config& src) 
-    {
-      udp_addr = src.udp_addr;
-      udp_port = src.udp_port;
-      udp_tmo_ms = src.udp_tmo_ms;
-      task_to_notify = src.task_to_notify;
-      uer_notification_msg_id = src.uer_notification_msg_id;
-      eos_notification_msg_id = src.eos_notification_msg_id;
-    }
   }; 
   
   //--------------------------------------------------------
@@ -153,6 +131,7 @@ public:
   virtual void exit ()
   {  
     m_go_on = false;
+    join(0);
   }
 
   //--------------------------------------------------------
