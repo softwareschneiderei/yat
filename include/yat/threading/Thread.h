@@ -222,6 +222,28 @@ private:
   YAT_THREAD_IMPLEMENTATION;
 };
 
+// ============================================================================
+//! \struct ThreadExiter
+//! \brief 'Deleter' object to instanciate when using yat::SharedPtr<yat::Thread>
+//! \brief or with implicite instantiation whith yat::UniquePtr<yat::Thread, yat::ThreadExiter>
+// ============================================================================
+struct ThreadExiter
+{
+  //! \brief operator().
+  //! \param object The object to delete.
+  void operator()(Thread* thread)
+  {
+    try
+    {
+      YAT_TRACE( "Exiting Thread object @" << (void*)thread );
+      thread->exit();
+    }
+    catch(...)
+    {
+    }
+  }
+};
+
 } // namespace yat 
 
 #if defined (YAT_INLINE_IMPL)
