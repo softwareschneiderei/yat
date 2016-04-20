@@ -545,6 +545,22 @@ public:
   CurrentTime(bool bUT=false);
 };
 
+// ============================================================================
+//! \class CurrentUTime 
+//! \brief Current time class initialized at current Universal Time (UT).
+//!
+//! Inherits from CurrentTime class.
+// ============================================================================
+class YAT_DECL CurrentUTime : public CurrentTime
+{
+public:
+  //! \brief Constructor.
+  //!
+  //! \param bUT If set to true, the date is initialized with Universal %Time instead 
+  //! of local time.
+  CurrentUTime();
+};
+
 //- Create synonym for convenience.
 typedef CurrentTime CurrentDate;
 typedef CurrentTime CurrentDateTime;
@@ -582,6 +598,21 @@ struct YAT_DECL DurationFields
 // ============================================================================
 class YAT_DECL Duration
 {
+
+public:
+/* DO NOT DELETE, its on progress...
+  class Micro
+  {
+    Micro( yat::int64 micros ) : m_microsecs(micros) {}
+  private:
+    yat::int64 m_microsecs;
+  };
+
+  class Seconds
+  {
+    Seconds( std::size_t secs) : Micro( secs * 1000000 ) {}
+  };
+*/
 public:
   Duration() : m_microsecs(0) { }
   Duration(yat::int64 microsecs) : m_microsecs(microsecs) { }
