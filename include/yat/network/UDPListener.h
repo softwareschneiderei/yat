@@ -230,7 +230,6 @@ protected:
             //- post UDP notification to the 'task_to_notify'?
             if ( m_cfg.uer_notification_msg_id > UDP_LISTENER_NOTIF_DISABLED )
             {
-              YAT_VERBOSE_STREAM("YAT::UDPistener Event sent " << udp_evt_number);
               //- post a 'uer_notification_msg_id' msg to the 'task_to_notify'
               m_cfg.task_to_notify->post(m_cfg.uer_notification_msg_id, udp_evt_number, 500);
             }
