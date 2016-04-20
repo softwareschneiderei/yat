@@ -99,7 +99,7 @@ namespace yat
 #define SEP_DSK         ':'
 
 #ifndef _MAX_PATH
-  #define _MAX_PATH 260
+  #define _MAX_PATH 1024
 #endif
 
 
@@ -1053,7 +1053,7 @@ public:
   virtual ~LockFile();
 
   //! \brief try to lock the file, do not wait until the lock is released
-  //! return 'true' if succeed, false if the file is already locked
+  //! \return 'true' if succeed, false if the file is already locked
   bool try_lock();
 
   //! \brief lock the file: wait until the file is effectively locked
@@ -1062,16 +1062,16 @@ public:
   //! \brief unlock previously locked file
   void unlock();
 
+  //! \name Asynchronous lock
+  //! A set of experimental methods for asynchronous locking
   //!@{
-  //! Experimental feature : asynchronous lock with
-  //! automatic notification
 
     //! \brief asynchronously lock the file
-    //! \brief when the lock is acquired the callback is called
+    //! Asynchronously lock the file: when the lock is acquired the callback is called
     void async_lock(FileLockCallback lock_cb, FileLockCallback err_cb);
 
     //! \brief asynchronously lock the file
-    //! \brief when the lock is acquired a message is posted
+    //! Asynchronously lock the file: when the lock is acquired a message is posted
     void async_lock(Task* task_p, MessageType lock_msg, MessageType err_msg);
 
     //! \brief get errors list in case of lock failure
