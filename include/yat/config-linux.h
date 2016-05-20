@@ -123,6 +123,9 @@ namespace yat
 # if defined(i386) || defined(__i386__) || defined(__amd64__) || defined (__x86_64__)
 #  define YAT_HAS_PENTIUM 1
 #  define YAT_LITTLE_ENDIAN_PLATFORM 1
+# elif defined(arm) || defined(__arm__)
+#  define YAT_HAS_PENTIUM 0
+#  define YAT_LITTLE_ENDIAN_PLATFORM 1
 # else
 #  error "no support for this processor"
 # endif
@@ -130,14 +133,14 @@ namespace yat
 /**
  *  64 bits stuffs
  */
-#if defined (__amd64__) || defined (__x86_64__)
+#if defined (__amd64__) || defined (__x86_64__) || defined(__aarch64__)
 # define YAT_64BITS
 #endif
 
 /**
- *  ASM related stuffs
+ *  Pentium asm related stuffs
  */
-#if defined (YAT_HAS_PENTIUM) || defined (__amd64__) || defined (__x86_64__)
+#if YAT_HAS_PENTIUM
 # define YAT_HAS_INTEL_ASSEMBLY
 #endif
 

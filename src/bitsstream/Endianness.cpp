@@ -133,7 +133,7 @@ void Endianness::swap_2 (const char *orig, char* target)
   *reinterpret_cast<const unsigned short*> (orig);
   asm( "rolw $8, %0" : "=r" (a) : "0" (a) );
   *reinterpret_cast<unsigned short*> (target) = a;
-#elif ! defined(YAT_NO_INLINE_ASM) && defined (YAT_HAS_PENTIUM) && defined(_MSC_VER)
+#elif ! defined(YAT_NO_INLINE_ASM) && YAT_HAS_PENTIUM && defined(_MSC_VER)
   __asm mov ebx, orig;
   __asm mov ecx, target;
   __asm mov ax, [ebx];
@@ -164,7 +164,7 @@ void Endianness::swap_4 (const char* orig, char* target)
   *reinterpret_cast<const unsigned int*> (orig);
   asm ("bswap %1" : "=r" (j) : "0" (j));
   *reinterpret_cast<unsigned int*> (target) = j;
-#elif ! defined(YAT_NO_INLINE_ASM) && defined(YAT_HAS_PENTIUM) && defined(_MSC_VER)
+#elif ! defined(YAT_NO_INLINE_ASM) && YAT_HAS_PENTIUM  && defined(_MSC_VER)
   __asm mov ebx, orig;
   __asm mov ecx, target;
   __asm mov eax, [ebx];
@@ -194,7 +194,7 @@ void Endianness::swap_8 (const char* orig, char* target)
   * reinterpret_cast<const unsigned long*> (orig);
   asm ("bswapq %1" : "=r" (x) : "0" (x));
   *reinterpret_cast<unsigned long*> (target) = x;
-#elif defined(YAT_HAS_PENTIUM) && defined(__GNUG__)
+#elif YAT_HAS_PENTIUM && defined(__GNUG__)
   register unsigned int i =
   *reinterpret_cast<const unsigned int*> (orig);
   register unsigned int j =
@@ -203,7 +203,7 @@ void Endianness::swap_8 (const char* orig, char* target)
   asm ("bswap %1" : "=r" (j) : "0" (j));
   *reinterpret_cast<unsigned int*> (target + 4) = i;
   *reinterpret_cast<unsigned int*> (target) = j;
-#elif ! defined(YAT_NO_INLINE_ASM) && defined(YAT_HAS_PENTIUM) && defined(_MSC_VER)
+#elif ! defined(YAT_NO_INLINE_ASM) && YAT_HAS_PENTIUM && defined(_MSC_VER)
   __asm mov ecx, orig;
   __asm mov edx, target;
   __asm mov eax, [ecx];
@@ -310,7 +310,7 @@ void Endianness::swap_2_array (const char* orig, char* target, size_t n)
       asm ( "rol $16, %1"   : "=r" (b) : "0" (b) );
       * reinterpret_cast<unsigned int*> (target) = a;
       * reinterpret_cast<unsigned int*> (target + 4) = b;
-#elif ! defined(YAT_NO_INLINE_ASM) && defined(YAT_HAS_PENTIUM) && defined(_MSC_VER) 
+#elif ! defined(YAT_NO_INLINE_ASM) && YAT_HAS_PENTIUM && defined(_MSC_VER) 
       __asm mov ecx, orig;
       __asm mov edx, target;
       __asm mov eax, [ecx];
@@ -376,7 +376,7 @@ else
           = (unsigned short) (a & 0xffff);
       * reinterpret_cast<unsigned short*> (target + 4)
           = (unsigned short) (b & 0xffff);
-#elif ! defined(YAT_NO_INLINE_ASM) && defined (YAT_HAS_PENTIUM) && defined (_MSC_VER)
+#elif ! defined(YAT_NO_INLINE_ASM) && YAT_HAS_PENTIUM && defined(_MSC_VER)
       __asm mov ecx, orig;
       __asm mov edx, target;
       __asm mov eax, [ecx];
@@ -594,7 +594,7 @@ void Endianness::swap_4_array (const char* orig, char* target, size_t n)
 
   while (orig < end)
   {
-#if defined (YAT_HAS_PENTIUM) && defined (__GNUG__)
+#if YAT_HAS_PENTIUM && defined (__GNUG__)
     register unsigned int a =
       *reinterpret_cast<const unsigned int*> (orig);
     register unsigned int b =
@@ -613,7 +613,7 @@ void Endianness::swap_4_array (const char* orig, char* target, size_t n)
     *reinterpret_cast<unsigned int*> (target + 4) = b;
     *reinterpret_cast<unsigned int*> (target + 8) = c;
     *reinterpret_cast<unsigned int*> (target + 12) = d;
-#elif ! defined(YAT_NO_INLINE_ASM) && defined (YAT_HAS_PENTIUM) && defined (_MSC_VER)
+#elif ! defined(YAT_NO_INLINE_ASM) && YAT_HAS_PENTIUM && defined(_MSC_VER)
     __asm mov eax, orig
     __asm mov esi, target
     __asm mov edx, [eax]
