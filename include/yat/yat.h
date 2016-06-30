@@ -9,7 +9,7 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2012  N.Leclercq & The Tango Community
+// Copyright (C) 2006-2016 The Tango Community
 //
 // Part of the code comes from the ACE Framework (i386 asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
@@ -78,7 +78,7 @@
 //!
 //! <b>YAT license:</b>
 //!
-//! Copyright (C) 2006-2012 The Tango Community (http://tango-controls.org)
+//! Copyright (C) 2006-2016 The Tango Community (http://tango-controls.org)
 //! 
 //! Part of the code comes from the ACE Framework (i386 asm bytes swaping code).\n
 //! See http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE

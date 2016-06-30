@@ -9,7 +9,7 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2014 The Tango Community
+// Copyright (C) 2006-2016 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
@@ -51,7 +51,7 @@ namespace yat
   int max_thr_count = 0;
   int thr_count = 0;
   #define DEBUG_LOG(t) std::cout << t;
-  #define LOCK_STAT_MAX_COUNT(n) { if( n > max_lock ) max_lock = n; }
+  #define LOCK_STAT_MAX_COUNT(n) { if( static_cast<int>(n) > max_lock ) max_lock = static_cast<int>(n); }
   #define LOCK_STAT_OBJ_COUNT(map) { if( map.size() > max_obj_count ) max_obj_count = map.size(); }
   #define THREAD_COUNT_STAT(map) {thr_count++; if( map.size() > max_thr_count ) max_thr_count = map.size(); }
   #define SHOW_STATS { std::cout << "thr count: " << thr_count << "\n" << "max simultaneous thr: " << \

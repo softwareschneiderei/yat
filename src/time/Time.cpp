@@ -9,7 +9,7 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2014 The Tango Community
+// Copyright (C) 2006-2016 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
@@ -1119,7 +1119,7 @@ Duration Duration::operator/(double factor)
 //----------------------------------------------------------------------------
 void Duration::get(DurationFields *pDF) const
 {
-  pDF->days = (m_microsecs / MICROSEC_PER_SEC) / SEC_PER_DAY;
+  pDF->days = static_cast<yat::uint8>((m_microsecs / MICROSEC_PER_SEC) / SEC_PER_DAY);
   // Hour, minutes, seconds
   uint32 ulSec = uint32((m_microsecs / int64(MICROSEC_PER_SEC)) % int64(SEC_PER_DAY));
   pDF->hours = (uint8)(ulSec / SEC_PER_HOUR);
