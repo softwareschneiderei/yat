@@ -14,14 +14,25 @@
 #include <yat/threading/Task.h>
 #include <yat/utils/StringTokenizer.h>
 #include <yat/utils/Logging.h>
+#include <yat/utils/Callback.h>
 
 namespace yat
 {
+  
   
 //-----------------------------------------------------------------------------
 // PSEUDO CONST
 //-----------------------------------------------------------------------------
 #define UDP_LISTENER_NOTIF_DISABLED 0
+
+  
+// ============================================================================
+//! Defines callbacks type.
+// ============================================================================
+//- U(dp)E(vent)R(eceived) callback
+YAT_DEFINE_CALLBACK(UERCallback, yat::uint32);
+//- E(nd)O(f)S(equence) callback
+YAT_DEFINE_CALLBACK(EOSCallback, yat::uint32);
 
 //-----------------------------------------------------------------------------
 //! \brief class UDPListener
@@ -75,6 +86,10 @@ public:
     //! id of the message to be posted at 'end of the sequence' - i.e. when the expected number of UDP events has beeen received
     //! defaults to UDP_LISTENER_NOTIF_DISABLED which means 'disabled/no notifaction'
     size_t eos_notification_msg_id;
+    //! optional callback called for each time a 'UDP event is received'
+    UERCallback uer_callback;
+    //! optional callback called when the expected number of UDP events has beeen received
+    EOSCallback eos_callback;
     //-----------------------------------
     
     //! \brief default constructor
@@ -84,7 +99,9 @@ public:
           udp_tmo_ms(1000),
           task_to_notify(0),
           uer_notification_msg_id(UDP_LISTENER_NOTIF_DISABLED),
-          eos_notification_msg_id(UDP_LISTENER_NOTIF_DISABLED)
+          eos_notification_msg_id(UDP_LISTENER_NOTIF_DISABLED),
+          uer_callback(),
+          eos_callback()
     {}
   }; 
   
@@ -142,6 +159,14 @@ public:
   //--------------------------------------------------------
   //! \brief total number of ignored UDP events since call to yat::Thread::start_undetached 
   inline yat::uint32 total_events_ignored () const { return m_total_ignored_events; }
+  
+  //--------------------------------------------------------
+  //! \brief number of UDP events since last call to start
+  inline yat::uint32 events_received () const { return m_received_events; }
+  
+  //--------------------------------------------------------
+  //! \brief return true if the listener received the expected number of UDP events, return false otherwise
+  inline bool expected_events_received () const { return m_received_events == m_expected_events; }
   
 protected:
   //--------------------------------------------------------
@@ -205,7 +230,8 @@ protected:
     //- input data buffer
     yat::Socket::Data ib(4);
     
-    //- (almost) infinite reading loop     
+    //- (almost) infinite reading loop  
+    yat::uint32 udp_evt_number = 0;
     while ( m_go_on )
     {
       //- wait for some input data
@@ -222,29 +248,39 @@ protected:
             ++m_total_ignored_events;
             continue;
           }
-          //- post data to the SpiTask 
+          //- extract UDP event number (identifier) from the UDP packet
+          //- this is set by SpiUdpTimebase (i.e. the UDP event emitter)
+          udp_evt_number = *(reinterpret_cast<yat::uint32*>(ib.base()));
+          //- post data to the task 
           if ( m_cfg.task_to_notify )
           {
-            //- extract UDP event number (identifier) from the UDP packet
-            //- this is set by SpiUdpTimebase (i.e. the UDP event emitter)
-            yat::uint32 udp_evt_number = *(reinterpret_cast<yat::uint32*>(ib.base()));
             //- post UDP notification to the 'task_to_notify'?
             if ( m_cfg.uer_notification_msg_id > UDP_LISTENER_NOTIF_DISABLED )
             {
               //- post a 'uer_notification_msg_id' msg to the 'task_to_notify'
               m_cfg.task_to_notify->post(m_cfg.uer_notification_msg_id, udp_evt_number, 500);
             }
-            //- end of sequence...
-            if ( m_mode == UDP_FINITE && udp_evt_number == m_expected_events )
+            //- call "udp event received" callback (if any)
+            if ( ! m_cfg.uer_callback.is_empty() )
             {
-              //- done, post a 'end of sequence' to the 'task_to_notify'
-              if ( m_cfg.eos_notification_msg_id > UDP_LISTENER_NOTIF_DISABLED )
-              {
-                m_cfg.task_to_notify->post(m_cfg.eos_notification_msg_id, 500);
-              }
-              //- done, swicth to STANDBY mode
-              m_mode = UDP_STANDBY;
+              m_cfg.uer_callback(udp_evt_number);
             }
+          }
+          //- end of sequence...
+          if ( m_mode == UDP_FINITE && udp_evt_number == m_expected_events )
+          {
+            //- done, post a 'end of sequence' to the 'task_to_notify'
+            if ( m_cfg.task_to_notify && m_cfg.eos_notification_msg_id > UDP_LISTENER_NOTIF_DISABLED )
+            {
+              m_cfg.task_to_notify->post(m_cfg.eos_notification_msg_id, 500);
+            }
+            //- call "end of sequence" callback (if any)
+            if ( ! m_cfg.eos_callback.is_empty() )
+            {
+              m_cfg.eos_callback(m_expected_events);
+            }
+            //- done, swicth to STANDBY mode
+            m_mode = UDP_STANDBY;
           }
         }
       }
