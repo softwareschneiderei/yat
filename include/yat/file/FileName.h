@@ -735,6 +735,11 @@ class YAT_DECL File: public FileName
   //! \exception FILE_ERROR Thrown if file opening or writing fails.
   void save(const std::string& strContent) 
     throw(Exception);
+
+  //! \brief synonym of Save
+  //! \param strContent String to save.
+  //! \exception FILE_ERROR Thrown if file opening or writing fails.
+  void write(const std::string& strContent) { save( strContent ); }
 };
 
 
