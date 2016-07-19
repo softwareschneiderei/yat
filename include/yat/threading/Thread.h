@@ -235,7 +235,7 @@ struct ThreadExiter
   {
     try
     {
-      YAT_TRACE( "Exiting Thread object @" << (void*)thread );
+      YAT_LOG( "Exiting Thread object @" << (void*)thread );
       thread->exit();
     }
     catch(...)
