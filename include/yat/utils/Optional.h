@@ -40,10 +40,13 @@
 #ifndef _YAT_OPTIONAL_H_
 #define _YAT_OPTIONAL_H_
 
+namespace yat
+{
+
 // ============================================================================
 //! \class Optional<T>
-//! \brief Manage an aptional contained value, i.e. a value that may or may not be present.
-//! This class is directly inpired by the std::optional class defined in C++17
+//! \brief Manage an optional contained value, i.e. a value that may or may not be present.
+//! This class is directly inspired by the std::optional class defined in C++17
 //! See http://en.cppreference.com/w/cpp/experimental/optional
 // ============================================================================
 template<typename T>
@@ -113,3 +116,4 @@ bool operator==(const Optional<U>& lhs, const V&)
   return false;
 };
 
+} // namespace
