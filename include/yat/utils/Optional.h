@@ -117,3 +117,5 @@ bool operator==(const Optional<U>& lhs, const V&)
 };
 
 } // namespace
+
+#endif // _YAT_OPTIONAL_H_
