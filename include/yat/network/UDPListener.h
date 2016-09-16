@@ -103,6 +103,18 @@ public:
           uer_callback(),
           eos_callback()
     {}
+
+    //! \brief copy constructor
+    Config (const Config& src) 
+        : udp_addr(src.udp_addr),
+          udp_port(src.udp_port),
+          udp_tmo_ms(src.udp_tmo_ms),
+          task_to_notify(src.task_to_notify),
+          uer_notification_msg_id(src.uer_notification_msg_id),
+          eos_notification_msg_id(src.eos_notification_msg_id),
+          uer_callback(src.uer_callback),
+          eos_callback(src.eos_callback)
+    {}
   }; 
   
   //--------------------------------------------------------
@@ -251,6 +263,7 @@ protected:
           //- extract UDP event number (identifier) from the UDP packet
           //- this is set by SpiUdpTimebase (i.e. the UDP event emitter)
           udp_evt_number = *(reinterpret_cast<yat::uint32*>(ib.base()));
+
           //- post data to the task 
           if ( m_cfg.task_to_notify )
           {
@@ -260,11 +273,11 @@ protected:
               //- post a 'uer_notification_msg_id' msg to the 'task_to_notify'
               m_cfg.task_to_notify->post(m_cfg.uer_notification_msg_id, udp_evt_number, 500);
             }
-            //- call "udp event received" callback (if any)
-            if ( ! m_cfg.uer_callback.is_empty() )
-            {
-              m_cfg.uer_callback(udp_evt_number);
-            }
+          }
+          //- call "udp event received" callback (if any)
+          if ( ! m_cfg.uer_callback.is_empty() )
+          {
+            m_cfg.uer_callback(udp_evt_number);
           }
           //- end of sequence...
           if ( m_mode == UDP_FINITE && udp_evt_number == m_expected_events )
