@@ -604,6 +604,33 @@ void StringUtil::trim_left(std::string* str_p)
 }
 
 //---------------------------------------------------------------------------
+// StringUtil::trim
+//---------------------------------------------------------------------------
+void StringUtil::trim( std::vector<std::string>* vec_p )
+{
+  for( std::size_t i = 0; i < vec_p->size(); ++i )
+    trim( & (*vec_p)[i] );
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::trim_left
+//---------------------------------------------------------------------------
+void StringUtil::trim_left( std::vector<std::string>* vec_p )
+{
+  for( std::size_t i = 0; i < vec_p->size(); ++i )
+    trim_left( & (*vec_p)[i] );
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::trim_right
+//---------------------------------------------------------------------------
+void StringUtil::trim_right( std::vector<std::string>* vec_p )
+{
+  for( std::size_t i = 0; i < vec_p->size(); ++i )
+    trim_right( & (*vec_p)[i] );
+}
+
+//---------------------------------------------------------------------------
 // StringUtil::printf
 //---------------------------------------------------------------------------
 int StringUtil::printf(std::string* str_p, pcsz pszFormat, ...)
