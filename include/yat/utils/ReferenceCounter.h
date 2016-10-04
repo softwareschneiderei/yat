@@ -44,6 +44,7 @@
 // DEPENDENCIES
 // ============================================================================
 #include <iostream>
+#include <utility>
 #include <typeinfo> 
 #include <yat/CommonHeader.h>
 #include <yat/threading/Mutex.h>
@@ -143,24 +144,23 @@ public:
   //! \brief Removes a reference from counter.
   //!
   //! Decreases counter by 1.
-  const C dec_ref()
+  const std::pair<C,C> dec_ref()
   {
     PTR_DBG("CountImpl::dec_ref(->" << m_use_count-1 << ")");
     yat::AutoMutex<L> guard(this->m_lock);
-    YAT_ASSERT(this->m_use_count > 0);
     --m_use_count;
-    return m_use_count;
+    return std::make_pair(m_use_count, m_weak_count);
   }
 
   //! \brief Removes a weak reference from counter.
   //!
   //! Decreases weak counter by 1.
-  const C dec_weak_ref()
+  const std::pair<C,C> dec_weak_ref()
   {
     PTR_DBG("CountImpl::dec_weak_ref(->" << m_weak_count-1 << ")");
-    YAT_ASSERT(this->m_weak_count > 0);
+    yat::AutoMutex<L> guard(this->m_lock);
     --m_weak_count;
-    return m_weak_count;
+    return std::make_pair(m_use_count, m_weak_count);
   }
   
   //! \brief Gets the counter value.
@@ -177,16 +177,6 @@ public:
     return m_weak_count;
   }
 
-  //! \brief Tests if there is any reference (weak or not).
-  //!
-  //! Returns true if reference counter AND weak reference counter 
-  //! are empty, false otherwise.
-  bool expired()
-  {
-    yat::AutoMutex<L> guard(this->m_lock);
-    return 0 == m_use_count && 0 == m_weak_count;
-  }
-  
   //! \brief Explicitly locks the counter.
   void lock()
   {
@@ -339,19 +329,15 @@ public:
   void release ()
   {
     PTR_DBG("SharedCounter::release()");
-    m_count->dec_ref();
-    if( m_count->expired() )
+    const std::pair<C, C> counters = m_count->dec_ref();
+    if( 0 == counters.first ) // use_count
     {
       // No more reference to the counter object, we can destroy it
       this->m_count->dispose();
-      delete this->m_count;
+      if( 0 == counters.second ) // weak_count
+        // No more weak ref, we can destroy the counter
+        delete this->m_count;
       this->m_count = 0;
-    }
-    else if( m_count->use_count() == 0 )
-    {
-      // At least one weak reference remains on the counter
-      // We just destroy the referenced object
-      this->m_count->dispose();
     }
   }
 
@@ -408,7 +394,6 @@ public:
 
 private:
   CountBase<C, L>* m_count; // The shared counter
-  L m_lock;
 };
 
 // ============================================================================
@@ -488,8 +473,8 @@ public:
     PTR_DBG("WeakCounter::release()");
     if( m_count )
     {
-      m_count->dec_weak_ref();
-      if( m_count->expired() )
+      const std::pair<C, C> counters = m_count->dec_weak_ref();
+      if( 0 == counters.first && 0 == counters.second )
       {
         delete this->m_count;
         this->m_count = 0;
