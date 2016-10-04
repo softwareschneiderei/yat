@@ -240,6 +240,15 @@ public:
   //! \brief Removes white spaces at end of string.
   static void trim_right(std::string* str_p);
 
+  //! \brief Removes white spaces at beginning and end of all strings in collection.
+  static void trim(std::vector<std::string>* vec_p);
+
+  //! \brief Removes white spaces at end of all strings in collection.
+  static void trim_right(std::vector<std::string>* vec_p);
+
+  //! \brief Removes white spaces at beginning of all strings in collection.
+  static void trim_left(std::vector<std::string>* vec_p);
+
   //! \brief Builds a std::string with the specified format.
   //!
   //! Returns the std::string size.
