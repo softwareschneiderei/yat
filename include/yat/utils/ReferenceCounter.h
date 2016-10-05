@@ -122,7 +122,7 @@ public:
   //! \brief Adds a reference to counter.
   //!
   //! Increments counter by 1.
-  const C add_ref()
+  C add_ref()
   {
     PTR_DBG("CountImpl::add_ref(->" << m_use_count+1 << ")");
     yat::AutoMutex<L> guard(this->m_lock);
@@ -133,7 +133,7 @@ public:
   //! \brief Adds a weak reference to counter.
   //!
   //! Increments weak counter by 1.
-  const C add_weak_ref()
+  C add_weak_ref()
   {
     PTR_DBG("CountImpl::add_weak_ref(->" << m_weak_count+1 << ")");
     yat::AutoMutex<L> guard(this->m_lock);
@@ -144,7 +144,7 @@ public:
   //! \brief Removes a reference from counter.
   //!
   //! Decreases counter by 1.
-  const std::pair<C,C> dec_ref()
+  std::pair<C,C> dec_ref()
   {
     PTR_DBG("CountImpl::dec_ref(->" << m_use_count-1 << ")");
     yat::AutoMutex<L> guard(this->m_lock);
@@ -155,7 +155,7 @@ public:
   //! \brief Removes a weak reference from counter.
   //!
   //! Decreases weak counter by 1.
-  const std::pair<C,C> dec_weak_ref()
+  std::pair<C,C> dec_weak_ref()
   {
     PTR_DBG("CountImpl::dec_weak_ref(->" << m_weak_count-1 << ")");
     yat::AutoMutex<L> guard(this->m_lock);
@@ -164,14 +164,14 @@ public:
   }
   
   //! \brief Gets the counter value.
-  C & use_count()
+  C use_count()
   {
     yat::AutoMutex<L> guard(this->m_lock);
     return m_use_count;
   }
 
   //! \brief Gets the weak counter value.
-  const C & weak_count()
+  C weak_count()
   {
     yat::AutoMutex<L> guard(this->m_lock);
     return m_weak_count;
