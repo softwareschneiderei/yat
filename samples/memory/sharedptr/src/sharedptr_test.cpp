@@ -53,9 +53,22 @@ public:
 //-----------------------------------------------------------------------------
 #define DUMP( ptr ) \
   std::cout << "SharedPtr " \
-  					<< #ptr \
+            << #ptr \
             << " -- points to --> " \
             << (ptr ? ptr->some_attribute : "xxxxxx") \
+            << " [its ref. count is " \
+            << ptr.use_count() \
+            << "]" \
+            << std::endl
+
+//-----------------------------------------------------------------------------
+// DUMP MACRO
+//-----------------------------------------------------------------------------
+#define DUMPW( ptr, T ) \
+  std::cout << "SharedPtr " \
+  					<< #ptr \
+            << " -- points to --> " \
+            << (ptr ? T(ptr)->some_attribute : "xxxxxx") \
             << " [its ref. count is " \
             << ptr.use_count() \
             << "]" \
@@ -73,15 +86,17 @@ public:
 int main(int argc, char* argv[])
 {
   typedef yat::SharedPtr<MyObject> MyObjectPtr;
+  typedef yat::WeakPtr<MyObject> MyObjectWPtr;
+
   typedef yat::SharedPtr<MyDerivedObject> MyDerivedObjectPtr;
+  typedef yat::WeakPtr<MyDerivedObject> MyDerivedObjectWPtr;
 
   std::cout << STR(VERSION) << std::endl;
   
   MyObjectPtr foo ( new MyObject("foo-sp") );
- 
   MyObjectPtr bar ( new MyObject("bar-sp") );
-
   MyObjectPtr tmp;
+  MyObjectWPtr wfoo(foo);
 
   std::cout << std::endl; //-----------------------------------------------------
   
@@ -89,65 +104,151 @@ int main(int argc, char* argv[])
   DUMP( tmp );
   DUMP( foo );
   DUMP( bar );
+  DUMPW( wfoo, MyObjectPtr );
 
   std::cout << std::endl; //-----------------------------------------------------
   
+  std::cout << "execute 'tmp = foo' :" << std::endl;
   tmp = foo;
-  std::cout << "after 'tmp = foo' :" << std::endl;
+  std::cout << "\nafter 'tmp = foo' :" << std::endl;
   
   DUMP( tmp );
   DUMP( foo );
   DUMP( bar );
+  DUMPW( wfoo, MyObjectPtr );
 
   std::cout << std::endl; //-----------------------------------------------------
   
+  std::cout << "execute 'tmp = bar' :" << std::endl;
   tmp = bar;
   
-  std::cout << "after 'tmp = bar' :" << std::endl;
+  std::cout << "\nafter 'tmp = bar' :" << std::endl;
   
   DUMP( tmp );
   DUMP( foo );
   DUMP( bar );
+  DUMPW( wfoo, MyObjectPtr );
 
   std::cout << std::endl; //-----------------------------------------------------
   
+  std::cout << "execute 'tmp.reset()' :" << std::endl;
   tmp.reset();
   
-  std::cout << "after 'tmp.reset()' :" << std::endl;
+  std::cout << "\nafter 'tmp.reset()' :" << std::endl;
   
   DUMP( tmp );
   DUMP( foo );
   DUMP( bar );
+  DUMPW( wfoo, MyObjectPtr );
 
   std::cout << std::endl; //-----------------------------------------------------
   
   tmp = foo; 
   
+  std::cout << "execute 'tmp = foo; foo.reset( new MyObject(\"oof-so\") )' :" << std::endl;
   foo.reset( new MyObject("oof-so") );
   
-  std::cout << "after 'tmp = foo; foo.reset( new MyObject(\"oof-so\") )' :" << std::endl;
+  std::cout << "\nafter 'tmp = foo; foo.reset( new MyObject(\"oof-so\") )' :" << std::endl;
   
   DUMP( tmp );
   DUMP( foo );
   DUMP( bar );
+  DUMPW( wfoo, MyObjectPtr );
 
   std::cout << std::endl; //-----------------------------------------------------
   
+  std::cout << "execute 'foo.reset()' :" << std::endl;
   foo.reset();
 
-  std::cout << "after 'foo.reset()' :" << std::endl;
+  std::cout << "\nafter 'foo.reset()' :" << std::endl;
   
   DUMP( tmp );
   DUMP( foo );
   DUMP( bar );
+  DUMPW( wfoo, MyObjectPtr );
+
+  std::cout << std::endl; //-----------------------------------------------------
+  
+  std::cout << "execute 'MyObjectWPtr wzo(wfoo)' :" << std::endl;
+  MyObjectWPtr wzo(wfoo);
+
+  std::cout << "\nafter 'MyObjectWPtr wzo(wfoo)' :" << std::endl;
+  
+  DUMP( tmp );
+  DUMP( foo );
+  DUMP( bar );
+  DUMPW( wfoo, MyObjectPtr );
+  DUMPW( wzo, MyObjectPtr );
+
+  std::cout << std::endl; //-----------------------------------------------------
+  
+  std::cout << "execute 'wfoo.reset()' :" << std::endl;
+  wfoo.reset();
+
+  std::cout << "\nafter 'wfoo.reset()' :" << std::endl;
+  
+  DUMP( tmp );
+  DUMP( foo );
+  DUMP( bar );
+  DUMPW( wfoo, MyObjectPtr );
+  DUMPW( wzo, MyObjectPtr );
+
+  std::cout << std::endl; //-----------------------------------------------------
+  
+  std::cout << "execute 'tmp.reset()' :" << std::endl;
+  tmp.reset();
+
+  std::cout << "\nafter 'tmp.reset()' :" << std::endl;
+  
+  DUMP( tmp );
+  DUMP( foo );
+  DUMP( bar );
+  DUMPW( wfoo, MyObjectPtr );
+  DUMPW( wzo, MyObjectPtr );
+  
+  std::cout << std::endl; //-----------------------------------------------------
+  
+  std::cout << "execute 'wzo.reset()' :" << std::endl;
+  wzo.reset();
+
+  std::cout << "\nafter 'wzo.reset()' :" << std::endl;
+  
+  DUMP( tmp );
+  DUMP( foo );
+  DUMP( bar );
+  DUMPW( wfoo, MyObjectPtr );
+  DUMPW( wzo, MyObjectPtr );
 
   std::cout << std::endl; //-----------------------------------------------------
 
-  MyDerivedObjectPtr foo2( new MyDerivedObject("foo2-sp"));
+  std::cout << "execute 'MyDerivedObjectPtr foo2( new MyDerivedObject(\"foo2-sp\"))' :" << std::endl;
+  MyDerivedObjectPtr foo2( new MyDerivedObject("foo2-sp") );
   
+  std::cout << std::endl; //-----------------------------------------------------
+  
+  std::cout << "execute 'foo = foo2' :" << std::endl;
   foo = foo2;
+  std::cout << "\nafter 'MyDerivedObjectPtr foo2( new MyDerivedObject(\"foo2-sp\")); foo = foo2' :" << std::endl;
   
-  if( foo == foo2 ) ;
+  DUMP( tmp );
+  DUMP( foo );
+  DUMP( foo2 );
+  DUMP( bar );
+  DUMPW( wfoo, MyObjectPtr );
+
+  std::cout << std::endl; //-----------------------------------------------------
+  
+  std::cout << "execute MyObjectWPtr meu( foo2 )' :" << std::endl;
+  MyObjectWPtr meu( foo2 );
+
+  std::cout << "\nafter MyObjectWPtr meu( foo2 )' :" << std::endl;
+  
+  DUMP( tmp );
+  DUMP( foo );
+  DUMP( bar );
+  DUMP( foo2 );
+  DUMPW( wfoo, MyObjectPtr );
+  DUMPW( meu, MyObjectPtr );
   
   return 0;
 }
