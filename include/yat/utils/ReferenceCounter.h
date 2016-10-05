@@ -53,12 +53,11 @@
 namespace yat 
 {
 
-#define PTR_DBG(s)
-//#define PTR_DBG(s) std::cout << std::hex << "[" << yat::ThreadingUtilities::self() << "][" << (void*)(this) << "] - " << std::dec << s << std::endl;
+//#define PTR_DBG(s)
+#define PTR_DBG(s) std::cout << std::hex << "[" << yat::ThreadingUtilities::self() << "][" << (void*)(this) << "] - " << std::dec << s << std::endl;
 
 //! Defines the default counter type.
 typedef yat::uint32 counter_t;
-
 
 // ============================================================================
 //! \class DefaultDeleter 
@@ -125,7 +124,7 @@ public:
   C add_ref()
   {
     PTR_DBG("CountImpl::add_ref(->" << m_use_count+1 << ")");
-    yat::AutoMutex<L> guard(this->m_lock);
+    yat::AutoMutex<L> guard(m_lock);
     ++m_use_count;
     return m_use_count;
   }
@@ -136,7 +135,7 @@ public:
   C add_weak_ref()
   {
     PTR_DBG("CountImpl::add_weak_ref(->" << m_weak_count+1 << ")");
-    yat::AutoMutex<L> guard(this->m_lock);
+    yat::AutoMutex<L> guard(m_lock);
     ++m_weak_count;
     return m_weak_count;
   }
@@ -147,7 +146,7 @@ public:
   std::pair<C,C> dec_ref()
   {
     PTR_DBG("CountImpl::dec_ref(->" << m_use_count-1 << ")");
-    yat::AutoMutex<L> guard(this->m_lock);
+    yat::AutoMutex<L> guard(m_lock);
     --m_use_count;
     return std::make_pair(m_use_count, m_weak_count);
   }
@@ -158,22 +157,22 @@ public:
   std::pair<C,C> dec_weak_ref()
   {
     PTR_DBG("CountImpl::dec_weak_ref(->" << m_weak_count-1 << ")");
-    yat::AutoMutex<L> guard(this->m_lock);
+    yat::AutoMutex<L> guard(m_lock);
     --m_weak_count;
     return std::make_pair(m_use_count, m_weak_count);
   }
   
   //! \brief Gets the counter value.
-  C use_count()
+  C use_count() const
   {
-    yat::AutoMutex<L> guard(this->m_lock);
+    yat::AutoMutex<L> guard(m_lock);
     return m_use_count;
   }
 
   //! \brief Gets the weak counter value.
-  C weak_count()
+  C weak_count() const
   {
-    yat::AutoMutex<L> guard(this->m_lock);
+    yat::AutoMutex<L> guard(m_lock);
     return m_weak_count;
   }
 
@@ -197,7 +196,7 @@ protected:
   C m_weak_count;
 
   //! Counter lock.
-  L m_lock;
+  mutable L m_lock;
 };
 
 // ============================================================================
@@ -240,7 +239,8 @@ public:
   //! Calls for the specified deleter on the specified object.
   void dispose()
   {
-    m_deleter(m_data);
+    if( m_data )
+      m_deleter(m_data);
   }
 
 private:
@@ -282,7 +282,7 @@ public:
   SharedCounter(T* p)
   {
     PTR_DBG("SharedCounter::SharedCounter(p)");
-    this->m_count = new CountImpl<T,DefaultDeleter<T>,C,L>(p, DefaultDeleter<T>());
+    m_count = new CountImpl<T,DefaultDeleter<T>,C,L>(p, DefaultDeleter<T>());
   }
 
   //! \brief Constructor with specific deleter.
@@ -292,11 +292,11 @@ public:
   SharedCounter(T* p, D d)
   {
     PTR_DBG("SharedCounter::SharedCounter(p, d)");
-    this->m_count = new CountImpl<T,D,C,L>(p, d);
+    m_count = new CountImpl<T,D,C,L>(p, d);
   }
 
   //! \brief Destructor.
-  virtual ~SharedCounter()
+  ~SharedCounter()
   {
     PTR_DBG("SharedCounter::~SharedCounter()");
     release();
@@ -310,8 +310,8 @@ public:
     cnt.m_count->lock();
     if( cnt.m_count->use_count() > 0 )
     {
-      this->m_count = cnt.m_count;
-      this->m_count->add_ref();
+      m_count = cnt.m_count;
+      m_count->add_ref();
     }
     cnt.m_count->unlock();
   }
@@ -321,8 +321,8 @@ public:
   SharedCounter (const ThisType& cnt)
   {
     PTR_DBG("SharedCounter::SharedCounter(const ThisType&)");
-    this->m_count = cnt.m_count;
-    this->m_count->add_ref();    
+    m_count = cnt.m_count;
+    m_count->add_ref();    
   }
 
   //! \brief Releases counter and underlying object.
@@ -333,11 +333,11 @@ public:
     if( 0 == counters.first ) // use_count
     {
       // No more reference to the counter object, we can destroy it
-      this->m_count->dispose();
+      m_count->dispose();
       if( 0 == counters.second ) // weak_count
         // No more weak ref, we can destroy the counter
-        delete this->m_count;
-      this->m_count = 0;
+        delete m_count;
+      m_count = 0;
     }
   }
 
@@ -350,14 +350,14 @@ public:
 
   //! \brief operator=.
   //! \param s The source counter.
-  const ThisType& operator= (const ThisType& s)
+  ThisType& operator= (const ThisType& s)
   {
     PTR_DBG("SharedCounter::operator=(const ThisType&)");
     if (this != &s)
     {
       release();
-      this->m_count = s.m_count;
-      this->m_count->add_ref();
+      m_count = s.m_count;
+      m_count->add_ref();
     }
     return *this;
   }
@@ -366,7 +366,7 @@ public:
   //! \param s The source counter.
   void swap (ThisType& s)
   {
-    std::swap(this->m_count, s.m_count);
+    std::swap(m_count, s.m_count);
   }
 
   //! \brief Tests if there is only one reference or more.
@@ -374,13 +374,21 @@ public:
   //! Returns true if there is only one reference, false otherwise.
   bool unique () const
   {
-    return this->m_count->use_count() == 1;
+    if( m_count )
+      return m_count->use_count() == 1;
+    return true;
   }
 
   //! \brief Gets use counter value.
-  const C use_count () const
+  C use_count () const
   {
-    return this->m_count ? this->m_count->use_count() : 0;
+    return m_count ? m_count->use_count() : 0;
+  }
+
+  //! \brief Gets use counter value in weak pointers.
+  C weak_count () const
+  {
+    return m_count ? m_count->weak_count() : 0;
   }
 
   //! Implicit conversion to bool.
@@ -389,7 +397,7 @@ public:
   //! \brief Implicit conversion to bool.
   operator unspecified_bool_type() const
   {
-    return this->m_count ? m_count->use_count() : 0;
+    return m_count ? m_count->use_count() : 0;
   }
 
 private:
@@ -425,7 +433,7 @@ public:
   WeakCounter ()
   {
     PTR_DBG("WeakCounter::WeakCounter()");
-    this->m_count = 0;
+    m_count = 0;
   }
 
   //! \brief Copy constructor.
@@ -433,8 +441,9 @@ public:
   WeakCounter (const ThisType& cnt)
   {
     PTR_DBG("WeakCounter::WeakCounter(const ThisType&)");
-    this->m_count = cnt.m_count;
-    this->m_count->add_weak_ref();
+    m_count = cnt.m_count;
+    if( m_count )
+      m_count->add_weak_ref();
   }
 
   //! \brief Copy constructor from shared pointer.
@@ -442,12 +451,13 @@ public:
   WeakCounter (const SharedCounter<C,L>& cnt)
   {
     PTR_DBG("WeakCounter::WeakCounter(const SharedCounter<T,L>&)");
-    this->m_count = cnt.m_count;
-    this->m_count->add_weak_ref();
+    m_count = cnt.m_count;
+    if( m_count )
+      m_count->add_weak_ref();
   }
 
   //! \brief Destructor.
-  virtual ~WeakCounter()
+  ~WeakCounter()
   {
     PTR_DBG("WeakCounter::~WeakCounter()");
     release();
@@ -455,14 +465,15 @@ public:
 
   //! \brief operator=.
   //! \param s The source counter.
-  const ThisType& operator= (const ThisType& s)
+  ThisType& operator= (const ThisType& s)
   {
     PTR_DBG("WeakCounter::operator=(const ThisType&)");
     if (this != &s)
     {
       release();
-      this->m_count = s.m_count;
-      this->m_count->add_weak_ref();
+      m_count = s.m_count;
+      if( m_count )
+        m_count->add_weak_ref();
     }
     return *this;
   }
@@ -475,9 +486,9 @@ public:
     {
       const std::pair<C, C> counters = m_count->dec_weak_ref();
       if( 0 == counters.first && 0 == counters.second )
-      {
-        delete this->m_count;
-        this->m_count = 0;
+      {       //       use_count             weak_count
+        delete m_count;
+        m_count = 0;
       }
     }
   }
@@ -491,15 +502,21 @@ public:
 
   //! \brief Swaps counters content.
   //! \param s The source counter.
-  void swap (const WeakCounter & s)
+  void swap (WeakCounter & s)
   {
-    std::swap(this->m_count, s.m_count);
+    std::swap(m_count, s.m_count);
   }
 
   //! \brief Gets the use counter value.
-  const C use_count () const
+  C use_count () const
   {
-    return this->m_count ? this->m_count->use_count() : 0;
+    return m_count ? m_count->use_count() : 0;
+  }
+
+  //! \brief Gets the use counter value.
+  C weak_count () const
+  {
+    return m_count ? m_count->weak_count() : 0;
   }
 
   //! Implicit conversion to bool.
@@ -508,7 +525,7 @@ public:
   //! \brief Implicit conversion to bool.
   operator unspecified_bool_type() const
   {
-    return this->m_count ? m_count->use_count() : 0;
+    return m_count ? m_count->use_count() : 0;
   }
 
 private:
