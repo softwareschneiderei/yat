@@ -44,6 +44,7 @@
 // DEPENDENCIES
 // ============================================================================
 #include <yat/utils/ReferenceCounter.h>
+#include <yat/memory/UniquePtr.h>
 #include <iostream>
 #include <map>
 
@@ -51,11 +52,41 @@
 namespace yat
 {
 
-
 // ============================================================================
 // forward declaration class: WeakPtr
 // ============================================================================
 template <typename T, typename L = yat::Mutex> class WeakPtr;
+
+/* TO BE CONTINUED... DO NOT DELETE !
+// ============================================================================
+//! \class enable_shared_from_this 
+//! \brief A allow the pointed object to return a SharedPtr from itself
+//!
+// ============================================================================
+template <typename T, typename L = yat::Mutex> class enable_shared_from_this
+{
+  template<typename U, typename V> friend class SharedPtr;
+
+public:
+  ~enable_shared_from_this() {}
+
+  SharedPtr<T,L> shared_from_this()
+  {
+    if( m_weak_ptr->is_null() )
+    {
+      SharedPtr<T,L> ptr(this);
+      WeakPtr<T, L> w(ptr);
+      m_weak_ptr = w;
+      return ptr;
+    }
+
+    return SharedPtr<T,L>(m_weak_ptr);
+  }
+
+private:
+  WeakPtr<T, L> m_weak_ptr;
+};
+*/
 
 // ============================================================================
 //! \class SharedPtr 
@@ -289,7 +320,6 @@ public:
 
   //! \brief Gets the shared pointer use count.
   //! 
-  //! Returns the number of threads using the shared pointer.
   unsigned long use_count () const
   {
     return m_ref_count.use_count();
@@ -337,6 +367,21 @@ private:
       throw Exception("BAD_CAST", "Trying to cast SharedPtr<T,L> to a uncompatible SharedPtr<Y,L>", "SharedPtr::cast_copy_data");
     }
   }
+
+/*
+  template<class Y> 
+  void initialize_shared_from_this(Y* obj_p)
+  {
+    enable_shared_from_this<T> p = dynamic_cast< enable_shared_from_this<T> >;
+    if( p )
+    {
+      if( p->m_weak_ptr->is_null() )
+      {
+        // create shared Initialize weak ptr object 
+      }
+    }
+  }
+*/
 
   //- Pointed data.
   T * m_data;
@@ -526,9 +571,8 @@ public:
     std::swap(m_ref_count, s.m_ref_count);
   }
 
-  //! \brief Gets the weak pointer number of user.
+  //! \brief Gets the shared pointer use count.
   //! 
-  //! Returns the number of threads using the weak pointer.
   unsigned long use_count () const
   {
     return m_ref_count.use_count();
@@ -703,8 +747,10 @@ private:
 } //- namespace
 
 //! Convenience declarations. To prepare a smooth move to C++ 11
-#define YAT_SHARED_PTR(T) yat::SharedPtr<T, yat::NullMutex>
-#define YAT_WEAK_PTR(T) yat::WeakPtr<T, yat::NullMutex>
+#define YAT_SHARED_PTR(T) yat::SharedPtr<T, yat::Mutex>
+#define YAT_WEAK_PTR(T) yat::WeakPtr<T, yat::Mutex>
+
+// Deprecated maco definitions
 #define YAT_THREADSAFE_SHARED_PTR(T) yat::SharedPtr<T, yat::Mutex>
 #define YAT_THREADSAFE_WEAK_PTR(T) yat::WeakPtr<T, yat::Mutex>
 
