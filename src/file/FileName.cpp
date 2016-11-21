@@ -414,6 +414,131 @@ bool FileName::is_empty_dir() const
   return false;
 }
 
+// ============================================================================
+// class FileName::FSStat
+// ============================================================================
+const char *_size_units_[] = {"", "K", "M", "T", "P", "E", "Z", "Y", NULL};
+
+//-------------------------------------------------------------------
+// FileName::FSBytes::to
+//-------------------------------------------------------------------
+double FileName::FSBytes::to(Units u) const
+{
+  switch( u )
+  {
+    case BYTES:
+      return double(bytes);
+    case KBYTES:
+      return (double)bytes / YAT_KBYTES;
+    case MBYTES:
+      return (double)bytes / YAT_MBYTES;
+    case GBYTES:
+      return (double)bytes / YAT_GBYTES;
+    case TBYTES:
+      return (double)bytes / YAT_TBYTES;
+    case PBYTES:
+      return (double)bytes / YAT_PBYTES;
+    case EBYTES:
+      return (double)bytes / YAT_EBYTES;
+    case ZBYTES:
+      return (double)bytes / YAT_ZBYTES;
+    case YBYTES:
+      return (double)bytes / YAT_YBYTES;
+  }
+}
+
+//-------------------------------------------------------------------
+// FileName::FSBytes::from
+//-------------------------------------------------------------------
+void FileName::FSBytes::from( double value, Units u )
+{
+  switch( u )
+  {
+    case BYTES:
+      bytes = yat::int64(value);
+      break;
+    case KBYTES:
+      bytes = yat::int64(value * YAT_KBYTES);
+      break;
+    case MBYTES:
+      bytes = yat::int64(value * YAT_MBYTES);
+      break;
+    case GBYTES:
+      bytes = yat::int64(value * YAT_GBYTES);
+      break;
+    case TBYTES:
+      bytes = yat::int64(value * YAT_TBYTES);
+      break;
+    case PBYTES:
+      bytes = yat::int64(value * YAT_PBYTES);
+      break;
+    case EBYTES:
+      bytes = yat::int64(value * YAT_EBYTES);
+      break;
+    case ZBYTES:
+      bytes = yat::int64(value * YAT_ZBYTES);
+      break;
+    case YBYTES:
+      bytes = yat::int64(value * YAT_YBYTES);
+      break;
+    default:
+      // TBYTES is enough (for now)
+      bytes = 0;
+  }
+}
+
+//-------------------------------------------------------------------
+// FileName::FSBytes::from
+//-------------------------------------------------------------------
+void FileName::FSBytes::from( const std::string &value )
+{
+  std::string v = value;
+
+  if( yat::StringUtil::match(v, "*k") || yat::StringUtil::match(v, "*kbytes") )
+      from( atol(v.c_str()), KBYTES );
+  else if( yat::StringUtil::match(v, "*m") || yat::StringUtil::match(v, "*mbytes") )
+      from( atol(v.c_str()), MBYTES );
+  else if( yat::StringUtil::match(v, "*g") || yat::StringUtil::match(v, "*gbytes") )
+      from( atol(v.c_str()), GBYTES );
+  else if( yat::StringUtil::match(v, "*t") || yat::StringUtil::match(v, "*tbytes") )
+      from( atol(v.c_str()), TBYTES );
+  else if( yat::StringUtil::match(v, "*p") || yat::StringUtil::match(v, "*pbytes") )
+      from( atol(v.c_str()), PBYTES );
+  else if( yat::StringUtil::match(v, "*e") || yat::StringUtil::match(v, "*ebytes") )
+      from( atol(v.c_str()), EBYTES );
+  else if( yat::StringUtil::match(v, "*z") || yat::StringUtil::match(v, "*zbytes") )
+      from( atol(v.c_str()), ZBYTES );
+  else if( yat::StringUtil::match(v, "*y") || yat::StringUtil::match(v, "*ybytes") )
+      from( atol(v.c_str()), YBYTES );
+  else
+    from( atol(v.c_str()) );
+}
+
+//-------------------------------------------------------------------
+// FileName::FSBytes::to_string
+//-------------------------------------------------------------------
+std::string FileName::FSBytes::to_string(bool long_format) const
+{
+  int l = 0;
+  double d = bytes;
+  while( d > 1024.0 )
+  {
+    d /= 1024.0;
+    ++l;
+  }
+
+  std::ostringstream oss;
+  if( d > 10 )
+    oss << int(d + 0.5) << _size_units_[l];
+  else
+    oss << int(d * 10 + 0.5) / 10.0 << _size_units_[l];
+
+  if( long_format )
+    oss << " bytes";
+
+  return oss.str();
+}
+
 //===========================================================================
 // Class TempFileName
 //===========================================================================
@@ -639,7 +764,7 @@ void CfgFile::load_from_string(const std::string& _content)
       }
       continue;
     }
-    
+
     if( StringUtil::match(line, "*:") )
     { // New object
       std::string strObjectType;
@@ -661,7 +786,7 @@ void CfgFile::load_from_string(const std::string& _content)
     m_dictSection[m_strSection].m_vecSingleValues.push_back(line);
     is_object = false;
   }
-  
+
   if( is_multiline )
   {
     log_warning("Last line of the cfg file " + full_name() + " ends with a '\\'. May be it's incomplete.");
@@ -720,7 +845,15 @@ const CfgFile::ObjectCollection& CfgFile::get_objects(const std::string& object_
   
   throw Exception( "NO_DATA",
                         PSZ_FMT("No such objects: %s", PSZ(object_type)),
-                        "CfgFile::get_objects" );
+                        "CfgFile::get_objects(const std::string& object_type)" );
+}
+
+//-----------------------------------------------------------------------------
+// CfgFile::get_objects
+//-----------------------------------------------------------------------------
+const CfgFile::Objects& CfgFile::get_objects() const
+{
+  return m_dictSection[m_strSection].m_objects;
 }
 
 //-----------------------------------------------------------------------------
@@ -734,7 +867,7 @@ const CfgFile::Parameters& CfgFile::get_unique_object(const std::string& object_
   
   throw Exception( "NO_DATA",
                         PSZ_FMT("No such object: %s", PSZ(object_name)),
-                        "CfgFile::get_object" );
+                        "CfgFile::get_unique_object" );
 }
 
 //-----------------------------------------------------------------------------
@@ -748,13 +881,17 @@ const CfgFile::Parameters &CfgFile::get_parameters() const
 //-----------------------------------------------------------------------------
 // CfgFile::GetParamValue
 //-----------------------------------------------------------------------------
-std::string CfgFile::get_param_value(const std::string& strParamName) const
+std::string CfgFile::get_param_value(const std::string& param, bool throw_exception) const
 {
   CfgFile::Parameters::const_iterator cit =
-          m_dictSection[m_strSection].m_dictParameters.find(strParamName);
+          m_dictSection[m_strSection].m_dictParameters.find(param);
 
   if( cit == m_dictSection[m_strSection].m_dictParameters.end() )
+  {
+    if( throw_exception )
+      throw yat::Exception("NO_DATA", std::string("Parameter ") + param + std::string(" not found"), "CfgFile::get_param_value");
     return StringUtil::empty;
+  }
 
   return cit->second;
 }
@@ -773,7 +910,7 @@ bool CfgFile::has_parameter(const std::string& strParamName) const
 //-----------------------------------------------------------------------------
 // CfgFile::set_section
 //-----------------------------------------------------------------------------
-bool CfgFile::set_section(const std::string& strSection, bool bThrowException) const throw( Exception )
+bool CfgFile::set_section(const std::string& strSection, bool bThrowException) const
 {
   std::map<std::string, Section>::iterator it = m_dictSection.find(strSection);
   if( it != m_dictSection.end() )

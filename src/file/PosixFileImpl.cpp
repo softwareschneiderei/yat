@@ -666,6 +666,29 @@ fsid_t FileName::file_system_id() const throw( Exception )
 }
 
 //-------------------------------------------------------------------
+// FileName::file_system_statistics
+//-------------------------------------------------------------------
+FileName::FSStat FileName::file_system_statistics() const
+{
+  struct statvfs buf;
+  int iRc = statvfs(PSZ(path()), &buf);
+  if( iRc )
+  {
+    std::string strErr = StringUtil::str_format(ERR_FSTYPE, PSZ(path()));
+    ThrowExceptionFromErrno(PSZ(strErr), "FileName::file_system_type");
+  }
+
+  FSStat stats;
+  stats.size.bytes = (yat::uint64)buf.f_blocks * (yat::uint64)buf.f_frsize;
+  stats.avail.bytes = (yat::uint64)buf.f_bavail * (yat::uint64)buf.f_frsize;
+  stats.used.bytes = stats.size - stats.avail;
+  stats.avail_percent = 100.0 * double(stats.avail) / double(stats.size);
+  stats.used_percent = 100.0 - stats.avail_percent;
+
+  return stats;
+}
+
+//-------------------------------------------------------------------
 // FileName::info
 //-------------------------------------------------------------------
 void FileName::info( Info* info_p, bool follow_link ) const
@@ -734,7 +757,7 @@ void FileName::chown(uid_t uid, gid_t gid) throw( Exception )
 //-------------------------------------------------------------------
 void FileName::ThrowExceptionFromErrno(const char *pszDesc, const char *pszOrigin)
 {
-  std::string strDesc = StringUtil::str_format("%s. %s", pszDesc, strerror(errno));
+  std::string strDesc = StringUtil::str_format("%s. [Errno %d] %s", pszDesc, errno, strerror(errno));
   switch( errno )
   {
     case EIO:

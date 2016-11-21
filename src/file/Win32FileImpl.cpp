@@ -555,6 +555,15 @@ fsid_t FileName::file_system_id() const throw( Exception )
 }
 
 //-------------------------------------------------------------------
+// FileName::file_system_statistics
+//-------------------------------------------------------------------
+FileName::FSStat FileName::file_system_statistics() const
+{ 
+  // Not implemented yet on windows
+  return FileName::FSStat();
+}
+
+//-------------------------------------------------------------------
 // FileName::info
 //-------------------------------------------------------------------
 void FileName::info( Info* info_p, bool ) const

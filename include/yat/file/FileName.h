@@ -51,6 +51,7 @@
 #include <yat/threading/Task.h>
 #include <yat/threading/Pulser.h>
 #include <yat/time/Time.h>
+#include <yat/utils/Dictionary.h>
 
 #if defined(_MSC_VER)
   #include <sys\utime.h>
@@ -70,6 +71,7 @@
   #include <sys/stat.h>
   #include <errno.h>
   #include <sys/vfs.h>
+  #include <sys/statvfs.h>
 #elif defined YAT_WIN32
   #include <sys\stat.h>
   #include <ctype.h>
@@ -386,6 +388,69 @@ public:
     virtual void on_complete(std::string file_name, int64 total_bytes, double elapsed_secs) = 0;
   };
   
+  #define YAT_KBYTES 1024LL
+  #define YAT_MBYTES 1048576LL
+  #define YAT_GBYTES 1073741824LL
+  #define YAT_TBYTES 1099511627776LL
+  #define YAT_PBYTES (1024LL * 1099511627776LL)
+  #define YAT_EBYTES (1048576LL * 1099511627776LL)
+  #define YAT_ZBYTES (1073741824LL * 1099511627776LL)
+  #define YAT_YBYTES (1099511627776LL * 1099511627776LL)
+
+  // ============================================================================
+  //! \class FSBytes
+  //! \brief File system size in bytes
+  //!
+  // ============================================================================
+  class FSBytes
+  {
+  public:
+    enum Units {BYTES, KBYTES, MBYTES, GBYTES, TBYTES, PBYTES, EBYTES, ZBYTES, YBYTES };
+
+    //! C-tor
+    FSBytes(yat::uint64 b=0) : bytes(b) {}
+
+    //! Convert to the specified type
+    double to( Units u ) const;
+
+    //! Get bytes value from value given in the specified unit
+    void from( double size, Units u=BYTES);
+
+    //! Get bytes value from a string in that form:
+    //! "1000", "100K" "25.2M", "3G",...
+    void from( const std::string& size_str );
+
+    //! Convert bytes value to a human readable string
+    //! \param long_format if 'true' add the string "bytes" after the value : "1000 bytes", "10M bytes", ...
+    std::string to_string(bool long_format=false) const;
+
+    //! Accessor
+    inline operator yat::uint64()  const { return bytes; }
+
+    //! Comparison operators
+    inline bool operator<( const FSBytes& other ) { return bytes < other.bytes; }
+    inline bool operator>( const FSBytes& other ) { return bytes > other.bytes; }
+
+  public:
+    yat::uint64 bytes;
+  };
+
+  // ============================================================================
+  //! \class FSStat
+  //! \brief statistics about a file system
+  //!
+  // ============================================================================
+  class FSStat
+  {
+  public:
+    FSStat() : size(0), avail(0), used(0), used_percent(0), avail_percent(0) {}
+    FSBytes size;          //! Total file system size
+    FSBytes avail;         //! Available size for unpriviliged users 
+    FSBytes used;          //! Used size 
+    double  used_percent;  //! Used percent
+    double  avail_percent; //! Available percent for unpriviliged users
+  };
+
   //- Throws a "FILE_ERROR" yat::Exception.
   static void ThrowExceptionFromErrno(const char *pszError, const char *pszMethod);
 
@@ -670,6 +735,11 @@ public:
   FSType file_system_type() const 
     throw(Exception);
 
+  //! \brief Returns the filesystem statistics.
+  //!
+  //! \remark Not implemented for WINDOWS plateform.
+  FSStat file_system_statistics() const; 
+
   //! \brief Returns the filesystem identifier.
   //!
   //! \exception FILE_ERROR Thrown if cannot access to filesystem information.
@@ -867,6 +937,7 @@ public:
   //! \brief List of values.
   typedef std::vector<std::string> Values;
   //! \brief Map of (key, value).
+  //typedef yat::Dictionary<std::string> Parameters;
   typedef std::map<std::string, std::string> Parameters;
   //! \brief (key, value) vector
   typedef std::vector<Parameters> ObjectCollection;
@@ -916,8 +987,7 @@ public:
   //! \param strSection New section name.
   //! \param bThrowException If set to true, exceptions are thrown.
   //! \exception NO_DATA Thrown if section not found.
-  bool set_section(const std::string& strSection, bool bThrowException=true) const
-    throw( Exception );
+  bool set_section(const std::string& strSection, bool bThrowException=true) const;
     
   //! \brief Gets section values.
   //!
@@ -936,6 +1006,9 @@ public:
   //! \brief Get section's objects collection by object type name
   const ObjectCollection& get_objects(const std::string& object_type) const;
   
+  //! \brief Get section's objects collections
+  const Objects& get_objects() const;
+  
   //! \brief Get section's unique object according to its type
   const Parameters& get_unique_object(const std::string& object_name) const;
   
@@ -949,7 +1022,7 @@ public:
   //!
   //! Returns nil string if value name not found in the section.
   //! \param strParamName Value name.
-  std::string get_param_value(const std::string& strParamName) const;
+  std::string get_param_value(const std::string& strParamName, bool throw_exception=false) const;
 
 };
 
