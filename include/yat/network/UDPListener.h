@@ -33,6 +33,8 @@ namespace yat
 YAT_DEFINE_CALLBACK(UERCallback, yat::uint32);
 //- E(nd)O(f)S(equence) callback
 YAT_DEFINE_CALLBACK(EOSCallback, yat::uint32);
+//- T(i)M(e)O(ut) callback
+YAT_DEFINE_CALLBACK(TMOCallback, yat::uint32);
 
 //-----------------------------------------------------------------------------
 //! \brief class UDPListener
@@ -86,10 +88,15 @@ public:
     //! id of the message to be posted at 'end of the sequence' - i.e. when the expected number of UDP events has beeen received
     //! defaults to UDP_LISTENER_NOTIF_DISABLED which means 'disabled/no notifaction'
     size_t eos_notification_msg_id;
+    //! id of the message to be posted on timeout - i.e. when no UDP events has beeen received after 'udp_tmo_ms' ms
+    //! defaults to UDP_LISTENER_NOTIF_DISABLED which means 'disabled/no notifaction'
+    size_t tmo_notification_msg_id;
     //! optional callback called for each time a 'UDP event is received'
     UERCallback uer_callback;
     //! optional callback called when the expected number of UDP events has beeen received
     EOSCallback eos_callback;
+    //! optional callback called when no UDP events has beeen received after 'udp_tmo_ms' ms
+    TMOCallback tmo_callback;
     //-----------------------------------
     
     //! \brief default constructor
@@ -100,8 +107,10 @@ public:
           task_to_notify(0),
           uer_notification_msg_id(UDP_LISTENER_NOTIF_DISABLED),
           eos_notification_msg_id(UDP_LISTENER_NOTIF_DISABLED),
+          tmo_notification_msg_id(UDP_LISTENER_NOTIF_DISABLED),
           uer_callback(),
-          eos_callback()
+          eos_callback(),
+          tmo_callback()
     {}
 
     //! \brief copy constructor
@@ -113,7 +122,8 @@ public:
           uer_notification_msg_id(src.uer_notification_msg_id),
           eos_notification_msg_id(src.eos_notification_msg_id),
           uer_callback(src.uer_callback),
-          eos_callback(src.eos_callback)
+          eos_callback(src.eos_callback),
+          tmo_callback(src.tmo_callback)
     {}
   }; 
   
@@ -240,7 +250,7 @@ protected:
     setup_udp_socket(sock);
 
     //- input data buffer
-    yat::Socket::Data ib(4);
+    yat::Socket::Data ib(2048);
     
     //- (almost) infinite reading loop  
     yat::uint32 udp_evt_number = 0;
@@ -253,7 +263,6 @@ protected:
         yat::uint32  rb = sock.receive_from(ib);
         if ( rb )
         {
-          //- ignore UDP events if in STANDBY mode
           if ( m_mode == UDP_STANDBY )
           {
             ++m_ignored_events;
@@ -263,7 +272,6 @@ protected:
           //- extract UDP event number (identifier) from the UDP packet
           //- this is set by SpiUdpTimebase (i.e. the UDP event emitter)
           udp_evt_number = *(reinterpret_cast<yat::uint32*>(ib.base()));
-
           //- post data to the task 
           if ( m_cfg.task_to_notify )
           {
@@ -285,7 +293,7 @@ protected:
             //- done, post a 'end of sequence' to the 'task_to_notify'
             if ( m_cfg.task_to_notify && m_cfg.eos_notification_msg_id > UDP_LISTENER_NOTIF_DISABLED )
             {
-              m_cfg.task_to_notify->post(m_cfg.eos_notification_msg_id, 500);
+              m_cfg.task_to_notify->post(m_cfg.eos_notification_msg_id, udp_evt_number, 500);
             }
             //- call "end of sequence" callback (if any)
             if ( ! m_cfg.eos_callback.is_empty() )
@@ -295,6 +303,23 @@ protected:
             //- done, swicth to STANDBY mode
             m_mode = UDP_STANDBY;
           }
+        }
+      }
+      //- tmo expired
+      else
+      {
+        //- are we running?
+        if ( m_mode == UDP_STANDBY )
+          continue;
+        //- call 'tmo' callback (if any)
+        if ( ! m_cfg.tmo_callback.is_empty() )
+        {
+          m_cfg.tmo_callback(udp_evt_number);
+        }
+        //- done, post a 'tmo' to the 'task_to_notify'
+        if ( m_cfg.task_to_notify && m_cfg.tmo_notification_msg_id > UDP_LISTENER_NOTIF_DISABLED )
+        {
+          m_cfg.task_to_notify->post(m_cfg.tmo_notification_msg_id, udp_evt_number, 500);
         }
       }
     }
