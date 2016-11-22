@@ -54,12 +54,16 @@ namespace yat
 #define _YAT_STR_(s) #s
 #define YAT_XSTR(s) _YAT_STR_(s)
 
+class Version;
+
+typedef yat::Singleton<Version> VersionSingleton;
+
 // ============================================================================
 //! \class Version 
 //! \brief Class aimed to manage versions numbers information about a project's modules
 //!
 // ============================================================================
-class YAT_DECL Version : public yat::Singleton<Version>
+class YAT_DECL Version : public VersionSingleton
 {
 public:
   
