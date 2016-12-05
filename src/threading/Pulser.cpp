@@ -348,7 +348,7 @@ void Pulser::resume_sync ()
 // ============================================================================
 // Pulser::is_done
 // ============================================================================
-bool Pulser::is_done () 
+bool Pulser::is_done () const
 {
   YAT_TRACE("Pulser::is_done");
   
@@ -361,7 +361,7 @@ bool Pulser::is_done ()
 // ============================================================================
 // Pulser::is_running
 // ============================================================================
-bool Pulser::is_running () 
+bool Pulser::is_running () const
 {
   YAT_TRACE("Pulser::is_running");
   
