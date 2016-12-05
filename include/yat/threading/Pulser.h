@@ -193,10 +193,10 @@ public:
   void suspend_sync ();
 
   //! \brief Check the Pulser activity
-  bool is_done ();
+  bool is_done () const;
 
   //! \brief Check the Pulser activity
-  bool is_running ();
+  bool is_running () const;
 
   //! \brief Resumes the Pulser activity 
   void resume ();
