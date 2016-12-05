@@ -195,6 +195,9 @@ public:
   //! \brief Check the Pulser activity
   bool is_done ();
 
+  //! \brief Check the Pulser activity
+  bool is_running ();
+
   //! \brief Resumes the Pulser activity 
   void resume ();
 
