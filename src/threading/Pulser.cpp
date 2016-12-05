@@ -358,4 +358,17 @@ bool Pulser::is_done ()
   return true;
 }
 
+// ============================================================================
+// Pulser::is_running
+// ============================================================================
+bool Pulser::is_running () 
+{
+  YAT_TRACE("Pulser::is_running");
+  
+  if ( this->impl_ )
+    return this->impl_->is_running();
+
+  return true;
+}
+
 } // namespace
