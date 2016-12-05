@@ -45,6 +45,7 @@
 #include <map>
 
 #include <yat/utils/String.h>
+#include <yat/utils/Optional.h>
 #include <yat/memory/SharedPtr.h>
 #include <yat/memory/UniquePtr.h>
 
@@ -58,7 +59,7 @@ template<typename T>
 class Dictionary
 {
 public:
-  
+
   typedef typename std::map<std::string, T>::iterator iterator;
   typedef typename std::map<std::string, T>::const_iterator const_iterator;
   typedef std::reverse_iterator<iterator> reverse_iterator;
@@ -80,15 +81,16 @@ public:
   void erase(iterator it) { m_map.erase(it); }
   void erase(iterator first, iterator last) { m_map.erase(first, last); }
   std::size_t erase( const std::string& key) { return m_map.erase( key ); }
+  std::size_t count( const std::string& key) { return m_map.count( key ); }
   iterator find( const std::string& key) { return m_map.find( key ); }
   const_iterator find( const std::string& key) const { return m_map.find( key ); }
   Dictionary<T>( const std::map<std::string, T>& other ): m_map(other) {}
-  Dictionary<T>( const Dictionary<T>& other ): m_map(other) {}
+  Dictionary<T>( const Dictionary<T>& other ): m_map(other.m_map) {}
   Dictionary<T>() {}
   //@}
-  
+
   //@{ Specific methods
-  
+
   /// d-tor
   virtual ~Dictionary() {}
 
@@ -99,16 +101,27 @@ public:
     iterator it = m_map.find( key );
     if( it != m_map.end() )
       return it->second;
-    throw yat::Exception("OUT_OF_RANGE", "Out of range", "Dictionary::at");
+    throw yat::Exception("NO_DATA", std::string("No such key: ") + key, "Dictionary::at");
   }
   const T& at( const std::string& key ) const
   {
     const_iterator cit = m_map.find( key );
     if( cit != m_map.end() )
       return cit->second;
-    throw yat::Exception("OUT_OF_RANGE", "Out of range", "Dictionary::at");
+    throw yat::Exception("NO_DATA", std::string("No such key: ") + key, "Dictionary::at");
   }
 
+  /// Return an optional value
+  /// \verbatim 
+  /// T value = my_dict.get(key).value_or(default_value);
+  /// \endverbatim
+  Optional<T> get(const std::string& key)
+  {
+    const_iterator cit = m_map.find( key );
+    if( cit != m_map.end() )
+      return cit->second;
+    return Optional<T>();
+  }
   //@}
 
 protected:
