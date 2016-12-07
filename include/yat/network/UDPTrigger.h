@@ -90,6 +90,8 @@ public:
 // ============================================================================
 //- E(nd)O(f)S(equence) callback
 YAT_DEFINE_CALLBACK(EOSCallback, Thread::IOArg);
+//- Trig callback
+YAT_DEFINE_CALLBACK(TrigCallback, Thread::IOArg);
 //- Error callback
 YAT_DEFINE_CALLBACK(ErrorCallback, Exception::ErrorList );
 
@@ -110,11 +112,16 @@ public:
     //! id of the message to be posted at 'end of the sequence' - i.e. when all the triggers has been emitted
     //! defaults to YAT_UDP_TRIGGER_NOTIF_DISABLED which means 'disabled/no notifaction'
     size_t eos_notification_msg_id;
+    //! id of the message to be posted each time a trig is emitted
+    //! defaults to YAT_UDP_TRIGGER_NOTIF_DISABLED which means 'disabled/no notifaction'
+    size_t trig_notification_msg_id;
     //! id of the message to be posted when triggering fail
     //! defaults to YAT_UDP_TRIGGER_NOTIF_DISABLED which means 'disabled/no notifaction'
     size_t error_notification_msg_id;
     //! optional callback called when all the triggers has been emitted
     EOSCallback eos_callback;
+    //! optional callback called each time a trig is emitted
+    TrigCallback trig_callback;
     //! optional callback called when triggering fail
     ErrorCallback error_callback;
     //-----------------------------------
@@ -125,8 +132,10 @@ public:
           trigger_period_ms(100),
           task_to_notify(0),
           eos_notification_msg_id(YAT_UDP_TRIGGER_NOTIF_DISABLED),
+          trig_notification_msg_id(YAT_UDP_TRIGGER_NOTIF_DISABLED),
           error_notification_msg_id(YAT_UDP_TRIGGER_NOTIF_DISABLED),
           eos_callback(),
+          trig_callback(),
           error_callback()
     {}
 
@@ -137,8 +146,10 @@ public:
           trigger_period_ms(src.trigger_period_ms),
           task_to_notify(src.task_to_notify),
           eos_notification_msg_id(src.eos_notification_msg_id),
+          trig_notification_msg_id(src.trig_notification_msg_id),
           error_notification_msg_id(src.error_notification_msg_id),
           eos_callback(src.eos_callback),
+          trig_callback(src.trig_callback),
           error_callback(src.error_callback)
     {}
   }; 
@@ -163,7 +174,6 @@ public:
       throw yat::Exception("ERROR", "Triggers sequence already in progress", "yat::UDPTrigger::start");
     }
 
-
     yat::Pulser::Config cfg;
     cfg.period_in_msecs = m_cfg.trigger_period_ms;
     cfg.num_pulses = n;
@@ -172,7 +182,6 @@ public:
     m_trigger_cnt = 0;
     m_sequence_length = n;
     m_pulser_ptr.reset( new yat::Pulser(cfg) );
-    m_completion_mtx.lock();
     m_pulser_ptr->start();
   }
 
@@ -182,24 +191,10 @@ public:
   //! any UDP received after a call to stop will be ignored 
   void stop()
   {
-    m_completion_mtx.unlock();
     if( m_pulser_ptr )
       m_pulser_ptr->stop();
   }
   
-  //--------------------------------------------------------
-  //! \brief synchronously wait for completion
-  //! 
-  void wait( unsigned long tmo = 0 )
-  {
-    if( 0 == tmo )
-      m_completion_mtx.acquire();
-    else
-      m_completion_mtx.timed_try_acquire( tmo );
-
-    m_completion_mtx.release();
-  }
-
   //--------------------------------------------------------
   //- d-tor
   virtual ~UDPTrigger()
@@ -244,7 +239,7 @@ protected:
       if( m_cfg.task_to_notify && m_cfg.error_notification_msg_id > YAT_UDP_TRIGGER_NOTIF_DISABLED )
       {
         yat::Message* msg_p = yat::Message::allocate( m_cfg.error_notification_msg_id );
-        msg_p->attach_data( e );
+        msg_p->attach_data( e.errors );
         m_cfg.task_to_notify->post( msg_p );
       }
       else if( m_cfg.error_callback.is_empty() )
@@ -253,11 +248,21 @@ protected:
       }
     }
 
+      //- call "udp event emitted" callback (if any)
+    if( !m_cfg.trig_callback.is_empty() )
+    {
+      m_cfg.trig_callback( this );
+    }
+    if( m_cfg.task_to_notify && m_cfg.trig_notification_msg_id > YAT_UDP_TRIGGER_NOTIF_DISABLED )
+    {
+      m_cfg.task_to_notify->post( m_cfg.trig_notification_msg_id );
+    }
+
     //- sequence completed ?
     if( m_trigger_cnt == m_sequence_length )
     {
       m_completion_mtx.unlock();
-      //- call "udp event received" callback (if any)
+      //- call "End Of Sequence" callback (if any)
       if( !m_cfg.eos_callback.is_empty() )
       {
         m_cfg.eos_callback( this );
