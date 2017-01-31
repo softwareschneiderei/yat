@@ -105,7 +105,7 @@ public:
     std::string udp_addr;
     //! the udp port on which the triggers are sent
     yat::uint32 udp_port;
-    //! the trigger period in ms
+    //! the trigger period in ms or 0 for sending trggers manually using send_next()
     yat::uint32 trigger_period_ms;
     //! the task to which this objet posts notifications
     TaskType* task_to_notify;
@@ -129,7 +129,7 @@ public:
     //! \brief default constructor
     Config() 
         : udp_port(0),
-          trigger_period_ms(100),
+          trigger_period_ms(0),
           task_to_notify(0),
           eos_notification_msg_id(YAT_UDP_TRIGGER_NOTIF_DISABLED),
           trig_notification_msg_id(YAT_UDP_TRIGGER_NOTIF_DISABLED),
@@ -167,22 +167,28 @@ public:
 
   //--------------------------------------------------------
   //! \brief  start the UDP trigger
-  void start( std::size_t n )
+  //!
+  //! set n to 0 for a infinite sequence
+  void start( std::size_t n=0 )
   {
     if( m_pulser_ptr && m_pulser_ptr->is_running() )
     {
       throw yat::Exception("ERROR", "Triggers sequence already in progress", "yat::UDPTrigger::start");
     }
 
-    yat::Pulser::Config cfg;
-    cfg.period_in_msecs = m_cfg.trigger_period_ms;
-    cfg.num_pulses = n;
-    cfg.callback = yat::PulserCallback::instanciate(*this, &UDPTrigger::udp_callback);
-    cfg.user_data = 0;
     m_trigger_cnt = 0;
     m_sequence_length = n;
-    m_pulser_ptr.reset( new yat::Pulser(cfg) );
-    m_pulser_ptr->start();
+
+    if( m_cfg.trigger_period_ms > 0 )
+    {
+      yat::Pulser::Config cfg;
+      cfg.period_in_msecs = m_cfg.trigger_period_ms;
+      cfg.num_pulses = n;
+      cfg.callback = yat::PulserCallback::instanciate(*this, &UDPTrigger::udp_callback);
+      cfg.user_data = 0;
+      m_pulser_ptr.reset( new yat::Pulser(cfg) );
+      m_pulser_ptr->start();
+    }
   }
 
   //--------------------------------------------------------
@@ -196,15 +202,27 @@ public:
   }
   
   //--------------------------------------------------------
+  //! \brief in manual mode, send the next UDP trigger
+  //! 
+  void next_trigger()
+  {
+    if( !m_pulser_ptr )
+      send_next();
+  }
+  
+  //--------------------------------------------------------
   //- d-tor
   virtual ~UDPTrigger()
   {}
 
 protected:
+
   //--------------------------------------------------------
-  void udp_callback( yat::Thread::IOArg )
-  { 
-    if( m_trigger_cnt == m_sequence_length )
+  //! \brief in manual mode, send the next UDP trigger
+  //! 
+  void send_next()
+  {
+    if( m_sequence_length > 0 && m_trigger_cnt == m_sequence_length )
     {
       yat::log_warning("yat::UDPTrigger::udp_callback: rejecting pulser trigger! [num. of expected notifications reached]");
       return;
@@ -271,7 +289,14 @@ protected:
       {
         m_cfg.task_to_notify->post( m_cfg.eos_notification_msg_id );
       }
-    }
+    }  
+  }
+  
+
+  //--------------------------------------------------------
+  void udp_callback( yat::Thread::IOArg )
+  { 
+    send_next();
   }
 
   //--------------------------------------------------------
