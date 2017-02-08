@@ -417,7 +417,7 @@ bool FileName::is_empty_dir() const
 // ============================================================================
 // class FileName::FSStat
 // ============================================================================
-const char *_size_units_[] = {"", "K", "M", "T", "P", "E", "Z", "Y", NULL};
+const char *_size_units_[] = {"", "K", "M", "T", "P", "E", NULL};
 
 //-------------------------------------------------------------------
 // FileName::FSBytes::to
@@ -440,10 +440,6 @@ double FileName::FSBytes::to(Units u) const
       return (double)bytes / YAT_PBYTES;
     case EBYTES:
       return (double)bytes / YAT_EBYTES;
-    case ZBYTES:
-      return (double)bytes / YAT_ZBYTES;
-    case YBYTES:
-      return (double)bytes / YAT_YBYTES;
   }
 }
 
@@ -475,12 +471,6 @@ void FileName::FSBytes::from( double value, Units u )
     case EBYTES:
       bytes = yat::int64(value * YAT_EBYTES);
       break;
-    case ZBYTES:
-      bytes = yat::int64(value * YAT_ZBYTES);
-      break;
-    case YBYTES:
-      bytes = yat::int64(value * YAT_YBYTES);
-      break;
     default:
       // TBYTES is enough (for now)
       bytes = 0;
@@ -506,10 +496,6 @@ void FileName::FSBytes::from( const std::string &value )
       from( atol(v.c_str()), PBYTES );
   else if( yat::StringUtil::match(v, "*e") || yat::StringUtil::match(v, "*ebytes") )
       from( atol(v.c_str()), EBYTES );
-  else if( yat::StringUtil::match(v, "*z") || yat::StringUtil::match(v, "*zbytes") )
-      from( atol(v.c_str()), ZBYTES );
-  else if( yat::StringUtil::match(v, "*y") || yat::StringUtil::match(v, "*ybytes") )
-      from( atol(v.c_str()), YBYTES );
   else
     from( atol(v.c_str()) );
 }

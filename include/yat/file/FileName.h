@@ -394,8 +394,6 @@ public:
   #define YAT_TBYTES 1099511627776LL
   #define YAT_PBYTES (1024LL * 1099511627776LL)
   #define YAT_EBYTES (1048576LL * 1099511627776LL)
-  #define YAT_ZBYTES (1073741824LL * 1099511627776LL)
-  #define YAT_YBYTES (1099511627776LL * 1099511627776LL)
 
   // ============================================================================
   //! \class FSBytes
@@ -405,7 +403,7 @@ public:
   class FSBytes
   {
   public:
-    enum Units {BYTES, KBYTES, MBYTES, GBYTES, TBYTES, PBYTES, EBYTES, ZBYTES, YBYTES };
+    enum Units {BYTES, KBYTES, MBYTES, GBYTES, TBYTES, PBYTES, EBYTES };
 
     //! C-tor
     FSBytes(yat::uint64 b=0) : bytes(b) {}
@@ -543,7 +541,7 @@ public:
   //! \param pstr String to convert (input\/output argument).
   static void convert_separators(std::string* pstr);
 
-  //! \brief Gets access mode from a string in a UNIX like format (ie "rwxrwxrwx").
+  //! \brief Gets access mode from a string containing an octal value.
   //! \param strAccess Input format.
   //! \remark Not implemented for WINDOWS plateform.
   static mode_t access_from_string(const std::string& strAccess);
@@ -572,7 +570,7 @@ public:
   //! \brief Creates a directory with specified rights.
   //!
   //! Directory name is *this* path name.
-  //! \param mode Directory permissions in a UNIX like format (ie "rwxrwxrwx").
+  //! \param mode Directory permissions.
   //! \param uid User identifier.
   //! \param gid Group identifier.
   //! \exception BAD_PATH Thrown if path format is not correct.
@@ -678,15 +676,15 @@ public:
   void info( Info* info_p, bool follow_link=true ) const;
 
   //! \brief Changes file rights.
-  //! \param mode %File rights in UNIX like format (ie "rwxrwxrwx").
+  //! \param mode File rights (octal value).
   //! \exception FILE_ERROR Thrown if file rights modification fails.
   //! \remark Not implemented for WINDOWS plateform.
   void chmod(mode_t mode) 
     throw(Exception);
 
   //! \brief Recursively changes rights for directory and files.
-  //! \param modeFile New file right in UNIX like format (ie "rwxrwxrwx").
-  //! \param modeDir New directory rights in UNIX like format (ie "rwxrwxrwx").
+  //! \param modeFile New file right (octal value).
+  //! \param modeDir New directory rights (octal value).
   //! \param bCurrentLevel If set to true, changes mode to directory itself.
   //! \exception FILE_NOT_FOUND Thrown if directory doesn't exist.
   //! \exception FILE_ERROR Thrown if file or directory rights modification fails.
@@ -696,14 +694,14 @@ public:
   //! \brief Recursively changes directory rights.
   //!
   //! Also changes the rights of the directory itself.
-  //! \param mode New directory rights in UNIX like format (ie "rwxrwxrwx").
+  //! \param mode New directory rights (octal value).
   //! \exception FILE_NOT_FOUND Thrown if directory doesn't exist.
   //! \exception FILE_ERROR Thrown if directory rights modification fails.
   void recursive_chmod_dir(mode_t mode) 
     throw(Exception);
 
   //! \brief Recursively changes file rights.
-  //! \param mode New file rights in UNIX like format (ie "rwxrwxrwx").
+  //! \param mode New file rights as octal value.
   //! \exception FILE_NOT_FOUND Thrown if file doesn't exist.
   //! \exception FILE_ERROR Thrown if file rights modification fails.
   void recursive_chmod_file(mode_t mode) 
