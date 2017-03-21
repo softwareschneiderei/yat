@@ -489,6 +489,9 @@ public:
   }
 };
 
+// Usefull type
+typedef std::vector<std::string> StringVector;
+
 // ============================================================================
 //! \class String 
 //! \brief Extended string class.
