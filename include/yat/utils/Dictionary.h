@@ -44,6 +44,7 @@
 // ============================================================================
 #include <map>
 
+#include <yat/utils/Logging.h>
 #include <yat/utils/String.h>
 #include <yat/utils/Optional.h>
 #include <yat/memory/SharedPtr.h>
@@ -56,7 +57,7 @@ namespace yat
 // Map class with std::string as key type
 // ============================================================================
 template<typename T>
-class Dictionary
+class YAT_DECL Dictionary
 {
 public:
 
@@ -131,18 +132,51 @@ protected:
 // ============================================================================
 // Dictionary specialization from std::string value type 
 // ============================================================================
-class StringDictionary: public Dictionary<std::string>
+class YAT_DECL StringDictionary: public Dictionary<std::string>
 {
 public:
 
+  //! \brief construct the dictionary from a vector
+  StringDictionary(const std::vector<std::string>& vec, char sep)
+  {
+    from_vector(vec, sep);
+  }
+
+  //! \brief construct the dictionary from a single string
+  StringDictionary(const std::string& s, char sep_pair, char sep_key)
+  {
+    from_string(s, sep_pair, sep_key);
+  }
+
   //! \brief initialize the dictionary from a vector
-  void from_vector(const std::vector<std::string>& vec, char sep);
+  void from_vector(const std::vector<std::string>& vec, char sep)
+  {
+    for( std::size_t i = 0; i < vec.size(); ++i )
+    {
+      std::string k,v;
+      yat::StringUtil::split( vec[i], sep, &k, &v );
+      yat::StringUtil::trim( &v );
+      yat::StringUtil::trim( &k );
+      m_map[k] = v;
+    }
+  }
 
   //! \brief initialize the dictionary from a single string
-  void from_string(const std::string& vec, char sep_pair, char sep_key);
+  void from_string(const std::string& s, char sep_pair, char sep_key)
+  {
+    std::vector<std::string> vec;
+    yat::StringUtil::split( s, sep_pair, &vec);
+    from_vector( vec, sep_key );
+  }
 
   //| dump the dictionary content (for debug purposes)
-  void dump();
+  void dump()
+  {
+    for( std::map<std::string, std::string>::const_iterator cit = m_map.begin(); cit != m_map.end(); ++cit )
+    {
+      YAT_VERBOSE_STREAM( cit->first << ": " << cit->second );
+    }
+  }
 };
 
 }
