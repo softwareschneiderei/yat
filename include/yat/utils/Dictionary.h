@@ -136,14 +136,19 @@ class YAT_DECL StringDictionary: public Dictionary<std::string>
 {
 public:
 
+  //! \brief constructor
+  StringDictionary(): Dictionary<std::string>() { }
+
   //! \brief construct the dictionary from a vector
   StringDictionary(const std::vector<std::string>& vec, char sep)
+  : Dictionary<std::string>()
   {
     from_vector(vec, sep);
   }
 
   //! \brief construct the dictionary from a single string
   StringDictionary(const std::string& s, char sep_pair, char sep_key)
+  : Dictionary<std::string>()
   {
     from_string(s, sep_pair, sep_key);
   }
