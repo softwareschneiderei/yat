@@ -50,6 +50,9 @@
 
 namespace yat
 {
+
+const std::string URI_RESERVED = "!$&'()*+,;=:?#[]@%";
+
 // ============================================================================
 //! \class URI 
 //! \brief Unified Resource Identifier class.
@@ -160,6 +163,12 @@ public:
   //! \param throw_exception If set to true, throws an exception if an error occurs.
   //! \exception BAD_URI_SYNTAX Thrown if the value syntax is not correct.
   static bool check(Part part, const std::string &value, bool throw_exception=false) throw ( Exception );
+
+  //! \brief percent encoding for any string that have to be part of an uri
+  static void pct_encode(std::string* to_encode, const std::string& reserved=URI_RESERVED);
+
+  //! \brief percent decoding for any string that have to be part of an uri
+  static void pct_decode(std::string* to_encode);
 };
 
 
