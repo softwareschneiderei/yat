@@ -86,9 +86,10 @@ const std::string ALPHA = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const std::string DIGIT = "0123456789";
 const std::string UNRESERVED = ALPHA + DIGIT + std::string("-._~");
 const std::string HEXDIGIT ="0123456789abcdefABCDEF";
-const std::string PCT_ENCODED  = std::string("%") + HEXDIGIT;
+const std::string PCT_ENCODED  = HEXDIGIT + "%";
 const std::string SUB_DELIMS = "!$&'()*+,;=";
-const std::string GEN_DELIMS = ":/?#[]@";
+const std::string GEN_DELIMS = ":?#[]@";
+const std::string TO_ENCODE = SUB_DELIMS + GEN_DELIMS + "%";
 
 //----------------------------------------------------------------------------
 // URI::check_value
@@ -309,6 +310,8 @@ std::string URI::value(URI::Part part) const
 //----------------------------------------------------------------------------
 std::string URI::get(URI::Part part) const
 {
+  std::string v;
+
   if( URI::AUTHORITY == part )
   {
     std::ostringstream s;
@@ -318,32 +321,37 @@ std::string URI::get(URI::Part part) const
       s <<  value(URI::HOST);
     if( !value(URI::PORT).empty() )
       s <<  ':' << value(URI::PORT);
-    
-    return s.str();
+  
+    v = s.str();
   }
   else
   {
-    return value(part);
+    v = value(part);
   }  
+  pct_decode(&v);
+  return v;
 }
 
 //----------------------------------------------------------------------------
 // URI::set
 //----------------------------------------------------------------------------
-void URI::set(URI::Part part, const std::string &value) throw ( Exception )
+void URI::set(URI::Part part, const std::string &v) throw ( Exception )
 {
+  std::string val = v;
+  pct_encode(&val);
+
   if( URI::AUTHORITY == part )
   {
     URI::Fields fields;
-    check_authority(value, &fields, true);
+    check_authority(val, &fields, true);
     m_part[URI::USERINFO] = fields.userinfo;
     m_part[URI::HOST] = fields.host;
     m_part[URI::PORT] = fields.port;
   }
   else
   {
-    check(part, value, true);
-    m_part[part] = value;
+    check(part, val, true);
+    m_part[part] = val;
   }
 }
 
@@ -354,6 +362,54 @@ void URI::set(const std::string &value) throw ( Exception )
 {
   parse(value);
 }
+
+//----------------------------------------------------------------------------
+// URI::pct_encode
+//----------------------------------------------------------------------------
+void URI::pct_encode(std::string* to_encode, const std::string& reserved)
+{
+  std::ostringstream encoded;
+  for( std::size_t i = 0; i < (*to_encode).size(); ++i )
+  {
+    if( reserved.find((*to_encode)[i]) == std::string::npos )
+      encoded << (*to_encode)[i];
+    else
+    {
+      std::ostringstream oss;
+      oss << std::hex << std::uppercase << static_cast<int>((*to_encode)[i]);
+      encoded << '%' << oss.str();
+    }
+  }
+  *to_encode = encoded.str();
+}
+
+//----------------------------------------------------------------------------
+// URI::pct_decode
+//----------------------------------------------------------------------------
+ void URI::pct_decode(std::string* to_decode)
+ {
+    std::ostringstream decoded;
+    std::size_t size = (*to_decode).size();
+
+    for( std::size_t i = 0; i < size; ++i )
+    {
+      if( '%' != (*to_decode)[i] )
+      {
+        decoded << (*to_decode)[i];
+      }
+      else
+      {
+        if( i > size - 2 )
+          throw yat::Exception("ERROR", "Bad URI string", "URI::pct_decode");
+
+        int n;
+        std::istringstream( (*to_decode).substr(i+1, 2) ) >> std::hex >> n;
+        decoded << char(n);
+        i += 2;
+      }
+    }
+    *to_decode = decoded.str();
+ }
 
 } //- namespace yat
 
