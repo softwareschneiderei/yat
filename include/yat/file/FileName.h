@@ -388,12 +388,12 @@ public:
     virtual void on_complete(std::string file_name, int64 total_bytes, double elapsed_secs) = 0;
   };
   
-  #define YAT_KBYTES 1024LL
-  #define YAT_MBYTES 1048576LL
-  #define YAT_GBYTES 1073741824LL
-  #define YAT_TBYTES 1099511627776LL
-  #define YAT_PBYTES (1024LL * 1099511627776LL)
-  #define YAT_EBYTES (1048576LL * 1099511627776LL)
+  #define YAT_KBYTES 1000LL
+  #define YAT_MBYTES 1000000LL
+  #define YAT_GBYTES 1000000000LL
+  #define YAT_TBYTES 1000000000000LL
+  #define YAT_PBYTES 1000000000000000LL
+  #define YAT_EBYTES 1000000000000000000LL
 
   // ============================================================================
   //! \class FSBytes
@@ -471,6 +471,11 @@ public:
   //! \param strPath Path name.
   //! \param strName %File name.
   FileName(const std::string& strPath, const std::string& strName): m_progress_target_p(0)  { set(strPath, strName); }
+
+  //! \brief Constructor from file, extension and path names.
+  //! \param strPath Path name.
+  //! \param strName %File name.
+  FileName(const std::string& strPath, const std::string& strName, const std::string& strExt): m_progress_target_p(0)  { set(strPath, strName, strExt); }
 
   //! \brief virtual d-tor
   virtual ~FileName() {}
