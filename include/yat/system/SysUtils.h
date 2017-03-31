@@ -97,6 +97,9 @@ public:
   //! \exception ERR_FILE Thrown if command execution fails (on Windows plateform implementation). 
   static bool exec_as(const char* pszCmdLine, const char *pszDefDir = NULL,
            int bBackground = true, bool bThrow = true, int* pulReturnCode = NULL, uid_t uid = -1, gid_t gid = -1);
+
+  //! \brief Return 'True' if the current process is executed as root
+  static bool is_root();
 };
 
 } // namespace
