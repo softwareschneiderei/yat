@@ -189,5 +189,14 @@ bool SysUtils::exec_as(const char* pszCmdLine, const char *pszDefDir, int bBackg
   return exec(pszCmdLine, pszDefDir, bBackground, bThrow, puiReturnCode);
 }
 
+//----------------------------------------------------------------------------
+// SysUtils::is_root
+//----------------------------------------------------------------------------
+bool SysUtils::is_root()
+{
+  // Not implemented on Win32
+  return false;
+}
+
 
 } // namespace

@@ -129,4 +129,13 @@ bool SysUtils::exec_as(const char* pszCmdLine, const char *, int bBackground, bo
   return true;
 }
 
+//----------------------------------------------------------------------------
+// SysUtils::is_root
+//----------------------------------------------------------------------------
+bool SysUtils::is_root()
+{
+  return (0 == geteuid());
+}
+
+
 } // namespace
