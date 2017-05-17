@@ -917,6 +917,7 @@ public:
   void close();
 };
 
+#define CFG_FILE_DEFAULT_SECTION "default"
 // ============================================================================
 //! \class CfgFile 
 //! \brief Reads a "Windows configuration file" style file.
@@ -946,7 +947,7 @@ public:
   typedef std::vector<Parameters> ObjectCollection;
   //! \brief Map of vector of (key, value)
   typedef std::map<std::string, ObjectCollection> Objects;
-  
+    
 private:
   class Section
   {
