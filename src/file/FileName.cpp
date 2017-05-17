@@ -672,7 +672,7 @@ void CfgFile::load_from_string(const std::string& _content)
 
   // Create a 'default' section
   Section aSection;
-  m_strSection = "default";
+  m_strSection = CFG_FILE_DEFAULT_SECTION;
   m_dictSection[m_strSection] = aSection;
   bool is_object = false;
   bool is_multiline = false;
