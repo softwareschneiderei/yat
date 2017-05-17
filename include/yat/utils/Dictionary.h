@@ -76,7 +76,7 @@ public:
   iterator end() { return m_map.end(); }
   reverse_const_iterator rend() const { return m_map.rend(); }
   reverse_iterator rend() { return m_map.rend(); }
-  bool empty() { return m_map.empty(); }
+  bool empty() const { return m_map.empty(); }
   std::size_t size() const { return m_map.size(); }
   void clear() { m_map.clear(); }
   void erase(iterator it) { m_map.erase(it); }
@@ -154,7 +154,7 @@ public:
   }
 
   //! \brief initialize the dictionary from a vector
-  void from_vector(const std::vector<std::string>& vec, char sep)
+  void from_vector(const std::vector<std::string>& vec, char sep, bool key_lowercase=false)
   {
     for( std::size_t i = 0; i < vec.size(); ++i )
     {
@@ -162,16 +162,18 @@ public:
       yat::StringUtil::split( vec[i], sep, &k, &v );
       yat::StringUtil::trim( &v );
       yat::StringUtil::trim( &k );
+      if( key_lowercase )
+        yat::StringUtil::to_lower( &k );
       m_map[k] = v;
     }
   }
 
   //! \brief initialize the dictionary from a single string
-  void from_string(const std::string& s, char sep_pair, char sep_key)
+  void from_string(const std::string& s, char sep_pair, char sep_key, bool key_lowercase=false)
   {
     std::vector<std::string> vec;
     yat::StringUtil::split( s, sep_pair, &vec);
-    from_vector( vec, sep_key );
+    from_vector( vec, sep_key, key_lowercase );
   }
 
   //| dump the dictionary content (for debug purposes)
