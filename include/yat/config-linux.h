@@ -99,6 +99,13 @@ namespace yat
 #endif
 
 /**
+ *  CPP11 support
+ */
+#if __cplusplus==201103L
+# define YAT_CPP11
+#endif
+
+/**
  *  <sstream> library related stuffs
  */
 #undef YAT_HAS_SSTREAM
