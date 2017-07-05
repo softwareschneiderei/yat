@@ -470,7 +470,7 @@ public:
   {
     OSStream oss;
 
-    if ( (oss << std::fixed << number) == false )
+    if ( !(oss << std::fixed << number) )
     {
       if (_throw)
       {
