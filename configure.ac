@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(yat, 1.11.1, nicolas.leclercq@synchrotron-soleil.fr)
+AC_INIT(yat, 1.13.9, nicolas.leclercq@synchrotron-soleil.fr)
 AC_CONFIG_SRCDIR([src/Exception.cpp])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_AUX_DIR(config)
@@ -12,7 +12,7 @@ AM_INIT_AUTOMAKE([-Wall -Werror])
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
-AM_PROG_AR
+#AM_PROG_AR
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
