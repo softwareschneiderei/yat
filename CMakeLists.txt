@@ -2,10 +2,9 @@ project (yat)
 cmake_minimum_required (VERSION 2.6)
 
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
-set(VERSION "1.10.9")
+set(VERSION "1.13.9")
 
 # check for 64 bit
-
 if (NOT DEFINED CMAKE_INSTALL_PREFIX AND CMAKE_SIZEOF_VOID_P EQUAL 8)
   set(LIB_INSTALL_DIR "lib64")
 else()
