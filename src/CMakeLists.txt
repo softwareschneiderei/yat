@@ -50,6 +50,10 @@ include_directories(
 )
 
 add_library (yat SHARED ${source_files})
+  
+if (UNIX)
+	target_link_libraries(yat pthread dl)
+endif()
 
 if (WIN32)
 	target_link_libraries(yat ws2_32.lib shell32.lib)
