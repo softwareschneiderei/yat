@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -156,7 +156,7 @@ std::string FileName::dir_name() const
 
   // Backward search for last separator
   std::string::size_type iLastSepPos = m_strFile.find_last_of(SEP_PATH);
-  if ( std::string::npos == iLastSepPos ) 
+  if ( std::string::npos == iLastSepPos )
   {
     return "";
   }
@@ -266,7 +266,7 @@ void FileName::rename(const std::string& strNewName) throw( Exception )
       std::string strErr = StringUtil::str_format(ERR_CANNOT_RENAME_FILE, PSZ(m_strFile));
       ThrowExceptionFromErrno(PSZ(strErr), "FileName::rename");
     }
- 
+
   // Change internal name
   set(strNewName);
 }
@@ -408,7 +408,7 @@ bool FileName::is_empty_dir() const
 {
   FileEnum dirEnum(full_name(), FileEnum::ENUM_DIR );
   FileEnum fileEnum(full_name(), FileEnum::ENUM_FILE);
-  
+
   if( !dirEnum.find() && !fileEnum.find() )
   return true;
   return false;
@@ -417,7 +417,7 @@ bool FileName::is_empty_dir() const
 // ============================================================================
 // class FileName::FSStat
 // ============================================================================
-const char *_size_units_[] = {"", "K", "M", "T", "P", "E", NULL};
+const char *_size_units_[] = {"", "K", "M", "G", "T", "P", "E", NULL};
 
 //-------------------------------------------------------------------
 // FileName::FSBytes::to
@@ -440,6 +440,8 @@ double FileName::FSBytes::to(Units u) const
       return (double)bytes / YAT_PBYTES;
     case EBYTES:
       return (double)bytes / YAT_EBYTES;
+    default:
+      throw yat::Exception("ERROR", "Bad conversion units", "yat::FileName::FSBytes::to");
   }
 }
 
@@ -472,8 +474,7 @@ void FileName::FSBytes::from( double value, Units u )
       bytes = yat::int64(value * YAT_EBYTES);
       break;
     default:
-      // TBYTES is enough (for now)
-      bytes = 0;
+      throw yat::Exception("ERROR", "Bad conversion units", "yat::FileName::FSBytes::from");
   }
 }
 
@@ -581,7 +582,7 @@ void File::load(MemBuf *pBuf) throw(Exception)
     {
       std::string strErr = StringUtil::str_format(ERR_READING_FILE, PSZ(full_name()));
       fclose(fi);
-      throw Exception("FILE_ERROR", PSZ(strErr), "File::Load");
+      throw Exception("FILE_ERROR", PSZ(strErr), "File::load");
     }
     lTotalReaded += lReaded;
   }
@@ -619,7 +620,32 @@ void File::save(const std::string& strContent) throw(Exception)
     std::string strErr;
     StringUtil::printf(&strErr, "Cannot write in file '%s'", PSZ(full_name()));
     fclose(fi);
-    throw Exception("FILE_ERROR", PSZ(strErr), "File::Save");
+    throw Exception("FILE_ERROR", PSZ(strErr), "File::save");
+  }
+  fclose(fi);
+}
+
+//-------------------------------------------------------------------
+// File::append
+//-------------------------------------------------------------------
+void File::append(const std::string& content)
+{
+  // Open destination file
+  FILE *fi = fopen(PSZ(full_name()), "a");
+  if( NULL == fi )
+  {
+    std::string strErr = StringUtil::str_format(ERR_OPEN_FILE, PSZ(full_name()));
+    throw Exception("FILE_ERROR", PSZ(strErr), "File::append");
+  }
+
+  // Write text content
+  int iRc = fputs(content.c_str(), fi);
+  if( EOF == iRc )
+  {
+    std::string strErr;
+    StringUtil::printf(&strErr, "Cannot write in file '%s'", PSZ(full_name()));
+    fclose(fi);
+    throw Exception("FILE_ERROR", PSZ(strErr), "File::append");
   }
   fclose(fi);
 }
@@ -679,24 +705,24 @@ void CfgFile::load_from_string(const std::string& _content)
   std::string param_name, param_value;
   Objects::iterator obj_iterator;
   Parameters* current_obj_parameters_p = NULL;
-  
+
   while( !content.empty() )
   {
     // Extract next line
     StringUtil::extract_token(&content, '\n', &line);
     // Supress blank characters at the begining and the end of the string
     StringUtil::trim(&line);
-    
+
     if( is_multiline )
     { // multi-lines value mode
       if( !StringUtil::match(line, "*\\") )
         is_multiline = false;
       else
         line = line.substr(0, line.size() - 1);
-      
+
       // Concat line content
       param_value += "\n" + line;
-      
+
       if( !is_multiline )
       {
         StringUtil::trim(&param_value);
@@ -707,11 +733,11 @@ void CfgFile::load_from_string(const std::string& _content)
       }
       continue;
     }
-    
+
     if( line.empty() || StringUtil::match(line, "#*") || StringUtil::match(line, ";*") )
       // empty lines or comments lines are passed
       continue;
-    
+
     if( StringUtil::match(line, "-*") )
     { // lines begining by a '-' means end of objects
       is_object = false;
@@ -734,7 +760,7 @@ void CfgFile::load_from_string(const std::string& _content)
       param_value = line;
       StringUtil::trim(&param_value);
       StringUtil::trim(&param_name);
-      
+
       if( StringUtil::match(param_value, "*\\") )
       { // Multi-lines value
         // Remove the '\'
@@ -828,7 +854,7 @@ const CfgFile::ObjectCollection& CfgFile::get_objects(const std::string& object_
   Objects::const_iterator cit = m_dictSection[m_strSection].m_objects.find(object_type);
   if( cit != m_dictSection[m_strSection].m_objects.end() )
     return cit->second;
-  
+
   throw Exception( "NO_DATA",
                         PSZ_FMT("No such objects: %s", PSZ(object_type)),
                         "CfgFile::get_objects(const std::string& object_type)" );
@@ -850,7 +876,7 @@ const CfgFile::Parameters& CfgFile::get_unique_object(const std::string& object_
   Objects::const_iterator cit = m_dictSection[m_strSection].m_objects.find(object_name);
   if( cit != m_dictSection[m_strSection].m_objects.end() )
     return cit->second[0];
-  
+
   throw Exception( "NO_DATA",
                         PSZ_FMT("No such object: %s", PSZ(object_name)),
                         "CfgFile::get_unique_object" );
@@ -931,7 +957,7 @@ DirectoryWatcher::DirectoryWatcher(const std::string& strDirectoryPath, WatchMod
   m_tmDirModTime.set_long_unix(0);
   m_bDirectoryHasChanged = false;
   m_eMode = eMode;
-  
+
   if( ENUM_FIRST == eMode )
   {
     FileEnum fe(full_name(), FileEnum::ENUM_ALL);
@@ -945,12 +971,12 @@ DirectoryWatcher::DirectoryWatcher(const std::string& strDirectoryPath, WatchMod
 //-----------------------------------------------------------------------------
 // DirectoryWatcher::priv_has_changed
 //-----------------------------------------------------------------------------
-bool DirectoryWatcher::priv_has_changed(bool bReset) 
+bool DirectoryWatcher::priv_has_changed(bool bReset)
 {
   CurrentTime tmCur;
   Time tmModTime;
   mod_time(&tmModTime);
-  
+
   if( m_tmDirModTime.is_empty() && NO_FIRST_ENUM == m_eMode )
   {   // First call
     m_tmLocalModTime = tmCur;
@@ -993,12 +1019,12 @@ bool DirectoryWatcher::has_changed()
 //-----------------------------------------------------------------------------
 // DirectoryWatcher::get_changes
 //-----------------------------------------------------------------------------
-void DirectoryWatcher::get_changes(FileNamePtrVector *pvecNewFilesPtr, 
+void DirectoryWatcher::get_changes(FileNamePtrVector *pvecNewFilesPtr,
                                   FileNamePtrVector *pvecChangedFileNamePtr,
                   FileNamePtrVector *pvecRemovedFileNamePtr) throw(Exception)
 {
   Time tmModTimeDir;
-  
+
   // File modifications does not affect the last modification time of its parent directory
   if( pvecChangedFileNamePtr || priv_has_changed(true) )
   {
@@ -1013,12 +1039,12 @@ void DirectoryWatcher::get_changes(FileNamePtrVector *pvecNewFilesPtr,
     while( fe.find() )
     {
       uint64 hashFile = StringUtil::hash64(fe.full_name());
-      
+
       if( m_mapEntry.find(hashFile) != m_mapEntry.end() )
       {
         EntryPtr ptrEntry = m_mapEntry[hashFile];
         ptrEntry->bRemoved = false;
-        
+
         // Existing file, check for change if needed
         if( pvecChangedFileNamePtr )
         {
@@ -1036,9 +1062,9 @@ void DirectoryWatcher::get_changes(FileNamePtrVector *pvecNewFilesPtr,
       {
         m_mapEntry[hashFile] = new Entry(fe.full_name());
         pvecNewFilesPtr->push_back(m_mapEntry[hashFile]->ptrFile);
-      }      
+      }
     }
-    
+
     if( pvecRemovedFileNamePtr )
     {
       // Delete all removed entry and push them in the user vector
@@ -1160,7 +1186,7 @@ void LockFile::lock_callback( yat::Thread::IOArg )
 //------------------------------------------------------------------------------
 Exception::ErrorList LockFile::get_errors()
 {
-  if( m_async_ptr ) 
+  if( m_async_ptr )
     return m_async_ptr->errors;
   return Exception::ErrorList();
 }
