@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -44,6 +44,7 @@
 #include <set>
 #include <sstream>
 #include <yat/CommonHeader.h>
+#include <yat/memory/UniquePtr.h>
 #include <yat/utils/String.h>
 
 namespace yat
@@ -54,38 +55,75 @@ namespace yat
 // =============================================================================
 enum ELogLevel
 {
-  //! This is not an information message but a real result that must not be filtered.
-  LOG_RESULT = 0,  
   //! To know every executed actions at low level.
-  LOG_VERBOSE,   
+  LOG_VERBOSE = 0,
+  //! This is not an information message but a real result that must not be filtered.
+  LOG_RESULT,
   //! This is the default message level, it reports normal information about the system or the application.
-  LOG_INFO,    
+  LOG_INFO,
   //! Describes a (perhaps unusual) event that is important to report.
-  LOG_NOTICE,   
+  LOG_NOTICE,
   //! Reports a warning.
-  LOG_WARNING,     
+  LOG_WARNING,
   //! An error occurred but the system is still functional.
-  LOG_ERROR,       
+  LOG_ERROR,
   //! Critical error.
-  LOG_CRITICAL,    
+  LOG_CRITICAL,
   //! Immediate fixing is needed.
-  LOG_ALERT,       
+  LOG_ALERT,
   //! The system will shutdown now because of an unrecoverable failure.
-  LOG_EMERGENCY,   
+  LOG_EMERGENCY,
   //! Not a log level, just the total number of levels.
-  LOG_LEVEL_COUNT  
+  LOG_LEVEL_COUNT
 };
 
+// ============================================================================
+//! \class NullStream
+//! \brief NullStream object inherited from std::ostream
+//!
+//! It's used to drop logs
+// ============================================================================
+struct NullStream : std::ostream
+{
+  NullStream(): std::ios(0), std::ostream(0) {}
+};
+template <typename T>
+NullStream& operator<<(NullStream& ns, T) { return ns; }
 
 // ============================================================================
-//! \class ILogTarget 
+//! \class LogStream
+//! \brief LogStream object inherited from std::ostream & std::streambuf.
+//!
+//! It provide a set of stream for serializing log messages
+// ============================================================================
+class LogStream : public std::ostream, public std::streambuf
+{
+  friend class LogManager;
+
+public:
+  LogStream(ELogLevel level);
+
+private:
+  std::string                       m_the_message;
+  ELogLevel                         m_level;
+  class ILogTarget*                 m_log_target_p;
+  yat::UniquePtr<class yat::Mutex>  m_mtx_uptr;
+
+  int sync();
+  int overflow(int c);
+  void lock();
+  std::streamsize xsputn(char const* p, std::streamsize n);
+};
+
+// ============================================================================
+//! \class ILogTarget
 //! \brief Log target interface.
 //!
 //! This is the base class for logging management.
 //! This abstract class can not be used as this and must be derived.
 //!
-//! \par %Message logging usage: 
-//! Just instantiate a LogManager and log messages using the yat::log_xxx() functions 
+//! \par %Message logging usage:
+//! Just instantiate a LogManager and log messages using the yat::log_xxx() functions
 //! to log into the clog %stream.
 //! \par
 //! If a special log storage/presentation is necessary, then the things to do are:
@@ -106,7 +144,7 @@ public:
 typedef std::stack<class ILogTarget *> LogTargetStack;
 
 // ============================================================================
-//! \class DefaultLogHandler 
+//! \class DefaultLogHandler
 //! \brief Default log handler: prints log on console using clog %stream.
 //!
 //! Inherits from ILogTarget class.
@@ -121,8 +159,9 @@ public:
   void log(ELogLevel eLevel, pcsz pszType, const std::string &strMsg);
 };
 
+
 // ============================================================================
-//! \class LogManager 
+//! \class LogManager
 //! \brief Log manager class.
 //!
 //! This class implements a log manager that provides logging functions with filter
@@ -132,28 +171,6 @@ public:
 class YAT_DECL LogManager
 {
 friend class LogCatcher;
-private:
-  static LogManager *ms_pTheInstance;
-  static LogManager *Instance();
-  DefaultLogHandler  m_defLogHandler;
-
-  //- Log target
-  LogTargetStack     m_stkCatchLogTarget;
-
-  //- Min severity level of logged messages
-  int         m_iMinLevel;
-
-  //- Logged messages types
-  std::set<std::string>  m_setTypes;
-
-  //- Add a new log target to the stack
-  static void push_log_target(ILogTarget *pLogTarget);
-
-  //- Remove top log target
-  static void pop_log_target();
-
-  //- Constructor
-  LogManager();
 
 public:
 
@@ -175,13 +192,62 @@ public:
 
   //! Returns the current log target.
   static ILogTarget *current_log_target();
+
+  static std::ostream& verbose_stream();
+  static std::ostream& result_stream();
+  static std::ostream& info_stream();
+  static std::ostream& warning_stream();
+  static std::ostream& error_stream();
+  static std::ostream& notice_stream();
+  static std::ostream& critical_stream();
+  static std::ostream& alert_stream();
+  static std::ostream& emergency_stream();
+
+private:
+
+  NullStream m_null;
+  LogStream  m_verbose;
+  LogStream  m_result;
+  LogStream  m_info;
+  LogStream  m_warning;
+  LogStream  m_error;
+  LogStream  m_notice;
+  LogStream  m_critical;
+  LogStream  m_alert;
+  LogStream  m_emergency;
+
+  static LogManager *ms_pTheInstance;
+  static LogManager *Instance();
+  DefaultLogHandler  m_defLogHandler;
+
+  std::string        m_stream_current;
+
+  //- Log target
+  LogTargetStack     m_stkCatchLogTarget;
+
+  //- Min severity level of logged messages
+  int         m_iMinLevel;
+
+  //- Logged messages types
+  std::set<std::string>  m_setTypes;
+
+  //- Add a new log target to the stack
+  static void push_log_target(ILogTarget *pLogTarget);
+
+  //- Remove top log target
+  static void pop_log_target();
+
+  //- Constructor
+  LogManager();
+
+  void update_stream_log_target(ILogTarget *pLogTarget);
 };
 
 //! \brief Log forwarding function type declaration.
 typedef void (*pfn_log_fwd)(int iLevel, const char *pszType, const char *pszMsg);
 
 // ============================================================================
-//! \class LogForward 
+//! \class LogForward
 //! \brief Helper class for log forwarding.
 //!
 //! This class provide an interface to forward messages logged towards another function.
@@ -208,7 +274,7 @@ public:
 };
 
 // ============================================================================
-//! \class LogCatcher 
+//! \class LogCatcher
 //! \brief Log catcher class.
 //!
 //! This class defines an object that catches log, during the LogCatcher life time.
@@ -217,8 +283,8 @@ public:
 //! - when a LogCatcher object die, then the previous object still alive will receive messages;
 //! - when the first created LogCatcher is deleted, messages are catched by the DefaultLogHandler.
 //!
-//! \par %Message logging usage: 
-//! Just instantiate a LogManager and log messages using the yat::log_xxx() functions 
+//! \par %Message logging usage:
+//! Just instantiate a LogManager and log messages using the yat::log_xxx() functions
 //! to log into the clog %stream.
 //! \par
 //! If a special log storage/presentation is necessary, then the things to do are:
@@ -230,7 +296,7 @@ class YAT_DECL LogCatcher
 {
 public:
   //! \brief Constructor.
-  //! 
+  //!
   //! Pushes the log target that catches log in ClogHandler stack.
   //! \param pLogTarget Log target.
   LogCatcher(ILogTarget *pLogTarget);
@@ -373,6 +439,7 @@ do {                                                          \
   yat::LogManager::log(level, type, oss.str());               \
 } while(0)
 
+//! \deprecated macros YAT_XXX_STREAM are deprecated. use YAT_XXX instead
 #define YAT_VERBOSE_STREAM(s)   YAT_MSG_STREAM(yat::LOG_VERBOSE, "vbs", s)
 #define YAT_RESULT_STREAM(s)    YAT_MSG_STREAM(yat::LOG_RESULT, "res", s)
 #define YAT_INFO_STREAM(s)      YAT_MSG_STREAM(yat::LOG_INFO, "inf", s)
@@ -382,5 +449,15 @@ do {                                                          \
 #define YAT_CRITICAL_STREAM(s)  YAT_MSG_STREAM(yat::LOG_CRITICAL, "crt", s)
 #define YAT_ALERT_STREAM(s)     YAT_MSG_STREAM(yat::LOG_ALERT, "alt", s)
 #define YAT_EMERGENCY_STREAM(s) YAT_MSG_STREAM(yat::LOG_EMERGENCY, "emg", s)
+
+#define YAT_VERBOSE   yat::LogManager::verbose_stream()
+#define YAT_RESULT    yat::LogManager::result_stream()
+#define YAT_INFO      yat::LogManager::info_stream()
+#define YAT_WARNING   yat::LogManager::warning_stream()
+#define YAT_NOTICE    yat::LogManager::notice_stream()
+#define YAT_ERROR     yat::LogManager::error_stream()
+#define YAT_CRITICAL  yat::LogManager::critical_stream()
+#define YAT_ALERT     yat::LogManager::alert_stream()
+#define YAT_EMERGENCY yat::LogManager::emergency_stream()
 
 #endif
