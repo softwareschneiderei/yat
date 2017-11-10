@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -42,6 +42,7 @@
 //=============================================================================
 #include <yat/utils/Logging.h>
 #include <yat/time/Time.h>
+#include <yat/threading/Mutex.h>
 #include <yat/threading/SyncAccess.h>
 #include <iostream>
 #include <stdarg.h>
@@ -50,6 +51,44 @@
 
 namespace yat
 {
+
+//=============================================================================
+// LogStream
+//=============================================================================
+LogStream::LogStream(ELogLevel level): std::ostream(this), m_level(level)
+{
+  m_mtx_uptr.reset(new yat::Mutex);
+  m_the_message.reserve(512); // A large enough initial capacity for stream logs
+}
+
+//=============================================================================
+// LogStream
+//=============================================================================
+void LogStream::lock()
+{
+  m_mtx_uptr->lock();
+}
+
+int LogStream::sync()
+{
+  m_log_target_p->log(m_level, "n/a", m_the_message);
+  m_the_message.clear();
+  m_mtx_uptr->unlock();
+  return 0;
+}
+
+int LogStream::overflow(int c)
+{
+  return 0;
+}
+
+std::streamsize LogStream::xsputn(char const* p, std::streamsize n)
+{
+  m_the_message.append(p, n);
+  return n;
+}
+
+
 //=============================================================================
 // LogManager
 //=============================================================================
@@ -58,7 +97,11 @@ LogManager *LogManager::ms_pTheInstance = NULL;
 //----------------------------------------------------------------------------
 // LogManager::LogManager
 //----------------------------------------------------------------------------
-LogManager::LogManager() : m_iMinLevel(LOG_INFO)
+LogManager::LogManager() :
+  m_verbose(LOG_VERBOSE), m_result(LOG_RESULT), m_info(LOG_INFO),
+  m_warning(LOG_WARNING), m_error(LOG_ERROR), m_notice(LOG_NOTICE),
+  m_critical(LOG_CRITICAL), m_alert(LOG_ALERT), m_emergency(LOG_EMERGENCY),
+  m_iMinLevel(LOG_INFO)
 {
 }
 
@@ -74,11 +117,28 @@ LogManager *LogManager::Instance()
 }
 
 //----------------------------------------------------------------------------
+// LogManager::update_stream_log_target
+//----------------------------------------------------------------------------
+void LogManager::update_stream_log_target(ILogTarget *pLogTarget)
+{
+  m_result.m_log_target_p = pLogTarget;
+  m_verbose.m_log_target_p = pLogTarget;
+  m_info.m_log_target_p = pLogTarget;
+  m_notice.m_log_target_p = pLogTarget;
+  m_warning.m_log_target_p = pLogTarget;
+  m_error.m_log_target_p = pLogTarget;
+  m_critical.m_log_target_p = pLogTarget;
+  m_alert.m_log_target_p = pLogTarget;
+  m_emergency.m_log_target_p = pLogTarget;
+}
+
+//----------------------------------------------------------------------------
 // LogManager::push_log_target
 //----------------------------------------------------------------------------
 void LogManager::push_log_target(ILogTarget *pLogTarget)
 {
   Instance()->m_stkCatchLogTarget.push(pLogTarget);
+  Instance()->update_stream_log_target(pLogTarget);
 }
 
 //----------------------------------------------------------------------------
@@ -91,6 +151,8 @@ void LogManager::pop_log_target()
 
   if( !o.m_stkCatchLogTarget.empty() )
     o.m_stkCatchLogTarget.pop();
+
+  Instance()->update_stream_log_target(current_log_target());
 }
 
 //----------------------------------------------------------------------------
@@ -117,10 +179,10 @@ void LogManager::init(int iMinLevel, const std::string &_strFilter)
 
   o.m_iMinLevel = iMinLevel;
 
-  String strFilter = _strFilter, strType;
+  std::string strFilter = _strFilter, strType;
   while( strFilter.size() > 0 )
   {
-    strFilter.extract_token('|', &strType);
+    yat::StringUtil::extract_token(&strFilter, '|', &strType);
     if( strType.size() > 0 )
       o.m_setTypes.insert(strType);
   }
@@ -144,10 +206,130 @@ void LogManager::log(ELogLevel eLevel, pcsz pszType, const std::string& strMsg)
       o.m_setTypes.find(std::string(pszType)) == o.m_setTypes.end() && LOG_VERBOSE == eLevel )
     // Type not found in filter set
     return;
-  
+
   // Notify log tarteg
   if( current_log_target() )
     current_log_target()->log(eLevel, pszType, strMsg);
+}
+
+//----------------------------------------------------------------------------
+// LogManager::verbose_stream
+//----------------------------------------------------------------------------
+std::ostream& LogManager::verbose_stream()
+{
+  LogManager &o = *Instance();
+
+  if( o.m_iMinLevel > LOG_VERBOSE )
+    return o.m_null;
+
+  o.m_verbose.lock();
+  return o.m_verbose;
+}
+
+//----------------------------------------------------------------------------
+// LogManager::result_stream
+//----------------------------------------------------------------------------
+std::ostream& LogManager::result_stream()
+{
+  LogManager &o = *Instance();
+
+  if( o.m_iMinLevel > LOG_RESULT )
+    return o.m_null;
+
+  o.m_result.lock();
+  return o.m_result;
+}
+
+//----------------------------------------------------------------------------
+// LogManager::info_stream
+//----------------------------------------------------------------------------
+std::ostream& LogManager::info_stream()
+{
+  LogManager &o = *Instance();
+
+  if( o.m_iMinLevel > LOG_INFO )
+    return o.m_null;
+
+  o.m_info.lock();
+  return o.m_info;
+}
+
+//----------------------------------------------------------------------------
+// LogManager::notice_stream
+//----------------------------------------------------------------------------
+std::ostream& LogManager::notice_stream()
+{
+  LogManager &o = *Instance();
+
+  if( o.m_iMinLevel > LOG_NOTICE )
+    return o.m_null;
+
+  o.m_notice.lock();
+  return o.m_notice;
+}
+
+//----------------------------------------------------------------------------
+// LogManager::warning_stream
+//----------------------------------------------------------------------------
+std::ostream& LogManager::warning_stream()
+{
+  LogManager &o = *Instance();
+
+  if( o.m_iMinLevel > LOG_WARNING )
+    return o.m_null;
+
+  o.m_warning.lock();
+  return o.m_warning;
+}
+
+//----------------------------------------------------------------------------
+// LogManager::error_stream
+//----------------------------------------------------------------------------
+std::ostream& LogManager::error_stream()
+{
+  LogManager &o = *Instance();
+
+  if( o.m_iMinLevel > LOG_ERROR )
+    return o.m_null;
+  o.m_error.lock();
+  return o.m_error;
+}
+
+//----------------------------------------------------------------------------
+// LogManager::critical_stream
+//----------------------------------------------------------------------------
+std::ostream& LogManager::critical_stream()
+{
+  LogManager &o = *Instance();
+
+  if( o.m_iMinLevel > LOG_CRITICAL )
+    return o.m_null;
+  o.m_critical.lock();
+  return o.m_critical;
+}
+
+//----------------------------------------------------------------------------
+// LogManager::alert_stream
+//----------------------------------------------------------------------------
+std::ostream& LogManager::alert_stream()
+{
+  LogManager &o = *Instance();
+
+  if( o.m_iMinLevel > LOG_ALERT )
+    return o.m_null;
+  o.m_alert.lock();
+  return o.m_alert;
+}
+
+//----------------------------------------------------------------------------
+// LogManager::emergency_stream
+//----------------------------------------------------------------------------
+std::ostream& LogManager::emergency_stream()
+{
+  LogManager &o = *Instance();
+
+  o.m_emergency.lock();
+  return o.m_emergency;
 }
 
 //=============================================================================
@@ -160,10 +342,10 @@ void DefaultLogHandler::log(ELogLevel eLevel, pcsz pszType, const std::string& s
 {
   // Formatting message
   CurrentTime dtCur;
-  std::string strLogDate = yat::StringUtil::str_format("%4d-%02d-%02d,%02d:%02d:%02.3f", 
+  std::string strLogDate = yat::StringUtil::str_format("%4d-%02d-%02d,%02d:%02d:%02.3f",
                                         dtCur.year(), dtCur.month(), dtCur.day(),
                                         dtCur.hour(), dtCur.minute(), dtCur.second());
-  
+
   std::string strLevel;
   switch( eLevel )
   {
