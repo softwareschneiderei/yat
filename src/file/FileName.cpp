@@ -954,7 +954,6 @@ DirectoryWatcher::Entry::Entry(const std::string& strFullName)
 DirectoryWatcher::DirectoryWatcher(const std::string& strDirectoryPath, WatchMode eMode) throw(Exception)
 {
   set(strDirectoryPath);
-  m_tmDirModTime.set_long_unix(0);
   m_bDirectoryHasChanged = false;
   m_eMode = eMode;
 
