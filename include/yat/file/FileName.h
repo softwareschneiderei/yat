@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -78,7 +78,7 @@
   #include <direct.h>
   #include <errno.h>
   #include <windows.h>
-#elif defined YAT_MACOSX 
+#elif defined YAT_MACOSX
   #include <errno.h>
   #include <sys/stat.h>
   #include <sys/param.h>
@@ -167,7 +167,7 @@ int MakeLink(const std::string& strLink, const std::string& strTarget);
 
 
 // ============================================================================
-//! \class IOException 
+//! \class IOException
 //! \brief Predefined I/O exception (reason: IO_ERROR).
 //!
 //! Inherits from yat::Exception class.
@@ -184,7 +184,7 @@ public:
 };
 
 // ============================================================================
-//! \class BadPathException 
+//! \class BadPathException
 //! \brief Predefined bad path exception (reason: BAD_PATH).
 //!
 //! Inherits from yat::Exception class.
@@ -201,7 +201,7 @@ public:
 };
 
 // ============================================================================
-//! \class BadPathConditionException 
+//! \class BadPathConditionException
 //! \brief Predefined bad path conditions exception (reason: BAD_PATH_CONDITION).
 //!
 //! Current conditions don't allow to perform the action.\n
@@ -219,7 +219,7 @@ public:
 };
 
 // ============================================================================
-//! \class FileNotFoundException 
+//! \class FileNotFoundException
 //! \brief Predefined file not found exception (reason: FILE_NOT_FOUND).
 //!
 //! Path or file not found.\n
@@ -237,7 +237,7 @@ public:
 };
 
 // ============================================================================
-//! \class PermissionException 
+//! \class PermissionException
 //! \brief Predefined permission exception (reason: PERMISSION_ERROR).
 //!
 //! Permissions on file or path don't allow to perform the action.\n
@@ -255,7 +255,7 @@ public:
 };
 
 // ============================================================================
-//! \class BadDriveException 
+//! \class BadDriveException
 //! \brief Predefined bad drive exception (reason: BAD_DRIVE).
 //!
 //! Bad drive name.\n
@@ -285,12 +285,12 @@ inline int IsSepPath(char c)
  { return c == SEP_PATHDOS || c == SEP_PATHUNIX; }
 
 // ============================================================================
-//! \class FileName 
+//! \class FileName
 //! \brief %File name manipulations.
 //!
 //! This class provides basic file manipulation functions, such as :
-//! - file/path/link creation and access, 
-//! - path conversion (DOS/UNIX), 
+//! - file/path/link creation and access,
+//! - path conversion (DOS/UNIX),
 //! - file moving and removing,
 //! - file information access and modification (date/time, owner, rights).
 // ============================================================================
@@ -298,14 +298,14 @@ class YAT_DECL FileName
 {
 protected:
   //! %File name.
-  std::string m_strFile;  
+  std::string m_strFile;
 
 #ifdef YAT_LINUX
   static size_t s_copy_bloc_size;
 #endif
 
 public:
-  
+
   //! \brief %File system types
   enum FSType
   {
@@ -387,7 +387,7 @@ public:
     //! complete notification
     virtual void on_complete(std::string file_name, int64 total_bytes, double elapsed_secs) = 0;
   };
-  
+
   #define YAT_KBYTES 1000LL
   #define YAT_MBYTES 1000000LL
   #define YAT_GBYTES 1000000000LL
@@ -443,8 +443,8 @@ public:
   public:
     FSStat() : size(0), avail(0), used(0), used_percent(0), avail_percent(0) {}
     FSBytes size;          //! Total file system size
-    FSBytes avail;         //! Available size for unpriviliged users 
-    FSBytes used;          //! Used size 
+    FSBytes avail;         //! Available size for unpriviliged users
+    FSBytes used;          //! Used size
     double  used_percent;  //! Used percent
     double  avail_percent; //! Available percent for unpriviliged users
   };
@@ -453,7 +453,7 @@ public:
   static void ThrowExceptionFromErrno(const char *pszError, const char *pszMethod);
 
 private:
-  
+
   //! progress notification target
   IProgress* m_progress_target_p;
 
@@ -462,7 +462,7 @@ public:
   FileName(): m_progress_target_p(0)  { }
 
   //! \brief Constructor from file name.
-  //! 
+  //!
   //! The specified name can be a path name, a file name or a full path file name.
   //! \param strFileName %File name.
   FileName(const std::string& strFileName): m_progress_target_p(0) { set(strFileName); }
@@ -481,39 +481,39 @@ public:
   virtual ~FileName() {}
 
   //! \brief Tests if filename is a path.
-  //! 
+  //!
   //! Returns true if the filename is a path, false otherwise.
   bool is_path_name() const;
 
   //! \brief Tests if filename is set.
-  //! 
+  //!
   //! Returns true if the filename is set, false otherwise.
   bool is_empty() const { return m_strFile.empty(); }
 
   //! \brief join path fragment with current path
-  //! 
+  //!
   void join(const std::string& fragment);
 
   //! \brief Tests if file name is an existing path.
-  //! 
+  //!
   //! Returns true if the file name is an existing path, false otherwise.
   bool path_exist() const;
 
   //! \brief Tests if file exists.
-  //! 
+  //!
   //! Returns true if file exists, false otherwise.
   bool file_exist() const;
 
   //! \brief Tests if file is accessible.
-  //! 
+  //!
   //! Returns true if file is accessible, false otherwise.
   bool file_access() const;
 
   //! \brief Tests if filename is a empty directory.
-  //! 
+  //!
   /// Return true if filename is a empty directory, false otherwise.
   bool is_empty_dir() const;
-  
+
   //! \brief Sets full file name.
   //!
   //! Converts separators according to the current operating system (UNIX\<--\>DOS).
@@ -581,14 +581,14 @@ public:
   //! \exception BAD_PATH Thrown if path format is not correct.
   //! \exception BAD_DRIVE Thrown if drive access fails.
   //! \exception FILE_ERROR Thrown if directory creation fails.
-  void mkdir(mode_t mode = 0, uid_t uid = (uid_t)-1, gid_t gid = (uid_t)-1) const 
+  void mkdir(mode_t mode = 0, uid_t uid = (uid_t)-1, gid_t gid = (uid_t)-1) const
     throw(Exception);
 
   //! \brief Returns true if the file name is an existing link, false otherwise.
   //!
   //! \exception FILE_ERROR Thrown if file access fails.
   //! \remark Not implemented for WINDOWS plateform.
-  bool link_exist() const 
+  bool link_exist() const
     throw(Exception);
 
   //! \brief Creates a symbolic link on *this* file.
@@ -603,16 +603,16 @@ public:
   //! \brief Deletes file.
   //!
   //! \exception FILE_ERROR Thrown if file deleting fails.
-  void remove() 
+  void remove()
     throw(Exception);
-  
+
   //! \brief Removes directory.
-  //! \param bRecursive If set to false, deletes only files and symbolic links. If set to true, 
+  //! \param bRecursive If set to false, deletes only files and symbolic links. If set to true,
   //! deletes files, symbolic links and recursively all child directories.
-  //! \param bContentOnly If set to false, deletes only directory content. If set to true, 
+  //! \param bContentOnly If set to false, deletes only directory content. If set to true,
   //! deletes directory content and the directory itself.
   //! \exception FILE_ERROR Thrown if file or directory deleting fails.
-  void rmdir(bool bRecursive=false, bool bContentOnly=false) 
+  void rmdir(bool bRecursive=false, bool bContentOnly=false)
     throw(Exception);
 
   //! \brief Copies a directory and its whole content inside the destination directory.
@@ -623,42 +623,42 @@ public:
   //! \param uid User identifier.
   //! \param gid Group identifier.
   //! \exception BAD_PATH Thrown if destination directory name format is not correct.
-  void dir_copy(const std::string& strDest, bool bCreateDir=false, mode_t modeDir = 0, uid_t uid = (uid_t)-1, gid_t gid = (uid_t)-1) 
+  void dir_copy(const std::string& strDest, bool bCreateDir=false, mode_t modeDir = 0, uid_t uid = (uid_t)-1, gid_t gid = (uid_t)-1)
     throw(Exception);
 
   //! \brief Returns file size in bytes.
   //!
   //! \exception FILE_ERROR Thrown if file size access fails.
-  uint32 size() const 
+  uint32 size() const
     throw(Exception);
 
   //! \brief Returns file size in bytes: 64bits version for files bigger than 2GB.
   //!
   //! \exception FILE_ERROR Thrown if file size access fails.
-  uint64 size64() const 
+  uint64 size64() const
     throw(Exception);
-  
+
   //! \brief Renames the file.
   //! \param strNewName New file name.
   //! \exception FILE_ERROR Thrown if file renaming fails.
-  void rename(const std::string& strNewName) 
+  void rename(const std::string& strNewName)
     throw(Exception);
-  
+
   //! \brief Copies the file to the specified destination.
   //! \param strDest Destination file.
-  //! \param bKeepMetaData If set to true and uid is root, the copy keeps metadata 
+  //! \param bKeepMetaData If set to true and uid is root, the copy keeps metadata
   //! (access mode, owner & group). Metadata are not kept otherwise.
   //! \exception FILE_NOT_FOUND Thrown if *this* file doesn't exist.
   //! \exception FILE_ERROR Thrown if file copy fails.
   //! \todo implement the progress notifications on Windows using the CopyFileEx functions family
-  void copy(const std::string& strDest, bool bKeepMetaData=false) 
+  void copy(const std::string& strDest, bool bKeepMetaData=false)
     throw(Exception);
-  
+
   //! \brief Moves file to specified destination.
   //! \param strDest Destination file or directory.
   //! \exception FILE_NOT_FOUND Thrown if *this* file doesn't exist.
-  //! \exception FILE_ERROR Thrown if file moving fails.  
-  void move(const std::string& strDest) 
+  //! \exception FILE_ERROR Thrown if file moving fails.
+  void move(const std::string& strDest)
     throw(Exception);
 
   //! \brief Returns file last modification date & time.
@@ -666,14 +666,14 @@ public:
   //! \param bLocalTime If set to true, converts date & time to local time.
   //! \exception FILE_ERROR Thrown if file information access fails.
   //! Specific WIN32 error : file handle creation fails.
-  void mod_time(Time *pTm, bool bLocalTime=false, bool stat_link=false) const 
+  void mod_time(Time *pTm, bool bLocalTime=false, bool stat_link=false) const
     throw(Exception);
 
   //! \brief Sets file last modification date & time.
   //! \param tm Last modification time to set (in yat::Time format).
   //! \exception FILE_ERROR Thrown if file time modification fails.
   //! Specific WIN32 error : file handle creation fails.
-  void set_mod_time(const Time& tm) const 
+  void set_mod_time(const Time& tm) const
     throw(Exception);
 
   //! \brief get information about the current path
@@ -684,7 +684,7 @@ public:
   //! \param mode File rights (octal value).
   //! \exception FILE_ERROR Thrown if file rights modification fails.
   //! \remark Not implemented for WINDOWS plateform.
-  void chmod(mode_t mode) 
+  void chmod(mode_t mode)
     throw(Exception);
 
   //! \brief Recursively changes rights for directory and files.
@@ -693,7 +693,7 @@ public:
   //! \param bCurrentLevel If set to true, changes mode to directory itself.
   //! \exception FILE_NOT_FOUND Thrown if directory doesn't exist.
   //! \exception FILE_ERROR Thrown if file or directory rights modification fails.
-  void recursive_chmod(mode_t modeFile, mode_t modeDir, bool bCurrentLevel=true) 
+  void recursive_chmod(mode_t modeFile, mode_t modeDir, bool bCurrentLevel=true)
     throw(Exception);
 
   //! \brief Recursively changes directory rights.
@@ -702,14 +702,14 @@ public:
   //! \param mode New directory rights (octal value).
   //! \exception FILE_NOT_FOUND Thrown if directory doesn't exist.
   //! \exception FILE_ERROR Thrown if directory rights modification fails.
-  void recursive_chmod_dir(mode_t mode) 
+  void recursive_chmod_dir(mode_t mode)
     throw(Exception);
 
   //! \brief Recursively changes file rights.
   //! \param mode New file rights as octal value.
   //! \exception FILE_NOT_FOUND Thrown if file doesn't exist.
   //! \exception FILE_ERROR Thrown if file rights modification fails.
-  void recursive_chmod_file(mode_t mode) 
+  void recursive_chmod_file(mode_t mode)
     throw(Exception);
 
   //! \brief Changes file owner.
@@ -717,7 +717,7 @@ public:
   //! \param gid New group identifier.
   //! \exception FILE_ERROR Thrown if file owner modification fails.
   //! \remark Not implemented for WINDOWS plateform.
-  void chown(uid_t uid, gid_t gid = (uid_t)-1) 
+  void chown(uid_t uid, gid_t gid = (uid_t)-1)
     throw(Exception);
 
   //! \brief Recursively changes file owner.
@@ -727,7 +727,7 @@ public:
   //! \param gid New group identifier.
   //! \exception FILE_NOT_FOUND Thrown if file or directory doesn't exist.
   //! \exception FILE_ERROR Thrown if file or directory owner modification fails.
-  void recursive_chown(uid_t uid, gid_t gid = (uid_t)-1) 
+  void recursive_chown(uid_t uid, gid_t gid = (uid_t)-1)
     throw(Exception);
 
   //! \brief Returns the filesystem type.
@@ -735,19 +735,19 @@ public:
   //! The filesystem type is defined as a yat::FSType enumeration value.
   //! \exception FILE_ERROR Thrown if cannot access to filesystem information.
   //! \remark Not implemented for WINDOWS plateform.
-  FSType file_system_type() const 
+  FSType file_system_type() const
     throw(Exception);
 
   //! \brief Returns the filesystem statistics.
   //!
   //! \remark Not implemented for WINDOWS plateform.
-  FSStat file_system_statistics() const; 
+  FSStat file_system_statistics() const;
 
   //! \brief Returns the filesystem identifier.
   //!
   //! \exception FILE_ERROR Thrown if cannot access to filesystem information.
   //! \remark Not implemented for WINDOWS plateform.
-  fsid_t file_system_id() const 
+  fsid_t file_system_id() const
     throw(Exception);
 
   //! \brief Try to create a r-lock
@@ -756,14 +756,14 @@ public:
   //! Sets the bloc size (in bytes) for file copy operations.
   //! \param size Bloc size in bytes.
   static void set_copy_bloc_size(size_t size);
-  
+
   //! Sets the progress notification target
   //! \param target_p pointer to the target
   void set_progress_target(IProgress* target_p) { m_progress_target_p = target_p; }
 };
 
 // ============================================================================
-//! \class File 
+//! \class File
 //! \brief Temporary file class.
 //!
 //! This class provides basic file manipulation functions for a temporary file.
@@ -781,18 +781,25 @@ class YAT_DECL File: public FileName
   File(const std::string& strFileName)
   { set(strFileName); }
 
-  //! \brief Constructor from path and file name. 
+  //! \brief Constructor from path and file name.
   //! \param strPath Path name.
   //! \param strName %File name.
   File(const std::string& strPath, const std::string& strName)
   { set(strPath, strName); }
+
+  //! \brief Constructor from path and file name.
+  //! \param strPath Path name.
+  //! \param strName %File name.
+  //! \param ext File name extension.
+  File(const std::string& strPath, const std::string& strName, const std::string& ext)
+  { set(strPath, strName, ext); }
 
   //! \brief Loads the specified MemBuf object with file content.
   //!
   //! \<pMemBuf\> must have been allocated by the caller.
   //! \param pMemBuf Pointer to the MemBuf object to load.
   //! \exception FILE_ERROR Thrown if file opening or reading fails.
-  void load(MemBuf *pMemBuf) 
+  void load(MemBuf *pMemBuf)
     throw(Exception);
 
   //! \brief Loads the specified string with file content.
@@ -800,24 +807,29 @@ class YAT_DECL File: public FileName
   //! \<pString\> must have been allocated by the caller.
   //! \param pString Pointer to the string to load.
   //! \exception FILE_ERROR Thrown if file opening or reading fails.
-  void load(std::string *pString) 
+  void load(std::string *pString)
     throw(Exception);
 
   //! \brief Saves the specified string in the file.
-  //! \param strContent String to save.
+  //! \param strContent string to save.
   //! \exception FILE_ERROR Thrown if file opening or writing fails.
-  void save(const std::string& strContent) 
+  void save(const std::string& strContent)
     throw(Exception);
 
   //! \brief synonym of Save
-  //! \param strContent String to save.
+  //! \param strContent string to save.
   //! \exception FILE_ERROR Thrown if file opening or writing fails.
   void write(const std::string& strContent) { save( strContent ); }
+
+  //! \brief append a new line
+  //! \param content line to save
+  //! \exception FILE_ERROR Thrown if file opening or writing fails.
+  void append(const std::string& content);
 };
 
 
 // ============================================================================
-//! \class TempFileName 
+//! \class TempFileName
 //! \brief Another temporary file class.
 //!
 //! Inherits from FileName class and provides a random function for file name.
@@ -839,10 +851,10 @@ public:
   //! %File name is generated by a random function.
   //! \param strPath Path name.
   TempFileName(const std::string& strPath);
-};  
+};
 
 // ============================================================================
-//! \class FileEnum 
+//! \class FileEnum
 //! \brief Directory enumeration class.
 //!
 //! This class provides an enumeration function for a directory path.
@@ -862,9 +874,9 @@ public:
     ENUM_ALL = 3
   };
 
-protected: 
+protected:
   //! Find mode (FILE or DIR or ALL).
-  EEnumMode m_eMode;  
+  EEnumMode m_eMode;
 
 #ifdef YAT_WIN32
   //! WIN32 Find handler.
@@ -884,7 +896,7 @@ protected:
 #endif
 
   //! Current path.
-  std::string m_strPath;    
+  std::string m_strPath;
 
 public:
 
@@ -892,25 +904,25 @@ public:
   //! \param strPath Directory path to enumerate.
   //! \param eMode Enumeration mode.
   //! \exception BAD_PATH Thrown if specified path is not correct.
-  FileEnum(const std::string& strPath, EEnumMode eMode=ENUM_FILE) 
+  FileEnum(const std::string& strPath, EEnumMode eMode=ENUM_FILE)
     throw(BadPathException);
 
   //! \brief Destructor.
   ~FileEnum();
 
   //! \brief Initializes search mask.
-  //! 
+  //!
   //! \param strPath Path to enumerate.
   //! \param eMode Enumeration mode.
   //! \exception BAD_PATH Thrown if specified path is not correct.
-  void init(const std::string& strPath, EEnumMode eMode=ENUM_FILE) 
+  void init(const std::string& strPath, EEnumMode eMode=ENUM_FILE)
     throw(BadPathException);
 
   //! \brief Finds next file in directory.
-  //! 
+  //!
   //! Sets path and file values to the current file found in directory.\n
   //! Returns true if a file has been found, false if not.
-  bool find() 
+  bool find()
     throw(BadPathException, FileNotFoundException, Exception);
 
   //! Closes the directory enumeration.
@@ -919,10 +931,10 @@ public:
 
 #define CFG_FILE_DEFAULT_SECTION "default"
 // ============================================================================
-//! \class CfgFile 
+//! \class CfgFile
 //! \brief Reads a "Windows configuration file" style file.
 //!
-//! This class reads a file which content is in a "Windows configuration file" style, 
+//! This class reads a file which content is in a "Windows configuration file" style,
 //! i.e. :\n
 //!   \[section\]\n
 //!   key=value\n
@@ -947,7 +959,7 @@ public:
   typedef std::vector<Parameters> ObjectCollection;
   //! \brief Map of vector of (key, value)
   typedef std::map<std::string, ObjectCollection> Objects;
-    
+
 private:
   class Section
   {
@@ -959,7 +971,7 @@ private:
 
   mutable std::map<std::string, Section> m_dictSection;
   mutable std::string m_strSection;
-  
+
 public:
   //! \brief Constructor.
   //! \param strFile %File name.
@@ -971,7 +983,7 @@ public:
   //! \brief Reads the configuration file.
   //!
   //! \exception FILE_ERROR Thrown if file opening or reading fails.
-  void load() 
+  void load()
     throw(Exception);
 
   //! \brief Reads the configuration file.
@@ -986,13 +998,13 @@ public:
 
   //! \brief get section names
   void get_sections(std::list<std::string>* list_p ) const;
-  
+
   //! \brief Sets the current section.
   //! \param strSection New section name.
   //! \param bThrowException If set to true, exceptions are thrown.
   //! \exception NO_DATA Thrown if section not found.
   bool set_section(const std::string& strSection, bool bThrowException=true) const;
-    
+
   //! \brief Gets section values.
   //!
   //! Returns a vector of \<values\>.
@@ -1003,25 +1015,25 @@ public:
   //!
   //! Returns a map of (\<value name\>, \<value\>).
   const Parameters& get_parameters() const;
-  
+
   //! \brief Check if section contains at least one object of the specified type
   bool has_object(const std::string& object_type) const;
-  
+
   //! \brief Get section's objects collection by object type name
   const ObjectCollection& get_objects(const std::string& object_type) const;
-  
+
   //! \brief Get section's objects collections
   const Objects& get_objects() const;
-  
+
   //! \brief Get section's unique object according to its type
   const Parameters& get_unique_object(const std::string& object_name) const;
-  
+
   //! \brief Tests if a value name is found in the current section.
-  //! 
+  //!
   //! Returns true if the value name is found, false otherwise.
   //! \param strParamName Value name.
   bool has_parameter(const std::string& strParamName) const;
-  
+
   //! \brief Gets a value from its name, in the current section.
   //!
   //! Returns nil string if value name not found in the section.
@@ -1035,7 +1047,7 @@ public:
     for( CfgFile::Values::const_iterator x = cfg_file.GetValues().begin(); x != cfg_file.GetValues().end(); x++)
 
 // ============================================================================
-//! \class DirectoryWatcher 
+//! \class DirectoryWatcher
 //! \brief Watches changes in a directory: new files/directories/links or removed files.
 //!
 //! This class provides a wathdog service for a directory: detects any change in directory
@@ -1056,33 +1068,33 @@ public:
   typedef enum
   {
     //! The directory content at object construction time is memorized.
-    ENUM_FIRST=0,  
+    ENUM_FIRST=0,
     //! The directory content at object construction time is not memorized,
     //! the first call to GetChanges() will return the whole directory content.
     NO_FIRST_ENUM
   } WatchMode;
-  
+
 private:
   struct Entry
   {
     FileNamePtr ptrFile;
     Time tmLastModTime;
     bool bRemoved;
-    
+
     Entry(const std::string& strFullName);
   };
-  
+
   typedef yat::SharedPtr<Entry> EntryPtr;
   typedef std::map<uint64, EntryPtr> EntryMap;
-  
-  EntryMap  m_mapEntry;            // Directory content  
+
+  EntryMap  m_mapEntry;            // Directory content
   Time      m_tmDirModTime;        // Last modification time of the directory
   Time      m_tmLocalModTime;      // Last time the the directory's modification time has changfes
   bool      m_bDirectoryHasChanged;
   WatchMode m_eMode;
-  
+
   bool priv_has_changed(bool bReset);
-  
+
 public:
 
   //! \brief Constructor.
@@ -1091,18 +1103,18 @@ public:
   //! \exception BAD_PATH Thrown if specified path is not correct.
   DirectoryWatcher(const std::string& strDirectoryPath, WatchMode eMode = ENUM_FIRST)
      throw( Exception);
-  
+
   //! \brief Gets new, changed and removed file names since last call.
   //! \param vecNewFilesPtr List of new file names.
   //! \param vecChangedFileNamePtr List of changed file names.
   //! \param vecRemovedFileNamePtr List of deleted file names.
   //! \exception BAD_PATH Thrown if current path is not correct.
   void get_changes(FileNamePtrVector *vecNewFilesPtr, FileNamePtrVector *vecChangedFileNamePtr=NULL,
-                    FileNamePtrVector *vecRemovedFileNamePtr=NULL) 
+                    FileNamePtrVector *vecRemovedFileNamePtr=NULL)
     throw( Exception);
-  
+
   //! \brief Has the directory changed ?
-  //! 
+  //!
   //! Returns true if a new, changed or removed file has been detected, false othsewise.
   bool has_changed();
 };
@@ -1180,14 +1192,14 @@ private:
   int                  m_lock_cmd;
   bool                 m_wait_for_lock; // asynchonously waiting for the lock...
   UniquePtr<ASyncLock> m_async_ptr;
-  
+
   bool priv_lock( int lock_cmd );
   void lock_callback( Thread::IOArg );
   void start_async_lock();
 };
 
 // ============================================================================
-//! \class RLockFile 
+//! \class RLockFile
 //! \brief Helper class for read lock
 //!
 //! Create read lock (i.e. shared lock) on a file
@@ -1199,7 +1211,7 @@ class YAT_DECL RLockFile : public LockFile
 };
 
 // ============================================================================
-//! \class WLockFile 
+//! \class WLockFile
 //! \brief Helper class for write lock
 //!
 //! Create write lock (i.e. exclusive lock) on a file
@@ -1211,7 +1223,7 @@ class YAT_DECL WLockFile : public LockFile
 };
 
 // ============================================================================
-//! \class AutoLockFile 
+//! \class AutoLockFile
 //! \brief Helper class that automatically lock/unlock the file
 //!
 //! The AutoLockFile class provides an auto lock/unlock mechanism.\n
