@@ -92,6 +92,14 @@ void FileName::set(const std::string& strPath, const std::string& strName, const
 }
 
 //----------------------------------------------------------------------------
+// FileName::set_path
+//----------------------------------------------------------------------------
+void FileName::set_path(const std::string& strPath)
+{
+  set(strPath, "");
+}
+
+//----------------------------------------------------------------------------
 // FileName::join
 //----------------------------------------------------------------------------
 void FileName::join(const std::string& fragment)
@@ -142,7 +150,8 @@ std::string FileName::name() const
   if( std::string::npos == iExtPos )
     iExtPos = m_strFile.length();
 
-  strName = m_strFile.substr(iLastSepPos + 1, iExtPos - iLastSepPos - 1);
+  if( m_strFile.length() > 0 )
+    strName = m_strFile.substr(iLastSepPos + 1, iExtPos - iLastSepPos - 1);
 
   return strName;
 }
@@ -610,7 +619,7 @@ void File::save(const std::string& strContent) throw(Exception)
   if( NULL == fi )
   {
     std::string strErr = StringUtil::str_format(ERR_OPEN_FILE, PSZ(full_name()));
-    throw Exception("FILE_ERROR", PSZ(strErr), "File::Load");
+    throw Exception("FILE_ERROR", PSZ(strErr), "File::save");
   }
 
   // Write text content

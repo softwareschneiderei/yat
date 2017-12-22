@@ -535,6 +535,12 @@ public:
   //! \param strExt %File extension name.
   void set(const std::string& strPath, const std::string& strName, const std::string& strExt);
 
+  //! \brief Sets path.
+  //!
+  //! Converts separators according to the current operating system (UNIX\<--\>DOS).
+  //! \param strPath Path name.
+  void set_path(const std::string& strPath);
+
   //! \brief Sets full file name.
   //!
   //! Converts separators according to the current operating system (UNIX\<--\>DOS).
