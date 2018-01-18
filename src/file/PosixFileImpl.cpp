@@ -51,6 +51,7 @@
 #include <stdio.h>
 
 #include <yat/time/Time.h>
+#include <yat/time/Timer.h>
 #include <yat/file/FileName.h>
 #include <yat/memory/DataBuffer.h>
 
@@ -504,7 +505,9 @@ void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Except
     ssize_t lToRead = 0;
 
     // progression init
-    int64 cl_start = Time::microsecs();
+    yat::Timer tm;
+    std::size_t last_elapsed_sec = 1; // Wait at least one second before sending 1st progress notification
+
     if( m_progress_target_p )
       m_progress_target_p->on_start(name_ext(), llTotalSize);
 
@@ -523,7 +526,6 @@ void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Except
       }
 
       lWritten = write(fdst, aBuf, lToRead);
-      // MANTIS 26069
       if( lWritten < 0 || lWritten != lToRead )
       {
         std::string strErr = StringUtil::str_format(ERR_WRITING_FILE, PSZ(fDst.full_name()));
@@ -535,11 +537,15 @@ void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Except
       // progression
       if( m_progress_target_p )
       {
-        double secs = double(Time::microsecs() - cl_start) / MICROSEC_PER_SEC;
-        if( !m_progress_target_p->on_progress(name_ext(), llTotalSize, llTotalSize - llSize, secs) )
+        std::size_t elapsed_sec = std::size_t(tm.elapsed_sec());
+        if( elapsed_sec > last_elapsed_sec )
         {
-          // Operation canceled
-          break;
+          if( !m_progress_target_p->on_progress(name_ext(), llTotalSize, llTotalSize - llSize, tm.elapsed_sec()) )
+          {
+            // Operation canceled
+            break;
+          }
+          last_elapsed_sec = elapsed_sec;
         }
       }
     }
@@ -547,8 +553,9 @@ void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Except
     // progress notification: operation completed
     if( m_progress_target_p && 0 == llSize )
     {
-      double secs = (Time::microsecs() - cl_start) / MICROSEC_PER_SEC;
-      m_progress_target_p->on_complete(name_ext(), llTotalSize, secs);
+      double elapsed = tm.elapsed_sec();
+      m_progress_target_p->on_progress(name_ext(), llTotalSize, llTotalSize, elapsed);
+      m_progress_target_p->on_complete(name_ext(), llTotalSize, elapsed);
     }
 
     close(fsrc);
@@ -977,7 +984,7 @@ void LockFile::unlock()
   {
     std::string strErr = StringUtil::str_format("Unlocking file %s failed", PSZ(m_file_name.full_name()));
     FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::unlock");
-  }  
+  }
 }
 
 
