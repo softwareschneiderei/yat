@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -725,7 +725,7 @@ std::string Time::to_local_ISO8601() const
   get(&df);
 
   strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
-                              df.hour, df.min, uint32(df.sec + 0.5), iHourBias, iMinBias);
+                              df.hour, df.min, uint32(df.sec), iHourBias, iMinBias);
   return strDate;
 }
 
@@ -742,7 +742,7 @@ std::string Time::to_ISO8601() const
   get(&df);
 
   strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
-                              df.hour, df.min, uint32(df.sec + 0.5));
+                              df.hour, df.min, uint32(df.sec));
   return strDate;
 }
 
@@ -842,6 +842,103 @@ std::string Time::to_inter(bool bMillis) const
 }
 
 //----------------------------------------------------------------------------
+// Time::from_string
+//----------------------------------------------------------------------------
+void Time::from_string(const std::string& date_time, const std::string& format)
+{
+  char identifier = '\0';
+  bool get_identifier = false;
+  std::size_t field_len = 0;
+  std::size_t i_s = 0;
+
+  for( std::size_t i_f = 0; i_f < format.size(); ++i_f )
+  {
+    if( '%' == format[i_f])
+    {
+      get_identifier = true;
+      continue;
+    }
+
+    if( get_identifier )
+    {
+      switch( format[i_f] )
+      {
+        case 'Y':
+          field_len = 4;
+          break;
+        case 'y':
+        case 'd':
+        case 'm':
+        case 'H':
+        case 'M':
+        case 'S':
+          field_len = 2;
+          break;
+        case 'j':
+        case 's':
+          field_len = 3;
+          break;
+        default:
+          throw yat::Exception("BAD_FORMAT",
+                               "Unknown date-time identifier",
+                               "Time::from_string");
+      }
+
+      unsigned short v = 0;
+      for( std::size_t i = 0; i < field_len; ++i )
+      {
+        if( !isdigit(date_time[i_s]) || i_s >= date_time.size() )
+          throw yat::Exception("BAD_FORMAT", "Bad date-time string: expected digit", "Time::from_string");
+
+        v *= 10;
+        v += date_time[i_s++] - char('0');
+      }
+
+      switch( format[i_f] )
+      {
+        case 'y':
+          set_year(v + 2000);
+          break;
+        case 'Y':
+          set_year(v);
+          break;
+        case 'm':
+          set_month(v);
+          break;
+        case 'd':
+          set_day(v);
+          break;
+        case 'j':
+          set_day_of_year(v, year());
+          break;
+        case 'H':
+          set_hour(v);
+          break;
+        case 'M':
+          set_minute(v);
+          break;
+        case 'S':
+          set_second(v);
+          break;
+        case 's':
+          set_second( second() + ((double)v / 1000.));
+          break;
+        default:
+          throw yat::Exception("BAD_FORMAT",
+                               "Unknown date-time identifier",
+                               "Time::from_string");
+      }
+      get_identifier = false;
+      continue;
+    }
+    if( date_time.size() == i_s + 1 || date_time[i_s++] != format[i_f] )
+      throw yat::Exception("BAD_FORMAT",
+                           "Bad date-time string or format",
+                           "Time::from_string");
+  }
+}
+
+//----------------------------------------------------------------------------
 // Time::unix_time
 //----------------------------------------------------------------------------
 int32 Time::unix_time()
@@ -907,7 +1004,7 @@ CurrentUTime::CurrentUTime() : CurrentTime(true)
 }
 
 //===========================================================================
-// DurationFields 
+// DurationFields
 //===========================================================================
 void DurationFields::clear()
 {
