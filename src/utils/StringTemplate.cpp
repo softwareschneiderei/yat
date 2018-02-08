@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -42,6 +42,7 @@
 //=============================================================================
 #include <yat/utils/StringTemplate.h>
 #include <yat/system/SysUtils.h>
+#include <iostream>
 
 namespace yat
 {
@@ -78,12 +79,12 @@ void StringTemplate::remove_symbol_interpreter(ISymbolInterpreter *pInterpreter)
 //----------------------------------------------------------------------------
 // StringTemplate::substitute
 //----------------------------------------------------------------------------
-bool StringTemplate::substitute(std::string *pstrTemplate)
+bool StringTemplate::substitute(std::string *pstrTemplate, std::vector<std::string> *not_found_p)
 {
   std::string strEval, strTmp;
   std::string strTmpl = *pstrTemplate;
   std::string strVar, strValue;
-  bool bNotReturnValue = false;
+  bool return_value = true;
 
   while( strTmpl.size() > 0 )
   {
@@ -107,8 +108,14 @@ bool StringTemplate::substitute(std::string *pstrTemplate)
         // Delete up to matching end parenthesis
         strTmpl.erase(0, uiMatchPos - uiFirstPos - 1);
 
+        std::string var_before = strVar;
         // Variable evaluation
-        bNotReturnValue = !value(&strVar);
+        bool rc = value(&strVar);
+        if( return_value )
+          return_value = rc;
+
+        if( !rc && not_found_p )
+          not_found_p->push_back(var_before);
         strEval += strVar;
       }
       else
@@ -128,7 +135,7 @@ bool StringTemplate::substitute(std::string *pstrTemplate)
   }
 
   (*pstrTemplate) = strEval;
-  return !bNotReturnValue;
+  return return_value;
 }
 
 //----------------------------------------------------------------------------
