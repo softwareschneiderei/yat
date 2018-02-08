@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -47,17 +47,25 @@
 #include <vector>
 #include <yat/CommonHeader.h>
 
-namespace yat 
+namespace yat
 {
 
-#define THROW_YAT_ERROR( reason, desc, origin ) \
-  throw yat::Exception( (reason), (desc), (origin) )
+#define THROW_YAT_ERROR(error, desc, origin)      \
+do                                                \
+{                                                 \
+  std::ostringstream oss;                         \
+  oss << desc;                                    \
+  throw yat::Exception(error, oss.str(), origin); \
+} while(0)
 
-#define RETHROW_YAT_ERROR( exception, reason, desc, origin ) \
-  { \
-    exception.push_error( (reason), (desc), (origin) ); \
-    throw exception; \
-  }
+#define RETHROW_YAT_ERROR(e, error, desc, origin )  \
+do                                                  \
+{                                                   \
+  std::ostringstream oss;                           \
+  oss << desc;                                      \
+  e.push_error(error, oss.str(), origin);           \
+  throw e;                                          \
+} while(0)
 
 //! \brief Macros set used to ensure all kind of exceptions will be catched and
 //! \brief when one want to not stop at the 1st exception when one have to execute a set of
@@ -121,7 +129,7 @@ namespace yat
       _the_yat_exception_.push_error("ERROR", PSZ_FMT("Standard system error occured: %s", e.what()), "stdlib"); \
       _the_yat_exception_.push_error(reason, msg, org); \
     }
-    
+
 #define __YAT_CATCH_OTHER_WITH_MSG__( reason, msg, org ) \
     catch( ... ) \
     { \
@@ -192,7 +200,7 @@ namespace yat
 
 //---------------------------------
 //! YAT_TRY_CATCH_THROW_WITH_MSG
-//! \brief Macro that try a single statement and transform all kind of exceptions 
+//! \brief Macro that try a single statement and transform all kind of exceptions
 //! \brief into a yat::Exception then throw it with a new error message on top level
 //---------------------------------
 #define __YAT_CATCH_THROW_WITH_MSG__(reason, msg, org) \
@@ -215,7 +223,7 @@ namespace yat
     ex.push_error( reason, msg, org ); \
     throw ex; \
   }
-  
+
 #define YAT_TRY_CATCH_THROW_WITH_MSG( statement, reason, msg, org ) \
   do \
   { \
@@ -230,20 +238,20 @@ namespace yat
   // ============================================================================
   typedef enum {
     //! Warning.
-    WARN, 
+    WARN,
     //! Functional error.
-    ERR, 
+    ERR,
     //! Fatal error.
     PANIC
   } ErrorSeverity;
 
   // ============================================================================
-  //! \class Error 
+  //! \class Error
   //! \brief Yat error class.
   //!
-  //! The Yat error class provides an implementation of an application error. 
+  //! The Yat error class provides an implementation of an application error.
   //! This application error is defined with the following features:
-  //! - reason: gives the error type. The goal of this text is to guide the 
+  //! - reason: gives the error type. The goal of this text is to guide the
   //! \b operator towards the functional cause of the problem.
   //!
   //! - description: describes the error. The goal of this text is to guide the
@@ -276,7 +284,7 @@ namespace yat
     Error ( const char *reason,
             const char *desc,
             const char *origin,
-            int err_code = -1, 
+            int err_code = -1,
             int severity = yat::ERR);
 
     //! \brief Constructor with parameters.
@@ -284,14 +292,14 @@ namespace yat
     //! \param desc %Error description.
     //! \param origin %Error origin.
     //! \param err_code %Error id.
-    //! \param severity %Error severity.    
+    //! \param severity %Error severity.
     Error ( const std::string& reason,
             const std::string& desc,
-            const std::string& origin, 
-            int err_code = -1, 
+            const std::string& origin,
+            int err_code = -1,
             int severity = yat::ERR);
 
-    //! \brief Copy constructor. 
+    //! \brief Copy constructor.
     //! \param src The source error.
     Error (const Error& src);
 
@@ -319,10 +327,10 @@ namespace yat
   };
 
   // ============================================================================
-  //! \class Exception 
+  //! \class Exception
   //! \brief Yat exception class.
   //!
-  //! The Yat exception class provides an implementation of an application exception. 
+  //! The Yat exception class provides an implementation of an application exception.
   //! This application exception contains a list of yat::Error errors.
   // ============================================================================
   class YAT_DECL Exception
@@ -344,7 +352,7 @@ namespace yat
     Exception ( const char *reason,
                 const char *desc,
                 const char *origin,
-                int err_code = -1, 
+                int err_code = -1,
                 int severity = yat::ERR);
 
     //! \brief Constructor from an application error.
@@ -355,8 +363,8 @@ namespace yat
     //! \param severity %Error severity.
     Exception ( const std::string& reason,
                 const std::string& desc,
-                const std::string& origin, 
-                int err_code = -1, 
+                const std::string& origin,
+                int err_code = -1,
                 int severity = yat::ERR);
 
     //! \brief Constructor from an application error.
@@ -369,7 +377,7 @@ namespace yat
 
     //! \brief operator=.
     //! \param _src The source exception.
-    Exception& operator= (const Exception& _src); 
+    Exception& operator= (const Exception& _src);
 
     //! \brief Destructor.
     virtual ~Exception ();
@@ -379,11 +387,11 @@ namespace yat
     //! \param desc %Error description.
     //! \param origin %Error origin.
     //! \param err_code %Error code.
-    //! \param severity %Error severity.    
+    //! \param severity %Error severity.
     void push_error ( const char *reason,
                       const char *desc,
-                      const char *origin, 
-                      int err_code = -1, 
+                      const char *origin,
+                      int err_code = -1,
                       int severity = yat::ERR);
 
     //! \brief Pushes the specified error into the error list.
@@ -391,11 +399,11 @@ namespace yat
     //! \param desc %Error description.
     //! \param origin %Error origin.
     //! \param err_code %Error code.
-    //! \param severity %Error severity.    
+    //! \param severity %Error severity.
     void push_error ( const std::string& reason,
                       const std::string& desc,
-                      const std::string& origin, 
-                      int err_code = -1, 
+                      const std::string& origin,
+                      int err_code = -1,
                       int severity = yat::ERR);
 
     //! \brief Pushes the specified error into the error list.
@@ -404,7 +412,7 @@ namespace yat
 
     //! \brief Concatenates the whole exception stack as a single string then return it
     std::string to_string () const;
- 
+
     //! \brief Dumps the content of the exception's error list towards standard output.
     virtual void dump () const;
 
