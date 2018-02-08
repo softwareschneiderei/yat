@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -48,7 +48,7 @@
 namespace yat
 {
 // ============================================================================
-//! \class ISymbolInterpreter 
+//! \class ISymbolInterpreter
 //! \brief Interface class providing template symbols interpreter.
 //!
 //! This abstract class can not be used as this and must be derived.
@@ -62,7 +62,7 @@ protected:
   ISymbolInterpreter() { }
 
 public:
-  //! \brief Attempts to evaluate a variable. 
+  //! \brief Attempts to evaluate a variable.
   //!
   //! Returns true if template has been evaluated, false otherwise.
   //! \param[in,out] pstrSymbol Variable to evaluate, will contain the result.
@@ -70,14 +70,14 @@ public:
 };
 
 // ============================================================================
-//! \class StringTemplate 
+//! \class StringTemplate
 //! \brief %String template processor.
 //!
 //! A StringTemplate object is a string that contains items which will be replaced by
 //! their real value.
 //! For instance: in the string 'date is \$\(date\)', '\$\(date\)' will be replaced
 //! by the current date when processed. \n
-//! The substitution will be realized by each symbol interpreter added in the template 
+//! The substitution will be realized by each symbol interpreter added in the template
 //! processor.
 //! \remark The substitution function only looks for "$(xxx)" templates.
 // ============================================================================
@@ -98,7 +98,7 @@ public:
 private:
   std::list<ISymbolInterpreter *> m_lstInterpreter;
   NotFoundReplacement       m_eNotFoundReplacement;
-  
+
   bool PrivProcess(std::string *pstrTemplate, bool bRecurse, std::set<std::string> &setEvaluatedSymbols);
   bool PrivProcessVar(std::string *pstrVar, bool bRecurse, bool bDeepEvaluation, std::set<std::string> &setEvaluatedSymbols);
 
@@ -127,7 +127,7 @@ public:
   //! done by symbol interpreters.
   //! Returns true if evaluation is done, false otherwise.
   //! \param[in,out] pstrTemplate %String to evaluate, will contain the result.
-  bool substitute(std::string *pstrTemplate);
+  bool substitute(std::string *pstrTemplate, std::vector<std::string>* not_found_p = NULL);
 
   //! \deprecated
   bool value(String *pstrSymbol);
@@ -137,7 +137,7 @@ public:
 };
 
 // ============================================================================
-//! \class EnvVariableInterpreter 
+//! \class EnvVariableInterpreter
 //! \brief A template symbol interpreter for environment variables.
 //!
 //! This class provides an evaluation function for system environment variables.
@@ -146,7 +146,7 @@ public:
 class YAT_DECL EnvVariableInterpreter : public ISymbolInterpreter
 {
 public:
-  //! \brief Attempts to evaluate a variable. 
+  //! \brief Attempts to evaluate a variable.
   //!
   //! Returns true if template has been evaluated, false otherwise.
   //! \param[in,out] pstrVar Variable to evaluate, will contain the result.
