@@ -360,10 +360,15 @@ uint16 Time::nb_days_in_year(int16 iYear)
 //----------------------------------------------------------------------------
 // Time::month_name
 //----------------------------------------------------------------------------
-pcsz Time::month_name(uint8 iMonth)
+pcsz Time::month_name(uint8 iMonth, bool long_name)
 {
   if( iMonth > 1 && iMonth < 13 )
-    return s_pszMonth[iMonth-1];
+  {
+    if( long_name )
+      return s_pszMonthEn[iMonth-1];
+    else
+      return s_pszMonthEnAbbr[iMonth-1];
+  }
 
   return "";
 }
@@ -569,6 +574,14 @@ void Time::set_year(int16 iYear)
   get(&df);
   df.year = iYear;
   set(df);
+}
+
+//----------------------------------------------------------------------------
+// Time::set_month
+//----------------------------------------------------------------------------
+void Time::set_month(const std::string& month_name)
+{
+  set_month(get_month_from_name(month_name));
 }
 
 //----------------------------------------------------------------------------
@@ -849,6 +862,7 @@ void Time::from_string(const std::string& date_time, const std::string& format)
   char identifier = '\0';
   bool get_identifier = false;
   std::size_t field_len = 0;
+  bool string_id = false;
   std::size_t i_s = 0;
 
   for( std::size_t i_f = 0; i_f < format.size(); ++i_f )
@@ -861,8 +875,17 @@ void Time::from_string(const std::string& date_time, const std::string& format)
 
     if( get_identifier )
     {
+      string_id = false;
       switch( format[i_f] )
       {
+        case 'a':
+        case 'A':
+        case 'b':
+        case 'B':
+        case 'h':
+          string_id = true;
+          field_len = 0;
+          break;
         case 'Y':
           field_len = 4;
           break;
@@ -880,60 +903,94 @@ void Time::from_string(const std::string& date_time, const std::string& format)
           break;
         default:
           throw yat::Exception("BAD_FORMAT",
-                               "Unknown date-time identifier",
+                               std::string("Unknown date-time identifier: ") +
+                               format.substr(i_f, 1) + " in format: " + format,
                                "Time::from_string");
       }
 
-      unsigned short v = 0;
-      for( std::size_t i = 0; i < field_len; ++i )
+      if( string_id )
       {
-        if( !isdigit(date_time[i_s]) || i_s >= date_time.size() )
-          throw yat::Exception("BAD_FORMAT", "Bad date-time string: expected digit", "Time::from_string");
+        // Get string (terminated by first non-alpha character)
+        std::string v;
+        while( i_s < date_time.size() && std::isalpha(date_time[i_s]) )
+          v.push_back(date_time[i_s++]);
 
-        v *= 10;
-        v += date_time[i_s++] - char('0');
+        switch( format[i_f] )
+        {
+          case 'a':
+          case 'A':
+            // do nothing
+            break;
+          case 'b':
+          case 'B':
+          case 'h':
+            set_month(v);
+            break;
+          default:
+            throw yat::Exception("BAD_FORMAT",
+                                 std::string("Unknown date-time identifier: ") +
+                                 format.substr(i_f, 1) + " in format: " + format,
+                                 "Time::from_string");
+        }
       }
-
-      switch( format[i_f] )
+      else
       {
-        case 'y':
-          set_year(v + 2000);
-          break;
-        case 'Y':
-          set_year(v);
-          break;
-        case 'm':
-          set_month(v);
-          break;
-        case 'd':
-          set_day(v);
-          break;
-        case 'j':
-          set_day_of_year(v, year());
-          break;
-        case 'H':
-          set_hour(v);
-          break;
-        case 'M':
-          set_minute(v);
-          break;
-        case 'S':
-          set_second(v);
-          break;
-        case 's':
-          set_second( second() + ((double)v / 1000.));
-          break;
-        default:
-          throw yat::Exception("BAD_FORMAT",
-                               "Unknown date-time identifier",
-                               "Time::from_string");
+        unsigned short v = 0;
+        for( std::size_t i = 0; i < field_len; ++i )
+        {
+          if( !std::isdigit(date_time[i_s]) || i_s >= date_time.size() )
+            throw yat::Exception("BAD_FORMAT", "Bad date-time string: expected digit", "Time::from_string");
+
+          v *= 10;
+          v += date_time[i_s++] - char('0');
+        }
+
+        switch( format[i_f] )
+        {
+          case 'y':
+            set_year(v + 2000);
+            break;
+          case 'Y':
+            set_year(v);
+            break;
+          case 'm':
+            set_month(v);
+            break;
+          case 'd':
+            set_day(v);
+            break;
+          case 'j':
+            set_day_of_year(v, year());
+            break;
+          case 'H':
+            set_hour(v);
+            break;
+          case 'M':
+            set_minute(v);
+            break;
+          case 'S':
+            set_second(v);
+            break;
+          case 's':
+            set_second( second() + ((double)v / 1000.));
+            break;
+          default:
+            throw yat::Exception("BAD_FORMAT",
+                                 std::string("Unknown date-time identifier: ") +
+                                 format.substr(i_f, 1) + " in format: " + format,
+                                 "Time::from_string");
+        }
       }
       get_identifier = false;
       continue;
     }
     if( date_time.size() == i_s + 1 || date_time[i_s++] != format[i_f] )
       throw yat::Exception("BAD_FORMAT",
-                           "Bad date-time string or format",
+                           std::string("Time string: '")
+                           + date_time
+                           + std::string("' doesn't match the required format: '")
+                           + format
+                           + "'",
                            "Time::from_string");
   }
 }
@@ -980,6 +1037,23 @@ bool Time::is_daylight_saving_time()
 int64 Time::microsecs()
 {
   return CurrentTime().raw_value();
+}
+
+//----------------------------------------------------------------------------
+// Time::get_month_from_name
+//----------------------------------------------------------------------------
+uint8 Time::get_month_from_name(const std::string& month_name)
+{
+  for( std::size_t i = 0; i < 12; ++i )
+  {
+    if( yat::StringUtil::is_equal_no_case(month_name, s_pszMonthEn[i]) )
+      return i + 1;
+    if( yat::StringUtil::is_equal_no_case(month_name, s_pszMonthEnAbbr[i]) )
+      return i + 1;
+  }
+  std::ostringstream oss;
+  oss << "Bad month name: " << month_name;
+  throw yat::Exception("ERROR", oss.str(), "Time::get_month_from_name");
 }
 
 //===========================================================================
