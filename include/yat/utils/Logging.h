@@ -414,7 +414,9 @@ YAT_DECL void log_emergency(const std::string& msg);
   do \
   { \
     for (size_t i = 0; i < e.errors.size(); i++) \
-      yat::log_error(domain, "%s. %s. From %s.", PSZ(e.errors[i].reason), PSZ(e.errors[i].desc), PSZ(e.errors[i].origin)); \
+      yat::LogManager::error_stream() << e.errors[i].reason << ". " \
+                                      << e.errors[i].desc << ". "   \
+                                      << e.errors[i].origin << std::endl; \
   } while(0)
 
 // Useful macros when not using messages type information
