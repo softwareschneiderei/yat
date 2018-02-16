@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -43,19 +43,19 @@
 // ============================================================================
 //! \page TimePage Time documentation
 //! \tableofcontents
-//! The time utilities provide basic date manipulation functions and an implementation 
+//! The time utilities provide basic date manipulation functions and an implementation
 //! of the timer & timeout concepts.
 //!
 //! \section secT1 Time utilities
 //! The time utilities provide basic date manipulation functions such as:
 //!  - various date format ("time" fields, microsecond precision, Julian day, Unix time),
 //!  - conversion functions (Julian/Gregorian/Unix, UTC/local time),
-//!  - output format (ISO8601, international format), 
-//!  - accessors & mutators, 
+//!  - output format (ISO8601, international format),
+//!  - accessors & mutators,
 //!  - comparison functions,
 //!  - usual date & time constants.
 //!
-//! The time utilities also provide an implementation of the timer (chronometer) and 
+//! The time utilities also provide an implementation of the timer (chronometer) and
 //! timeout (deadline) concepts.
 //!
 //! \section secT2 Time classes
@@ -76,8 +76,8 @@ namespace yat
 //! \brief Makes int64 from the long integers pair [higher part, lower part].
 //! \param lHigh High part.
 //! \param ulLow Low part.
-inline int64 int64FromHLPair(long lHigh, unsigned long ulLow) 
-{ 
+inline int64 int64FromHLPair(long lHigh, unsigned long ulLow)
+{
   int64 i64 = 1;
   i64 = i64 << 32;
   i64 = i64 * lHigh + ulLow;
@@ -102,17 +102,17 @@ inline int64 int64FromHLPair(long lHigh, unsigned long ulLow)
 
 #ifndef MS_SEC
 //! Number of milliseconds per second.
-  #define MS_SEC              1000L              
+  #define MS_SEC              1000L
 #endif
 //! Number of microseconds per second.
-#define MICROSEC_PER_SEC      1000000L           
+#define MICROSEC_PER_SEC      1000000L
 
 //! Number of microseconds per day - High part.
 #define MICROSEC_PER_DAY_H    20L
 //! Number of microseconds per day - Low part.
 #define MICROSEC_PER_DAY_L    500654080UL
 //! Number of microseconds per day.
-#define MICROSEC_PER_DAY      int64FromHLPair(MICROSEC_PER_DAY_H, MICROSEC_PER_DAY_L) // microseconds per day 
+#define MICROSEC_PER_DAY      int64FromHLPair(MICROSEC_PER_DAY_H, MICROSEC_PER_DAY_L) // microseconds per day
 
 #ifndef MS_OVERFLOW
   //! \brief Number of milliseconds indicating an int64 capacity overflow.
@@ -156,17 +156,22 @@ inline int64 int64FromHLPair(long lHigh, unsigned long ulLow)
 #define TS_UNIT_YEAR  5  // annee logique (=12 mois logiques)
 
 //! Month names.
-static const pcsz s_pszMonth[] = 
+static const pcsz s_pszMonthEnAbbr[] =
 {
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  "jan", "feb", "mar", "apr", "may", "jun",
+  "jul", "aug", "sep", "oct", "nov", "dec"
+};
+static const pcsz s_pszMonthEn[] =
+{
+  "january", "february", "march", "april", "may", "june", "july",
+  "august", "september", "october", "november", "december"
 };
 
 // ============================================================================
-//! \struct DateFields 
+//! \struct DateFields
 //! \brief %Date split in fields.
 //!
-//! This structure provides a date split in "time fields", i.e. year, day, month, 
+//! This structure provides a date split in "time fields", i.e. year, day, month,
 //! hour,... to microseconds precision.
 // ============================================================================
 struct YAT_DECL DateFields
@@ -184,11 +189,11 @@ struct YAT_DECL DateFields
   //! Second (with microsecond precision).
   double sec;
   //! Day of year (1-366).
-  uint16 day_of_year; 
+  uint16 day_of_year;
   //! Day of week (1=Monday, 7=Sunday).
-  uint8  day_of_week;  
+  uint8  day_of_week;
   //! Week of year (1-53).
-  uint8  week_of_year;  
+  uint8  week_of_year;
 
   //! \brief Clears all fields.
   void clear();
@@ -198,13 +203,13 @@ struct YAT_DECL DateFields
 };
 
 // ============================================================================
-//! \class Time 
+//! \class Time
 //! \brief The YAT time class.
 //!
 //! This class represents a specific instant in time (date & time), with a microsecond precision.
 //! It provides various date manipulation functions (accessors & mutators, format conversions,
 //! comparison operators...).
-//! \remark This class uses the Julian day system, which takes its reference at 
+//! \remark This class uses the Julian day system, which takes its reference at
 //! -4712/01/01 12:00.
 // ============================================================================
 class YAT_DECL Time
@@ -277,7 +282,7 @@ public:
   int16 year() const;
 
   //! \brief Returns the day number of the week.
-  //! 
+  //!
   //! Starts from monday (1) to sunday (7).
   uint8 day_of_week() const;
 
@@ -319,7 +324,7 @@ public:
   //! \param uiHour Hour in range [0, 23].
   //! \param uiMin Minute in range [0, 59].
   //! \param dSec Seconds in range [0, 59] with microsecond precision.
-  void set(int16 iYear, uint8 uiMonth, uint8 uiDay, 
+  void set(int16 iYear, uint8 uiMonth, uint8 uiDay,
            uint8 uiHour=0, uint8 uiMin=0, double dSec=0);
 
   //! \brief Initializes the date from the number of the day in the specified year.
@@ -349,6 +354,10 @@ public:
   //! \param uiMonth Month in range [1, 12].
   void set_month(uint8 uiMonth);
 
+  //! \brief Sets the month part as string.
+  //! \param uiMonth Month in range [1, 12].
+  void set_month(const std::string& month_name);
+
   //! \brief Sets the year part.
   //! \param iYear Year value.
   void set_year(int16 iYear);
@@ -366,9 +375,9 @@ public:
 
   //! \brief Clears the date part (year, month, day).
   void clear_date();
-  
+
   //! \brief Initializes the date from current time.
-  //! \param bUT If set to true, uses coordinated universal time (UTC) reference, 
+  //! \param bUT If set to true, uses coordinated universal time (UTC) reference,
   //! otherwise uses local time reference.
   void set_current(bool bUT=false);
 
@@ -393,18 +402,20 @@ public:
   //! Subtracts seconds to the date.
   //! \param dSec Number of seconds to subtract.
   void operator -=(double dSec) { add_sec(-dSec); }
-  
+
   //@}
 
   //-----------------------------------------------------------------
   //! \name Text methods
   //@{
 
-  //! \brief Initializes date from a ISO8601 string. NOT implemented function.
+  //! \brief Initializes date from a ISO8601 string.
   //!
   //! Do not use : not implemented function.
-  //! \param pszISO8601 %Date in ISO8601 format.
-  void from_ISO8601(const char* pszISO8601);
+  //! \param ISO8601 %Date in ISO8601 format
+  //! \param format date-time format
+  //!        ex: %Y-%M-%DT%h:%m:%s.%ms for a ISO8601 string
+  void from_string(const std::string& date_time, const std::string& format);
 
   //! \brief Gets the date in a local time ISO8601 format.
   std::string to_local_ISO8601() const;
@@ -436,7 +447,7 @@ public:
   //! the UNIX reference.
   //@{
 
-  
+
   //! \brief Gets *this* date as a number of seconds since 1970/01/01 00:00.
   //!
   //! Returns an integer value.
@@ -470,22 +481,22 @@ public:
   //! \param tm The source date.
   bool operator >(const Time& tm) const
     { return m_llTime > tm.m_llTime; }
-  
+
   //! \brief operator>=.
   //! \param tm The source date.
   bool operator >=(const Time& tm) const
     { return m_llTime >= tm.m_llTime; }
-  
+
   //! \brief operator<.
   //! \param tm The source date.
   bool operator <(const Time& tm) const
     { return m_llTime < tm.m_llTime; }
-  
+
   //! \brief operator<=.
   //! \param tm The source date.
   bool operator <=(const Time& tm)  const
     { return m_llTime <= tm.m_llTime; }
-  
+
   //! \brief operator!=.
   //! \param tm The source date.
   bool operator !=(const Time& tm) const
@@ -508,7 +519,7 @@ public:
 
   //! \brief Month name.
   //! \param iMonth Month number.
-  static pcsz month_name(uint8 iMonth);
+  static pcsz month_name(uint8 iMonth, bool long_name = false);
 
   //! \brief Gets Unix current time.
   static int32 unix_time();
@@ -519,7 +530,12 @@ public:
   //! \brief return true if daylight saving time (summer time in british english) is effective
   //! at the moment
   static bool is_daylight_saving_time();
-  
+
+  //! \brief return month index
+  //!
+  //! \param month_name
+  static uint8 get_month_from_name(const std::string& month_name);
+
   //@} Static methods
 
 };
@@ -529,7 +545,7 @@ typedef Time Date;
 typedef Time DateTime;
 
 // ============================================================================
-//! \class CurrentTime 
+//! \class CurrentTime
 //! \brief Current date class.
 //!
 //! This class is a Time class initialized with current date and time.
@@ -540,13 +556,13 @@ class YAT_DECL CurrentTime : public Time
 public:
   //! \brief Constructor.
   //!
-  //! \param bUT If set to true, the date is initialized with Universal %Time instead 
+  //! \param bUT If set to true, the date is initialized with Universal %Time instead
   //! of local time.
   CurrentTime(bool bUT=false);
 };
 
 // ============================================================================
-//! \class CurrentUTime 
+//! \class CurrentUTime
 //! \brief Current time class initialized at current Universal Time (UT).
 //!
 //! Inherits from CurrentTime class.
@@ -556,7 +572,7 @@ class YAT_DECL CurrentUTime : public CurrentTime
 public:
   //! \brief Constructor.
   //!
-  //! \param bUT If set to true, the date is initialized with Universal %Time instead 
+  //! \param bUT If set to true, the date is initialized with Universal %Time instead
   //! of local time.
   CurrentUTime();
 };
@@ -566,10 +582,10 @@ typedef CurrentTime CurrentDate;
 typedef CurrentTime CurrentDateTime;
 
 // ============================================================================
-//! \struct DurationFields 
+//! \struct DurationFields
 //! \brief %Date split in fields.
 //!
-//! This structure provides a duration split in "duration fields", i.e. days, 
+//! This structure provides a duration split in "duration fields", i.e. days,
 //! hours, minutes, seconds... to microseconds precision.
 // ============================================================================
 struct YAT_DECL DurationFields
@@ -590,7 +606,7 @@ struct YAT_DECL DurationFields
 };
 
 // ============================================================================
-//! \class Duration 
+//! \class Duration
 //! \brief duration class.
 //! \note  complete the implementation !!!
 //! \note add some methods in Time class (operator-, operator+,...)
@@ -620,13 +636,13 @@ public:
 
   /// Distance between t1 and t2, always positive
   Duration(const yat::Time& t1, const yat::Time& t2);
-  
+
   /// Set value
   void total_micros(yat::int64 microsecs) { m_microsecs = microsecs; }
 
   /// Get total value
   int64 total_micros() const { return m_microsecs; }
-  
+
   /// Get duration fields
   void get(DurationFields *pDF) const;
 
@@ -659,26 +675,26 @@ public:
 
   // duration in seconds
   double total_secs() const;
-  
+
   ///
   /// Export duration to a string using this format:
   /// <d>d<sep><hh>h<sep><mm>m<sep><ss>s
   /// @param field separator
   /// example: 1d:12h:05m:25s, with sep = ':'
   std::string to_string(char sep=':') const;
-  
+
   ///
   /// Export duration to a string using this format:
   /// <d>d<sep><hh>h<sep><mm>m<sep><ss>s.micros
   /// @param field separator
   /// example: 1d:12h:05m:25s.123, with sep = ':'
   std::string to_string_millis(char sep=':') const;
-  
+
   /// Export duration to a string using the ISO8601 format
   /// but limited to day periods:
   /// PnDTnHnMnS
   std::string to_iso8601() const;
-  
+
 private:
   int64 m_microsecs;   // duration in microsecond precision
 };
@@ -691,7 +707,7 @@ class YAT_DECL MeanDuration
 public:
   MeanDuration(): m_count(0), m_mean() {}
 
-  void add( const Duration& d ) 
+  void add( const Duration& d )
        { ++m_count; m_mean.total_micros( ( m_mean.total_micros() * (m_count - 1) + d.total_micros() ) / m_count ); }
   std::size_t n() const { return m_count; }
   const Duration& get() const { return m_mean; }
