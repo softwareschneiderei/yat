@@ -912,7 +912,7 @@ void Time::from_string(const std::string& date_time, const std::string& format)
       {
         // Get string (terminated by first non-alpha character)
         std::string v;
-        while( i_s < date_time.size() && std::isalpha(date_time[i_s]) )
+        while( i_s < date_time.size() && isalpha(date_time[i_s]) )
           v.push_back(date_time[i_s++]);
 
         switch( format[i_f] )
@@ -938,7 +938,7 @@ void Time::from_string(const std::string& date_time, const std::string& format)
         unsigned short v = 0;
         for( std::size_t i = 0; i < field_len; ++i )
         {
-          if( !std::isdigit(date_time[i_s]) || i_s >= date_time.size() )
+          if( !isdigit(date_time[i_s]) || i_s >= date_time.size() )
             throw yat::Exception("BAD_FORMAT", "Bad date-time string: expected digit", "Time::from_string");
 
           v *= 10;
