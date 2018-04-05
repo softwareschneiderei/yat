@@ -79,7 +79,7 @@ void StringTemplate::remove_symbol_interpreter(ISymbolInterpreter *pInterpreter)
 //----------------------------------------------------------------------------
 // StringTemplate::substitute
 //----------------------------------------------------------------------------
-bool StringTemplate::substitute(std::string *pstrTemplate, std::vector<std::string> *not_found_p)
+bool StringTemplate::substitute(std::string *pstrTemplate)
 {
   std::string strEval, strTmp;
   std::string strTmpl = *pstrTemplate;
@@ -114,8 +114,93 @@ bool StringTemplate::substitute(std::string *pstrTemplate, std::vector<std::stri
         if( return_value )
           return_value = rc;
 
-        if( !rc && not_found_p )
+        strEval += strVar;
+      }
+      else
+      {
+        // Missing close bracket
+        // Copying up to the end of template string
+        strEval += strTmpl;
+        strTmpl.erase();
+      }
+    }
+    else
+    {
+      // Copying up to the end of template string
+      strEval += strTmpl;
+      strTmpl.erase();
+    }
+  }
+
+  (*pstrTemplate) = strEval;
+  return return_value;
+}
+
+//----------------------------------------------------------------------------
+// StringTemplate::substitute_ex
+//----------------------------------------------------------------------------
+bool StringTemplate::substitute_ex(std::string *pstrTemplate, std::vector<std::string> *not_found_p)
+{
+  std::string strEval, strTmp;
+  std::string strTmpl = *pstrTemplate;
+  std::string strVar, strValue;
+  bool return_value = false;
+
+  if( !not_found_p )
+  {
+    THROW_YAT_ERROR("ERROR", "Bad argument: 'not_found_p' must not be null!",
+                    "StringTemplate::substitute_ex");
+  }
+
+  while( strTmpl.size() > 0 )
+  {
+    // Search for a variable
+    std::string::size_type uiFirstPos = strTmpl.find("$(");
+    if( std::string::npos != uiFirstPos )
+    {
+      // Search for matching ')'. Take care of nested variables
+      std::string::size_type uiMatchPos = strTmpl.find_first_of(')', uiFirstPos + 2);
+
+      if( std::string::npos != uiMatchPos )
+      {
+        // complete result string
+        strEval += strTmpl.substr(0, uiFirstPos);
+
+        // Delete up to '$(' characters
+        strTmpl.erase(0, uiFirstPos + 2);
+
+        // Extract variable content
+        strVar = strTmpl.substr(0, uiMatchPos - uiFirstPos - 2);
+        // Delete up to matching end parenthesis
+        strTmpl.erase(0, uiMatchPos - uiFirstPos - 1);
+
+        bool to_lower = false, to_upper = false;
+        if( yat::StringUtil::match(strVar, "uc:*") )
+        {
+          to_upper = true;
+          strVar = strVar.substr(3);
+        }
+        if( yat::StringUtil::match(strVar, "lc:*") )
+        {
+          to_lower = true;
+          strVar = strVar.substr(3);
+        }
+
+        std::string var_before = strVar;
+        // Variable evaluation
+        bool rc = value(&strVar);
+        return_value = true;
+
+        if( !rc )
           not_found_p->push_back(var_before);
+        else
+        {
+          if( to_upper )
+            yat::StringUtil::to_upper(&strVar);
+          if( to_lower )
+            yat::StringUtil::to_lower(&strVar);
+        }
+
         strEval += strVar;
       }
       else
@@ -151,6 +236,23 @@ bool StringTemplate::substitute(String *pstrTemplate)
 //----------------------------------------------------------------------------
 bool StringTemplate::value(std::string *pstrVar)
 {
+  if( yat::StringUtil::start_with(*pstrVar, "'") &&
+      yat::StringUtil::end_with(*pstrVar, "'") )
+  {
+    if( pstrVar->size() > 2 )
+      *pstrVar = pstrVar->substr(1, pstrVar->size() - 2);
+    else
+      pstrVar->clear();
+    return true;
+  }
+
+  std::string alt;
+  std::size_t alt_pos = pstrVar->find('|');
+  if( alt_pos != std::string::npos )
+  {
+    alt = pstrVar->substr(alt_pos + 1);
+    *pstrVar = pstrVar->substr(0, alt_pos);
+  }
   std::list<ISymbolInterpreter *>::iterator itInterpreter = m_lstInterpreter.begin();
 
   while( m_lstInterpreter.end() != itInterpreter )
@@ -158,6 +260,12 @@ bool StringTemplate::value(std::string *pstrVar)
     if( (*itInterpreter)->value(pstrVar) )
         return true;
     itInterpreter++;
+  }
+
+  if( !alt.empty() )
+  {
+    *pstrVar = alt;
+    return value(pstrVar);
   }
 
   switch( m_eNotFoundReplacement )
