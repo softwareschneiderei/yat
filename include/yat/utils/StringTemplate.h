@@ -74,12 +74,18 @@ public:
 //! \brief %String template processor.
 //!
 //! A StringTemplate object is a string that contains items which will be replaced by
-//! their real value.
+//! their real value. The substitution function only looks for "$(xxx)" patterns
 //! For instance: in the string 'date is \$\(date\)', '\$\(date\)' will be replaced
 //! by the current date when processed. \n
 //! The substitution will be realized by each symbol interpreter added in the template
 //! processor.
-//! \remark The substitution function only looks for "$(xxx)" templates.
+//! One can use more advanced substitutions:
+//! \$\(var|def_var\) will remplace 'var' by its value if 'var' is defined. If not,
+//! it will replace by the value of 'def_var' value.
+//! \$\(var|'def_value'\) If 'var' is not defined it will remplace by 'def_value' string
+//! \remark .
+//! \$\(uc:var\) will remplace 'var' by its value in converted in uppercase
+//! \$\(lc:var\) will remplace 'var' by its value in converted in lowercase
 // ============================================================================
 class YAT_DECL StringTemplate
 {
@@ -127,7 +133,16 @@ public:
   //! done by symbol interpreters.
   //! Returns true if evaluation is done, false otherwise.
   //! \param[in,out] pstrTemplate %String to evaluate, will contain the result.
-  bool substitute(std::string *pstrTemplate, std::vector<std::string>* not_found_p = NULL);
+  bool substitute(std::string *pstrTemplate);
+
+  //! \brief Processes a template string. alternative version
+  //!
+  //! Evaluates the whole string. Every single template substitution is
+  //! done by symbol interpreters.
+  //! Returns true if at least one variable to evaluate was found, false otherwise.
+  //! \param[in,out] pstrTemplate %String to evaluate, will contain the result.
+  //! \param[out] not_found_p list of variables that can't be evaluated.
+  bool substitute_ex(std::string *pstrTemplate, std::vector<std::string>* not_found_p);
 
   //! \deprecated
   bool value(String *pstrSymbol);
