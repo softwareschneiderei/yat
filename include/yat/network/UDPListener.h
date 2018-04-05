@@ -7,7 +7,7 @@
 //    N.Leclercq - SOLEIL
 // ============================================================================
 
-#pragma once
+#pragma once 
 
 #include <iostream>
 #include <yat/network/ClientSocket.h>
@@ -18,14 +18,14 @@
 
 namespace yat
 {
-
-
+  
+  
 //-----------------------------------------------------------------------------
 // PSEUDO CONST
 //-----------------------------------------------------------------------------
 #define UDP_LISTENER_NOTIF_DISABLED 0
 
-
+  
 // ============================================================================
 //! Defines callbacks type.
 // ============================================================================
@@ -38,20 +38,20 @@ YAT_DEFINE_CALLBACK(TMOCallback, yat::uint32);
 
 //-----------------------------------------------------------------------------
 //! \brief class UDPListener
-//!
+//! 
 //! UDP Listener: FORWARDS THE UDP PACKETS (SENT BY THE SPI BOARD) TO A SPITASK
 //--------------------------------------------------------
 //! how to spawn a udp listener (end of seq. notif. only)
 //--------------------------------------------------------
 //! UDPListener::Config cfg;
 //! cfg.task_to_notify = this;
-//! cfg.udp_addr = 225.0.0.1; //- e.g. obtained from UDPAddress property
+//! cfg.udp_addr = 225.0.0.1; //- e.g. obtained from UDPAddress property 
 //! cfg.udp_port = 30001;     //- e.g. obtained from UDPPort property
 //! cfg.eos_notification_msg_id = (yat::FIRST_USER_MSG + 10001)
 //! my_udp_listener = new UDPListener(cfg);
 //! my_udp_listener->start_undetached();
 //! ...
-//! process notifications
+//! process notifications 
 //! ...
 //! my_udp_listener->exit();
 //-----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ private:
     UDP_FINITE,
     UDP_STANDBY
   };
-
+  
 public:
   //--------------------------------------------------------
   //! \brief Configuration struct
@@ -98,9 +98,9 @@ public:
     //! optional callback called when no UDP events has beeen received after 'udp_tmo_ms' ms
     TMOCallback tmo_callback;
     //-----------------------------------
-
+    
     //! \brief default constructor
-    Config ()
+    Config () 
         : udp_addr(),
           udp_port(0),
           udp_tmo_ms(1000),
@@ -114,23 +114,22 @@ public:
     {}
 
     //! \brief copy constructor
-    Config (const Config& src)
+    Config (const Config& src) 
         : udp_addr(src.udp_addr),
           udp_port(src.udp_port),
           udp_tmo_ms(src.udp_tmo_ms),
           task_to_notify(src.task_to_notify),
           uer_notification_msg_id(src.uer_notification_msg_id),
           eos_notification_msg_id(src.eos_notification_msg_id),
-          tmo_notification_msg_id(src.tmo_notification_msg_id),
           uer_callback(src.uer_callback),
           eos_callback(src.eos_callback),
           tmo_callback(src.tmo_callback)
     {}
-  };
-
+  }; 
+  
   //--------------------------------------------------------
   //! \brief c-tor
-  //!
+  //! 
   //! once instanciated and configured, the UDPListener must be started by a call to
   //! yat::Thread::start_undetached (inherited method)
   UDPListener (const UDPListener::Config & cfg)
@@ -147,7 +146,7 @@ public:
 
   //--------------------------------------------------------
   //! \brief  start the UDP listener in FINITE mode (n > 0) or INFINITE mod (n = 0)
-  //!
+  //! 
   //! in FINITE mode, 'n' is the expected number of UDP events (i.e. sequence length)
   void start (yat::uint32 n)
   {
@@ -159,8 +158,8 @@ public:
 
   //--------------------------------------------------------
   //! \brief stop the UDP listener
-  //!
-  //! any UDP received after a call to stop will be ignored
+  //! 
+  //! any UDP received after a call to stop will be ignored 
   void stop ()
   {
     m_mode = UDP_STANDBY;
@@ -169,28 +168,28 @@ public:
   //--------------------------------------------------------
   //- ask the underlying thread to exit
   virtual void exit ()
-  {
+  {  
     m_go_on = false;
     Thread::IOArg dummy = 0;
     join(&dummy);
   }
 
   //--------------------------------------------------------
-  //! \brief total number of ignored UDP events since last call to UDPListener::start
+  //! \brief total number of ignored UDP events since last call to UDPListener::start 
   inline yat::uint32 events_ignored () const { return m_ignored_events; }
 
   //--------------------------------------------------------
-  //! \brief total number of ignored UDP events since call to yat::Thread::start_undetached
+  //! \brief total number of ignored UDP events since call to yat::Thread::start_undetached 
   inline yat::uint32 total_events_ignored () const { return m_total_ignored_events; }
-
+  
   //--------------------------------------------------------
   //! \brief number of UDP events since last call to start
   inline yat::uint32 events_received () const { return m_received_events; }
-
+  
   //--------------------------------------------------------
   //! \brief return true if the listener received the expected number of UDP events, return false otherwise
   inline bool expected_events_received () const { return m_received_events == m_expected_events; }
-
+  
 protected:
   //--------------------------------------------------------
   //- to not call directly! call 'exit' instead (the undelying impl. will clenup everything for you)
@@ -223,16 +222,16 @@ protected:
       sock.bind(m_cfg.udp_port);
       return;
     }
-
+    
     //- multicast case...
-
-    //- enable SOCK_OPT_REUSE_ADDRESS to allow multiple instances of this
+    
+    //- enable SOCK_OPT_REUSE_ADDRESS to allow multiple instances of this 
     //- device to receive copies of the multicast datagrams
     sock.set_option(yat::Socket::SOCK_OPT_REUSE_ADDRESS, 1);
-
+      
     //- bind to the udp port
     sock.bind(m_cfg.udp_port);
-
+    
     //- join the multicast group
     yat::Address multicast_grp_addr(m_cfg.udp_addr, 0);
     sock.join_multicast_group(multicast_grp_addr);
@@ -243,17 +242,17 @@ protected:
   virtual yat::Thread::IOArg run_undetached (yat::Thread::IOArg)
   {
     m_go_on = true;
-
+    
     //- instanciate the udp socket
     yat::ClientSocket sock(yat::Socket::UDP_PROTOCOL);
-
+      
     //- setup our udp socket
     setup_udp_socket(sock);
 
     //- input data buffer
     yat::Socket::Data ib(2048);
-
-    //- (almost) infinite reading loop
+    
+    //- (almost) infinite reading loop  
     yat::uint32 udp_evt_number = 0;
     while ( m_go_on )
     {
@@ -273,7 +272,7 @@ protected:
           //- extract UDP event number (identifier) from the UDP packet
           //- this is set by SpiUdpTimebase (i.e. the UDP event emitter)
           udp_evt_number = *(reinterpret_cast<yat::uint32*>(ib.base()));
-          //- post data to the task
+          //- post data to the task 
           if ( m_cfg.task_to_notify )
           {
             //- post UDP notification to the 'task_to_notify'?

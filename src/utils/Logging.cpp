@@ -103,7 +103,6 @@ LogManager::LogManager() :
   m_critical(LOG_CRITICAL), m_alert(LOG_ALERT), m_emergency(LOG_EMERGENCY),
   m_iMinLevel(LOG_INFO)
 {
-  update_stream_log_target(&m_defLogHandler);
 }
 
 //----------------------------------------------------------------------------
