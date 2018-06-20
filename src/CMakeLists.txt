@@ -51,6 +51,8 @@ include_directories(
 
 add_library (yat SHARED ${source_files})
   
+set_target_properties (yat PROPERTIES VERSION ${VERSION} SOVERSION ${MAJOR_VERSION})
+
 if (UNIX)
 	target_link_libraries(yat pthread dl)
 endif()
@@ -62,6 +64,7 @@ endif()
 install (DIRECTORY ../include/yat DESTINATION include/
   FILES_MATCHING PATTERN "*.h"
   PATTERN "*.tpp"
+  PATTERN "*.hpp"
   PATTERN "*.i"
   PATTERN ".svn" EXCLUDE
   PATTERN "CMakeFiles" EXCLUDE
