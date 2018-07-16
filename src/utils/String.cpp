@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -119,7 +119,9 @@ std::string StringUtil::str_format(pcsz pszFormat, ...)
 //---------------------------------------------------------------------------
 // StringUtil::extract_token
 //---------------------------------------------------------------------------
-StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c, std::string *pstrToken)
+StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c,
+                                                      std::string *pstrToken,
+                                                      bool apply_escape)
 {
   // Cannot extract a substring a put it in the same string !
   if( str_p == pstrToken )
@@ -134,20 +136,42 @@ StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c
     return EMPTY_STRING;
   }
 
+  int iPos = str_p->find(c, 0);
+  while( apply_escape && iPos > 0 && '\\' == (*str_p)[iPos-1] )
+  {
+    iPos = str_p->find(c, iPos + 1);
+  }
+
+  StringUtil::ExtractTokenRes ret_val = SEP_FOUND;
   // Search for separator
-  int iPos = str_p->find_first_of(c);
   if( iPos < 0 )
   {
     // Not found
     *pstrToken = (*str_p);
     (*str_p).clear();
-    return SEP_NOT_FOUND;
+    ret_val = SEP_NOT_FOUND;
+  }
+  else
+  {
+    // Separator found
+    *pstrToken = str_p->substr(0, iPos);
+    str_p->erase(0, iPos+1);
   }
 
-  // Separator found
-  *pstrToken = str_p->substr(0, iPos);
-  str_p->erase(0, iPos+1);
-  return SEP_FOUND;
+  while( apply_escape )
+  {
+    std::size_t esc = pstrToken->find('\\');
+
+    if( esc != std::string::npos && esc < pstrToken->length() - 1 &&
+        (*pstrToken)[esc+1] == c )
+    {
+      *pstrToken = pstrToken->substr(0, esc) + pstrToken->substr(esc + 1);
+    }
+    else
+      break;
+  }
+
+  return ret_val;
 }
 
 //---------------------------------------------------------------------------
@@ -175,7 +199,8 @@ void StringUtil::split(const std::string& str, char c, std::string *pstrLeft,
 // StringUtil::extract_token_right
 //---------------------------------------------------------------------------
 StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, char c,
-                                                            std::string *pstrToken)
+                                                            std::string *pstrToken,
+                                                            bool apply_escape)
 {
   // Cannot extract a substring a put it in the same string !
   if( str_p == pstrToken )
@@ -191,25 +216,48 @@ StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, 
   }
 
   // Search for separator
-  int iPos = str_p->find_last_of(c);
+  int iPos = str_p->rfind(c, str_p->length() - 1);
+  while( apply_escape && iPos > 0 && '\\' == (*str_p)[iPos-1] )
+  {
+    iPos = str_p->rfind(c, iPos - 1);
+  }
+
+  StringUtil::ExtractTokenRes ret_val = SEP_FOUND;
+
   if( iPos < 0 )
   {
     // Not found
     *pstrToken = *str_p;
     str_p->clear();
-    return SEP_NOT_FOUND;
+    ret_val = SEP_NOT_FOUND;
+  }
+  else
+  {
+    // Separator found
+    *pstrToken = str_p->substr(iPos+1);
+    str_p->erase(iPos);
   }
 
-  // Separator found
-  *pstrToken = str_p->substr(iPos+1);
-  str_p->erase(iPos);
-  return SEP_FOUND;
+  while( apply_escape )
+  {
+    std::size_t esc = pstrToken->find('\\');
+
+    if( esc != std::string::npos && esc < pstrToken->length() - 1 &&
+        (*pstrToken)[esc+1] == c )
+    {
+      *pstrToken = pstrToken->substr(0, esc) + pstrToken->substr(esc + 1);
+    }
+    else
+      break;
+  }
+
+  return ret_val;
 }
 
 //---------------------------------------------------------------------------
 // StringUtil::extract_token
 //---------------------------------------------------------------------------
-StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char cLeft, 
+StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char cLeft,
                                                       char cRight, std::string *pstrToken)
 {
   // Cannot extract a substring a put it in the same string !
@@ -284,7 +332,7 @@ bool StringUtil::remove_enclosure(std::string* str_p, psz pszLeft, psz pszRight)
   // pcszLeft & pcszRight must have the same length
   if( strlen(pszLeft) != strlen(pszRight) )
     return false;
-  
+
   for( uint32 ui = 0; ui < strlen(pszLeft); ui++ )
   {
     std::string strMask;
@@ -407,16 +455,16 @@ static pcsz find_sub_str_with_joker(pcsz pszSrc, pcsz pMask, uint32 uiLenMask, s
   if (strlen(pszSrc) < uiLenMask)
     return NULL; // No hope
 
-  // while mask len < string len 
-  while( *(pszSrc + uiLenMask - 1) ) 
+  // while mask len < string len
+  while( *(pszSrc + uiLenMask - 1) )
   {
     uint32 uiOffSrc = 0; // starting offset in mask and sub-string
-    
+
     // Tant qu'on n'est pas au bout du masque
     while (uiOffSrc < uiLenMask)
     {
       char cMask = pMask[uiOffSrc];
-      
+
       if (cMask != '?') // In case of '?' it always match
       {
         if (pszSrc[uiOffSrc] != cMask)
@@ -426,7 +474,7 @@ static pcsz find_sub_str_with_joker(pcsz pszSrc, pcsz pMask, uint32 uiLenMask, s
       {
         tokens_p->push_back( std::string(1, pszSrc[uiOffSrc]) );
       }
-  
+
       // Next char
       uiOffSrc++;
     }
@@ -648,7 +696,8 @@ int StringUtil::printf(std::string* str_p, pcsz pszFormat, ...)
 //---------------------------------------------------------------------------
 // StringUtil::split
 //---------------------------------------------------------------------------
-void StringUtil::split(std::string* str_p, char c, std::vector<std::string> *pvecstr, bool bClearVector)
+void StringUtil::split(std::string* str_p, char c, std::vector<std::string> *pvecstr,
+                       bool bClearVector)
 {
   // Clear vector
   if( bClearVector )
@@ -656,7 +705,7 @@ void StringUtil::split(std::string* str_p, char c, std::vector<std::string> *pve
   std::string strToken;
   while( !(*str_p).empty() )
   {
-    if( 0 != extract_token(str_p, c, &strToken) )
+    if( 0 != extract_token(str_p, c, &strToken, true) )
       pvecstr->push_back(strToken);
   }
 }
@@ -664,7 +713,8 @@ void StringUtil::split(std::string* str_p, char c, std::vector<std::string> *pve
 //---------------------------------------------------------------------------
 // StringUtil::split (const version)
 //---------------------------------------------------------------------------
-void StringUtil::split(const std::string& str, char c, std::vector<std::string> *pvecstr, bool bClearVector)
+void StringUtil::split(const std::string& str, char c, std::vector<std::string> *pvecstr,
+                       bool bClearVector)
 {
   // Clear vector
   if( bClearVector )
@@ -673,7 +723,7 @@ void StringUtil::split(const std::string& str, char c, std::vector<std::string> 
   std::string tmp(str);
   while( !tmp.empty() )
   {
-    if( 0 != extract_token(&tmp, c, &strToken) )
+    if( 0 != extract_token(&tmp, c, &strToken, true) )
       pvecstr->push_back(strToken);
   }
 }
@@ -681,7 +731,8 @@ void StringUtil::split(const std::string& str, char c, std::vector<std::string> 
 //---------------------------------------------------------------------------
 // StringUtil::split
 //---------------------------------------------------------------------------
-void StringUtil::split(std::string* str_p, char c, std::deque<std::string> *deque_p, bool bClear)
+void StringUtil::split(std::string* str_p, char c, std::deque<std::string> *deque_p,
+                       bool bClear)
 {
   // Clear vector
   if( bClear )
@@ -689,7 +740,7 @@ void StringUtil::split(std::string* str_p, char c, std::deque<std::string> *dequ
   std::string strToken;
   while( !(*str_p).empty() )
   {
-    if( 0 != extract_token(str_p, c, &strToken) )
+    if( 0 != extract_token(str_p, c, &strToken, true) )
       deque_p->push_back(strToken);
   }
 }
@@ -706,7 +757,7 @@ void StringUtil::split(const std::string& str, char c, std::deque<std::string> *
   std::string tmp(str);
   while( !tmp.empty() )
   {
-    if( 0 != extract_token(&tmp, c, &strToken) )
+    if( 0 != extract_token(&tmp, c, &strToken, true) )
       deque_p->push_back(strToken);
   }
 }
@@ -854,7 +905,7 @@ void StringUtil::replace(std::string* str_p, char cSrc, char cDst)
 //---------------------------------------------------------------------------
 void StringUtil::substitute(std::string* str_p, pcsz pszCharSet, char cReplacement)
 {
-  for( std::size_t pos = str_p->find_first_of(pszCharSet); 
+  for( std::size_t pos = str_p->find_first_of(pszCharSet);
        pos != std::string::npos;
        pos = str_p->find_first_of(pszCharSet)
      )
@@ -868,7 +919,7 @@ void StringUtil::substitute(std::string* str_p, pcsz pszCharSet, char cReplaceme
 //---------------------------------------------------------------------------
 void StringUtil::remove(std::string* str_p, pcsz pszCharSet)
 {
-  for( std::size_t pos = str_p->find_first_of(pszCharSet); 
+  for( std::size_t pos = str_p->find_first_of(pszCharSet);
        pos != std::string::npos;
        pos = str_p->find_first_of(pszCharSet)
      )
@@ -889,7 +940,7 @@ uint32 StringUtil::hash(const std::string& str)
   for( uint32 i = 0; i < length; i++ )
     hash64 = (31 * hash64 + str[i]) % modulo;
 
-  return (uint32)(hash64); 
+  return (uint32)(hash64);
 }
 
 //---------------------------------------------------------------------------
@@ -903,7 +954,7 @@ uint64 StringUtil::hash64(const std::string& str)
   for( uint32 i = 0; i < length; i++ )
     hash64 = (hash64 ^ str[i]) * uint64(1099511628211ULL);
 
-  return hash64; 
+  return hash64;
 }
 
 //=============================================================================
@@ -1087,7 +1138,7 @@ bool String::remove_enclosure(psz pszLeft, psz pszRight)
   // pcszLeft & pcszRight must have the same length
   if( strlen(pszLeft) != strlen(pszRight) )
     return false;
-  
+
   for( uint32 ui = 0; ui < strlen(pszLeft); ui++ )
   {
     std::string strMask;
@@ -1477,7 +1528,7 @@ uint32 String::hash() const
   for( uint32 i = 0; i < length; i++ )
     hash64 = (31 * hash64 + (*this)[i]) % modulo;
 
-  return (uint32)(hash64); 
+  return (uint32)(hash64);
 }
 
 //---------------------------------------------------------------------------
@@ -1491,7 +1542,7 @@ uint64 String::hash64() const
   for( uint32 i = 0; i < length; i++ )
     hash64 = (hash64 ^ (*this)[i]) * uint64(1099511628211ULL);
 
-  return hash64; 
+  return hash64;
 }
 
 
