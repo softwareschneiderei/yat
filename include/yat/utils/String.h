@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -98,7 +98,7 @@ public:
 
   //! \brief Empty string - useful when need a const string &.
   static const std::string empty;
-  
+
   //! \brief Builds a std::string with a C-std::string like format.
   //! \param pszFormat The std::string format.
   //! \param ... The std::string.
@@ -121,20 +121,20 @@ public:
   //! Returns true if the std::string starts with this character, false otherwise.
   //! \param c The character.
   static bool start_with(const std::string& str, char c);
-  
+
   //! \brief Tests the first character with that of another std::string.
   //!
   //! Returns true if the std::strings start with the same character, false otherwise.
   //! \param pcszStart The source std::string.
   //! \param bNoCase If set to true, the test is not case sensitive.
   static bool start_with(const std::string& str, pcsz pcszStart, bool bNoCase=false);
-  
+
   //! \brief Tests the last character.
   //!
   //! Returns true if the std::string ends with this character, false otherwise.
   //! \param c The character.
   static bool end_with(const std::string& str, char c);
-  
+
   //! \brief Tests the last character with that of another std::string.
   //!
   //! Returns true if the std::strings end with the same character, false otherwise.
@@ -143,7 +143,7 @@ public:
   static bool end_with(const std::string& str, pcsz pcszEnd, bool bNoCase=false);
 
   //! \name Token extraction
-  //@{ 
+  //@{
 
   //! \brief Family results for token extraction methods.
   enum ExtractTokenRes
@@ -155,41 +155,43 @@ public:
     //! %std::string extracted and separator not found.
     SEP_NOT_FOUND
   };
-  
+
   //! \brief Looks for a token, from left to right.
-  //! 
+  //!
   //! Returns the extraction status.\n
   //! The function looks for the first separator occurrence. The extracted token is removed from the std::string.
   //! \param c Separator.
   //! \param[out] pstrToken %std::string object receiving the extracted token.
-  static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken);
-  
+  static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken,
+                                       bool apply_escape = false);
+
   //! \brief Looks for a token, from right to left.
-  //! 
+  //!
   //! Returns the extraction status.\n
   //! The function looks for the first separator occurrence. The extracted token is removed from the std::string.
   //! \param c Separator.
   //! \param[out] pstrToken Extracted token.
-  static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken);
-  
+  static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken,
+                                             bool apply_escape = false);
+
   //! \brief Looks for enclosed token, from left to right.
-  //! 
+  //!
   //! Returns the extraction status.\n
   //! The function looks for the first left separator occurrence. The extracted token is removed from the std::string.
   //! \param cLeft Left separator.
   //! \param cRight Right separator.
   //! \param[out] pstrToken Extracted token.
   static ExtractTokenRes extract_token(std::string* str_p, char cLeft, char cRight, std::string *pstrToken);
-  
+
   //! \brief Looks for enclosed token, from right to left.
-  //! 
+  //!
   //! Returns the extraction status.\n
   //! The function looks for the first left separator occurrence. The extracted token is removed from the std::string.
   //! \param cLeft Left separator.
   //! \param cRight Right separator.
   //! \param[out] pstrToken Extracted token.
   static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight, std::string *pstrToken);
-  
+
   //@}
 
   //! \brief Removes characters that enclose std::string: quotes, parenthesis, etc...
@@ -321,7 +323,7 @@ public:
   //! \brief Joins std::strings from a std::string vector, using specified separator.
   //!
   //! Replaces *this* std::string with the result.
-  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2 
+  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2
   //! \param vecStr The source vector.
   //! \param cSep %std::string separator.
   static void join(std::string* str_p, const std::vector<std::string> &vecStr, char cSep=',');
@@ -329,7 +331,7 @@ public:
   //! \brief Joins std::strings from a std::string vector, using specified separator.
   //!
   //! Replaces *this* std::string with the result.
-  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2 
+  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2
   //! \param vecStr The source vector.
   //! \param cSep %std::string separator.
   //! \return a std::string with the result
@@ -338,7 +340,7 @@ public:
   //! \brief Joins std::strings from a std::string vector, using specified separator.
   //!
   //! Replaces *this* std::string with the result.
-  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2 
+  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2
   //! \param deque The source deque.
   //! \param cSep %std::string separator.
   static void join(std::string* str_p, const std::deque<std::string> &deque, char cSep=',');
@@ -346,7 +348,7 @@ public:
   //! \brief Joins std::strings from a std::string vector, using specified separator.
   //!
   //! Replaces *this* std::string with the result.
-  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2 
+  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2
   //! \param deque The source deque.
   //! \param cSep %std::string separator.
   //! \return a std::string with the result
@@ -391,15 +393,15 @@ public:
 
   //! \brief Returns a 32 bits hash code.
   static uint32 hash(const std::string& str);
-  
+
   //! \brief Returns the hash code using the FNV-1a algorithm.
   //!
-  //! Calculates a 64 bits hash code. See details of the algorithm 
+  //! Calculates a 64 bits hash code. See details of the algorithm
   //! on http://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function.
   static uint64 hash64(const std::string& str);
 
   //! \brief Converts string content to numeric type \<_T\>.
-  //! 
+  //!
   //! Returns the converted string in numeric type \<_T\>.
   //! Should also work for any "istringstream::operator>>" supported type.
   //! \param _s The string to convert.
@@ -418,7 +420,7 @@ public:
       if( _throw )
       {
         OSStream desc;
-        desc << "conversion from string to num failed [" 
+        desc << "conversion from string to num failed ["
              << str
              << "]"
              << std::ends;
@@ -430,7 +432,7 @@ public:
     }
 
     return num_val;
-  } 
+  }
 
   //! \brief Converts from type \<T\> to std::string.
   //!
@@ -447,7 +449,7 @@ public:
       if (_throw)
       {
         OSStream desc;
-        desc << "conversion from num to string failed [" 
+        desc << "conversion from num to string failed ["
              << number
              << "]"
              << std::ends;
@@ -459,7 +461,7 @@ public:
 
     (*str_p) = oss.str();
   }
-  
+
   //! \brief Return a new string from numeric type \<T\> value.
   //!
   //! \param number The \<T\> type value to convert.
@@ -475,7 +477,7 @@ public:
       if (_throw)
       {
         OSStream desc;
-        desc << "conversion from num to string failed [" 
+        desc << "conversion from num to string failed ["
              << number
              << "]"
              << std::ends;
@@ -493,12 +495,12 @@ public:
 typedef std::vector<std::string> StringVector;
 
 // ============================================================================
-//! \class String 
+//! \class String
 //! \brief Extended string class.
 //! \deprecated use yat::StringUtil instead
 //!
 //! This class is an extension of the std::string class: it provides additional
-//! string manipulation functions, such as token extraction, enclosure deletion, 
+//! string manipulation functions, such as token extraction, enclosure deletion,
 //! find and replace function, ...
 //!
 //! Inherits from std::string class.
@@ -511,7 +513,7 @@ public:
   static const String nil;
 
   //! \name Constructors
-  //@{ 
+  //@{
 
   //! \brief Default constructor.
   String() : std::string()
@@ -557,7 +559,7 @@ public:
   //! Returns true if strings are equal, false otherwise.
   //! \param str The source string.
   bool is_equal(const String &str) const;
-    
+
   //! \brief Compares string in a no case sensitive way.
   //!
   //! Returns true if strings are equal, false otherwise.
@@ -569,20 +571,20 @@ public:
   //! Returns true if the string starts with this character, false otherwise.
   //! \param c The character.
   bool start_with(char c) const;
-  
+
   //! \brief Tests the first character with that of another string.
   //!
   //! Returns true if the strings start with the same character, false otherwise.
   //! \param pcszStart The source string.
   //! \param bNoCase If set to true, the test is not case sensitive.
   bool start_with(pcsz pcszStart, bool bNoCase=false) const;
-  
+
   //! \brief Tests the last character.
   //!
   //! Returns true if the string ends with this character, false otherwise.
   //! \param c The character.
   bool end_with(char c) const;
-  
+
   //! \brief Tests the last character with that of another string.
   //!
   //! Returns true if the strings end with the same character, false otherwise.
@@ -591,7 +593,7 @@ public:
   bool end_with(pcsz pcszEnd, bool bNoCase=false) const;
 
   //! \name Token extraction
-  //@{ 
+  //@{
 
   //! \brief Family results for token extraction methods.
   enum ExtractTokenRes
@@ -603,41 +605,41 @@ public:
     //! %String extracted and separator not found.
     SEP_NOT_FOUND
   };
-  
+
   //! \brief Looks for a token, from left to right.
-  //! 
+  //!
   //! Returns the extraction status.\n
   //! The function looks for the first separator occurrence. The extracted token is removed from the string.
   //! \param c Separator.
   //! \param[out] pstrToken %String object receiving the extracted token.
   ExtractTokenRes extract_token(char c, String *pstrToken);
-  
+
   //! \brief Looks for a token, from right to left.
-  //! 
+  //!
   //! Returns the extraction status.\n
   //! The function looks for the first separator occurrence. The extracted token is removed from the string.
   //! \param c Separator.
   //! \param[out] pstrToken Extracted token.
   ExtractTokenRes extract_token_right(char c, String *pstrToken);
-  
+
   //! \brief Looks for enclosed token, from left to right.
-  //! 
+  //!
   //! Returns the extraction status.\n
   //! The function looks for the first left separator occurrence. The extracted token is removed from the string.
   //! \param cLeft Left separator.
   //! \param cRight Right separator.
   //! \param[out] pstrToken Extracted token.
   ExtractTokenRes extract_token(char cLeft, char cRight, String *pstrToken);
-  
+
   //! \brief Looks for enclosed token, from right to left.
-  //! 
+  //!
   //! Returns the extraction status.\n
   //! The function looks for the first left separator occurrence. The extracted token is removed from the string.
   //! \param cLeft Left separator.
   //! \param cRight Right separator.
   //! \param[out] pstrToken Extracted token.
   ExtractTokenRes extract_token_right(char cLeft, char cRight, String *pstrToken);
-  
+
   //@}
 
   //! \brief Removes characters that enclose string: quotes, parenthesis, etc...
@@ -721,7 +723,7 @@ public:
   //! \brief Joins strings from a string vector, using specified separator.
   //!
   //! Replaces *this* string with the result.
-  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2 
+  //! For instance: join (\<str1, str2\>, ";") gives: str1;str2
   //! \param vecStr The source vector.
   //! \param cSep %String separator.
   void join(const std::vector<String> &vecStr, char cSep=',');
@@ -753,10 +755,10 @@ public:
 
   //! \brief Returns a 32 bits hash code.
   uint32 hash() const;
-  
+
   //! \brief Returns the hash code using the FNV-1a algorithm.
   //!
-  //! Calculates a 64 bits hash code. See details of the algorithm 
+  //! Calculates a 64 bits hash code. See details of the algorithm
   //! on http://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function.
   uint64 hash64() const;
 };
