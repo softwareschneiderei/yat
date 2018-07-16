@@ -462,4 +462,32 @@ do {                                                          \
 #define YAT_ALERT     yat::LogManager::alert_stream()
 #define YAT_EMERGENCY yat::LogManager::emergency_stream()
 
+//=============================================================================
+//! \def YAT_FREQUENCY_LIMITED_STATEMENT
+//! \brief  MACRO to help executing statements that have to be limited in frequency
+//! \brief like log messages in a high frequency loop
+//!
+//! \param statement the code to execute
+//! \param interval_sec minimal time interval, is seconds, between to execution of the statement
+//!
+//! \verbatim
+//! YAT_FREQUENCY_LIMITED_STATEMENT
+//!   (
+//!     YAT_VERBOSE << "bla bla" << std::endl,
+//!     1
+//!   );
+//! \endverbatim
+//=============================================================================
+#define YAT_FREQUENCY_LIMITED_STATEMENT(statement, interval_sec) \
+do \
+{ \
+  static yat::Timer s_timer; \
+  if( s_timer.elapsed_sec() >= interval ) \
+  { \
+   statement;\
+   s_timer.restart(); \
+  } \
+} while(0)
+
+
 #endif
