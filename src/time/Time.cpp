@@ -984,7 +984,7 @@ void Time::from_string(const std::string& date_time, const std::string& format)
       get_identifier = false;
       continue;
     }
-    if( date_time.size() == i_s + 1 || date_time[i_s++] != format[i_f] )
+    if( date_time.size() < i_s + 1 || date_time[i_s++] != format[i_f] )
       throw yat::Exception("BAD_FORMAT",
                            std::string("Time string: '")
                            + date_time
