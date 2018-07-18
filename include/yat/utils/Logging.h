@@ -482,7 +482,7 @@ do {                                                          \
 do \
 { \
   static yat::Timer s_timer; \
-  if( s_timer.elapsed_sec() >= interval ) \
+  if( s_timer.elapsed_sec() >= interval_sec ) \
   { \
    statement;\
    s_timer.restart(); \
