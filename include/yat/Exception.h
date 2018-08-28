@@ -50,21 +50,21 @@
 namespace yat
 {
 
-#define THROW_YAT_ERROR(error, desc, origin)      \
-do                                                \
-{                                                 \
-  std::ostringstream oss;                         \
-  oss << desc;                                    \
-  throw yat::Exception(error, oss.str(), origin); \
+#define THROW_YAT_ERROR(error, desc, origin)                               \
+do                                                                         \
+{                                                                          \
+  std::ostringstream _yat_throw_exception_stream_;                         \
+  _yat_throw_exception_stream_ << desc;                                    \
+  throw yat::Exception(error, _yat_throw_exception_stream_.str(), origin); \
 } while(0)
 
-#define RETHROW_YAT_ERROR(e, error, desc, origin )  \
-do                                                  \
-{                                                   \
-  std::ostringstream oss;                           \
-  oss << desc;                                      \
-  e.push_error(error, oss.str(), origin);           \
-  throw e;                                          \
+#define RETHROW_YAT_ERROR(e, error, desc, origin )                         \
+do                                                                         \
+{                                                                          \
+  std::ostringstream _yat_throw_exception_stream_;                         \
+  _yat_throw_exception_stream_ << desc;                                    \
+  e.push_error(error, _yat_throw_exception_stream_.str(), origin);         \
+  throw e;                                                                 \
 } while(0)
 
 //! \brief Macros set used to ensure all kind of exceptions will be catched and
@@ -183,7 +183,7 @@ do                                                  \
 
 #define __YAT_CATCH_THROW_STD__ \
     catch( std::exception& e ) \
-    { THROW_YAT_ERROR("ERROR", PSZ_FMT("Standard system error occured: %s", e.what()), "stdlib"); } \
+    { THROW_YAT_ERROR("ERROR", "Standard system error occured: " << e.what(), "stdlib"); } \
 
 #define __YAT_CATCH_THROW_OTHER__ \
     catch( ... ) \
