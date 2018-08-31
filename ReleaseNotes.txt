@@ -1,0 +1,176 @@
+1.13.17
+=======
+
+Additions
+
+    void URI::clear();
+    bool URI::empty();
+    -> See <yat/Utils/URI.h>
+
+Changes
+
+    static ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c, std::string *pstrToken,
+                                       bool apply_escape = false);
+    static ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, char c, std::string *pstrToken,
+                                       bool apply_escape = false);
+        'apply_escape' is a new parameter to allow the sperarator character as a part of the tokens
+        -> See <yat/utils/String.h>
+
+1.13.16
+=======
+
+Additions
+
+    bool StringTemplate::substitute_ex(std::string *pstrTemplate, std::vector<std::string>* not_found_p);
+        The new method return 'false' if at leat one substitution fail and returns a list of unresolved symbols
+        -> <yat/utils/StringTemplate.h>
+
+Fixes
+
+    UDPListener::Config
+        Bug in the constructor
+        -> See <yat/network/UDPListener.h>
+
+1.13.15
+=======
+
+Additions
+
+    void Time::from_string(const std::string& date_time, const std::string& format);
+        Set date/time object from a formatted string
+        -> See <yat/time/Time.h>
+
+Changes
+
+    THROW_YAT_EXCEPTION & RETHROW_YAT_EXCEPTION
+        The description field now support stream-like notation
+        -> See <yat/Exception.h>
+Fixes
+
+    YAT_LOG_EXCEPTION
+        Thread-safety
+        -> See <yat/utils/Logging.h>
+
+1.13.12
+=======
+
+Additions
+    
+    YAT_VERBOSE, YAT_INFO, YAT_WARNING, YAT_ERROR
+        New logging macro to be use as streams
+        -> See <yat/utils/Logging.h>
+
+    void FileName::set_path(const std::string& strPath);
+        New method to set the path part
+        -> See <yat/file/FileName.h>
+
+Fixes
+    
+    FileName::name_ext()
+        An unexpected exception was throwed in the case of the full path was an empty string
+    
+
+1.13.9
+======
+
+Additions
+
+    class picojison
+        Added open source picojson implementation
+        -> See <yat/utils/picojson.h>
+
+1.13.6
+======
+
+Additions
+
+    FileName::FileName(const std::string& strPath, const std::string& strName, const std::string& strExt);
+        New constructor
+        -> See <yat/file/FileName.h>
+   
+    bool SysUtils::is_root();
+        Return 'True' if the current process is executed as root
+        -> See <yat/system/sysUtils.h>
+
+    static void URI::pct_encode(std::string* to_encode, const std::string& reserved=URI_RESERVED);
+    static void URI::pct_decode(std::string* to_encode);
+        Percent encoding/decoding to allow using reserved characters in URIs. Automatically called when needed.
+        -> See <yat/utils/URI.h>
+
+    StringDictionary::StringDictionary(const std::vector<std::string>& vec, char sep);
+    StringDictionary::StringDictionary(const std::string& s, char sep_pair, char sep_key);
+        New constructors
+        -> See <yat/utils/Dictionary.h>
+
+    typedef std::vector<std::string> type StringVector;
+        -> See <yat/utils/String.h>
+
+1.13.5
+======
+
+Additions
+
+    UDPTrigger::next_trigger
+        Allow manually sending udp frames. Parameter {{trigger_period_ms}} must be set to '0'.
+        -> See <yat/network/UDPTrigger.h>
+
+1.13.4
+======
+
+Additions
+
+    Class FileName::FSBytes
+    Class FileName::FSStat
+    FileName::FSStat FileName::file_system_statistics() const
+        Return statistics about a file system
+        -> See <yat/file/FileName.h>
+
+1.13.1
+======
+
+Additions
+
+    class LockFile
+        SWMR (Single Writer Multiple Reader) file locking class
+        -> See <yat/file/FileName.h>
+
+    class AutoLockFile
+        Convenience class to ensure unlocking
+        -> See <yat/file/FileName.h>
+
+    class Dictionary
+        Simple dictionary class using an underlying std::map object
+        -> See <yat/utils/Dictionary.h>
+
+    class UDPListener
+        FORWARDS THE UDP PACKETS (SENT BY THE SPI BOARD) TO A SPITASK
+        -> See <yat/network/UDPListener.h>
+        
+1.10.5
+======
+
+ Additions
+
+    class FileName::Info
+        A structure used to describe a file
+        -> See <yat/file/FileName.h>  
+    void FileName::info( FileName::Info* ) const
+        Get information about a file
+        -> See <yat/file/FileName.h>  
+       
+    template<typename T> bool fp_is_equal(T, a, T b, T precision)
+        Floating point comparison operator
+        -> See <yat/CommonHeader.h>
+
+    template<typename T> class UniquePtr
+        Unique pointer implementation
+        -> See <yat/memory/UniquePtr.h>
+
+    
+    bool Pulser::is_done()
+        Check pulser activity
+        -> See <yat/threading/Pulser.h>
+
+
+
+
