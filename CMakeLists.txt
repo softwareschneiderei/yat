@@ -16,7 +16,7 @@ else()
 endif()
 
 if (UNIX)
-    add_definitions(-O2 -g -gstabs+ -std=c++0x -Wall -Wno-unused-variable)
+    add_definitions(-O2 -g -gstabs+ -std=c++0x -Wall -Wno-unused-variable -D_FILE_OFFSET_BITS=64)
     set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-z,defs")
 endif()
 
@@ -29,3 +29,4 @@ if (UNIX)
     "${CMAKE_CURRENT_BINARY_DIR}/yat.pc" @ONLY IMMEDIATE)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/yat.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 endif()
+
