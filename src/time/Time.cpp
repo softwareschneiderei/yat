@@ -76,6 +76,18 @@ const char DATE_SET_ERR[]        = "BAD_ARGS";
 // Reasons msgs
 const char DATE_BAD_ARGS[]        = "Cannot Setting Date object";
 
+// Month names.
+static yat::pcsz s_pszMonthEnAbbr[] =
+{
+  "jan", "feb", "mar", "apr", "may", "jun",
+  "jul", "aug", "sep", "oct", "nov", "dec"
+};
+static pcsz s_pszMonthEn[] =
+{
+  "january", "february", "march", "april", "may", "june", "july",
+  "august", "september", "october", "november", "december"
+};
+
 //============================================================================
 // Internal functions
 //============================================================================
@@ -393,7 +405,7 @@ void Time::set_current(bool bUt)
     struct timezone tzp;
     gettimeofday(&tv, &tzp);
     lTm = tv.tv_sec;
-    lMs = tv.tv_usec/1000;
+    lMs = tv.tv_usec;
 
     // Convert from 'time_t' format to 'struct tm' format
     struct tm tmCurrent;
@@ -403,7 +415,7 @@ void Time::set_current(bool bUt)
       localtime_r(&lTm, &tmCurrent);
 
     set(tmCurrent.tm_year+1900, tmCurrent.tm_mon+1, tmCurrent.tm_mday, tmCurrent.tm_hour,
-        tmCurrent.tm_min, (double)tmCurrent.tm_sec + ((double)lMs /1000.));
+        tmCurrent.tm_min, (double)tmCurrent.tm_sec + (lMs/1000000.));
   #endif
 }
 
@@ -467,7 +479,7 @@ void Time::get(DateFields *pDF) const
 //----------------------------------------------------------------------------
 // Time::set
 //----------------------------------------------------------------------------
-void Time::set(const DateFields &df) throw(yat::Exception)
+void Time::set(const DateFields &df)
 {
   if( df.is_empty() )
     // Empty date
@@ -777,6 +789,23 @@ std::string Time::to_ISO8601_ms_TU() const
 }
 
 //----------------------------------------------------------------------------
+// Time::to_ISO8601_micro_TU
+//----------------------------------------------------------------------------
+std::string Time::to_ISO8601_micro_TU() const
+{
+  std::string strDate;
+  std::string strFmt = "%04d-%02d-%02dT%02d:%02d:%09.6lfZ";
+
+  // Split date into fields
+  DateFields df;
+  get(&df);
+
+  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
+                              df.hour, df.min, df.sec);
+  return strDate;
+}
+
+//----------------------------------------------------------------------------
 // Time::to_ISO8601_ms
 //----------------------------------------------------------------------------
 std::string Time::to_ISO8601_ms() const
@@ -785,6 +814,25 @@ std::string Time::to_ISO8601_ms() const
   std::string strFmt;
 
   strFmt = "%04d-%02d-%02dT%02d:%02d:%06.3lf";
+
+  // Split date into fields
+  DateFields df;
+  get(&df);
+
+  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
+                              df.hour, df.min, df.sec);
+  return strDate;
+}
+
+//----------------------------------------------------------------------------
+// Time::to_ISO8601_micro
+//----------------------------------------------------------------------------
+std::string Time::to_ISO8601_micro() const
+{
+  std::string strDate;
+  std::string strFmt;
+
+  strFmt = "%04d-%02d-%02dT%02d:%02d:%09.6lf";
 
   // Split date into fields
   DateFields df;
@@ -808,6 +856,38 @@ std::string Time::to_local_ISO8601_ms() const
     strFmt = "%04d-%02d-%02dT%02d:%02d:%06.3lf-%02d%02d";
   else
     strFmt = "%04d-%02d-%02dT%02d:%02d:%06.3lf+%02d%02d";
+
+  // Prevent any rounding error
+  if( dTZ < 0 )
+    dTZ = -dTZ;
+
+  int iSec = int(dTZ + 0.5);
+
+  int iHourBias = iSec / 3600;
+  int iMinBias = (iSec - (3600 * iHourBias)) / 60;
+
+  // Split date into fields
+  DateFields df;
+  get(&df);
+
+  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
+                              df.hour, df.min, df.sec, iHourBias, iMinBias);
+  return strDate;
+}
+
+//----------------------------------------------------------------------------
+// Time::to_local_ISO8601_micro
+//----------------------------------------------------------------------------
+std::string Time::to_local_ISO8601_micro() const
+{
+  std::string strDate;
+  std::string strFmt;
+
+  double dTZ = LocalBias();
+  if( dTZ < 0 )
+    strFmt = "%04d-%02d-%02dT%02d:%02d:%09.6lf-%02d%02d";
+  else
+    strFmt = "%04d-%02d-%02dT%02d:%02d:%09.6lf+%02d%02d";
 
   // Prevent any rounding error
   if( dTZ < 0 )
