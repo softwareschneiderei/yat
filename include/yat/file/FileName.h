@@ -1212,6 +1212,7 @@ private:
 // ============================================================================
 class YAT_DECL RLockFile : public LockFile
 {
+public:
   //! \brief c-tor
   RLockFile(const FileName& fn) : LockFile(fn, LockFile::READ) {}
 };
@@ -1224,6 +1225,7 @@ class YAT_DECL RLockFile : public LockFile
 // ============================================================================
 class YAT_DECL WLockFile : public LockFile
 {
+public:
   //! \brief c-tor
   WLockFile(const FileName& fn) : LockFile(fn, LockFile::WRITE) {}
 };
