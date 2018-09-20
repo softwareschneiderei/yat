@@ -423,16 +423,19 @@ void LogForward::log(ELogLevel eLevel, pcsz pszType, const std::string& strMsg)
     m_pfn_log_fwd(eLevel, pszType, PSZ(strMsg));
 }
 
+#define BUF_LEN 4096
 //=============================================================================
 // Macro for Log functions
 //=============================================================================
 #define YAT_LOG_MSG(level)                                      \
-  LOCK(&g_acScratchBuf)                                         \
+  static char buf[BUF_LEN];                                     \
+  static Mutex mtx;                                             \
+  AutoMutex<> lock(mtx);                                        \
   va_list argptr;                                               \
   va_start(argptr, pszFormat);                                  \
-  VSNPRINTF(g_acScratchBuf, g_iScratchLen, pszFormat, argptr);  \
+  VSNPRINTF(buf, BUF_LEN, pszFormat, argptr);                   \
   va_end(argptr);                                               \
-  std::string strMsg = g_acScratchBuf;                               \
+  std::string strMsg = buf;                                     \
   LogManager::log(level, pszType, strMsg);
 
 // Log functions
