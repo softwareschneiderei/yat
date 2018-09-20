@@ -155,18 +155,6 @@ inline int64 int64FromHLPair(long lHigh, unsigned long ulLow)
 //! year identifier.
 #define TS_UNIT_YEAR  5  // annee logique (=12 mois logiques)
 
-//! Month names.
-static const pcsz s_pszMonthEnAbbr[] =
-{
-  "jan", "feb", "mar", "apr", "may", "jun",
-  "jul", "aug", "sep", "oct", "nov", "dec"
-};
-static const pcsz s_pszMonthEn[] =
-{
-  "january", "february", "march", "april", "may", "june", "july",
-  "august", "september", "october", "november", "december"
-};
-
 // ============================================================================
 //! \struct DateFields
 //! \brief %Date split in fields.
@@ -314,7 +302,7 @@ public:
   //!
   //! \param sTm Structure containing split date.
   //! \exception BAD_ARGS Thrown if date is not correct.
-  void set(const DateFields& sTm) throw(yat::Exception);
+  void set(const DateFields& sTm);
 
   //! \brief Initializes the ate from explicit values.
   //!
@@ -423,6 +411,9 @@ public:
   //! \brief Gets the date in a local time ISO8601 format with milliseconds.
   std::string to_local_ISO8601_ms() const;
 
+  //! \brief Gets the date in a local time ISO8601 format with microseconds.
+  std::string to_local_ISO8601_micro() const;
+
   //! \brief Gets the date in ISO8601 format.
   std::string to_ISO8601() const;
 
@@ -431,6 +422,12 @@ public:
 
   //! \brief Gets the date in a UTC ISO8601 format with milliseconds.
   std::string to_ISO8601_ms_TU() const;
+
+  //! \brief Gets the date in ISO8601 format with microseconds.
+  std::string to_ISO8601_micro() const;
+
+  //! \brief Gets the date in a UTC ISO8601 format with microseconds.
+  std::string to_ISO8601_micro_TU() const;
 
   //! \brief Gets the date in the international format.
   //!
