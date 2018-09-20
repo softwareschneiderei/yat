@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -61,6 +61,7 @@ class YAT_DECL Dictionary
 {
 public:
 
+  typedef std::pair<const std::string, T> value_type;
   typedef typename std::map<std::string, T>::iterator iterator;
   typedef typename std::map<std::string, T>::const_iterator const_iterator;
   typedef std::reverse_iterator<iterator> reverse_iterator;
@@ -85,6 +86,7 @@ public:
   std::size_t count( const std::string& key) { return m_map.count( key ); }
   iterator find( const std::string& key) { return m_map.find( key ); }
   const_iterator find( const std::string& key) const { return m_map.find( key ); }
+  std::pair<iterator,bool> insert( const value_type& value ) { return m_map.insert(value); }
   Dictionary<T>( const std::map<std::string, T>& other ): m_map(other) {}
   Dictionary<T>( const Dictionary<T>& other ): m_map(other.m_map) {}
   Dictionary<T>() {}
@@ -95,8 +97,8 @@ public:
   /// d-tor
   virtual ~Dictionary() {}
 
-  /// Returns a reference to the mapped value of the element with key equivalent to key. 
-  /// If no such element exists, an exception is thrown. 
+  /// Returns a reference to the mapped value of the element with key equivalent to key.
+  /// If no such element exists, an exception is thrown.
   T& at( const std::string& key )
   {
     iterator it = m_map.find( key );
@@ -113,7 +115,7 @@ public:
   }
 
   /// Return an optional value
-  /// \verbatim 
+  /// \verbatim
   /// T value = my_dict.get(key).value_or(default_value);
   /// \endverbatim
   Optional<T> get(const std::string& key)
@@ -130,7 +132,7 @@ protected:
 };
 
 // ============================================================================
-// Dictionary specialization from std::string value type 
+// Dictionary specialization from std::string value type
 // ============================================================================
 class YAT_DECL StringDictionary: public Dictionary<std::string>
 {
@@ -169,17 +171,47 @@ public:
   }
 
   //! \brief initialize the dictionary from a single string
-  void from_string(const std::string& s, char sep_pair, char sep_key, bool key_lowercase=false)
+  void from_string(const std::string& s, char sep_pair='\n', char sep_key=':', bool key_lowercase=false)
   {
     std::vector<std::string> vec;
     yat::StringUtil::split( s, sep_pair, &vec);
     from_vector( vec, sep_key, key_lowercase );
   }
 
+  //! \brief serialization
+  void to_vector(std::vector<std::string>* vec_p, char sep_key=':')
+  {
+    vec_p->clear();
+    for( std::map<std::string, std::string>::const_iterator cit = m_map.begin();
+         cit != m_map.end(); ++cit )
+    {
+      std::stringstream oss;
+      oss << cit->first << sep_key << cit->second;
+      vec_p->push_back(oss.str());
+    }
+  }
+
+  //! \brief serialization
+  void to_string(std::string* str_p, char sep_pair='\n', char sep_key=':')
+  {
+    str_p->clear();
+    std::ostringstream oss;
+    for( std::map<std::string, std::string>::const_iterator cit = m_map.begin();
+         cit != m_map.end(); ++cit )
+    {
+      if( cit != m_map.begin() )
+        oss << sep_pair;
+
+      oss << cit->first << sep_key << cit->second;
+    }
+    *str_p = oss.str();
+  }
+
   //| dump the dictionary content (for debug purposes)
   void dump()
   {
-    for( std::map<std::string, std::string>::const_iterator cit = m_map.begin(); cit != m_map.end(); ++cit )
+    for( std::map<std::string, std::string>::const_iterator cit = m_map.begin();
+         cit != m_map.end(); ++cit )
     {
       YAT_VERBOSE_STREAM( cit->first << ": " << cit->second );
     }
