@@ -9,7 +9,7 @@
   </parent>
   <groupId>fr.soleil.lib</groupId>
   <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
-  <version>1.13.19-SNAPSHOT</version>
+  <version>1.14.0</version>
   <packaging>nar</packaging>
   <name>YAT</name>
   <description>Yet Another Toolkit Library</description>
@@ -34,13 +34,6 @@
   </scm>
   <build>
     <plugins>
-      <!--plugin>
-          <groupId>fr.soleil.maven.plugins</groupId>
-          <artifactId>maven-check-plugin</artifactId>
-          <configuration>
-            <enable>false</enable>
-          </configuration>
-      </plugin-->
       <plugin>
         <groupId>org.freehep</groupId>
         <artifactId>freehep-nar-plugin</artifactId>
