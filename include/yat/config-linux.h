@@ -15,12 +15,12 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
 //
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -28,7 +28,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -75,7 +75,7 @@ namespace yat
 {
   typedef int8_t   int8;
   typedef uint8_t  uint8;
-  typedef uint8_t  byte; 
+  typedef uint8_t  byte;
   typedef int16_t  int16;
   typedef uint16_t uint16;
   typedef int32_t  int32;
@@ -101,8 +101,15 @@ namespace yat
 /**
  *  CPP11 support
  */
-#if __cplusplus==201103L
+#if __cplusplus >= 201103L
 # define YAT_CPP11
+#endif
+
+/**
+ *  CPP14 support
+ */
+#if __cplusplus >= 201402L
+# define YAT_CPP14
 #endif
 
 /**
