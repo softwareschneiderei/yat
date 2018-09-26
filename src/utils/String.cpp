@@ -1060,28 +1060,40 @@ std::string operator+(const String& str, const char* psz)
 { std::string s; s = str.str() + psz; return s; }
 std::string operator+(const String& str, char c)
 { std::string s; s = str.str() + c; return s; }
+bool operator==(const String& s1, const String& s2)
+{ return s1.str() == s2.str(); }
 bool operator==(const std::string& s1, const String& s2)
 { return s1 == s2.str(); }
 bool operator==(const String& s1, const std::string& s2)
 { return s1.str() == s2; }
+bool operator!=(const String& s1, const String& s2)
+{ return s1.str() != s2.str(); }
 bool operator!=(const String& s1, const std::string& s2)
 { return s1.str() != s2; }
 bool operator!=(const std::string& s1, const String& s2)
 { return s1 != s2.str(); }
+bool operator<(const String& s1, const String& s2)
+{ return s1.str() < s2.str(); }
 bool operator<(const String& s1, const std::string& s2)
 { return s1.str() < s2; }
 bool operator<(const std::string& s1, const String& s2)
 { return s1 < s2.str(); }
 bool operator<=(const String& s1, const std::string& s2)
 { return s1.str() <= s2; }
+bool operator<=(const String& s1, const String& s2)
+{ return s1.str() <= s2.str(); }
 bool operator<=(const std::string& s1, const String& s2)
 { return s1 <= s2.str(); }
+bool operator>(const String& s1, const String& s2)
+{ return s1.str() > s2.str(); }
 bool operator>(const String& s1, const std::string& s2)
 { return s1.str() > s2; }
 bool operator>(const std::string& s1, const String& s2)
 { return s1 > s2.str(); }
 bool operator>=(const String& s1, const std::string& s2)
 { return s1.str() >= s2; }
+bool operator>=(const String& s1, const String& s2)
+{ return s1.str() >= s2.str(); }
 bool operator>=(const std::string& s1, const String& s2)
 { return s1 >= s2.str(); }
 bool operator==(const String& s1, const char* s2)
@@ -1108,6 +1120,7 @@ bool operator>=(const String& s1, const char* s2)
 { return s1.str() >= s2; }
 bool operator>=(const char* s1, const String& s2)
 { return s1 >= s2.str(); }
+
 std::ostream& operator<<(std::ostream& os, const String& s)
 { return operator<<(os, s.str()); }
 std::istream& operator>>(std::istream& is, const String& s)
