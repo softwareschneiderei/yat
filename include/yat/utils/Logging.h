@@ -452,6 +452,7 @@ do {                                                          \
 #define YAT_ALERT_STREAM(s)     YAT_MSG_STREAM(yat::LOG_ALERT, "alt", s)
 #define YAT_EMERGENCY_STREAM(s) YAT_MSG_STREAM(yat::LOG_EMERGENCY, "emg", s)
 
+//! \brief stream log macros
 #define YAT_VERBOSE   yat::LogManager::verbose_stream()
 #define YAT_RESULT    yat::LogManager::result_stream()
 #define YAT_INFO      yat::LogManager::info_stream()
@@ -461,6 +462,8 @@ do {                                                          \
 #define YAT_CRITICAL  yat::LogManager::critical_stream()
 #define YAT_ALERT     yat::LogManager::alert_stream()
 #define YAT_EMERGENCY yat::LogManager::emergency_stream()
+
+#define YAT_EOL  std::endl
 
 //=============================================================================
 //! \def YAT_FREQUENCY_LIMITED_STATEMENT
