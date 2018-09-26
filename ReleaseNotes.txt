@@ -38,6 +38,11 @@ Additions
     bool URI::empty();
     -> See <yat/Utils/URI.h>
 
+    Macro YAT_FREQUENCY_LIMITED_STATEMENT
+    Use this macro to limit the execution frequency of a specific statement, for instance
+    a log message in a high frequency loop
+    -> See <yat/utils/Logging.h>
+
 Changes
 
     static ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c, std::string *pstrToken,
