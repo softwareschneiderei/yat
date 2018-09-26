@@ -751,6 +751,8 @@ public:
   { return StringUtil::is_equal(m_str, str); }
   bool is_equal(const String &str) const
   { return StringUtil::is_equal(m_str, str.str()); }
+  bool is_equal(const char *psz) const
+  { return StringUtil::is_equal(m_str, std::string(psz)); }
 
   //! \brief Compares string in a no case sensitive way.
   //!
@@ -760,6 +762,8 @@ public:
   { return StringUtil::is_equal_no_case(m_str, str); }
   bool is_equal_no_case(const String &str) const
   { return StringUtil::is_equal_no_case(m_str, str.str()); }
+  bool is_equal_no_case(const char *psz) const
+  { return StringUtil::is_equal_no_case(m_str, std::string(psz)); }
 
   //! \brief Tests the first character.
   //!
@@ -1059,17 +1063,23 @@ std::string operator+(const char* psz, const String& str);
 std::string operator+(char c, const String& str);
 std::string operator+(const String& str, const char* psz);
 std::string operator+(const String& str, char c);
+bool operator==(const String& s1, const String& s2);
 bool operator==(const std::string& s1, const String& s2);
 bool operator==(const String& s1, const std::string& s2);
+bool operator!=(const String& s1, const String& s2);
 bool operator!=(const String& s1, const std::string& s2);
 bool operator!=(const std::string& s1, const String& s2);
+bool operator<(const String& s1, const String& s2);
 bool operator<(const String& s1, const std::string& s2);
 bool operator<(const std::string& s1, const String& s2);
 bool operator<=(const String& s1, const std::string& s2);
+bool operator<=(const String& s1, const String& s2);
 bool operator<=(const std::string& s1, const String& s2);
+bool operator>(const String& s1, const String& s2);
 bool operator>(const String& s1, const std::string& s2);
 bool operator>(const std::string& s1, const String& s2);
 bool operator>=(const String& s1, const std::string& s2);
+bool operator>=(const String& s1, const String& s2);
 bool operator>=(const std::string& s1, const String& s2);
 bool operator==(const String& s1, const char* s2);
 bool operator==(const char* s1, const String& s2);
@@ -1083,6 +1093,7 @@ bool operator>(const String& s1, const char* s2);
 bool operator>(const char* s1, const String& s2);
 bool operator>=(const String& s1, const char* s2);
 bool operator>=(const char* s1, const String& s2);
+
 std::ostream& operator<<(std::ostream& os, const String& s);
 std::istream& operator>>(std::istream& is, const String& s);
 
