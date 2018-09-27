@@ -52,15 +52,15 @@ namespace yat
 //----------------------------------------------------------------------------
 bool SysUtils::get_env(const std::string &strVar, std::string *pstrValue, const char *pszDef)
 {
-  LOCK(&g_acScratchBuf);
-  if ( ::GetEnvironmentVariable(PSZ(strVar), g_acScratchBuf, g_iScratchLen) == 0 )
+  static char buf[4096];
+  if ( ::GetEnvironmentVariable(PSZ(strVar), buf, 4096) == 0 )
   { // if the variable  is undefined, use default value
     if ( pszDef )
       *pstrValue = pszDef;
     return false;
   }
 
-  *pstrValue = g_acScratchBuf;
+  *pstrValue = buf;
   return true;
 }
 
@@ -168,12 +168,12 @@ bool SysUtils::exec(const char* pszCmdLine, const char *pszDefDir, int bBackgrou
   }
 
   if ( bIsExecutable )
-  { 
+  {
     // Free system handles
     ::CloseHandle(aProcessInformation.hProcess);
     ::CloseHandle(aProcessInformation.hThread);
   }
-  
+
   if( bIsError && bThrow )
     throw Exception("ERR_FILE", "Error while executing command", "Exec");
 
