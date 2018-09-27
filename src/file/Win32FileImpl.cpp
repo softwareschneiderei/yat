@@ -15,12 +15,12 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
 //
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -28,7 +28,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -75,11 +75,11 @@ bool FileName::path_exist() const
   if( strchr(pszPath, '*') || strchr(pszPath, '?') )
     // there are wildcard. this is not a valid path
     return false;
- 
+
   uint32 uiLen = strlen(pszPath) ;
   if (uiLen == 0)
      return false;
- 
+
   WIN32_FIND_DATA find;
   HANDLE          h;
   if( pszPath[uiLen-1] == '\\' )
@@ -99,7 +99,7 @@ bool FileName::path_exist() const
   }
   else
     h = FindFirstFile( pszPath, &find );
- 
+
   if( h == INVALID_HANDLE_VALUE )
     return false;
   FindClose( h );
@@ -145,12 +145,12 @@ void FileName::set_full_name(pcsz pszFileName)
   convert_separators(&strFileName);
 
   m_strFile = strFileName;
- 
+
   // Warning: strFile may be empty
-  if( m_strFile.size() > 0 && 
+  if( m_strFile.size() > 0 &&
       ( StringUtil::start_with(m_strFile, "\\\\") ||    // UNC '\\'
         m_strFile[1u] == SEP_DSK    ) )   // Drive letter: 'X:'
-  { 
+  {
     // Absolute name
 
   }
@@ -158,9 +158,9 @@ void FileName::set_full_name(pcsz pszFileName)
   {
     std::string strDir;
     {
-      LOCK(&g_acScratchBuf)
-      _getcwd(g_acScratchBuf, _MAX_PATH);
-      strDir = g_acScratchBuf;
+      static char buf[2048];
+      _getcwd(buf, _MAX_PATH);
+      strDir = buf;
     }
 
     // Convert path into full name in windows format.
@@ -436,7 +436,7 @@ void FileName::mod_time(Time *pTm, bool bLocalTime, bool) const throw( Exception
   SYSTEMTIME sysTime;
   FileTimeToSystemTime(&fileTime, &sysTime);
   pTm->set(sysTime.wYear, (uint8)sysTime.wMonth, (uint8)sysTime.wDay,
-           (uint8)sysTime.wHour, (uint8)sysTime.wMinute, 
+           (uint8)sysTime.wHour, (uint8)sysTime.wMinute,
            (double)sysTime.wSecond + sysTime.wMilliseconds/1000.);
 }
 
@@ -462,16 +462,16 @@ void FileName::set_mod_time(const Time& tm) const throw( Exception )
   int iAttribute;
   // In order to modify a directory date under Win32, we have to position the correct flag
   // otherwise windows returns a invalid handle.
-  // Then we can call SetFileTime even if the handle is not a file handle 
+  // Then we can call SetFileTime even if the handle is not a file handle
   if( is_path_name() )
     iAttribute = FILE_FLAG_BACKUP_SEMANTICS;
-  else 
+  else
     iAttribute = FILE_ATTRIBUTE_NORMAL;
-  
+
   HANDLE hFile = CreateFile(PSZ(full_name()), GENERIC_WRITE,
                             FILE_SHARE_READ | FILE_SHARE_WRITE,
                             NULL, OPEN_EXISTING, iAttribute, NULL);
-    
+
   if( hFile == INVALID_HANDLE_VALUE )
   {
       std::string strErr = StringUtil::str_format(ERR_CANNOT_CREATE_WIN32, PSZ(m_strFile));
@@ -549,7 +549,7 @@ FileName::FSType FileName::file_system_type() const throw( Exception )
 // FileName::file_system_id
 //-------------------------------------------------------------------
 fsid_t FileName::file_system_id() const throw( Exception )
-{ 
+{
   // Not implemented yet on windows
   return 0;
 }
@@ -558,7 +558,7 @@ fsid_t FileName::file_system_id() const throw( Exception )
 // FileName::file_system_statistics
 //-------------------------------------------------------------------
 FileName::FSStat FileName::file_system_statistics() const
-{ 
+{
   // Not implemented yet on windows
   return FileName::FSStat();
 }
@@ -609,7 +609,7 @@ void FileName::chown(uid_t uid, gid_t gid) throw( Exception )
 //-------------------------------------------------------------------
 void FileName::ThrowExceptionFromErrno(const char *pszDesc, const char *pszOrigin)
 {
-  throw Exception("FILE_ERROR", pszDesc, pszOrigin);     
+  throw Exception("FILE_ERROR", pszDesc, pszOrigin);
 }
 
 //-------------------------------------------------------------------
