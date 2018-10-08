@@ -1028,6 +1028,22 @@ uint64 StringUtil::hash64(const std::string& str)
 //=============================================================================
 
 //---------------------------------------------------------------------------
+// String::str_format
+//---------------------------------------------------------------------------
+yat::String String::str_format(pcsz pszFormat, ...)
+{
+  static char buf[BUF_LEN];
+  static Mutex mtx;
+  AutoMutex<> lock(mtx);
+  va_list argptr;
+  va_start(argptr, pszFormat);
+  VSNPRINTF(buf, BUF_LEN, pszFormat, argptr);
+  va_end(argptr);
+
+  return yat::String(buf);
+}
+
+//---------------------------------------------------------------------------
 // String::printf
 //---------------------------------------------------------------------------
 int String::printf(pcsz pszFormat, ...)
