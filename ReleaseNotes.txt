@@ -1,6 +1,12 @@
 YAT history file
 
 
+1.14.2 (2018/10/08)
+===================
+
+    Fixes
+        Added missing implementation of method yat::String::str_format()
+
 1.14.1 (2018/09/27)
 ===================
 
