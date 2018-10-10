@@ -815,6 +815,8 @@ class YAT_DECL File: public FileName
   //! \exception FILE_ERROR Thrown if file opening or reading fails.
   void load(std::string *pString)
     throw(Exception);
+  void load(yat::String *pString)
+    throw(Exception);
 
   //! \brief Saves the specified string in the file.
   //! \param strContent string to save.
