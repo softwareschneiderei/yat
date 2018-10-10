@@ -600,13 +600,23 @@ void File::load(MemBuf *pBuf) throw(Exception)
 }
 
 //-------------------------------------------------------------------
-// File::load(String*)
+// File::load(std::string*)
 //-------------------------------------------------------------------
 void File::load(std::string *pString) throw(Exception)
 {
   MemBuf buf;
   load(&buf);
   buf >> (*pString);
+}
+
+//-------------------------------------------------------------------
+// File::load(yat::String*)
+//-------------------------------------------------------------------
+void File::load(yat::String *pString) throw(Exception)
+{
+  MemBuf buf;
+  load(&buf);
+  buf >> (pString->str());
 }
 
 //-------------------------------------------------------------------
