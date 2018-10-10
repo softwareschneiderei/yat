@@ -538,6 +538,9 @@ class YAT_DECL String
 {
 public:
 
+  //! \brief Empty string - useful when need a const string &.
+  static const String nil;
+
   // Return underlying object
   const std::string& str() const { return m_str; }
   std::string& str() { return m_str; }
