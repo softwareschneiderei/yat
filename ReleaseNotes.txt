@@ -12,7 +12,8 @@ YAT history file
             yat::String::operator+=(char c);
             yat::StringUtil::split(std::string* str_p, char c, std::vector<yat::String> *vec_p, bool clear_vector=true);
             yat::StringUtil::split(const std::string& str, char c, std::vector<yat::String> *vec_p, bool clear_vector=true) const;
-        
+            yat::File::load(yat::string *);
+
 1.14.1 (2018/09/27)
 ===================
 
