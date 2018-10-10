@@ -741,9 +741,52 @@ void StringUtil::split(std::string* str_p, char c, std::vector<std::string> *pve
 }
 
 //---------------------------------------------------------------------------
+// StringUtil::split
+//---------------------------------------------------------------------------
+void StringUtil::split(std::string* str_p, char c, std::vector<yat::String> *pvecstr,
+                       bool bClearVector)
+{
+  // Clear vector
+  if( bClearVector )
+    pvecstr->clear();
+  std::string strToken;
+  bool sep_found = false;
+  while( !(*str_p).empty() )
+  {
+    sep_found = extract_token(str_p, c, &strToken, true) == StringUtil::SEP_FOUND;
+    pvecstr->push_back(strToken);
+  }
+
+  if( sep_found )
+    pvecstr->push_back("");
+}
+
+//---------------------------------------------------------------------------
 // StringUtil::split (const version)
 //---------------------------------------------------------------------------
 void StringUtil::split(const std::string& str, char c, std::vector<std::string> *pvecstr,
+                       bool bClearVector)
+{
+  // Clear vector
+  if( bClearVector )
+    pvecstr->clear();
+  std::string strToken;
+  std::string tmp(str);
+  bool sep_found = false;
+  while( !tmp.empty() )
+  {
+    sep_found = extract_token(&tmp, c, &strToken, true) == StringUtil::SEP_FOUND;
+    pvecstr->push_back(strToken);
+  }
+
+  if( sep_found )
+    pvecstr->push_back("");
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::split (const version)
+//---------------------------------------------------------------------------
+void StringUtil::split(const std::string& str, char c, std::vector<yat::String> *pvecstr,
                        bool bClearVector)
 {
   // Clear vector
