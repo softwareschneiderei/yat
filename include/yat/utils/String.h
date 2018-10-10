@@ -271,6 +271,8 @@ public:
   //! \param bClearVector If set to true, the vector is cleared.
   static void split(std::string* str_p, char c, std::vector<std::string> *pvecstr,
                     bool bClearVector=true);
+  static void split(std::string* str_p, char c, std::vector<yat::String> *pvecstr,
+                    bool bClearVector=true);
 
   //! \brief Splits the std::string.
   //!
@@ -281,6 +283,8 @@ public:
   //! \param[out] pvecstr Pointer to a vector of std::strings.
   //! \param bClearVector If set to true, the vector is cleared.
   static void split(const std::string& str, char c, std::vector<std::string> *pvecstr,
+                    bool bClearVector=true);
+  static void split(const std::string& str, char c, std::vector<yat::String> *pvecstr,
                     bool bClearVector=true);
 
   //! \brief Splits the std::string.
@@ -601,6 +605,7 @@ public:
   String& operator+=(const std::string& str) { m_str += str; return *this; }
   String& operator+=(const String& str) { m_str += str.m_str; return *this; }
   String& operator+=(const char* psz) { m_str += psz; return *this; }
+  String& operator+=(char c) { m_str += c; return *this; }
   int compare(const std::string& str) const { return m_str.compare(str); }
   int compare(const String& str) const { return m_str.compare(str.m_str); }
   int compare(size_type p1, size_type n1, const std::string& str, size_type p2,
@@ -931,6 +936,8 @@ public:
   //! \param clear_vector If set to true, the vector is cleared.
   void split(char c, std::vector<std::string> *vec_p, bool clear_vector=true)
   { StringUtil::split(&m_str, c, vec_p, clear_vector); }
+  void split(char c, std::vector<yat::String> *vec_p, bool clear_vector=true)
+  { StringUtil::split(&m_str, c, vec_p, clear_vector); }
 
   //! \brief Splits the string.
   //!
@@ -941,6 +948,8 @@ public:
   //! \param[out] vec_p Pointer to a vector of strings.
   //! \param clear_vector If set to true, the vector is cleared.
   void split(char c, std::vector<std::string> *vec_p, bool clear_vector=true) const
+  { StringUtil::split(m_str, c, vec_p, clear_vector); }
+  void split(char c, std::vector<yat::String> *vec_p, bool clear_vector=true) const
   { StringUtil::split(m_str, c, vec_p, clear_vector); }
 
   //! \brief Splits the string.
