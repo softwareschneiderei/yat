@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -49,7 +49,7 @@ namespace yat
 {
 
 // ============================================================================
-//! \class SysUtils 
+//! \class SysUtils
 //! \brief Generic system utilities.
 //!
 //! This class provides plateform abstracted interface for the following functions:
@@ -68,6 +68,7 @@ public:
   //! \param pstrValue Environment variable value.
   //! \param pszDef Default value.
   static bool get_env(const std::string &strVar, std::string *pstrValue, const char *pszDef=NULL);
+  static bool get_env(const std::string &strVar, yat::String *pstrValue, const char *pszDef=NULL);
 
   //! \brief Executes a command line.
   //! \param pszCmdLine The command line to execute.
@@ -75,12 +76,12 @@ public:
   //! \param bBackground If set to true, the command line is executed in background.
   //! \param bThrow If set to true, function throws an exception when an error occurs.
   //! \param pulReturnCode Value returned by the system on command line execution (plateform dependent).
-  //! \exception SYSTEM_ERROR Thrown when quotes missing in command line (on Windows plateform 
+  //! \exception SYSTEM_ERROR Thrown when quotes missing in command line (on Windows plateform
   //! implementation).
   //! \exception ERR_FILE Thrown if command execution fails (on Windows plateform implementation).
   static bool exec(const char* pszCmdLine, const char *pszDefDir = NULL,
            int bBackground = true, bool bThrow = true, int* pulReturnCode = NULL);
-           
+
   //! \brief Executes a command line using the identity of another account.
   //!
   //! \remark Does the same as SysUtils::exec() function on a Windows plateform.
@@ -94,7 +95,7 @@ public:
   //! \exception SYSTEM_ERROR Thrown when :
   //! - quotes miss in command line (on Windows plateform implementation),
   //! - shell execution fails (on Posix plateform implementation).
-  //! \exception ERR_FILE Thrown if command execution fails (on Windows plateform implementation). 
+  //! \exception ERR_FILE Thrown if command execution fails (on Windows plateform implementation).
   static bool exec_as(const char* pszCmdLine, const char *pszDefDir = NULL,
            int bBackground = true, bool bThrow = true, int* pulReturnCode = NULL, uid_t uid = -1, gid_t gid = -1);
 

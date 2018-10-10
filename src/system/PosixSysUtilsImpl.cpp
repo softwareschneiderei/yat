@@ -70,6 +70,23 @@ bool SysUtils::get_env(const std::string &strVar, std::string *pstrValue, const 
 }
 
 //----------------------------------------------------------------------------
+// SysUtils::get_env
+//----------------------------------------------------------------------------
+bool SysUtils::get_env(const std::string &strVar, yat::String *pstrValue, const char *pszDef)
+{
+  char *pszBuf = ::getenv(PSZ(strVar));
+  if ( pszBuf == NULL )
+  { // if the variable  is undefined, use default value
+    if ( pszDef )
+      *pstrValue = pszDef;
+    return false;
+  }
+
+  *pstrValue = pszBuf;
+  return true;
+}
+
+//----------------------------------------------------------------------------
 // SysUtils::exec
 //----------------------------------------------------------------------------
 bool SysUtils::exec(const char* pszCmdLine, const char *, int bBackground, bool, int *puiReturnCode)
@@ -123,7 +140,7 @@ bool SysUtils::exec_as(const char* pszCmdLine, const char *, int bBackground, bo
     throw Exception("SYSTEM_ERROR", "Error cannot execute shell command", "SysUtils::exec_as");
   else if( pid < 0 )
     return false;
-    
+
   // Parent process, let's wait for the child to finish
   ::waitpid(pid, puiReturnCode, WEXITSTATUS(*puiReturnCode));
   return true;
