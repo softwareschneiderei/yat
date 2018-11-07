@@ -663,15 +663,15 @@ public:
   size_type find(const char *psz, size_type pos = 0) const
                                                 { return m_str.find(psz, pos); }
   size_type find(char c, size_type pos = 0) const { return m_str.find(c, pos); }
-  size_type rfind(const std::string& str, size_type pos = 0) const
+  size_type rfind(const std::string& str, size_type pos = std::string::npos) const
                                                 { return m_str.rfind(str, pos); }
-  size_type rfind(const String& str, size_type pos = 0) const
+  size_type rfind(const String& str, size_type pos = std::string::npos) const
                                            { return m_str.rfind(str.m_str, pos); }
   size_type rfind(const char *psz, size_type pos, size_type n) const
                                              { return m_str.rfind(psz, pos, n); }
-  size_type rfind(const char *psz, size_type pos = 0) const
+  size_type rfind(const char *psz, size_type pos = std::string::npos) const
                                                 { return m_str.rfind(psz, pos); }
-  size_type rfind(char c, size_type pos = 0) const { return m_str.rfind(c, pos); }
+  size_type rfind(char c, size_type pos = std::string::npos) const { return m_str.rfind(c, pos); }
   size_type find_first_of(const std::string& str, size_type pos = 0) const
                                              { return find_first_of(str, pos); }
   size_type find_first_of(const String& str, size_type pos = 0) const
@@ -692,25 +692,25 @@ public:
                                          { return m_str.find_first_not_of(psz, pos); }
   size_type find_first_not_of(char c, size_type pos = 0) const
                                            { return m_str.find_first_not_of(c, pos); }
-  size_type find_last_of(const std::string& str, size_type pos = 0) const
+  size_type find_last_of(const std::string& str, size_type pos = std::string::npos) const
                                               { return m_str.find_last_of(str, pos); }
-  size_type find_last_of(const String& str, size_type pos = 0) const
+  size_type find_last_of(const String& str, size_type pos = std::string::npos) const
                                         { return m_str.find_last_of(str.m_str, pos); }
   size_type find_last_of(const char* psz, size_type pos, size_type n) const
                                            { return m_str.find_last_of(psz, pos, n); }
-  size_type find_last_of(const char* psz, size_type pos = 0) const
+  size_type find_last_of(const char* psz, size_type pos = std::string::npos) const
                                               { return m_str.find_last_of(psz, pos); }
-  size_type find_last_of(char c, size_type pos = 0) const
+  size_type find_last_of(char c, size_type pos = std::string::npos) const
                                                 { return m_str.find_last_of(c, pos); }
-  size_type find_last_not_of(const std::string& str, size_type pos = 0) const
+  size_type find_last_not_of(const std::string& str, size_type pos = std::string::npos) const
                                           { return m_str.find_last_not_of(str, pos); }
-  size_type find_last_not_of(const String& str, size_type pos = 0) const
+  size_type find_last_not_of(const String& str, size_type pos = std::string::npos) const
                                     { return m_str.find_last_not_of(str.m_str, pos); }
   size_type find_last_not_of(const char* psz, size_type pos, size_type n) const
                                        { return m_str.find_last_not_of(psz, pos, n); }
-  size_type find_last_not_of(const char* psz, size_type pos = 0) const
+  size_type find_last_not_of(const char* psz, size_type pos = std::string::npos) const
                                           { return m_str.find_last_not_of(psz, pos); }
-  size_type find_last_not_of(char c, size_type pos = 0) const
+  size_type find_last_not_of(char c, size_type pos = std::string::npos) const
                                             { return m_str.find_last_not_of(c, pos); }
   //@}
 
