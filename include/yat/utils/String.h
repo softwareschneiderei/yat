@@ -268,11 +268,11 @@ public:
   //! std::string is preserved.
   //! \param c Separator.
   //! \param[out] pvecstr Pointer to a vector of std::strings.
-  //! \param bClearVector If set to true, the vector is cleared.
+  //! \param clear_coll If set to true, the vector is cleared.
   static void split(std::string* str_p, char c, std::vector<std::string> *pvecstr,
-                    bool bClearVector=true);
-  static void split(std::string* str_p, char c, std::vector<yat::String> *pvecstr,
-                    bool bClearVector=true);
+                    bool clear_coll=true);
+  static void split(std::string* str_p, char c, std::vector<String> *pvecstr,
+                    bool clear_coll=true);
 
   //! \brief Splits the std::string.
   //!
@@ -281,11 +281,11 @@ public:
   //! std::string ispreserved.
   //! \param c Separator.
   //! \param[out] pvecstr Pointer to a vector of std::strings.
-  //! \param bClearVector If set to true, the vector is cleared.
+  //! \param clear_coll If set to true, the vector is cleared.
   static void split(const std::string& str, char c, std::vector<std::string> *pvecstr,
-                    bool bClearVector=true);
-  static void split(const std::string& str, char c, std::vector<yat::String> *pvecstr,
-                    bool bClearVector=true);
+                    bool clear_coll=true);
+  static void split(const std::string& str, char c, std::vector<String> *pvecstr,
+                    bool clear_coll=true);
 
   //! \brief Splits the std::string.
   //!
@@ -294,9 +294,11 @@ public:
   //! std::string is preserved.
   //! \param c Separator.
   //! \param[out] p_deque Pointer to a vector of std::strings.
-  //! \param bClear If set to true, the deque is cleared first.
+  //! \param clear_coll If set to true, the deque is cleared first.
   static void split(std::string* str_p, char c, std::deque<std::string> *p_deque,
-                    bool bClear=true);
+                    bool clear_coll=true);
+  static void split(std::string* str_p, char c, std::deque<String> *p_deque,
+                    bool clear_coll=true);
 
   //! \brief Splits the std::string.
   //!
@@ -305,9 +307,11 @@ public:
   //! std::string is preserved.
   //! \param c Separator.
   //! \param[out] p_deque Pointer to a deque of std::strings.
-  //! \param bClear If set to true, the deque is cleared first.
+  //! \param clear_coll If set to true, the deque is cleared first.
   static void split(const std::string& str, char c, std::deque<std::string> *p_deque,
-                    bool bClear=true);
+                    bool clear_coll=true);
+  static void split(const std::string& str, char c, std::deque<String> *p_deque,
+                    bool clear_coll=true);
 
   //! \brief Splits the std::string.
   //!
@@ -595,7 +599,7 @@ public:
   String& insert(size_type idx, const std::string& str) { m_str.insert(idx, str); return *this; }
   String& insert(size_type idx, const String& str) { m_str.insert(idx, str.m_str); return *this; }
   iterator insert(iterator pos, char c) { return insert(pos, c); }
-  String& erase(size_type idx = 0, size_type cnt = 0) { m_str.erase(idx, cnt);  return *this; }
+  String& erase(size_type idx = 0, size_type cnt = std::string::npos) { m_str.erase(idx, cnt);  return *this; }
   iterator erase(iterator pos) { return m_str.erase(pos); }
   iterator erase(iterator first, iterator last) { return m_str.erase(first, last); }
   void push_back(char c) { m_str.push_back(c); }
@@ -689,7 +693,7 @@ public:
   size_type find_first_not_of(char c, size_type pos = 0) const
                                            { return m_str.find_first_not_of(c, pos); }
   size_type find_last_of(const std::string& str, size_type pos = 0) const
-                                              { return find_last_of(str, pos); }
+                                              { return m_str.find_last_of(str, pos); }
   size_type find_last_of(const String& str, size_type pos = 0) const
                                         { return m_str.find_last_of(str.m_str, pos); }
   size_type find_last_of(const char* psz, size_type pos, size_type n) const
@@ -697,7 +701,7 @@ public:
   size_type find_last_of(const char* psz, size_type pos = 0) const
                                               { return m_str.find_last_of(psz, pos); }
   size_type find_last_of(char c, size_type pos = 0) const
-                                                { return find_last_of(c, pos); }
+                                                { return m_str.find_last_of(c, pos); }
   size_type find_last_not_of(const std::string& str, size_type pos = 0) const
                                           { return m_str.find_last_not_of(str, pos); }
   size_type find_last_not_of(const String& str, size_type pos = 0) const
@@ -780,13 +784,15 @@ public:
   bool starts_with(char c) const
   { return StringUtil::starts_with(m_str, c); }
 
-  //! \brief Tests the first character with that of another string.
+  //! \brief Tests the first characters with that of another string.
   //!
   //! Returns true if the strings start with the same character, false otherwise.
   //! \param pcszStart The source string.
   //! \param no_case If set to true, the test is not case sensitive.
   bool starts_with(pcsz pcszStart, bool no_case=false) const
   { return StringUtil::starts_with(m_str, pcszStart, no_case); }
+  bool starts_with(const std::string& str, bool no_case=false) const
+  { return StringUtil::starts_with(m_str, str.c_str(), no_case); }
 
   //! \brief Tests the last character.
   //!
@@ -795,13 +801,15 @@ public:
   bool ends_with(char c) const
   { return StringUtil::ends_with(m_str, c); }
 
-  //! \brief Tests the last character with that of another string.
+  //! \brief Tests the last characters with that of another string.
   //!
   //! Returns true if the strings end with the same character, false otherwise.
   //! \param pcszEnd The source string.
   //! \param no_case If set to true, the test is not case sensitive.
   bool ends_with(pcsz pcszEnd, bool no_case=false) const
   { return StringUtil::ends_with(m_str, pcszEnd, no_case); }
+  bool ends_with(const std::string& str, bool no_case=false) const
+  { return StringUtil::ends_with(m_str, str.c_str(), no_case); }
 
   //! \name Token extraction
   //@{
@@ -936,11 +944,11 @@ public:
   //! preserved.
   //! \param c Separator.
   //! \param[out] vec_p Pointer to a vector of strings.
-  //! \param clear_vector If set to true, the vector is cleared.
-  void split(char c, std::vector<std::string> *vec_p, bool clear_vector=true)
-  { StringUtil::split(&m_str, c, vec_p, clear_vector); }
-  void split(char c, std::vector<yat::String> *vec_p, bool clear_vector=true)
-  { StringUtil::split(&m_str, c, vec_p, clear_vector); }
+  //! \param clear_coll If set to true, the vector is cleared.
+  void split(char c, std::vector<std::string> *vec_p, bool clear_coll=true)
+  { StringUtil::split(&m_str, c, vec_p, clear_coll); }
+  void split(char c, std::vector<String> *vec_p, bool clear_coll=true)
+  { StringUtil::split(&m_str, c, vec_p, clear_coll); }
 
   //! \brief Splits the string.
   //!
@@ -949,11 +957,11 @@ public:
   //! preserved.
   //! \param c Separator.
   //! \param[out] vec_p Pointer to a vector of strings.
-  //! \param clear_vector If set to true, the vector is cleared.
-  void split(char c, std::vector<std::string> *vec_p, bool clear_vector=true) const
-  { StringUtil::split(m_str, c, vec_p, clear_vector); }
-  void split(char c, std::vector<yat::String> *vec_p, bool clear_vector=true) const
-  { StringUtil::split(m_str, c, vec_p, clear_vector); }
+  //! \param clear_coll If set to true, the vector is cleared.
+  void split(char c, std::vector<std::string> *vec_p, bool clear_coll=true) const
+  { StringUtil::split(m_str, c, vec_p, clear_coll); }
+  void split(char c, std::vector<String> *vec_p, bool clear_coll=true) const
+  { StringUtil::split(m_str, c, vec_p, clear_coll); }
 
   //! \brief Splits the string.
   //!
@@ -962,7 +970,6 @@ public:
   //! \param c Separator.
   //! \param[out] pstrLeft Left part of the split string.
   //! \param[out] pstrRight Right part of the split string.
-  //! \param clear_vector If set to true, the vector is cleared.
   void split(char c, String *left, String *right)
   { StringUtil::split(&m_str, c, &(left->m_str), &(right->m_str)); }
   void split(char c, std::string *left, std::string *right)
