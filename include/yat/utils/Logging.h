@@ -419,7 +419,7 @@ YAT_DECL void log_emergency(const std::string& msg);
                                       << e.errors[i].origin << std::endl; \
   } while(0)
 
-// Useful macros when not using messages type information
+//! \deprecated macros
 #define YAT_LOG_EXCEPTION(e)        LOG_EXCEPTION("exc", e)
 #define YAT_LOG_VERBOSE(...)     yat::log_verbose("vbs", __VA_ARGS__)
 #define YAT_LOG_RESULT(...)       yat::log_result("res", __VA_ARGS__)
@@ -484,11 +484,14 @@ do {                                                          \
 #define YAT_FREQUENCY_LIMITED_STATEMENT(statement, interval_sec) \
 do \
 { \
-  static yat::Timer s_timer; \
-  if( s_timer.elapsed_sec() >= interval_sec ) \
+  static yat::Timer _s_timer_; \
+  static bool _s_first_exec_ = false; \
+  if( !_s_first_exec_ || _s_timer_.elapsed_sec() >= interval_sec ) \
   { \
-   statement;\
-   s_timer.restart(); \
+   statement;               \
+   _s_timer_.restart();     \
+   if( !_s_first_exec_ )    \
+     _s_first_exec_ = true; \
   } \
 } while(0)
 
