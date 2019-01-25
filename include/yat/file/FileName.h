@@ -563,6 +563,9 @@ public:
   //! \brief Gets file path.
   std::string path() const;
 
+  //! \brief Gets file path splitted.
+  yat::StringVector splitted_path() const;
+
   //! \brief Gets filename without path and extension.
   std::string name() const;
 
