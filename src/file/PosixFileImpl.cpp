@@ -461,15 +461,11 @@ void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Except
   }
 
   struct stat st;
-  // keep metadata & Is root  ?
-  if( bKeepMetaData && 0 == geteuid() )
+  int iRc = stat(PSZ(full_name()), &st);
+  if( iRc )
   {
-    int iRc = stat(PSZ(full_name()), &st);
-    if( iRc )
-    {
-      std::string strErr = StringUtil::str_format(ERR_COPY_FAILED, PSZ(full_name()), PSZ(fDst.full_name()));
-      ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
-    }
+    std::string strErr = StringUtil::str_format(ERR_COPY_FAILED, PSZ(full_name()), PSZ(fDst.full_name()));
+    ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
   }
 
   // Open source file
@@ -578,7 +574,7 @@ void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Except
     throw ex;
   }
 
-  // if root copy file metadata: access mode, owner & group
+  // if root set original ownership
   if( bKeepMetaData && 0 == geteuid() )
   {
     try
