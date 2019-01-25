@@ -134,6 +134,18 @@ std::string FileName::path() const
 }
 
 //----------------------------------------------------------------------------
+// FileName::splitted_path
+//----------------------------------------------------------------------------
+yat::StringVector FileName::splitted_path() const
+{
+  yat::String s = path();
+  s = s.substr(0, s.size()-1);
+  yat::StringVector components;
+  s.split('/', &components);
+  return components;
+}
+
+//----------------------------------------------------------------------------
 // FileName::name
 //----------------------------------------------------------------------------
 std::string FileName::name() const
