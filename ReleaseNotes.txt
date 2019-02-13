@@ -1,5 +1,12 @@
 YAT history file
 
+1.14.5 (2019/02/13)
+===================
+
+    Fixes
+        Fixed incorrect error management in yat::URI::parse
+        Added '|' character in allowed list of characters in the query part
+
 1.14.4 (2018/11/06)
 ===================
 
