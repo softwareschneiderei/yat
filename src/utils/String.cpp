@@ -718,132 +718,100 @@ int StringUtil::printf(std::string* str_p, pcsz pszFormat, ...)
   return (*str_p).size();
 }
 
-//---------------------------------------------------------------------------
-// StringUtil::split
-//---------------------------------------------------------------------------
-void StringUtil::split(std::string* str_p, char c, std::vector<std::string> *pvecstr,
-                       bool bClearVector)
-{
-  // Clear vector
-  if( bClearVector )
-    pvecstr->clear();
-  std::string strToken;
-  bool sep_found = false;
-  while( !(*str_p).empty() )
-  {
-    sep_found = extract_token(str_p, c, &strToken, true) == StringUtil::SEP_FOUND;
-    pvecstr->push_back(strToken);
-  }
-
-  if( sep_found )
-    pvecstr->push_back("");
-}
+#define _SPLIT_TO_COLLECTION_IMPL_(s_p, coll_p)                                \
+do                                                                             \
+{                                                                              \
+  if( clear_coll )                                                             \
+    coll_p->clear();                                                           \
+  std::string strToken;                                                        \
+  bool sep_found = false;                                                      \
+  while( !(*s_p).empty() )                                                     \
+  {                                                                            \
+    sep_found = extract_token(s_p, c, &strToken, true) == StringUtil::SEP_FOUND; \
+    coll_p->push_back(strToken);                                               \
+  }                                                                            \
+  if( sep_found )                                                              \
+    coll_p->push_back("");                                                     \
+} while (0)
 
 //---------------------------------------------------------------------------
 // StringUtil::split
 //---------------------------------------------------------------------------
-void StringUtil::split(std::string* str_p, char c, std::vector<yat::String> *pvecstr,
-                       bool bClearVector)
+void StringUtil::split(std::string* str_p, char c,
+                       std::vector<std::string> *vec_p, bool clear_coll)
 {
-  // Clear vector
-  if( bClearVector )
-    pvecstr->clear();
-  std::string strToken;
-  bool sep_found = false;
-  while( !(*str_p).empty() )
-  {
-    sep_found = extract_token(str_p, c, &strToken, true) == StringUtil::SEP_FOUND;
-    pvecstr->push_back(strToken);
-  }
-
-  if( sep_found )
-    pvecstr->push_back("");
-}
-
-//---------------------------------------------------------------------------
-// StringUtil::split (const version)
-//---------------------------------------------------------------------------
-void StringUtil::split(const std::string& str, char c, std::vector<std::string> *pvecstr,
-                       bool bClearVector)
-{
-  // Clear vector
-  if( bClearVector )
-    pvecstr->clear();
-  std::string strToken;
-  std::string tmp(str);
-  bool sep_found = false;
-  while( !tmp.empty() )
-  {
-    sep_found = extract_token(&tmp, c, &strToken, true) == StringUtil::SEP_FOUND;
-    pvecstr->push_back(strToken);
-  }
-
-  if( sep_found )
-    pvecstr->push_back("");
-}
-
-//---------------------------------------------------------------------------
-// StringUtil::split (const version)
-//---------------------------------------------------------------------------
-void StringUtil::split(const std::string& str, char c, std::vector<yat::String> *pvecstr,
-                       bool bClearVector)
-{
-  // Clear vector
-  if( bClearVector )
-    pvecstr->clear();
-  std::string strToken;
-  std::string tmp(str);
-  bool sep_found = false;
-  while( !tmp.empty() )
-  {
-    sep_found = extract_token(&tmp, c, &strToken, true) == StringUtil::SEP_FOUND;
-    pvecstr->push_back(strToken);
-  }
-
-  if( sep_found )
-    pvecstr->push_back("");
+  _SPLIT_TO_COLLECTION_IMPL_(str_p, vec_p);
 }
 
 //---------------------------------------------------------------------------
 // StringUtil::split
 //---------------------------------------------------------------------------
-void StringUtil::split(std::string* str_p, char c, std::deque<std::string> *deque_p,
-                       bool bClear)
+void StringUtil::split(std::string* str_p, char c, std::vector<String> *vec_p,
+                       bool clear_coll)
 {
-  // Clear vector
-  if( bClear )
-    deque_p->clear();
-  std::string strToken;
-  bool sep_found = false;
-  while( !(*str_p).empty() )
-  {
-    sep_found = extract_token(str_p, c, &strToken, true) == StringUtil::SEP_FOUND;
-    deque_p->push_back(strToken);
-  }
-
-  if( sep_found )
-    deque_p->push_back("");
+  _SPLIT_TO_COLLECTION_IMPL_(str_p, vec_p);
 }
 
 //---------------------------------------------------------------------------
 // StringUtil::split (const version)
 //---------------------------------------------------------------------------
-void StringUtil::split(const std::string& str, char c, std::deque<std::string> *deque_p, bool bClear)
+void StringUtil::split(const std::string& str, char c,
+                       std::vector<std::string> *vec_p, bool clear_coll)
 {
-  // Clear vector
-  if( bClear )
-    deque_p->clear();
-  std::string strToken;
   std::string tmp(str);
-  bool sep_found = false;
-  while( !tmp.empty() )
-  {
-    sep_found = extract_token(&tmp, c, &strToken, true) == StringUtil::SEP_FOUND;
-    deque_p->push_back(strToken);
-  }
+  std::string* tmp_p = &tmp;
+  _SPLIT_TO_COLLECTION_IMPL_(tmp_p, vec_p);
+}
 
-  if( sep_found )
-    deque_p->push_back("");
+//---------------------------------------------------------------------------
+// StringUtil::split (const version)
+//---------------------------------------------------------------------------
+void StringUtil::split(const std::string& str, char c,
+                       std::vector<String> *vec_p, bool clear_coll)
+{
+  std::string tmp(str);
+  std::string* tmp_p = &tmp;
+  _SPLIT_TO_COLLECTION_IMPL_(tmp_p, vec_p);
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::split
+//---------------------------------------------------------------------------
+void StringUtil::split(std::string* str_p, char c,
+                       std::deque<std::string> *deque_p, bool clear_coll)
+{
+  _SPLIT_TO_COLLECTION_IMPL_(str_p, deque_p);
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::split
+//---------------------------------------------------------------------------
+void StringUtil::split(std::string* str_p, char c, std::deque<String> *deque_p,
+                       bool clear_coll)
+{
+  _SPLIT_TO_COLLECTION_IMPL_(str_p, deque_p);
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::split (const version)
+//---------------------------------------------------------------------------
+void StringUtil::split(const std::string& str, char c,
+                       std::deque<std::string> *deque_p, bool clear_coll)
+{
+  std::string tmp(str);
+  std::string* tmp_p = &tmp;
+  _SPLIT_TO_COLLECTION_IMPL_(tmp_p, deque_p);
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::split (const version)
+//---------------------------------------------------------------------------
+void StringUtil::split(const std::string& str, char c,
+                       std::deque<String> *deque_p, bool clear_coll)
+{
+  std::string tmp(str);
+  std::string* tmp_p = &tmp;
+  _SPLIT_TO_COLLECTION_IMPL_(tmp_p, deque_p);
 }
 
 //---------------------------------------------------------------------------
