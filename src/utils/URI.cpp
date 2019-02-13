@@ -45,6 +45,7 @@
 // DEPENDENCIES
 // ============================================================================
 #include <sstream>
+#include <yat/utils/Logging.h>
 #include <yat/utils/URI.h>
 
 namespace yat
@@ -61,7 +62,7 @@ URI::URI(const std::string& uri_string)
 }
 
 //----------------------------------------------------------------------------
-// URI::URI (const std::string& scheme, const std::string& authority...)
+// URI::URI (const URI::Fields& fields)
 //----------------------------------------------------------------------------
 URI::URI(const URI::Fields& fields)
 {
@@ -84,7 +85,7 @@ URI::URI(const URI::Fields& fields)
 
 const std::string ALPHA = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const std::string DIGIT = "0123456789";
-const std::string UNRESERVED = ALPHA + DIGIT + std::string("-._~");
+const std::string UNRESERVED = ALPHA + DIGIT + std::string("-._~|");
 const std::string HEXDIGIT ="0123456789abcdefABCDEF";
 const std::string PCT_ENCODED  = HEXDIGIT + "%";
 const std::string SUB_DELIMS = "!$&'()*+,;=";
@@ -103,6 +104,7 @@ bool URI::check_value(const std::string& value, const std::string &accepted_char
       THROW_YAT_ERROR(uri_syntax_error,
                       "Bad '" << value_name << "' syntax: " << value,
                       "URI::check_value" );
+    YAT_WARNING << "Bad '" << value_name << "' syntax: " << value << std::endl;
     return false;
   }
   return true;
@@ -262,7 +264,7 @@ void URI::parse(const std::string& uri)
     fields.path = hierarchical_part;
   }
 
-  check(URI::PATH, fields.path);
+  check(URI::PATH, fields.path, true);
 
   if( '?' == found_sep )
   {
@@ -270,12 +272,12 @@ void URI::parse(const std::string& uri)
     if(  all.find('#') != std::string::npos )
       yat::StringUtil::extract_token_right(&all, '#', &fields.fragment);
     fields.query = all;
-    check(URI::QUERY, fields.query);
+    check(URI::QUERY, fields.query, true);
   }
   else if( '#' == found_sep )
   {
     fields.fragment = all;
-    check(URI::FRAGMENT, fields.fragment);
+    check(URI::FRAGMENT, fields.fragment, true);
   }
 
   // Sets the values
