@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>fr.soleil</groupId>
+    	<artifactId>super-pom-C-CPP-device</artifactId>
+    	<version>RELEASE</version>
+   	</parent>
+   	<groupId>fr.soleil.device</groupId>
+   	<artifactId>cppunit_YAT-${aol}-${mode}</artifactId>
+   	<version>0.0.1</version>
+   	<packaging>nar</packaging>
+   	<name>cppunit_YAT</name>
+<!-- use for the name of executable -->
+   	<description>cppunit_YAT</description>
+   	<build>
+    	<plugins>
+			<plugin>
+				<groupId>org.freehep</groupId>
+				<artifactId>freehep-nar-plugin</artifactId>
+				<configuration>
+			    	<cpp>
+						<systemIncludePaths>
+							<systemIncludePath>/home/informatique/ica/poirier/dev/CPPUNIT/include</systemIncludePath>
+						</systemIncludePaths>
+			    	</cpp>
+			    	<linker>
+			    		<libs>
+			    			<lib>
+			    			    <!-- CppUnit -->
+                                <name>cppunit</name>
+                                <type>shared</type>
+								<directory>/home/informatique/ica/poirier/dev/CPPUNIT/lib</directory>
+			    			</lib>
+			    		</libs>
+					</linker>
+		    	</configuration>
+			</plugin>
+			<plugin>
+				<groupId>fr.soleil.maven.plugins</groupId>
+				<artifactId>maven-check-plugin</artifactId>
+				<configuration>
+		    		<enable>false</enable>
+		    	</configuration>
+			</plugin>
+   		</plugins>
+   	</build>
+   	<dependencies>
+        <dependency>
+            <groupId>fr.soleil.lib</groupId>
+            <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
+			<version>1.14.6-SNAPSHOT</version>
+        </dependency>
+   	</dependencies>
+</project>
