@@ -118,7 +118,54 @@ YAT_DEFINE_CALLBACK(PulserCallback, Thread::IOArg);
 class PulserCoreImpl;
 
 // ============================================================================
+/*! \class Pulser
+    \brief Periodically call a callback accepting a Thread::IOArg as input arg.
+    \brief Quick & dirty Pulser attribute example of usage:
+    \verbatim
+    #include "yat/threading/Pulser.h"
 //! \class Pulser
+    class MyClass
+    {
+    public:
+      MyClass() : calls(0) {}
+  
+      void my_callback (yat::Thread::IOArg arg)
+      {
+        std::cout << "MyClass::my_callback::call #" << ++calls << std::endl;
+      }
+  
+      size_t calls;
+    };
+  
+    int main (int, char**)
+    {
+      try
+      {
+        //- MyClass instance
+        MyClass mc;
+  
+        //- pulser's config
+        yat::Pulser::Config cfg;
+        cfg.period_in_msecs = 250;
+        cfg.num_pulses = 10;
+        cfg.callback = yat::PulserCallback::instanciate(mc, &MyClass::my_callback);
+        cfg.user_data = 0;
+  
+        yat::Pulser p(cfg);
+        p.start();
+  
+        yat::Thread::sleep(5000);
+  
+        std::cout << "done!" << std::endl;
+      }
+      catch (...)
+      {
+        std::cout << "Unknown exception caught" << std::endl;
+      }
+  
+      return 0;  
+    }
+    \endverbatim */
 //! \brief Periodically call a callback accepting a Thread::IOArg as input arg.
 // ============================================================================
 class YAT_DECL Pulser
