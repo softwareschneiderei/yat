@@ -1,31 +1,50 @@
 YAT history file
 
+1.14.6 (2019/04/16)
+===================
+
+New
+    CPPunit tests (using libcppunit 1.13.2). To be completed...
+
+Changes
+
+    StringTemplate
+        Now support substitutions directives 'uc' & 'lc' (which means upper-case & lower-case respectively):
+        If MY_VAR is "Foo" then $(uc:MY_VAR) will be replaced by "FOO" and $(lc:MY_VAR) will replaced by "foo"
+        -> see <yat/utils/String.h>
+
+Fixes
+    Bug fixed in StringUtil::extract_token(std::string* str_p, char cLeft, char cRight, std::string *pstrToken)
+    -> see <yat/utils/String.h>
+    In FileName::FSBytes changed the base unit: 1000 instead of 1024
+    -> see <yat/file.FileName.h>
+
 1.14.5 (2019/02/13)
 ===================
 
-    Fixes
-        Fixed incorrect error management in yat::URI::parse
-        Added '|' character in allowed list of characters in the query part
+Fixes
+    Fixed incorrect error management in yat::URI::parse
+    Added '|' character in allowed list of characters in the query part
 
 1.14.4 (2018/11/06)
 ===================
 
-    Fixes
-        Bad calls of std::string methods from yat::String
+Fixes
+    Bad calls of std::string methods from yat::String
 
 1.14.3 (2018/10/10)
 ===================
 
-    Fixes
-        Added missing implementation of method yat::String::str_format()
-        Added missing method: 
-            yat::String::split(char c, std::vector<yat::String> *vec_p, bool clear_vector=true);
-            yat::String::split(char c, std::vector<yat::String> *vec_p, bool clear_vector=true) const;
-            yat::String::operator+=(char c);
-            yat::StringUtil::split(std::string* str_p, char c, std::vector<yat::String> *vec_p, bool clear_vector=true);
-            yat::StringUtil::split(const std::string& str, char c, std::vector<yat::String> *vec_p, bool clear_vector=true) const;
-            yat::File::load(yat::string *);
-            yat::SysUtils::get_env(const std::string &strVar, yat::String *pstrValue, const char *pszDef=NULL);
+Fixes
+    Added missing implementation of method yat::String::str_format()
+    Added missing method: 
+        yat::String::split(char c, std::vector<yat::String> *vec_p, bool clear_vector=true);
+        yat::String::split(char c, std::vector<yat::String> *vec_p, bool clear_vector=true) const;
+        yat::String::operator+=(char c);
+        yat::StringUtil::split(std::string* str_p, char c, std::vector<yat::String> *vec_p, bool clear_vector=true);
+        yat::StringUtil::split(const std::string& str, char c, std::vector<yat::String> *vec_p, bool clear_vector=true) const;
+        yat::File::load(yat::string *);
+        yat::SysUtils::get_env(const std::string &strVar, yat::String *pstrValue, const char *pszDef=NULL);
 
 1.14.1 (2018/09/27)
 ===================
