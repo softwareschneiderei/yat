@@ -108,11 +108,28 @@ bool StringTemplate::substitute(std::string *pstrTemplate)
         // Delete up to matching end parenthesis
         strTmpl.erase(0, uiMatchPos - uiFirstPos - 1);
 
+        bool to_lower = false, to_upper = false;
+        if( yat::StringUtil::match(strVar, "uc:*") )
+        {
+          to_upper = true;
+          strVar = strVar.substr(3);
+        }
+        if( yat::StringUtil::match(strVar, "lc:*") )
+        {
+          to_lower = true;
+          strVar = strVar.substr(3);
+        }
+
         std::string var_before = strVar;
         // Variable evaluation
         bool rc = value(&strVar);
         if( return_value )
           return_value = rc;
+
+        if( to_upper )
+          yat::StringUtil::to_upper(&strVar);
+        if( to_lower )
+          yat::StringUtil::to_lower(&strVar);
 
         strEval += strVar;
       }
