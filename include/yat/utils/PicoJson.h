@@ -108,6 +108,10 @@
 	
 	struct null {};
 	
+/*! \class value
+    \brief Value class for JSON parser.
+    \brief See https://github.com/kazuho/picojson for more details.
+    */
 	class value {
 	public:
 	typedef std::vector<value> array;
@@ -527,6 +531,10 @@
 	return s;
 	}
 	
+/*! \class input
+    \brief Input class for JSON parser.
+    \brief See https://github.com/kazuho/picojson for more details.
+    */
 	template <typename Iter> class input {
 	protected:
 	Iter cur_, end_;
@@ -803,6 +811,10 @@
 	return false;
 	}
 	
+/*! \class deny_parse_context
+    \brief Class for JSON parser.
+    \brief See https://github.com/kazuho/picojson for more details.
+    */
 	class deny_parse_context {
 	public:
 	bool set_null() { return false; }
@@ -823,6 +835,10 @@
 	}
 	};
 	
+/*! \class default_parse_context
+    \brief Class for JSON parser.
+    \brief See https://github.com/kazuho/picojson for more details.
+    */
 	class default_parse_context {
 	protected:
 	value* out_;
@@ -875,6 +891,10 @@
 	default_parse_context& operator=(const default_parse_context&);
 	};
 	
+/*! \class null_parse_context
+    \brief Class for JSON parser.
+    \brief See https://github.com/kazuho/picojson for more details.
+    */
 	class null_parse_context {
 	public:
 	struct dummy_str {
