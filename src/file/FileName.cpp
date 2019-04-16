@@ -477,22 +477,22 @@ void FileName::FSBytes::from( double value, Units u )
       bytes = yat::int64(value);
       break;
     case KBYTES:
-      bytes = yat::int64(value * YAT_KBYTES);
+      bytes = yat::int64(value * YAT_KBYTES + 0.5);
       break;
     case MBYTES:
-      bytes = yat::int64(value * YAT_MBYTES);
+      bytes = yat::int64(value * YAT_MBYTES + 0.5);
       break;
     case GBYTES:
-      bytes = yat::int64(value * YAT_GBYTES);
+      bytes = yat::int64(value * YAT_GBYTES + 0.5);
       break;
     case TBYTES:
-      bytes = yat::int64(value * YAT_TBYTES);
+      bytes = yat::int64(value * YAT_TBYTES + 0.5);
       break;
     case PBYTES:
-      bytes = yat::int64(value * YAT_PBYTES);
+      bytes = yat::int64(value * YAT_PBYTES + 0.5);
       break;
     case EBYTES:
-      bytes = yat::int64(value * YAT_EBYTES);
+      bytes = yat::int64(value * YAT_EBYTES + 0.5);
       break;
     default:
       throw yat::Exception("ERROR", "Bad conversion units", "yat::FileName::FSBytes::from");
@@ -507,19 +507,19 @@ void FileName::FSBytes::from( const std::string &value )
   std::string v = value;
 
   if( yat::StringUtil::match(v, "*k") || yat::StringUtil::match(v, "*kbytes") )
-      from( atol(v.c_str()), KBYTES );
+      from( atof(v.c_str()), KBYTES );
   else if( yat::StringUtil::match(v, "*m") || yat::StringUtil::match(v, "*mbytes") )
-      from( atol(v.c_str()), MBYTES );
+      from( atof(v.c_str()), MBYTES );
   else if( yat::StringUtil::match(v, "*g") || yat::StringUtil::match(v, "*gbytes") )
-      from( atol(v.c_str()), GBYTES );
+      from( atof(v.c_str()), GBYTES );
   else if( yat::StringUtil::match(v, "*t") || yat::StringUtil::match(v, "*tbytes") )
-      from( atol(v.c_str()), TBYTES );
+      from( atof(v.c_str()), TBYTES );
   else if( yat::StringUtil::match(v, "*p") || yat::StringUtil::match(v, "*pbytes") )
-      from( atol(v.c_str()), PBYTES );
+      from( atof(v.c_str()), PBYTES );
   else if( yat::StringUtil::match(v, "*e") || yat::StringUtil::match(v, "*ebytes") )
-      from( atol(v.c_str()), EBYTES );
+      from( atof(v.c_str()), EBYTES );
   else
-    from( atol(v.c_str()) );
+    from( atof(v.c_str()) );
 }
 
 //-------------------------------------------------------------------
@@ -529,9 +529,9 @@ std::string FileName::FSBytes::to_string(bool long_format) const
 {
   int l = 0;
   double d = bytes;
-  while( d > 1024.0 )
+  while( d > 1000.0 )
   {
-    d /= 1024.0;
+    d /= 1000.0;
     ++l;
   }
 
