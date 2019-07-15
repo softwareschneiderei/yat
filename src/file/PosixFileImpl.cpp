@@ -49,7 +49,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <cstring>
 
+#include <yat/md5/md5.h>
 #include <yat/time/Time.h>
 #include <yat/time/Timer.h>
 #include <yat/file/FileName.h>
@@ -438,9 +440,9 @@ void FileName::set_mod_time(const Time& tm) const throw( Exception )
 }
 
 //-------------------------------------------------------------------
-// FileName::copy
+// FileName::priv_copy
 //-------------------------------------------------------------------
-void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Exception )
+void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool keep_metadata)
 {
   if( !file_exist() )
   { // File doesn't exists
@@ -467,6 +469,8 @@ void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Except
     std::string strErr = StringUtil::str_format(ERR_COPY_FAILED, PSZ(full_name()), PSZ(fDst.full_name()));
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
   }
+
+  yat::md5::md5_t md5_processor;
 
   // Open source file
   int fsrc = open(PSZ(full_name()), O_RDONLY);
@@ -521,6 +525,9 @@ void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Except
         ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
       }
 
+      if( md5sum_p )
+        md5_processor.process(aBuf, lReaded);
+
       lWritten = write(fdst, aBuf, lToRead);
       if( lWritten < 0 || lWritten != lToRead )
       {
@@ -544,6 +551,16 @@ void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Except
           last_elapsed_sec = elapsed_sec;
         }
       }
+    }
+
+    if( md5sum_p )
+    {
+      md5_processor.finish();
+      char str[MD5_STRING_SIZE];
+      std::memset(str, 0, MD5_STRING_SIZE);
+      md5_processor.get_string(str);
+      md5sum_p->clear();
+      md5sum_p->append(str);
     }
 
     // progress notification: operation completed
@@ -575,7 +592,7 @@ void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Except
   }
 
   // if root set original ownership
-  if( bKeepMetaData && 0 == geteuid() )
+  if( keep_metadata && 0 == geteuid() )
   {
     try
     {
@@ -797,6 +814,54 @@ void FileName::set_copy_bloc_size(size_t size)
   s_copy_bloc_size = size;
 }
 
+
+//-------------------------------------------------------------------
+// FileName::md5sum
+//-------------------------------------------------------------------
+yat::String FileName::md5sum() const
+{
+  int64 llTotalSize = size64();
+  int64 llSize = llTotalSize;
+  ssize_t lReaded = 0, lToRead = 0;
+
+  yat::md5::md5_t md5_processor;
+
+  // Open source file
+  int fsrc = open(PSZ(full_name()), O_RDONLY);
+  if( fsrc < 0 )
+  {
+    std::string strErr = StringUtil::str_format(ERR_OPEN_FILE, PSZ(full_name()));
+    ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
+  }
+
+  // Buffer
+  char aBuf[s_copy_bloc_size];
+  ::memset(aBuf, 0, s_copy_bloc_size);
+
+  while( llSize )
+  {
+    lToRead = s_copy_bloc_size;
+
+    if( llSize < s_copy_bloc_size )
+      lToRead = (ssize_t)llSize;
+
+    lReaded = read(fsrc, aBuf, lToRead);
+    if( lReaded < 0 )
+    {
+      std::string strErr = StringUtil::str_format(ERR_READING_FILE, PSZ(full_name()));
+      ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
+    }
+
+    md5_processor.process(aBuf, lReaded);
+    llSize -= lReaded;
+  }
+
+  md5_processor.finish();
+  char str[MD5_STRING_SIZE];
+  std::memset(str, 0, MD5_STRING_SIZE);
+  md5_processor.get_string(str);
+  return yat::String(str);
+}
 
 //===========================================================================
 // Class FileEnum

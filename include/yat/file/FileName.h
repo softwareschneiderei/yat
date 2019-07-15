@@ -457,6 +457,8 @@ private:
   //! progress notification target
   IProgress* m_progress_target_p;
 
+  void priv_copy(const std::string& strDest,  yat::String* md5sum_p, bool keep_metadata);
+
 public:
   //! \brief Default constructor.
   FileName(): m_progress_target_p(0)  { }
@@ -660,8 +662,19 @@ public:
   //! \exception FILE_NOT_FOUND Thrown if *this* file doesn't exist.
   //! \exception FILE_ERROR Thrown if file copy fails.
   //! \todo implement the progress notifications on Windows using the CopyFileEx functions family
-  void copy(const std::string& strDest, bool bKeepMetaData=false)
+  void copy(const std::string& strDest, bool keep_metadata=false)
     throw(Exception);
+
+  //! \brief Copies the file to the specified destination.
+  //! \param strDest Destination file.
+  //! \param md5sum_str_p String that will contains the md5sum of the source file
+  //! \param bKeepMetaData If set to true and uid is root, the copy keeps metadata
+  //! (access mode, owner & group). Metadata are not kept otherwise.
+  //! \exception FILE_NOT_FOUND Thrown if *this* file doesn't exist.
+  //! \exception FILE_ERROR Thrown if file copy fails.
+  //! \todo implement the progress notifications on Windows using the CopyFileEx functions family
+  void copy_with_md5(const std::string& strDest, yat::String* md5sum_str_p,
+                     bool keep_metadata=false);
 
   //! \brief Moves file to specified destination.
   //! \param strDest Destination file or directory.
@@ -738,6 +751,9 @@ public:
   //! \exception FILE_ERROR Thrown if file or directory owner modification fails.
   void recursive_chown(uid_t uid, gid_t gid = (uid_t)-1)
     throw(Exception);
+
+  //! \brief Return the md5 sum of the file
+  yat::String md5sum() const;
 
   //! \brief Returns the filesystem type.
   //!

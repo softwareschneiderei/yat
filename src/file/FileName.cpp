@@ -435,6 +435,23 @@ bool FileName::is_empty_dir() const
   return false;
 }
 
+//-------------------------------------------------------------------
+// FileName::copy
+//-------------------------------------------------------------------
+void FileName::copy(const std::string& dst, bool keep_metadata) throw( Exception )
+{
+  priv_copy(dst, NULL, keep_metadata);
+}
+
+//-------------------------------------------------------------------
+// FileName::copy_with_md5
+//-------------------------------------------------------------------
+void FileName::copy_with_md5(const std::string& dst, yat::String* md5sum_str_p,
+                             bool keep_metadata)
+{
+  priv_copy(dst, md5sum_str_p, keep_metadata);
+}
+
 // ============================================================================
 // class FileName::FSStat
 // ============================================================================

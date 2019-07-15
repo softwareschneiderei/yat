@@ -489,7 +489,7 @@ void FileName::set_mod_time(const Time& tm) const throw( Exception )
 //-------------------------------------------------------------------
 // FileName::copy
 //-------------------------------------------------------------------
-void FileName::copy(const std::string& strDst, bool bKeepMetaData) throw( Exception )
+void FileName::priv_copy(const std::string& strDst, yat::String*, bool)
 {
   if( !file_exist() )
   { // File doesn't exists
