@@ -1,9 +1,19 @@
 YAT history file
 
+1.15.0 (2019/07/15)
+===================
+
+Additions
+    class md5::md5_t
+        md5sum processor
+
+    New method FileName::copy_with_md5(const std::string& strDest, yat::String* md5sum_str_p, bool keep_metadata=false);
+    -> see <yat/file.FileName.h>
+
 1.14.6 (2019/04/16)
 ===================
 
-New
+Additions
     CPPunit tests (using libcppunit 1.13.2). To be completed...
 
 Changes
