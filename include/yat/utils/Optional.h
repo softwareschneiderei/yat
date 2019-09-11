@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //    Nicolas Leclercq
@@ -44,13 +44,13 @@ namespace yat
 {
 
 // ============================================================================
-//! \class Optional<T>
+//! \class Optional
 //! \brief Manage an optional contained value, i.e. a value that may or may not be present.
 //! This class is directly inspired by the std::optional class defined in C++17
 //! See http://en.cppreference.com/w/cpp/experimental/optional
 // ============================================================================
 template<typename T>
-class Optional 
+class Optional
 {
 
   typedef void (Optional::*bool_type)() const;
@@ -75,7 +75,7 @@ public:
   inline const T* operator->() const { return &m_value; }
   inline T* operator->() { return &m_value; }
 
-  //! \brief Returns the contained value 
+  //! \brief Returns the contained value
   const T& value() const
   {
     if( !m_set )
@@ -83,7 +83,7 @@ public:
     return m_value;
   }
 
-  //! \brief Returns the contained value if available, another value otherwise 
+  //! \brief Returns the contained value if available, another value otherwise
   const T& value_or(const T& default_value) const
   {
     return m_set ? m_value : default_value;
