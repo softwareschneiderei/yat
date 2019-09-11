@@ -598,7 +598,7 @@ public:
   String& insert(size_type idx, const char* p, size_type n) { m_str.insert(idx, p, n); return *this; }
   String& insert(size_type idx, const std::string& str) { m_str.insert(idx, str); return *this; }
   String& insert(size_type idx, const String& str) { m_str.insert(idx, str.m_str); return *this; }
-  iterator insert(iterator pos, char c) { return insert(pos, c); }
+  iterator insert(iterator pos, char c) { return m_str.insert(pos, c); }
   String& erase(size_type idx = 0, size_type cnt = std::string::npos) { m_str.erase(idx, cnt);  return *this; }
   iterator erase(iterator pos) { return m_str.erase(pos); }
   iterator erase(iterator first, iterator last) { return m_str.erase(first, last); }
@@ -673,7 +673,7 @@ public:
                                                 { return m_str.rfind(psz, pos); }
   size_type rfind(char c, size_type pos = std::string::npos) const { return m_str.rfind(c, pos); }
   size_type find_first_of(const std::string& str, size_type pos = 0) const
-                                             { return find_first_of(str, pos); }
+                                             { return m_str.find_first_of(str, pos); }
   size_type find_first_of(const String& str, size_type pos = 0) const
                                        { return m_str.find_first_of(str.m_str, pos); }
   size_type find_first_of(const char* psz, size_type pos, size_type n) const
@@ -1075,46 +1075,46 @@ private:
 };
 
 // Operators
-std::string operator+(const String& s1, const String& s2);
-std::string operator+(const String& s1, const std::string& s2);
-std::string operator+(const std::string& s1, const String& s2);
-std::string operator+(const char* psz, const String& str);
-std::string operator+(char c, const String& str);
-std::string operator+(const String& str, const char* psz);
-std::string operator+(const String& str, char c);
-bool operator==(const String& s1, const String& s2);
-bool operator==(const std::string& s1, const String& s2);
-bool operator==(const String& s1, const std::string& s2);
-bool operator!=(const String& s1, const String& s2);
-bool operator!=(const String& s1, const std::string& s2);
-bool operator!=(const std::string& s1, const String& s2);
-bool operator<(const String& s1, const String& s2);
-bool operator<(const String& s1, const std::string& s2);
-bool operator<(const std::string& s1, const String& s2);
-bool operator<=(const String& s1, const std::string& s2);
-bool operator<=(const String& s1, const String& s2);
-bool operator<=(const std::string& s1, const String& s2);
-bool operator>(const String& s1, const String& s2);
-bool operator>(const String& s1, const std::string& s2);
-bool operator>(const std::string& s1, const String& s2);
-bool operator>=(const String& s1, const std::string& s2);
-bool operator>=(const String& s1, const String& s2);
-bool operator>=(const std::string& s1, const String& s2);
-bool operator==(const String& s1, const char* s2);
-bool operator==(const char* s1, const String& s2);
-bool operator!=(const String& s1, const char* s2);
-bool operator!=(const char* s1, const String& s2);
-bool operator<(const String& s1, const char* s2);
-bool operator<(const char* s1, const String& s2);
-bool operator<=(const String& s1, const char* s2);
-bool operator<=(const char* s1, const String& s2);
-bool operator>(const String& s1, const char* s2);
-bool operator>(const char* s1, const String& s2);
-bool operator>=(const String& s1, const char* s2);
-bool operator>=(const char* s1, const String& s2);
+YAT_DECL std::string operator+(const String& s1, const String& s2);
+YAT_DECL std::string operator+(const String& s1, const std::string& s2);
+YAT_DECL std::string operator+(const std::string& s1, const String& s2);
+YAT_DECL std::string operator+(const char* psz, const String& str);
+YAT_DECL std::string operator+(char c, const String& str);
+YAT_DECL std::string operator+(const String& str, const char* psz);
+YAT_DECL std::string operator+(const String& str, char c);
+YAT_DECL bool operator==(const String& s1, const String& s2);
+YAT_DECL bool operator==(const std::string& s1, const String& s2);
+YAT_DECL bool operator==(const String& s1, const std::string& s2);
+YAT_DECL bool operator!=(const String& s1, const String& s2);
+YAT_DECL bool operator!=(const String& s1, const std::string& s2);
+YAT_DECL bool operator!=(const std::string& s1, const String& s2);
+YAT_DECL bool operator<(const String& s1, const String& s2);
+YAT_DECL bool operator<(const String& s1, const std::string& s2);
+YAT_DECL bool operator<(const std::string& s1, const String& s2);
+YAT_DECL bool operator<=(const String& s1, const std::string& s2);
+YAT_DECL bool operator<=(const String& s1, const String& s2);
+YAT_DECL bool operator<=(const std::string& s1, const String& s2);
+YAT_DECL bool operator>(const String& s1, const String& s2);
+YAT_DECL bool operator>(const String& s1, const std::string& s2);
+YAT_DECL bool operator>(const std::string& s1, const String& s2);
+YAT_DECL bool operator>=(const String& s1, const std::string& s2);
+YAT_DECL bool operator>=(const String& s1, const String& s2);
+YAT_DECL bool operator>=(const std::string& s1, const String& s2);
+YAT_DECL bool operator==(const String& s1, const char* s2);
+YAT_DECL bool operator==(const char* s1, const String& s2);
+YAT_DECL bool operator!=(const String& s1, const char* s2);
+YAT_DECL bool operator!=(const char* s1, const String& s2);
+YAT_DECL bool operator<(const String& s1, const char* s2);
+YAT_DECL bool operator<(const char* s1, const String& s2);
+YAT_DECL bool operator<=(const String& s1, const char* s2);
+YAT_DECL bool operator<=(const char* s1, const String& s2);
+YAT_DECL bool operator>(const String& s1, const char* s2);
+YAT_DECL bool operator>(const char* s1, const String& s2);
+YAT_DECL bool operator>=(const String& s1, const char* s2);
+YAT_DECL bool operator>=(const char* s1, const String& s2);
 
-std::ostream& operator<<(std::ostream& os, const String& s);
-std::istream& operator>>(std::istream& is, const String& s);
+YAT_DECL std::ostream& operator<<(std::ostream& os, const String& s);
+YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 
 } // namespace
 
