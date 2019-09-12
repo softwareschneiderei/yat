@@ -15,15 +15,15 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
 //
 // Contributors form the TANGO community:
-// See AUTHORS file 
+// See AUTHORS file
 //
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -31,7 +31,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -54,7 +54,8 @@
 //! The memory utilities implement many memory management concepts :
 //! - managed memory allocation objects (NewAllocator class),
 //! - memory pools (CachedAllocator class),
-//! - shared memory objects (SharedBuffer, CircularBuffer, SharedPtr, SharedObjectPtr, WeakPtr classes),
+//! - smart pointers objects (SharedPtr, UniquePtr, WeakPtr classes )
+//! - shared memory objects (SharedBuffer, CircularBuffer, SharedObjectPtr classes),
 //! - various buffer types (Buffer, ImageBuffer, CircularBuffer, MemBuf classes).
 //!
 //! \section secM2 Memory classes
@@ -67,7 +68,8 @@
 //!   - yat::CircularBuffer
 //!   - yat::MemBuf
 //!   - yat::SharedPtr
-//!   - yat::WeakPtr 
+//!   - yat::UniquePtr
+//!   - yat::WeakPtr
 //!   - yat::SharedObjectPtr
 // ============================================================================
 
