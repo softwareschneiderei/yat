@@ -54,7 +54,9 @@ namespace yat
 {
 
 // ============================================================================
-// Map class with std::string as key type
+//! \class Dictionary
+//! \brief Map class with std::string as implicit key type and some
+//! \brief useful specific methods
 // ============================================================================
 template<typename T>
 class YAT_DECL Dictionary
@@ -132,7 +134,9 @@ protected:
 };
 
 // ============================================================================
-// Dictionary specialization from std::string value type
+//! \class StringDictionary
+//! Dictionary specialization with std::string value type
+//! Define serialization/deserialization methods
 // ============================================================================
 class YAT_DECL StringDictionary: public Dictionary<std::string>
 {
