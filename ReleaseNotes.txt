@@ -1,5 +1,20 @@
 YAT history file
 
+1.15.1 (2019/?/?)
+=================
+
+Fixes
+    Class String
+        Infinite loop when calling methods:
+            - find_first_of(const std::string& str, size_type pos = 0)
+            - iterator insert(iterator pos, char c)
+        Added some missing YAT_DECL for Visual C++
+        -> see <yat/utils/String.h>
+
+Additions
+    typedef yat::md5::md5_t yat::MD5
+        -> see <yat/utils/md5.h>
+
 1.15.0 (2019/07/15)
 ===================
 
