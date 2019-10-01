@@ -470,7 +470,7 @@ void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool 
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
   }
 
-  yat::md5::md5_t md5_processor;
+  yat::MD5 md5_processor;
 
   // Open source file
   int fsrc = open(PSZ(full_name()), O_RDONLY);
