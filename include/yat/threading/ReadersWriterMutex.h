@@ -130,8 +130,10 @@ public:
   //! \brief Constructor (locks the associated r/w mutex for reading).
   //!
   //! Example : \n
-  //!   AutoReadersWriterMutex myMutex;\n
-  //!   AutoReaderMutex guard(myMutex); \n
+  //! \verbatim
+  //!   AutoReadersWriterMutex myMutex;
+  //!   AutoReaderMutex guard(myMutex);
+  //! \endverbatim
   AutoReaderMutex (yat::ReadersWriterMutex & _rwlock)
     : m_rw_lock (_rwlock)
   {
@@ -171,8 +173,10 @@ public:
   //! \brief Constructor (locks the associated r/w mutex for writing).
   //!
   //! Example : \n
-  //!   AutoReadersWriterMutex myMutex;\n
-  //!   AutoWriterMutex guard(myMutex); \n
+  //! \verbatim
+  //!   AutoReadersWriterMutex myMutex;
+  //!   AutoWriterMutex guard(myMutex);
+  //! \endverbatim
   AutoWriterMutex (yat::ReadersWriterMutex & _rwlock)
     : m_rw_lock (_rwlock)
   {
