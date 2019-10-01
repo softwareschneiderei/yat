@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -117,7 +117,7 @@ public:
 
   //! \brief Default constructor.
   Task ();
-  
+
   //! \brief Config constructor.
   //! \param cfg Task configuration.
   Task (const Config& cfg);
@@ -131,8 +131,8 @@ public:
   //! \param tmo_msecs Timeout in ms.
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   virtual void go (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
-    
-  //! \brief Starts the task synchronously using the specified message 
+
+  //! \brief Starts the task synchronously using the specified message
   //! and wait the specified time
   //! (same as go_synchronously - backward compatibility).
   //!
@@ -143,14 +143,14 @@ public:
   //!   * is not of type TASK_INIT
   //!   * is not "waitable".
   virtual void go (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
-  
+
   //! \brief Starts the task synchronously and wait the specified time
   //! (i.e. wait for the INIT message to be handled).
   //! \param tmo_msecs Timeout in ms.
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   virtual void go_synchronously (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
-    
-  //! \brief Starts the task synchronously using the specified message and wait 
+
+  //! \brief Starts the task synchronously using the specified message and wait
   //! the specified time
   //! (i.e. wait for the specified init message to be handled).
   //! \param msg Message to send.
@@ -161,14 +161,14 @@ public:
   //!   * is not "waitable".
   virtual void go_synchronously (Message * msg, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
 
-  //! \brief Starts the task asynchronously 
+  //! \brief Starts the task asynchronously
   //! (i.e. does NOT wait for the INIT message to be handled, but still waits
   //! for the message to be posted).
   //! \param tmo_msecs Timeout for INIT message posting in ms.
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   virtual void go_asynchronously (size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
-    
-  //! \brief Starts the task asynchronously (i.e. does NOT wait for the specified init 
+
+  //! \brief Starts the task asynchronously (i.e. does NOT wait for the specified init
   //! message to be handled, but still waits for the message to be posted).
   //! \param msg Init message to send.
   //! \param tmo_msecs Timeout for message posting.
@@ -182,15 +182,15 @@ public:
   //! \exception SOFTWARE_ERROR Thrown when EXIT message allocation fails.
   virtual void exit ();
 
-  //! \brief Posts a message to the task asynchronously (i.e. does NOT wait for the message 
+  //! \brief Posts a message to the task asynchronously (i.e. does NOT wait for the message
   //! to be handled, but still waits for the message to be posted).
   //! \param msg Message to send.
   //! \param tmo_msecs Timeout in ms.
   //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   void post (Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO);
-    
-  //! \brief Posts the specified message type to the task asynchronously (i.e. does NOT wait for 
+
+  //! \brief Posts the specified message type to the task asynchronously (i.e. does NOT wait for
   //! the message to be handled, but still waits for the message to be posted).
   //! \param msg_type Message type to send.
   //! \param tmo_msecs Timeout in ms.
@@ -233,7 +233,7 @@ public:
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   void wait_msg_handled (size_t msg_type, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
 
-  //! \brief Posts the specified message type with specified data to the task then waits for the message to be handled 
+  //! \brief Posts the specified message type with specified data to the task then waits for the message to be handled
   //! (synchronous approach).
   //! \param msg_type Message type to send.
   //! \param data Data buffer to send with the message.
@@ -243,7 +243,7 @@ public:
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
   template <typename T> void wait_msg_handled (size_t msg_type, T * data, bool transfer_ownership, size_t tmo_msecs);
 
-  //! \brief Posts the specified message type with specified data to the task then waits for the message to be handled 
+  //! \brief Posts the specified message type with specified data to the task then waits for the message to be handled
   //! (synchronous approach).
   //! \param msg_type Message type to send.
   //! \param data Data buffer to send with the message.
@@ -255,10 +255,10 @@ public:
   //! \brief Timeout message period mutator.
   //! \param p_msecs Timeout in ms.
   void set_timeout_msg_period (size_t p_msecs);
-  
+
   //! \brief Periodic message period accessor.
   size_t get_timeout_msg_period () const;
-  
+
   //! \brief Enable/disable timeout messages.
   //! \param enable True = enabled, false = disabled.
   void enable_timeout_msg (bool enable);
@@ -269,7 +269,7 @@ public:
   //! \brief Periodic message period mutator.
   //! \param p_msecs Period in ms.
   void set_periodic_msg_period (size_t p_msecs);
-  
+
   //! \brief Periodic message period accessor.
   size_t get_periodic_msg_period () const;
 
@@ -290,25 +290,25 @@ public:
   //! \brief %Message queue low water mark mutator.
   //! \param _lo_wm Low water mark (in message queue unit).
   void msgq_lo_wm (size_t _lo_wm);
-  
+
   //! \brief %Message queue low water mark accessor.
   //! (message queue unit dependent).
   size_t msgq_lo_wm () const;
-  
+
   //! \brief %Message queue high water mark mutator.
   //! \param _hi_wm High water mark (in message queue unit).
   void msgq_hi_wm (size_t _hi_wm);
-  
+
   //! \brief %Message queue high water mark accessor.
   //! (message queue unit dependent).
   size_t msgq_hi_wm () const;
 
   //! \brief %Message queue Statistics accessor.
   const MessageQ::Statistics & msgq_statistics ();
-  
+
   //! \brief Resets the message queue statistics.
   void reset_msgq_statistics ();
-  
+
   //! \brief Should the underlying message queue throw an exception
   //! on post message timeout expiration?
   //!
@@ -322,11 +322,11 @@ public:
   //! \brief Clears pending messages of type \<msg_type\> in the message queue.
   //! \param msg_type Message type to be cleared.
   size_t clear_pending_messages (size_t msg_type);
-  
+
 protected:
   //! \brief Run the task undetached.
   virtual Thread::IOArg run_undetached (Thread::IOArg);
-  
+
   //! \brief Message handler (pure virtual function).
   //! \param msg Message to handle.
   //! \remark After processing message, do NOT release the message (done by yat).
@@ -351,7 +351,7 @@ private:
   //- periodic msg control flag
   bool periodic_msg_enabled_;
 
-  //- periodic msg period 
+  //- periodic msg period
   size_t periodic_msg_period_ms_;
 
   //- user data passed to entry point
@@ -359,7 +359,7 @@ private:
 
   //- should we process msg under critical section?
   bool lock_msg_handling_;
-  
+
   //- true if TASK_INIT msg received, false ortherwise
   bool received_init_msg_;
 
@@ -374,9 +374,9 @@ private:
 // ============================================================================
 // Task::post
 // ============================================================================
-template <typename T> void Task::post (size_t msg_type, 
-                                       T * data, 
-                                       bool transfer_ownership,  
+template <typename T> void Task::post (size_t msg_type,
+                                       T * data,
+                                       bool transfer_ownership,
                                        size_t tmo_msecs)
 {
   Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, false);
@@ -392,8 +392,8 @@ template <typename T> void Task::post (size_t msg_type,
 // ============================================================================
 // Task::post
 // ============================================================================
-template <typename T> void Task::post (size_t msg_type,  
-                                       const T & data,  
+template <typename T> void Task::post (size_t msg_type,
+                                       const T & data,
                                        size_t tmo_msecs)
 {
   Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, false);
@@ -409,9 +409,9 @@ template <typename T> void Task::post (size_t msg_type,
 // ============================================================================
 // Task::wait_msg_handled
 // ============================================================================
-  template <typename T> void Task::wait_msg_handled (size_t msg_type, 
-                                                     T * data, 
-                                                     bool transfer_ownership,  
+  template <typename T> void Task::wait_msg_handled (size_t msg_type,
+                                                     T * data,
+                                                     bool transfer_ownership,
                                                      size_t tmo_msecs)
 {
   Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, true);
@@ -427,8 +427,8 @@ template <typename T> void Task::post (size_t msg_type,
 // ============================================================================
 // Task::wait_msg_handled
 // ============================================================================
-template <typename T> void Task::wait_msg_handled (size_t msg_type,  
-                                                   const T & data,  
+template <typename T> void Task::wait_msg_handled (size_t msg_type,
+                                                   const T & data,
                                                    size_t tmo_msecs)
 {
   Message * m = new (std::nothrow) Message(msg_type, DEFAULT_MSG_PRIORITY, true);
@@ -447,7 +447,7 @@ template <typename T> void Task::wait_msg_handled (size_t msg_type,
 //! \brief 'Deleter' object to instanciate when using yat::SharedPtr<yat::Task>
 //! \brief or with implicite instantiation whith yat::UniquePtr<yat::Task, yat::TaskExiter>
 // ============================================================================
-struct TaskExiter
+struct YAT_DECL TaskExiter
 {
   //! \brief operator().
   //! \param object The object to delete.
