@@ -44,6 +44,12 @@ namespace md5
  */
 const unsigned int BLOCK_SIZE = 64;
 
+// =============================================================================
+//! \class md5_t
+//! \brief MD5 calculations class
+//!
+//! This MD5 calculations class allow immediate or progressve processes
+// =============================================================================
 class md5_t
 {
 public:
@@ -128,6 +134,9 @@ extern void sig_to_string(const void* signature, char* str, const int str_len);
 extern void sig_from_string(void* signature, const char* str);
 
 } // namespace md5
+
+//! Allow yat::MD5 declaration
+typedef md5::md5_t MD5;
 
 } // namespace yat
 
