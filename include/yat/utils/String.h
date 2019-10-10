@@ -1036,7 +1036,7 @@ public:
   template <class T>
   void from_num(const T& number, bool _throw = true)
   {
-    StringUtil::from_num<T>(this, number, _throw);
+    StringUtil::from_num<T>(&m_str, number, _throw);
   }
 
   //! \brief Converts string content to numeric type \<_T\>.
