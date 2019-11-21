@@ -109,7 +109,7 @@ private:
   class ILogTarget*                 m_log_target_p;
   yat::UniquePtr<class yat::Mutex>  m_mtx_msg_uptr;
   yat::UniquePtr<class yat::Mutex>  m_mtx_locker_uptr;
-  unsigned long                     m_locked_thr;
+  unsigned long                     m_locked_thread;
   bool                              m_locked;
 
   int sync();
