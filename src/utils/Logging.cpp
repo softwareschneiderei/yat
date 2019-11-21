@@ -43,6 +43,7 @@
 #include <yat/utils/Logging.h>
 #include <yat/time/Time.h>
 #include <yat/threading/Mutex.h>
+#include <yat/threading/Utilities.h>
 #include <yat/threading/SyncAccess.h>
 #include <iostream>
 #include <stdarg.h>
@@ -55,9 +56,11 @@ namespace yat
 //=============================================================================
 // LogStream
 //=============================================================================
-LogStream::LogStream(ELogLevel level): std::ostream(this), m_level(level)
+LogStream::LogStream(ELogLevel level): std::ostream(this), m_level(level),
+                                       m_locked_thread(0), m_locked(false)
 {
-  m_mtx_uptr.reset(new yat::Mutex);
+  m_mtx_msg_uptr.reset(new yat::Mutex);
+  m_mtx_locker_uptr.reset(new yat::Mutex);
   m_the_message.reserve(512); // A large enough initial capacity for stream logs
 }
 
@@ -66,14 +69,38 @@ LogStream::LogStream(ELogLevel level): std::ostream(this), m_level(level)
 //=============================================================================
 void LogStream::lock()
 {
-  m_mtx_uptr->lock();
+  // As we use recursive mutexes, the lock count for a given thread can't exceed
+  // unlock count. m_mtx_locker_uptr is used for manage the lock state
+  m_mtx_locker_uptr->lock();
+  if( !m_locked || (m_locked && m_locked_thread != ThreadingUtilities::self()) )
+  {
+    m_mtx_locker_uptr->unlock();
+
+    // Wait for access to the message string
+    m_mtx_msg_uptr->lock();
+
+    m_mtx_locker_uptr->lock();
+    m_locked = true;
+    m_locked_thread = ThreadingUtilities::self();
+    m_mtx_locker_uptr->unlock();
+  }
+  else
+    m_mtx_locker_uptr->unlock();
 }
 
 int LogStream::sync()
 {
   m_log_target_p->log(m_level, "n/a", m_the_message);
   m_the_message.clear();
-  m_mtx_uptr->unlock();
+
+  // Release the message mutex
+  m_mtx_msg_uptr->unlock();
+
+  m_mtx_locker_uptr->lock();
+  m_locked = false;
+  m_locked_thread = 0;
+  m_mtx_locker_uptr->unlock();
+
   return 0;
 }
 
