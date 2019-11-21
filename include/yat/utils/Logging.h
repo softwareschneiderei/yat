@@ -107,7 +107,10 @@ private:
   std::string                       m_the_message;
   ELogLevel                         m_level;
   class ILogTarget*                 m_log_target_p;
-  yat::UniquePtr<class yat::Mutex>  m_mtx_uptr;
+  yat::UniquePtr<class yat::Mutex>  m_mtx_msg_uptr;
+  yat::UniquePtr<class yat::Mutex>  m_mtx_locker_uptr;
+  unsigned long                     m_locked_thr;
+  bool                              m_locked;
 
   int sync();
   int overflow(int c);
@@ -193,6 +196,7 @@ public:
   //! Returns the current log target.
   static ILogTarget *current_log_target();
 
+  // Do not use directly the following methods but use the macros defined below
   static std::ostream& verbose_stream();
   static std::ostream& result_stream();
   static std::ostream& info_stream();
@@ -308,7 +312,7 @@ public:
 };
 
 // =============================================================================
-//! \name Log functions
+//! \deprecated Log functions
 //@{
 // =============================================================================
 
@@ -410,6 +414,8 @@ YAT_DECL void log_emergency(const std::string& msg);
 
 } // namespace
 
+
+//! \deprecated
 #define LOG_EXCEPTION(domain, e) \
   do \
   { \
@@ -419,7 +425,7 @@ YAT_DECL void log_emergency(const std::string& msg);
                                       << e.errors[i].origin << std::endl; \
   } while(0)
 
-//! \deprecated macros
+//! \deprecated
 #define YAT_LOG_EXCEPTION(e)        LOG_EXCEPTION("exc", e)
 #define YAT_LOG_VERBOSE(...)     yat::log_verbose("vbs", __VA_ARGS__)
 #define YAT_LOG_RESULT(...)       yat::log_result("res", __VA_ARGS__)
@@ -484,14 +490,15 @@ do {                                                          \
 #define YAT_FREQUENCY_LIMITED_STATEMENT(statement, interval_sec) \
 do \
 { \
-  static yat::Timer _s_timer_; \
-  static bool _s_first_exec_ = false; \
-  if( !_s_first_exec_ || _s_timer_.elapsed_sec() >= interval_sec ) \
+  static yat::Timer _s_frequency_limited_statement_timer_; \
+  static bool _s_frequency_limited_statement_first_exec_ = false; \
+  if( !_s_frequency_limited_statement_first_exec_ || \
+     _s_frequency_limited_statement_timer_.elapsed_sec() >= interval_sec ) \
   { \
    statement;               \
-   _s_timer_.restart();     \
-   if( !_s_first_exec_ )    \
-     _s_first_exec_ = true; \
+   _s_frequency_limited_statement_timer_.restart();     \
+   if( !_s_frequency_limited_statement_first_exec_ )    \
+     _s_frequency_limited_statement_first_exec_ = true; \
   } \
 } while(0)
 
