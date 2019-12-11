@@ -45,6 +45,8 @@
 #include <yat/utils/String.h>
 #include <sys/types.h>
 
+#define EXEC_ERROR_STATUS 127
+
 namespace yat
 {
 
@@ -58,6 +60,9 @@ namespace yat
 //===========================================================================
 class YAT_DECL SysUtils
 {
+private:
+  static pid_t waitpid_eintr(int *status_p);
+
 public:
   //! \brief Gets the value of an environment variable.
   //!
@@ -98,6 +103,23 @@ public:
   //! \exception ERR_FILE Thrown if command execution fails (on Windows plateform implementation).
   static bool exec_as(const char* pszCmdLine, const char *pszDefDir = NULL,
            int bBackground = true, bool bThrow = true, int* pulReturnCode = NULL, uid_t uid = -1, gid_t gid = -1);
+
+  //! \brief Executes a shell script.
+  //!
+  //! Execute a shell script by forking 2 processes, one for the script and the second
+  //! running a timer to manage the given timeout. If the timer process ends first
+  //! then it kill the script process, to ensure a blocking script will not
+  //! block the parent process.
+  //!
+  //! \remark Does the same as SysUtils::exec() function on a Windows plateform.
+  //! \param script The full path to the script.
+  //! \param args Arguments passed to the script
+  //! \param timeout in millisecs, if timout > 1000 then resolution down to second (i.e: 250 mean 250 millis, 2500 mean 2s, not 2.5s).
+  //! \param is_timeout_p will be set to 'true' if the timer process finished first
+  //! \return 0 on success, EXEC_ERROR_STATUS if the script can't be executed (not found, bad permissions,...) or the script error code
+  //! \exception yat::Exception can occured in case of a system error
+  static int exec_script(const yat::String& script, const std::vector<yat::String>& args_vec,
+                         std::size_t timeout, bool* is_timeout_p, std::size_t* exec_time_ms_p=NULL);
 
   //! \brief Return 'True' if the current process is executed as root
   static bool is_root();

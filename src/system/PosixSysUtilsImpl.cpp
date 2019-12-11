@@ -44,10 +44,16 @@
 //=============================================================================
 // DEPENDENCIES
 //=============================================================================
-#include <yat/system/SysUtils.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <string.h>
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <signal.h>
 #include <unistd.h>
+#include <yat/system/SysUtils.h>
+#include <yat/utils/String.h>
+#include <yat/time/Timer.h>
 
 namespace yat
 {
@@ -154,5 +160,104 @@ bool SysUtils::is_root()
   return (0 == geteuid());
 }
 
+//----------------------------------------------------------------------------
+// SysUtils::waitpid_eintr
+//----------------------------------------------------------------------------
+pid_t SysUtils::waitpid_eintr(int *status_p)
+{
+  pid_t pid = 0;
+  while ( (pid = ::waitpid(-1, status_p, 0)) == -1 )
+  {
+    if (errno == EINTR)
+      continue;
+    else
+    {
+      std::ostringstream oss;
+      oss << "waitpid failure (Errno " << errno << ": " << strerror(errno);
+      throw Exception("SYSTEM_ERROR", oss.str(), "SysUtils::waitpid_eintr");
+    }
+  }
+  return pid;
+}
+
+//----------------------------------------------------------------------------
+// SysUtils::exec_script
+//----------------------------------------------------------------------------
+int SysUtils::exec_script(const yat::String& script, const std::vector<yat::String>& args_vec,
+                          std::size_t timeout, bool *is_timeout_p, std::size_t* exec_time_ms_p)
+{
+  *is_timeout_p = false;
+  yat::Timer tm_exec;
+
+  if( 0 == timeout )
+    timeout = 60000; // 1 minute
+
+  const pid_t timer_pid = ::fork();
+  if( timer_pid < 0 )
+    throw Exception("SYSTEM_ERROR",
+                    "Error cannot execute shell command (failed to fork timer process).",
+                    "SysUtils::exec_script");
+
+  if( 0 == timer_pid )
+  {
+    // Timer process
+    if( timeout > 1000 )
+      ::sleep(timeout / 1000);
+    else
+      ::usleep(timeout * 1000);
+    exit(0);
+  }
+
+  const pid_t script_pid = ::fork();
+  if( script_pid < 0 )
+    throw Exception("SYSTEM_ERROR",
+                    "Error cannot execute shell command (failed to fork command process).",
+                    "SysUtils::exec_script");
+
+  if( 0 == script_pid )
+  { // Child process executing the script
+    std::vector<yat::String> vpath;
+    script.split('/', &vpath);
+
+    // Arguments
+    char **args = new char*[args_vec.size()+2];
+    // First arg is the script file name
+    args[0] = (char*)vpath.back().c_str();
+    for( std::size_t i = 0; i < args_vec.size(); ++i )
+    {
+      args[i+1] = (char*)args_vec[i].c_str();
+    }
+    args[args_vec.size()+1] = NULL;
+
+    ::execv(script.c_str(), args);
+
+    // An error occured
+    exit(EXEC_ERROR_STATUS);
+  }
+
+  int status = 0;
+  const pid_t finished_first = waitpid_eintr(&status);
+  if (finished_first == timer_pid)
+  {
+    // time out, kill the script process
+    ::kill(script_pid, SIGKILL);
+    *is_timeout_p = true;
+    if( exec_time_ms_p )
+      *exec_time_ms_p = timeout;
+  }
+  else if (finished_first == script_pid)
+  {
+    // Script executed, kill the timer process
+    ::kill(timer_pid, SIGKILL);
+
+    if( exec_time_ms_p )
+      *exec_time_ms_p = tm_exec.elapsed_msec();
+  }
+  else
+  {
+    throw Exception("SYSTEM_ERROR", "Unknown error while executing script.", "SysUtils::exec_script");
+  }
+  return WEXITSTATUS(status);
+}
 
 } // namespace
