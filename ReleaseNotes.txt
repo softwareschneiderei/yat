@@ -20,6 +20,8 @@ Fixes
         Infinite loop then calling String::from_num
         -> see <yat/utils/String.h>
 
+    Added missing reference to md5/md5.cpp in src/CMakeLists.txt
+
 1.15.1 (2019/10/01)
 ===================
 
