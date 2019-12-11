@@ -9,7 +9,7 @@ set (source_files
       network/ClientSocket.cpp
       network/Socket.cpp
       network/SocketException.cpp
-      plugin/PlugIn.cpp 
+      plugin/PlugIn.cpp
       plugin/PlugInManager.cpp
       threading/Barrier.cpp
       threading/Message.cpp
@@ -25,10 +25,11 @@ set (source_files
       utils/StringTemplate.cpp
       utils/StringTokenizer.cpp
       utils/URI.cpp
+      md5/md5.cpp
 )
 
 if (UNIX)
-	list(APPEND source_files 
+	list(APPEND source_files
 		threading/PosixThreadingImpl.cpp
 		plugin/PlugInUnix.cpp
 		system/PosixSysUtilsImpl.cpp
@@ -37,7 +38,7 @@ if (UNIX)
 endif()
 
 if (WIN32)
-	list(APPEND source_files 
+	list(APPEND source_files
 		threading/WinNtThreadingImpl.cpp
 		plugin/PlugInWin32.cpp
 		system/Win32SysUtilsImpl.cpp
@@ -50,7 +51,7 @@ include_directories(
 )
 
 add_library (yat SHARED ${source_files})
-  
+
 set_target_properties (yat PROPERTIES VERSION ${VERSION} SOVERSION ${MAJOR_VERSION})
 
 if (UNIX)
