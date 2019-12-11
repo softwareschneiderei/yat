@@ -4,8 +4,8 @@ cmake_minimum_required (VERSION 2.6)
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 set(MAJOR_VERSION "1")
-set(MINOR_VERSION "15")
-set(PATCH_VERSION "1")
+set(MINOR_VERSION "16")
+set(PATCH_VERSION "0")
 set(VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
 
 # check for 64 bit
@@ -16,7 +16,7 @@ else()
 endif()
 
 if (UNIX)
-    add_definitions(-O2 -g -gstabs+ -std=c++0x -Wall -Wno-unused-variable -D_FILE_OFFSET_BITS=64 -DYAT_PROJECT_VERSION=1.15.1 -DYAT_PROJECT_NAME=YAT)
+    add_definitions(-O2 -g -gstabs+ -std=c++0x -Wall -Wno-unused-variable -D_FILE_OFFSET_BITS=64 -DYAT_PROJECT_VERSION=1.16.0 -DYAT_PROJECT_NAME=YAT)
     set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-z,defs")
 endif()
 
