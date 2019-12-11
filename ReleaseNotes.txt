@@ -1,5 +1,25 @@
 YAT history file
 
+1.16.0
+======
+
+Additions
+    Class Version
+        New method add_dependency_module
+        -> see <yat/utils/Version.h>
+
+    Class XString is now marked as deprecated
+    use yat::String methods instead
+
+    Class SysUtils
+        - new method exec_script: securely exec a shell script with timeout
+        -> see <yat/system/SysUtils.h>
+
+Fixes
+    Class String
+        Infinite loop then calling String::from_num
+        -> see <yat/utils/String.h>
+
 1.15.1 (2019/10/01)
 ===================
 
@@ -62,7 +82,7 @@ Fixes
 
 Fixes
     Added missing implementation of method yat::String::str_format()
-    Added missing method: 
+    Added missing method:
         yat::String::split(char c, std::vector<yat::String> *vec_p, bool clear_vector=true);
         yat::String::split(char c, std::vector<yat::String> *vec_p, bool clear_vector=true) const;
         yat::String::operator+=(char c);
@@ -161,7 +181,7 @@ Fixes
 ====================
 
 Additions
-    
+
     YAT_VERBOSE, YAT_INFO, YAT_WARNING, YAT_ERROR
         New logging macro to be use as streams
         -> See <yat/utils/Logging.h>
@@ -171,10 +191,10 @@ Additions
         -> See <yat/file/FileName.h>
 
 Fixes
-    
+
     FileName::name_ext()
         An unexpected exception was throwed in the case of the full path was an empty string
-    
+
 
 1.13.9 (2017/07/11)
 ===================
@@ -193,7 +213,7 @@ Additions
     FileName::FileName(const std::string& strPath, const std::string& strName, const std::string& strExt);
         New constructor
         -> See <yat/file/FileName.h>
-   
+
     bool SysUtils::is_root();
         Return 'True' if the current process is executed as root
         -> See <yat/system/sysUtils.h>
@@ -251,7 +271,7 @@ Additions
     class UDPListener
         FORWARDS THE UDP PACKETS (SENT BY THE SPI BOARD) TO A SPITASK
         -> See <yat/network/UDPListener.h>
-        
+
 1.10.5 (2016/02/11)
 ===================
 
@@ -259,11 +279,11 @@ Additions
 
     class FileName::Info
         A structure used to describe a file
-        -> See <yat/file/FileName.h>  
+        -> See <yat/file/FileName.h>
     void FileName::info( FileName::Info* ) const
         Get information about a file
-        -> See <yat/file/FileName.h>  
-       
+        -> See <yat/file/FileName.h>
+
     template<typename T> bool fp_is_equal(T, a, T b, T precision)
         Floating point comparison operator
         -> See <yat/CommonHeader.h>
@@ -272,7 +292,7 @@ Additions
         Unique pointer implementation
         -> See <yat/memory/UniquePtr.h>
 
-    
+
     bool Pulser::is_done()
         Check pulser activity
         -> See <yat/threading/Pulser.h>
