@@ -524,10 +524,10 @@ public:
   //@}
 };
 
-// Synonyms
-#define extract_token_left extract_token;
+//! Synonyms
+#define extract_token_left extract_token
 
-// Usefull type
+//! Usefull type
 typedef std::vector<std::string> StringVector;
 
 // ============================================================================
@@ -545,7 +545,7 @@ public:
   //! \brief Empty string - useful when need a const string &.
   static const String nil;
 
-  // Return underlying object
+  //! Return underlying object
   const std::string& str() const { return m_str; }
   std::string& str() { return m_str; }
 
