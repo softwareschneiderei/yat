@@ -192,11 +192,11 @@ bool SysUtils::exec_as(const char* pszCmdLine, const char *pszDefDir, int bBackg
 //----------------------------------------------------------------------------
 // SysUtils::exec_as
 //----------------------------------------------------------------------------
-bool SysUtils::exec_script(const yat::String& /* script */,
-                           const std::vector<yat::String>& /* args_vec */,
-                           std::size_t /* timeout */,
-                           bool* /* is_timeout_p */,
-                           std::size_t* /* exec_time_ms_p */
+int SysUtils::exec_script(const yat::String& /* script */,
+                          const std::vector<yat::String>& /* args_vec */,
+                          std::size_t /* timeout */,
+                          bool* /* is_timeout_p */,
+                          std::size_t* /* exec_time_ms_p */
 )
 {
   throw Exception("ERROR", "SysUtils::exec_script is not implemented yet on Win32/64 plateform.", "SysUtils::exec_script");

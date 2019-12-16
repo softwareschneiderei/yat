@@ -60,9 +60,6 @@ namespace yat
 //===========================================================================
 class YAT_DECL SysUtils
 {
-private:
-  static pid_t waitpid_eintr(int *status_p);
-
 public:
   //! \brief Gets the value of an environment variable.
   //!

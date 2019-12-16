@@ -161,9 +161,9 @@ bool SysUtils::is_root()
 }
 
 //----------------------------------------------------------------------------
-// SysUtils::waitpid_eintr
+// free function: waitpid_eintr
 //----------------------------------------------------------------------------
-pid_t SysUtils::waitpid_eintr(int *status_p)
+pid_t waitpid_eintr(int *status_p)
 {
   pid_t pid = 0;
   while ( (pid = ::waitpid(-1, status_p, 0)) == -1 )
@@ -174,7 +174,7 @@ pid_t SysUtils::waitpid_eintr(int *status_p)
     {
       std::ostringstream oss;
       oss << "waitpid failure (Errno " << errno << ": " << strerror(errno);
-      throw Exception("SYSTEM_ERROR", oss.str(), "SysUtils::waitpid_eintr");
+      throw Exception("SYSTEM_ERROR", oss.str(), "waitpid_eintr");
     }
   }
   return pid;
