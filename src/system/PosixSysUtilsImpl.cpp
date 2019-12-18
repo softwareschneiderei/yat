@@ -45,6 +45,8 @@
 // DEPENDENCIES
 //=============================================================================
 #include <stdlib.h>
+#include <stdio.h>
+#include <iostream>
 #include <errno.h>
 #include <string.h>
 #include <sys/wait.h>
@@ -197,7 +199,6 @@ int SysUtils::exec_script(const yat::String& script, const std::vector<yat::Stri
     throw Exception("SYSTEM_ERROR",
                     "Error cannot execute shell command (failed to fork timer process).",
                     "SysUtils::exec_script");
-
   if( 0 == timer_pid )
   {
     // Timer process
@@ -230,7 +231,6 @@ int SysUtils::exec_script(const yat::String& script, const std::vector<yat::Stri
     args[args_vec.size()+1] = NULL;
 
     ::execv(script.c_str(), args);
-
     // An error occured
     exit(EXEC_ERROR_STATUS);
   }
@@ -241,6 +241,8 @@ int SysUtils::exec_script(const yat::String& script, const std::vector<yat::Stri
   {
     // time out, kill the script process
     ::kill(script_pid, SIGKILL);
+    ::waitpid(script_pid, NULL, 0);
+
     *is_timeout_p = true;
     if( exec_time_ms_p )
       *exec_time_ms_p = timeout;
@@ -249,6 +251,7 @@ int SysUtils::exec_script(const yat::String& script, const std::vector<yat::Stri
   {
     // Script executed, kill the timer process
     ::kill(timer_pid, SIGKILL);
+    ::waitpid(timer_pid, NULL, 0);
 
     if( exec_time_ms_p )
       *exec_time_ms_p = tm_exec.elapsed_msec();
