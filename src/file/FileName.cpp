@@ -708,6 +708,11 @@ void File::append(const std::string& content)
 CfgFile::CfgFile(const std::string& full_name) : File(full_name) { }
 
 //-----------------------------------------------------------------------------
+// CfgFile::CfgFile
+//-----------------------------------------------------------------------------
+CfgFile::CfgFile(const FileName& file_name) : File(file_name.full_name()) { }
+
+//-----------------------------------------------------------------------------
 // CfgFile::load
 //-----------------------------------------------------------------------------
 void CfgFile::load() throw(Exception)
