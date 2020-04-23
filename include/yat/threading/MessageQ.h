@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -75,7 +75,7 @@ namespace yat
 {
 
 // ============================================================================
-//! \class MessageQ 
+//! \class MessageQ
 //! \brief %Message queue of Message messages.
 //!
 //! MessageQ is used to manage Message transmission/reception between Task objects.
@@ -94,7 +94,7 @@ public:
     OPEN,
     CLOSED
   } State;
-  
+
   //! Low/high water marks unit.
   typedef enum
   {
@@ -103,7 +103,7 @@ public:
     //! Number of bytes in msgQ.
     NUM_OF_BYTES
   } WmUnit;
-  
+
   //! %Message queue statistics.
   struct YAT_DECL Statistics
   {
@@ -132,8 +132,14 @@ public:
     unsigned long pending_charge_;
     //! Current pending charge in number of messages.
     unsigned long pending_mgs_;
-    //! MessageQ unit. 
+    //! MessageQ unit.
     WmUnit wm_unit_;
+  };
+
+  struct Time_ns
+  {
+    unsigned long tv_sec;
+    unsigned long tv_nsec;
   };
 
   //! \brief Constructor with parameters.
@@ -149,29 +155,35 @@ public:
 
   //! \brief Posts a Message into the message queue.
   //!
-  //! Returns 0 if the message was successfully posted, -1 otherwise. 
+  //! Returns 0 if the message was successfully posted, -1 otherwise.
   //! \param msg %Message to send.
   //! \param tmo_msecs Timeout in ms.
-  //! \remark %Message is destroyed (i.e. released) in case it could not be posted. 
+  //! \remark %Message is destroyed (i.e. released) in case it could not be posted.
   //! \remark Can NOT post any TIMEOUT or PERIODIC msg (yat::Task model violation).
   //!
-  //! \exception TIMEOUT_EXPIRED Thrown on timeout expiration, if *throw_on_post_msg_timeout* is set 
+  //! \exception TIMEOUT_EXPIRED Thrown on timeout expiration, if *throw_on_post_msg_timeout* is set
   //! to true.
   int post (yat::Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO);
 
-  //! \brief Extracts next message from the message queue. 
+  //! \brief Extracts next message from the message queue.
   //!
   //! Waits for a message the specified time.
   //! \param tmo_msecs Tiemout in ms.
-  Message * next_message (size_t tmo_msecs);
-  
+  Message * next_message (double tmo_msecs);
+
+  //! \brief Extracts next message from the message queue.
+  //! This new implementation allow accurate timing of TASK_PERIODIC messages dispatching
+  //! Waits for a message the specified time.
+  //! \param tmo_msecs Tiemout in ms.
+  Message * next_message_ex (double tmo_msecs);
+
   //! \brief Water marks unit mutator.
   //! \param _wmu Water mark unit.
   void wm_unit (WmUnit _wmu);
 
   //! \brief Water marks unit accessor.
   WmUnit wm_unit () const;
-  
+
   //! \brief Low water mark mutator.
   //! \param _lo_wm Low water mark (in msgQ current unit).
   void lo_wm (size_t _lo_wm);
@@ -185,7 +197,7 @@ public:
 
   //! \brief High water mark accessor.
   size_t hi_wm () const;
-  
+
   //! \brief Sets if the message queue should throw an exception on post message
   //! timeout expiration.
   //! \param _strategy True if exception to be thrown.
@@ -201,13 +213,13 @@ public:
   //! Returns number of removed messages.
   //! \param msg_type %Message type.
   size_t clear_pending_messages (size_t msg_type);
-  
+
   //! \brief Closes the message queue.
   void close ();
-  
+
   //! Returns the MessageQ Statistics.
   const Statistics & statistics ();
-  
+
   //! \brief Resets the MessageQ Statistics.
   void reset_statistics ();
 
@@ -224,17 +236,20 @@ public:
 
   //! \brief Returns period messages handling status.
   bool periodic_msg_enabled () const;
-  
+
 private:
   //- periodic msg tmo expired?
   bool periodic_tmo_expired_i (double _tmo_msecs);
-  
+
   //- clears msgQ content (returns num of trashed messages).
   size_t clear_i (bool notify_waiters = true);
 
   //- waits for the msQ to contain at least one msg.
   //- returns false if tmo expired, true otherwise.
   bool wait_not_empty_i (size_t tmo_msecs);
+  bool wait_not_empty_i (unsigned long _tmo_secs, unsigned long _tmo_nsecs);
+
+  void compute_next_periodic_period (double _requested_tmo_ms);
 
   //- waits for the msQ to have room for new messages.
   //- returns false if tmo expired, true otherwise.
@@ -245,10 +260,10 @@ private:
 
   //- increments the pending charge.
   void inc_pending_charge_i (Message * msg);
-  
+
   //- decrements the pending charge.
   void dec_pending_charge_i (Message * msg);
-  
+
   //- use a std::deque to implement msgQ
   MessageQImpl msg_q_;
 
@@ -260,7 +275,7 @@ private:
 
   //- Consumer synch object
   Condition msg_consumer_sync_;
-  
+
   //- state
   MessageQ::State state_;
 
@@ -270,8 +285,25 @@ private:
   //- periodic msg handling flag
   bool enable_periodic_msg_;
 
+  //- accurate periodic timing variables
+  bool first_period_;
+  double period_offset_; // base offset from initial timing error
+  double mean_error_;
+  yat::uint64 n_period_;
+
+  //- theorical total elapsed time
+  yat::uint64 total_elapsed_target_usec_;
+
+  //- elapsed time since 1st periodic message
+  Timer total_periodic_msg_timer_;
+
   //- PERIODIC msg timeout
   Timer periodic_msg_timer_;
+
+  //- next periodic message period
+  Time_ns next_periodic_msg_period_;
+
+  double last_requested_tmo_;
 
   //- low water marks
   size_t lo_wm_;
@@ -300,8 +332,8 @@ private:
   //- 1. the number of pending messages (unit_ = NUM_OF_MSGS)
   //- 2. the number of pending bytes (unit_ = NUM_OF_BYTES)
   size_t pending_charge_;
-  
-  //- some task/msgQ stats 
+
+  //- some task/msgQ stats
   Statistics stats_;
 
   // = Disallow these operations.

@@ -8,11 +8,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -20,7 +20,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -117,6 +117,19 @@ YAT_INLINE void Task::enable_periodic_msg (bool b)
 }
 
 // ============================================================================
+// Task::enable_precise_periodic_timing
+// ============================================================================
+YAT_INLINE void Task::enable_precise_periodic_timing (bool b)
+{
+  bool enable_state = this->precise_periodic_timing_enabled_;
+  this->precise_periodic_timing_enabled_ = b;
+  if ( enable_state != b && this->received_init_msg_ )
+  {
+    this->post(TASK_WAKEUP);
+  }
+}
+
+// ============================================================================
 // Task::periodic_msg_enabled
 // ============================================================================
 YAT_INLINE bool Task::periodic_msg_enabled () const
@@ -125,17 +138,17 @@ YAT_INLINE bool Task::periodic_msg_enabled () const
 }
 
 // ============================================================================
-// Task::set_periodic_timeout
+// Task::set_periodic_msg_period_usec
 // ============================================================================
-YAT_INLINE void Task::set_periodic_msg_period (size_t _tmo)
+YAT_INLINE void Task::set_periodic_msg_period (double _tmo)
 {
   this->periodic_msg_period_ms_ = _tmo;
 }
 
 // ============================================================================
-// Task::get_timeout_msg_period
+// Task::get_periodic_msg_period
 // ============================================================================
-YAT_INLINE size_t Task::get_periodic_msg_period () const
+YAT_INLINE double Task::get_periodic_msg_period () const
 {
   return this->periodic_msg_period_ms_;
 }
@@ -143,7 +156,7 @@ YAT_INLINE size_t Task::get_periodic_msg_period () const
 // ============================================================================
 // Task::actual_timeout_msg_period
 // ============================================================================
-YAT_INLINE size_t Task::actual_timeout () const
+YAT_INLINE double Task::actual_timeout () const
 {
   if (this->msg_q_.enable_periodic_msg_ && this->periodic_msg_period_ms_)
     return this->periodic_msg_period_ms_;
@@ -221,7 +234,7 @@ YAT_INLINE const MessageQ::Statistics & Task::msgq_statistics ()
 // ============================================================================
 YAT_INLINE void Task::throw_on_post_msg_timeout (bool _strategy)
 {
-  this->msg_q_.throw_on_post_msg_timeout(_strategy);	
+  this->msg_q_.throw_on_post_msg_timeout(_strategy);
 }
 
 } //- namespace

@@ -112,6 +112,20 @@ public:
   //! \remark The associated external_mutex is unlocked by the timed_wait() function.
   bool timed_wait (unsigned long tmo_msecs);
 
+  //! \brief Wait for the condition to be \link Condition::signal signaled\endlink
+  //! or \link Condition::broadcast broadcast\endlink by another thread.
+  //!
+  //! Returns \c false in case the specified timeout expired before the condition 
+  //! was notified. Returns \c true otherwise.
+  //!
+  //! The associated \a external_mutex <b>must be locked</b> by the calling thread.
+  //!
+  //! \param tmo_secs The seconds part of the timeout
+  //! \param tmo_nsecs The nanoseconds part of the timeout
+  //! \return \c false [timeout expired] or \c true [condition notified]
+  //! \remark The associated external_mutex is unlocked by the timed_wait() function.
+  bool timed_wait (unsigned long tmo_secs, unsigned long tmo_nsecs);
+
   //! \brief Signals the condition by notifying \b one of the waiting threads.
   //!
   //! The associated \a external_mutex <b>must be locked</b> by the calling thread.
