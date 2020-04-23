@@ -120,7 +120,7 @@ public:
   /// \verbatim
   /// T value = my_dict.get(key).value_or(default_value);
   /// \endverbatim
-  Optional<T> get(const std::string& key)
+  Optional<T> get(const std::string& key) const
   {
     const_iterator cit = m_map.find( key );
     if( cit != m_map.end() )
@@ -157,6 +157,12 @@ public:
   : Dictionary<std::string>()
   {
     from_string(s, sep_pair, sep_key);
+  }
+
+  //! \brief construct the dictionary from a <string, string> map 
+  StringDictionary(const std::map<std::string, std::string>& m)
+  {
+    m_map = m;
   }
 
   //! \brief initialize the dictionary from a vector
@@ -220,6 +226,37 @@ public:
       YAT_VERBOSE_STREAM( cit->first << ": " << cit->second );
     }
   }
+  
+  /// Return an optional value
+  /// \verbatim
+  /// int  i = my_dict.get_numeric<int>(key).value_or(default_value);
+  /// bool b = my_dict.get_bool(key).value_or(default_value);
+  /// \endverbatim
+  template<typename T>
+  Optional<T> get_numeric(const std::string& key) const
+  {
+    const_iterator cit = m_map.find( key );
+    if( cit != m_map.end() )
+    {
+      return yat::String(cit->second).to_num<T>();
+    }
+    return Optional<T>();
+  }
+  Optional<bool> get_bool(const std::string& key) const
+  {
+    const_iterator cit = m_map.find( key );
+    if( cit != m_map.end() )
+    {
+      if( yat::StringUtil::is_equal_no_case(cit->second, "true") || 
+          yat::StringUtil::is_equal(cit->second, "1"))
+        return true;
+      if( yat::StringUtil::is_equal_no_case(cit->second, "false") ||
+          yat::StringUtil::is_equal(cit->second, "0"))
+        return false;
+    }
+    return Optional<bool>();
+  }
+  //@}
 };
 
 }
