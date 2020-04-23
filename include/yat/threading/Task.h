@@ -87,7 +87,9 @@ public:
     //! Default value : false.
     bool enable_periodic_msg;
     //! Periodic message period in msec.
-    size_t periodic_msg_period_ms;
+    double periodic_msg_period_ms;
+    //! Use new precise algorithm for TASK_PERIODIC dispatching
+    bool enable_precise_periodic_timing;
     //! \remark Obsolete attribute.
     //! Enables message processing under critical section.
     //! Not recommended! For backward compatibility only.
@@ -101,13 +103,28 @@ public:
     bool throw_on_post_tmo;
     //! User data (passed back in all messages).
     Thread::IOArg user_data;
+
     //! Default constructor.
     Config ();
+
     //! Constructor with parameters.
+    //! deprecated c-tor
     Config (bool   enable_timeout_msg,
             size_t timeout_msg_period_ms,
             bool   enable_periodic_msg,
             size_t periodic_msg_period_ms,
+            bool   lock_msg_handling,
+            size_t lo_wm,
+            size_t hi_wm,
+            bool   throw_on_post_tmo,
+            Thread::IOArg user_data);
+
+    //! Constructor with parameters.
+    Config (bool   enable_timeout_msg,
+            size_t timeout_msg_period_ms,
+            bool   enable_periodic_msg,
+            double _periodic_msg_period_ms,
+            bool   enable_precise_periodic_timing,
             bool   lock_msg_handling,
             size_t lo_wm,
             size_t hi_wm,
@@ -268,10 +285,10 @@ public:
 
   //! \brief Periodic message period mutator.
   //! \param p_msecs Period in ms.
-  void set_periodic_msg_period (size_t p_msecs);
+  void set_periodic_msg_period (double ms);
 
   //! \brief Periodic message period accessor.
-  size_t get_periodic_msg_period () const;
+  double get_periodic_msg_period () const;
 
   //! \brief Enable/disable periodic messages.
   //! \param enable True = enabled, false = disabled.
@@ -279,6 +296,10 @@ public:
 
   //! \brief Returns period messages handling status.
   bool periodic_msg_enabled () const;
+
+  //! \brief Enable/disable precise periodic timing for TASK_PERIODIC messages.
+  //! \param enable True = enabled, false = disabled.
+  void enable_precise_periodic_timing (bool enable);
 
   //! \brief %Message queue water marks unit mutator.
   //! \param _wmu %Message queue unit.
@@ -337,7 +358,7 @@ protected:
 
 private:
   //- actual_timeout
-  size_t actual_timeout () const;
+  double actual_timeout () const;
 
   //- the associated messageQ
   MessageQ msg_q_;
@@ -352,7 +373,10 @@ private:
   bool periodic_msg_enabled_;
 
   //- periodic msg period
-  size_t periodic_msg_period_ms_;
+  double periodic_msg_period_ms_;
+
+  //- precising timing for TAK_PERIODIC msg
+  bool precise_periodic_timing_enabled_;
 
   //- user data passed to entry point
   Thread::IOArg user_data_;
