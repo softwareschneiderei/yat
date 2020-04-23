@@ -90,6 +90,10 @@ void LogStream::lock()
 
 int LogStream::sync()
 {
+  if( m_the_message.size() > 0 )
+    // Erase leading '\n'
+    m_the_message.erase(m_the_message.size() - 1, 1);
+
   m_log_target_p->log(m_level, "n/a", m_the_message);
   m_the_message.clear();
 
@@ -106,6 +110,12 @@ int LogStream::sync()
 
 int LogStream::overflow(int c)
 {
+
+  //if( c != '\n' )
+  {
+    m_the_message.append(1, char(c));
+    return c;
+  }
   return 0;
 }
 
@@ -370,7 +380,7 @@ void DefaultLogHandler::log(ELogLevel eLevel, pcsz pszType, const std::string& s
 {
   // Formatting message
   CurrentTime dtCur;
-  std::string strLogDate = yat::StringUtil::str_format("%4d-%02d-%02d,%02d:%02d:%02.3f",
+  std::string strLogDate = yat::StringUtil::str_format("%4d-%02d-%02d,%02d:%02d:%06.3f",
                                         dtCur.year(), dtCur.month(), dtCur.day(),
                                         dtCur.hour(), dtCur.minute(), dtCur.second());
 
