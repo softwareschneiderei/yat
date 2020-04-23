@@ -315,7 +315,23 @@ public:
   //! Returns true if *this* reference count equals to 1, false otherwise.
   bool unique () const
   {
-    return m_ref_count->unique();
+    return m_ref_count.unique();
+  }
+
+  // Explicitely lock counter mutex (i.e. to allow threadsafe operations on data)
+  // Should never be explicitaly called. Prefere to use a AutoMutex<MySharedPtr_type> object
+  //
+  void lock() const
+  {
+    m_ref_count.lock();
+  }
+  
+  // Explicitely unlock counter mutex
+  // Should never be explicitaly called. Prefere to use a AutoMutex<MySharedPtr_type> object
+  //
+  void unlock() const
+  {
+    m_ref_count.unlock();
   }
 
   //! \brief Gets the shared pointer use count.

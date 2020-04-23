@@ -177,13 +177,13 @@ public:
   }
 
   //! \brief Explicitly locks the counter.
-  void lock()
+  void lock() const
   {
     m_lock.lock();
   }
 
   //! \brief Explicitly unocks the counter.
-  void unlock()
+  void unlock() const
   {
     m_lock.unlock();
   }
@@ -377,6 +377,22 @@ public:
     if( m_count )
       return m_count->use_count() == 1;
     return true;
+  }
+
+  //! \brief Explicitely lock the counter mutex
+  //!
+  void lock () const
+  {
+    if( m_count )
+      m_count->lock();
+  }
+
+  //! \brief Explicitely unlock the counter mutex
+  //!
+  void unlock () const
+  {
+    if( m_count )
+      m_count->unlock();
   }
 
   //! \brief Gets use counter value.
