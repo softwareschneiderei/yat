@@ -88,6 +88,15 @@ static pcsz s_pszMonthEn[] =
   "august", "september", "october", "november", "december"
 };
 
+static pcsz s_pszDayEnAbbr[] =
+{
+  "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
+};
+static pcsz s_pszDayEn[] =
+{
+  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+};
+
 //============================================================================
 // Internal functions
 //============================================================================
@@ -291,15 +300,6 @@ void JJToDate(long lJJ, int16 *piYear, uint8 *puiMonth, uint8 *puiDay)
   *puiDay = iDay;
 }
 
-//----------------------------------------------------------------------------
-// LocalBias
-//----------------------------------------------------------------------------
-double LocalBias()
-{
-  double diff = double(yat::CurrentTime().raw_value() -
-                       yat::CurrentTime(true).raw_value()) / MICROSEC_PER_SEC ;
-  return diff;
-}
 
 //=============================================================================
 // DateFields structure
@@ -328,6 +328,73 @@ int DateFields::is_empty() const
 //=============================================================================
 // Time class
 //=============================================================================
+
+const std::string Time::date_inter = "%y/%m/%d";
+const std::string Time::iso8601    = "%Y-%m-%dT%H:%M:%S";
+const std::string Time::iso8601_d  = "%Y-%m-%d";
+const std::string Time::iso8601_t  = "%H:%M:%S";
+const std::string Time::iso8601_tz = "%H:%M:%S%Z";
+const std::string Time::iso8601_z  = "%Y-%m-%dT%H:%M:%S%Z";
+const unsigned short Time::millisec = 3;
+const unsigned short Time::microsec = 6;
+
+//----------------------------------------------------------------------------
+// Time::Time
+//----------------------------------------------------------------------------
+Time::Time(const std::string& date_time, const std::string& format)
+: m_llTime(0), m_local_time(false), m_tz_bias(-1)
+{
+  from_string(date_time, format);
+}
+
+//----------------------------------------------------------------------------
+// Time::Time
+//----------------------------------------------------------------------------
+Time::Time(int16 iYear, uint8 uiMonth, uint8 uiDay, uint8 uiHour, uint8 uiMin, double dSec)
+: m_llTime(0), m_local_time(false), m_tz_bias(-1)
+{
+  set(iYear, uiMonth, uiDay, uiHour, uiMin, dSec);
+}
+
+//----------------------------------------------------------------------------
+// private method
+//----------------------------------------------------------------------------
+void Time::set_tz(const std::string& tz)
+{
+  if( 'Z' == tz[0] && tz.size() == 1 )
+  {
+    m_tz_bias = -1;
+    m_local_time = false;
+  }
+  else
+  {
+    if( tz.size() != 5 || (tz[0] != '+' && tz[0] != '-') || 
+        !isdigit(tz[1]) || !isdigit(tz[2]) || !isdigit(tz[3]) || !isdigit(tz[4]) )
+      throw yat::Exception("BAD_FORMAT", "Bad time zone field string", "Time::set_tz");
+
+    m_tz_bias =    yat::String(tz.substr(1,2)).to_num<int>() * 60
+                +  yat::String(tz.substr(3,2)).to_num<int>();
+
+    if( '-' == tz[0] )
+      m_tz_bias = -m_tz_bias;
+
+    m_local_time = true;
+  }
+}
+
+//----------------------------------------------------------------------------
+// Time::time_zone_bias
+//----------------------------------------------------------------------------
+int Time::time_zone_bias() const
+{
+  if( -1 == m_tz_bias )
+  {
+    m_tz_bias = (int(double(yat::CurrentTime().raw_value() -
+                            yat::CurrentUTime().raw_value()) / MICROSEC_PER_SEC + 0.5)) / 60;
+  }
+
+  return m_tz_bias;
+}
 
 //----------------------------------------------------------------------------
 // Time::nb_days_in_month
@@ -374,7 +441,7 @@ uint16 Time::nb_days_in_year(int16 iYear)
 //----------------------------------------------------------------------------
 pcsz Time::month_name(uint8 iMonth, bool long_name)
 {
-  if( iMonth > 1 && iMonth < 13 )
+  if( iMonth > 0 && iMonth < 13 )
   {
     if( long_name )
       return s_pszMonthEn[iMonth-1];
@@ -386,18 +453,40 @@ pcsz Time::month_name(uint8 iMonth, bool long_name)
 }
 
 //----------------------------------------------------------------------------
+// Time::day_name
+//----------------------------------------------------------------------------
+pcsz Time::day_name(uint8 day, bool long_name)
+{
+  if( day > 0 && day < 8 )
+  {
+    if( long_name )
+      return s_pszDayEn[day-1];
+    else
+      return s_pszDayEnAbbr[day-1];
+  }
+
+  return "";
+}
+
+//----------------------------------------------------------------------------
 // Time::set_current
 //----------------------------------------------------------------------------
-void Time::set_current(bool bUt)
+Time& Time::set_current(bool utc)
 {
   #ifdef WIN32
     SYSTEMTIME sysTm;
-    if( bUt )
+    if( utc )
+    {
       GetSystemTime(&sysTm);
+      set_utc(sysTm.wYear, (uint8)sysTm.wMonth, (uint8)sysTm.wDay, (uint8)sysTm.wHour, (uint8)sysTm.wMinute,
+          (double)sysTm.wSecond + ((double)sysTm.wMilliseconds)/1000.0);
+    }
     else
+    {
       GetLocalTime(&sysTm);
-    set(sysTm.wYear, (uint8)sysTm.wMonth, (uint8)sysTm.wDay, (uint8)sysTm.wHour, (uint8)sysTm.wMinute,
+      set_local(sysTm.wYear, (uint8)sysTm.wMonth, (uint8)sysTm.wDay, (uint8)sysTm.wHour, (uint8)sysTm.wMinute,
         (double)sysTm.wSecond + ((double)sysTm.wMilliseconds)/1000.0);
+    }
 
   #else
     long lTm, lMs;
@@ -409,14 +498,69 @@ void Time::set_current(bool bUt)
 
     // Convert from 'time_t' format to 'struct tm' format
     struct tm tmCurrent;
-    if (bUt)
+    if( utc )
+    {
       gmtime_r(&lTm, &tmCurrent);
+      set_utc(tmCurrent.tm_year+1900, tmCurrent.tm_mon+1, tmCurrent.tm_mday, tmCurrent.tm_hour,
+          tmCurrent.tm_min, (double)tmCurrent.tm_sec + (lMs/1000000.));
+    }
     else
+    {
       localtime_r(&lTm, &tmCurrent);
-
-    set(tmCurrent.tm_year+1900, tmCurrent.tm_mon+1, tmCurrent.tm_mday, tmCurrent.tm_hour,
-        tmCurrent.tm_min, (double)tmCurrent.tm_sec + (lMs/1000000.));
+      set_local(tmCurrent.tm_year+1900, tmCurrent.tm_mon+1, tmCurrent.tm_mday, tmCurrent.tm_hour,
+          tmCurrent.tm_min, (double)tmCurrent.tm_sec + (lMs/1000000.));
+    }
   #endif
+  return *this;
+}
+
+//----------------------------------------------------------------------------
+// Time::set_current_utc
+//----------------------------------------------------------------------------
+Time& Time::set_current_utc()
+{
+  return set_current(true);
+}
+
+//----------------------------------------------------------------------------
+// Time::set_current_local
+//----------------------------------------------------------------------------
+Time& Time::set_current_local()
+{
+  return set_current();
+}
+
+//----------------------------------------------------------------------------
+// Time::now
+//----------------------------------------------------------------------------
+Time& Time::now()
+{
+  if( m_local_time )
+    return set_current();
+  else
+    return set_current(true);
+}
+
+//----------------------------------------------------------------------------
+// Time::local_to_utc
+//----------------------------------------------------------------------------
+Time& Time::to_utc()
+{
+  if( m_local_time )
+    *this -= 60 * time_zone_bias();
+  m_local_time = false;
+  return *this;
+}
+
+//----------------------------------------------------------------------------
+// Time::utc_to_local
+//----------------------------------------------------------------------------
+Time& Time::to_local()
+{
+  if( !m_local_time )
+    *this += 60 * time_zone_bias();
+  m_local_time = true;
+  return *this;
 }
 
 //----------------------------------------------------------------------------
@@ -424,7 +568,7 @@ void Time::set_current(bool bUt)
 //----------------------------------------------------------------------------
 void Time::local_to_UT()
 {
-  *this -= LocalBias();
+  to_utc();
 }
 
 //----------------------------------------------------------------------------
@@ -432,7 +576,7 @@ void Time::local_to_UT()
 //----------------------------------------------------------------------------
 void Time::UT_to_local()
 {
-  *this += LocalBias();
+  to_local();
 }
 
 //----------------------------------------------------------------------------
@@ -474,6 +618,8 @@ void Time::get(DateFields *pDF) const
   pDF->week_of_year = iDay / 7;
   if( iDay >= 0 )
     pDF->week_of_year++;
+
+  pDF->tz_bias = time_zone_bias();
 }
 
 //----------------------------------------------------------------------------
@@ -505,6 +651,7 @@ void Time::set(const DateFields &df)
                int64(df.hour * SEC_PER_HOUR) * int64(MICROSEC_PER_SEC) +
                int64(df.min * SEC_PER_MIN) * int64(MICROSEC_PER_SEC) +
                int64(df.sec * MICROSEC_PER_SEC);
+    m_local_time = df.local_time;
   }
 }
 
@@ -521,8 +668,30 @@ void Time::set(int16 iYear, uint8 uiMonth, uint8 uiDay,
   df.hour  = uiHour;
   df.min   = uiMin;
   df.sec   = dSec;
+  df.local_time = false;
   set(df);
 }
+
+//----------------------------------------------------------------------------
+// Time::set_utc
+//----------------------------------------------------------------------------
+void Time::set_utc(int16 year, uint8 month, uint8 day,
+                   uint8 hour, uint8 min, double sec)
+{
+  set(year, month, day, hour, min, sec);
+  m_local_time = false;
+}
+
+//----------------------------------------------------------------------------
+// Time::set_local
+//----------------------------------------------------------------------------
+void Time::set_local(int16 year, uint8 month, uint8 day,
+                     uint8 hour, uint8 min, double sec)
+{
+  set(year, month, day, hour, min, sec);
+  m_local_time = true;
+}
+
 
 //----------------------------------------------------------------------------
 // Time::set_day_of_year
@@ -618,6 +787,14 @@ void Time::set_second(double dSec)
 }
 
 //----------------------------------------------------------------------------
+// Time::set_time_zone_bias
+//----------------------------------------------------------------------------
+void Time::set_time_zone_bias(int minutes)
+{
+  m_tz_bias = minutes;
+}
+
+//----------------------------------------------------------------------------
 // Time::sec
 //----------------------------------------------------------------------------
 double Time::second() const
@@ -693,7 +870,14 @@ uint8 Time::week_of_year() const
 //----------------------------------------------------------------------------
 long Time::long_unix() const
 {
-  return (long)(((m_llTime / MICROSEC_PER_SEC) - int64(JULIAN_REF_UNIX) * int64(SEC_PER_DAY)));
+  if( m_local_time )
+  {
+    Time tm(*this);
+    tm.to_utc();
+    return (long)(((tm.raw_value() / MICROSEC_PER_SEC) - int64(JULIAN_REF_UNIX) * int64(SEC_PER_DAY)));
+  }
+  else
+    return (long)(((m_llTime / MICROSEC_PER_SEC) - int64(JULIAN_REF_UNIX) * int64(SEC_PER_DAY)));
 }
 
 //----------------------------------------------------------------------------
@@ -702,6 +886,7 @@ long Time::long_unix() const
 void Time::set_long_unix(long lRefSec)
 {
   m_llTime = (int64(JULIAN_REF_UNIX) * int64(SEC_PER_DAY) + int64(lRefSec)) * int64(MICROSEC_PER_SEC);
+  m_local_time = false;
 }
 
 //----------------------------------------------------------------------------
@@ -709,6 +894,13 @@ void Time::set_long_unix(long lRefSec)
 //----------------------------------------------------------------------------
 double Time::double_unix() const
 {
+  if( m_local_time )
+  {
+    Time tm(*this);
+    tm.to_utc();
+    return double(((tm.raw_value() / MICROSEC_PER_SEC) - int64(JULIAN_REF_UNIX) * int64(SEC_PER_DAY)))
+         + ms() / 1000.0;
+  }
   return double(((m_llTime / MICROSEC_PER_SEC) - int64(JULIAN_REF_UNIX) * int64(SEC_PER_DAY)))
          + ms() / 1000.0;
 }
@@ -720,55 +912,7 @@ void Time::set_double_unix(double dRefSec)
 {
   m_llTime = (int64(JULIAN_REF_UNIX) * int64(SEC_PER_DAY) * int64(1000) +
              int64(dRefSec * 1000)) * int64(1000);
-}
-
-//----------------------------------------------------------------------------
-// Time::to_local_ISO8601
-//----------------------------------------------------------------------------
-std::string Time::to_local_ISO8601() const
-{
-  std::string strDate;
-  std::string strFmt;
-
-  double dTZ = LocalBias();
-  if( dTZ < 0 )
-    strFmt = "%04d-%02d-%02dT%02d:%02d:%02d-%02d%02d";
-  else
-    strFmt = "%04d-%02d-%02dT%02d:%02d:%02d+%02d%02d";
-
-  // Prevent any rounding error
-  if( dTZ < 0 )
-    dTZ = -dTZ;
-
-  int iSec = int(dTZ + 0.5);
-
-  int iHourBias = iSec / 3600;
-  int iMinBias = (iSec - (3600 * iHourBias)) / 60;
-
-  // Split date into fields
-  DateFields df;
-  get(&df);
-
-  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
-                              df.hour, df.min, uint32(df.sec), iHourBias, iMinBias);
-  return strDate;
-}
-
-//----------------------------------------------------------------------------
-// Time::to_ISO8601
-//----------------------------------------------------------------------------
-std::string Time::to_ISO8601() const
-{
-  std::string strDate;
-  std::string strFmt = "%04d-%02d-%02dT%02d:%02d:%02dZ";
-
-  // Split date into fields
-  DateFields df;
-  get(&df);
-
-  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
-                              df.hour, df.min, uint32(df.sec));
-  return strDate;
+  m_local_time = false;
 }
 
 //----------------------------------------------------------------------------
@@ -776,16 +920,7 @@ std::string Time::to_ISO8601() const
 //----------------------------------------------------------------------------
 std::string Time::to_ISO8601_ms_TU() const
 {
-  std::string strDate;
-  std::string strFmt = "%04d-%02d-%02dT%02d:%02d:%06.3lfZ";
-
-  // Split date into fields
-  DateFields df;
-  get(&df);
-
-  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
-                              df.hour, df.min, df.sec);
-  return strDate;
+  return to_string_utc(yat::Time::iso8601, 3);
 }
 
 //----------------------------------------------------------------------------
@@ -793,16 +928,7 @@ std::string Time::to_ISO8601_ms_TU() const
 //----------------------------------------------------------------------------
 std::string Time::to_ISO8601_micro_TU() const
 {
-  std::string strDate;
-  std::string strFmt = "%04d-%02d-%02dT%02d:%02d:%09.6lfZ";
-
-  // Split date into fields
-  DateFields df;
-  get(&df);
-
-  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
-                              df.hour, df.min, df.sec);
-  return strDate;
+  return to_string_utc(yat::Time::iso8601, 6);
 }
 
 //----------------------------------------------------------------------------
@@ -810,18 +936,15 @@ std::string Time::to_ISO8601_micro_TU() const
 //----------------------------------------------------------------------------
 std::string Time::to_ISO8601_ms() const
 {
-  std::string strDate;
-  std::string strFmt;
+  return to_string(yat::Time::iso8601, 3);
+}
 
-  strFmt = "%04d-%02d-%02dT%02d:%02d:%06.3lf";
-
-  // Split date into fields
-  DateFields df;
-  get(&df);
-
-  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
-                              df.hour, df.min, df.sec);
-  return strDate;
+//----------------------------------------------------------------------------
+// Time::to_ISO8601
+//----------------------------------------------------------------------------
+std::string Time::to_ISO8601() const
+{
+  return to_string(yat::Time::iso8601);
 }
 
 //----------------------------------------------------------------------------
@@ -829,18 +952,15 @@ std::string Time::to_ISO8601_ms() const
 //----------------------------------------------------------------------------
 std::string Time::to_ISO8601_micro() const
 {
-  std::string strDate;
-  std::string strFmt;
+  return to_string_utc(yat::Time::iso8601, 6);
+}
 
-  strFmt = "%04d-%02d-%02dT%02d:%02d:%09.6lf";
-
-  // Split date into fields
-  DateFields df;
-  get(&df);
-
-  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
-                              df.hour, df.min, df.sec);
-  return strDate;
+//----------------------------------------------------------------------------
+// Time::to_local_ISO8601
+//----------------------------------------------------------------------------
+std::string Time::to_local_ISO8601() const
+{
+  return to_string_local(yat::Time::iso8601);
 }
 
 //----------------------------------------------------------------------------
@@ -848,31 +968,7 @@ std::string Time::to_ISO8601_micro() const
 //----------------------------------------------------------------------------
 std::string Time::to_local_ISO8601_ms() const
 {
-  std::string strDate;
-  std::string strFmt;
-
-  double dTZ = LocalBias();
-  if( dTZ < 0 )
-    strFmt = "%04d-%02d-%02dT%02d:%02d:%06.3lf-%02d%02d";
-  else
-    strFmt = "%04d-%02d-%02dT%02d:%02d:%06.3lf+%02d%02d";
-
-  // Prevent any rounding error
-  if( dTZ < 0 )
-    dTZ = -dTZ;
-
-  int iSec = int(dTZ + 0.5);
-
-  int iHourBias = iSec / 3600;
-  int iMinBias = (iSec - (3600 * iHourBias)) / 60;
-
-  // Split date into fields
-  DateFields df;
-  get(&df);
-
-  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
-                              df.hour, df.min, df.sec, iHourBias, iMinBias);
-  return strDate;
+  return to_string_local(yat::Time::iso8601, 3);
 }
 
 //----------------------------------------------------------------------------
@@ -880,31 +976,7 @@ std::string Time::to_local_ISO8601_ms() const
 //----------------------------------------------------------------------------
 std::string Time::to_local_ISO8601_micro() const
 {
-  std::string strDate;
-  std::string strFmt;
-
-  double dTZ = LocalBias();
-  if( dTZ < 0 )
-    strFmt = "%04d-%02d-%02dT%02d:%02d:%09.6lf-%02d%02d";
-  else
-    strFmt = "%04d-%02d-%02dT%02d:%02d:%09.6lf+%02d%02d";
-
-  // Prevent any rounding error
-  if( dTZ < 0 )
-    dTZ = -dTZ;
-
-  int iSec = int(dTZ + 0.5);
-
-  int iHourBias = iSec / 3600;
-  int iMinBias = (iSec - (3600 * iHourBias)) / 60;
-
-  // Split date into fields
-  DateFields df;
-  get(&df);
-
-  strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
-                              df.hour, df.min, df.sec, iHourBias, iMinBias);
-  return strDate;
+  return to_string_local(yat::Time::iso8601, 6);
 }
 
 //----------------------------------------------------------------------------
@@ -912,26 +984,161 @@ std::string Time::to_local_ISO8601_micro() const
 //----------------------------------------------------------------------------
 std::string Time::to_inter(bool bMillis) const
 {
-  std::string strDate;
-  std::string strFmt;
-
   if( bMillis )
-    strFmt = "%04d-%02d-%02d %02d:%02d:%06.3lf";
+    return to_string("%Y-%m-%d %H:%M:%S", 3);
   else
-    strFmt = "%04d-%02d-%02d %02d:%02d:%02d";
+    return to_string("%Y-%m-%d %H:%M:%S");
+}
 
-  // Split date into fields
+//----------------------------------------------------------------------------
+// Time::to_string_local
+//----------------------------------------------------------------------------
+yat::String Time::to_string_local(const std::string& format, unsigned short precision) const
+{
+  if( !m_local_time )
+    return Time(*this).to_local().to_string(format, precision);
+  else
+    return to_string(format, precision);
+}
+
+//----------------------------------------------------------------------------
+// Time::to_string_utc
+//----------------------------------------------------------------------------
+yat::String Time::to_string_utc(const std::string& format, unsigned short precision) const
+{
+  if( m_local_time )
+    return Time(*this).to_utc().to_string(format, precision);
+  else
+    return to_string(format, precision);
+}
+
+//----------------------------------------------------------------------------
+// internal utility function
+//----------------------------------------------------------------------------
+std::string _iso8601_bias(const Time &tm)
+{
+  if( tm.utc() )
+    return "Z";
+  
+  std::string fmt;
+  int bias = tm.time_zone_bias();
+  if( bias < 0 )
+    fmt = "-%02d%02d";
+  else
+    fmt = "+%02d%02d";
+
+  int h = abs(bias) / 60;
+  int m = abs(bias) - (60 * h);
+
+  return StringUtil::str_format(PSZ(fmt), h, m);
+}
+
+//----------------------------------------------------------------------------
+// Time::to_string
+//----------------------------------------------------------------------------
+yat::String Time::to_string(const std::string& format, unsigned short precision) const
+{
+  bool get_identifier = false;  
+  std::ostringstream oss;
   DateFields df;
   get(&df);
 
-  if( bMillis )
-    strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
-                              df.hour, df.min, df.sec);
-  else
-    strDate = StringUtil::str_format(PSZ(strFmt), df.year, df.month, df.day,
-                              df.hour, df.min, int(df.sec+0.5));
+  for( std::size_t i_f = 0; i_f < format.size(); ++i_f )
+  {
+    if( '%' == format[i_f] && !get_identifier )
+    {
+      get_identifier = true;
+      continue;
+    }
 
-  return strDate;
+    if( get_identifier )
+    {
+      switch( format[i_f] )
+      {
+        case 'a':
+          oss << s_pszDayEnAbbr[df.day_of_week - 1];
+          break;
+        case 'A':
+          oss << s_pszDayEn[df.day_of_week - 1];
+          break;
+        case 'b':
+        case 'h':
+          oss << s_pszMonthEnAbbr[df.month - 1];
+          break;
+        case 'B':
+          oss << s_pszMonthEn[df.month - 1];
+          break;
+        case 'd':
+          oss.width(2); oss.fill('0'); oss << int(df.day);
+          break;
+        case 'H':
+          oss.width(2); oss.fill('0'); oss << int(df.hour);
+          break;
+        case 'j':
+          oss.width(3); oss.fill('0'); oss << df.day_of_year;
+          break;
+        case 'm':
+          oss.width(2); oss.fill('0'); oss << int(df.month);
+          break;
+        case 'M':
+          oss.width(2); oss.fill('0'); oss << int(df.min);
+          break;
+        case 'R':
+          oss.width(2); oss.fill('0'); oss << int(df.hour) << ':';
+          oss.width(2); oss.fill('0'); oss << int(df.min);
+          break;
+        case 's':
+          oss << long_unix();
+          break;
+        case 'S':
+          if( 0 == precision )
+          { oss.width(2); oss.fill('0'); oss << int(df.sec); }
+          else
+          { oss.width(precision + 3); oss.precision(precision); oss << std::fixed << df.sec; }
+          break;
+        case 't':
+          oss << '\t';
+          break;
+        case 'T':
+          oss.width(2); oss.fill('0'); oss << df.hour << ':';
+          oss.width(2); oss.fill('0'); oss << df.min << ':';
+          oss.width(2); oss.fill('0'); oss << int(df.sec);
+          break;
+        case 'u':
+          oss << df.day_of_week;
+          break;
+        case 'U':
+          oss.width(2); oss.fill('0'); oss << df.week_of_year;
+          break;
+        case 'w':
+         {
+           int d = df.day_of_week;
+           if( 7 == d ) d = 0; // Sunday is '0'
+           oss << d;
+           break;
+         }
+        case 'y':
+          oss.width(2); oss.fill('0'); oss << (df.year % 100);
+          break;
+        case 'Y':
+          oss.width(4); oss.fill('0'); oss << df.year;
+          break;
+        case 'Z':
+          oss << _iso8601_bias(*this);
+          break;
+        default:
+          throw yat::Exception("BAD_FORMAT",
+                               std::string("Unknown date-time identifier: ") +
+                               format.substr(i_f, 1) + " in format: " + format,
+                               "Time::to_string");
+      }
+      get_identifier = false;
+    }
+    else
+      oss << format[i_f];
+  }
+
+  return yat::String(oss.str());
 }
 
 //----------------------------------------------------------------------------
@@ -977,12 +1184,22 @@ void Time::from_string(const std::string& date_time, const std::string& format)
         case 'S':
           field_len = 2;
           break;
+        case 'Z':
+          if( 'Z' == date_time[i_s] )
+            field_len = 1;
+          else
+            field_len = 5;
+          string_id = true;
+          break;
         case 'j':
-        case 's':
           field_len = 3;
           break;
         default:
-          throw yat::Exception("BAD_FORMAT",
+          if( isdigit(format[i_f]) && format[i_f] - '0' > 0 && format[i_f] - '0' < 7 )
+            // seconds value presision
+            field_len = format[i_f] - '0';
+          else
+            throw yat::Exception("BAD_FORMAT",
                                std::string("Unknown date-time identifier: ") +
                                format.substr(i_f, 1) + " in format: " + format,
                                "Time::from_string");
@@ -992,8 +1209,16 @@ void Time::from_string(const std::string& date_time, const std::string& format)
       {
         // Get string (terminated by first non-alpha character)
         std::string v;
-        while( i_s < date_time.size() && isalpha(date_time[i_s]) )
-          v.push_back(date_time[i_s++]);
+        if( 0 == field_len )
+        {
+          while( i_s < date_time.size() && isalpha(date_time[i_s]) )
+            v.push_back(date_time[i_s++]);
+        }
+        else if( i_s + field_len <= date_time.size() )
+        {
+          v.append(date_time.substr(i_s, field_len));
+          i_s += field_len;
+        }  
 
         switch( format[i_f] )
         {
@@ -1006,6 +1231,9 @@ void Time::from_string(const std::string& date_time, const std::string& format)
           case 'h':
             set_month(v);
             break;
+          case 'Z':
+            set_tz(v);
+            break;
           default:
             throw yat::Exception("BAD_FORMAT",
                                  std::string("Unknown date-time identifier: ") +
@@ -1015,7 +1243,7 @@ void Time::from_string(const std::string& date_time, const std::string& format)
       }
       else
       {
-        unsigned short v = 0;
+        unsigned long v = 0;
         for( std::size_t i = 0; i < field_len; ++i )
         {
           if( !isdigit(date_time[i_s]) || i_s >= date_time.size() )
@@ -1051,14 +1279,19 @@ void Time::from_string(const std::string& date_time, const std::string& format)
           case 'S':
             set_second(v);
             break;
-          case 's':
-            set_second( second() + ((double)v / 1000.));
-            break;
           default:
-            throw yat::Exception("BAD_FORMAT",
-                                 std::string("Unknown date-time identifier: ") +
-                                 format.substr(i_f, 1) + " in format: " + format,
-                                 "Time::from_string");
+            if( isdigit(format[i_f]) )
+            {
+              if( field_len < 6 )
+                set_second( second() + ((double)v / pow(10, field_len)));
+              else
+                set_second( second() + (((double)v + 0.5)/ pow(10, field_len)));
+            }
+            else
+              throw yat::Exception("BAD_FORMAT",
+                                   std::string("Unknown date-time identifier: ") +
+                                   format.substr(i_f, 1) + " in format: " + format,
+                                   "Time::from_string");
         }
       }
       get_identifier = false;
@@ -1142,7 +1375,7 @@ uint8 Time::get_month_from_name(const std::string& month_name)
 //----------------------------------------------------------------------------
 // CurrentTime::CurrentTime
 //----------------------------------------------------------------------------
-CurrentTime::CurrentTime(bool bUT)
+CurrentTime::CurrentTime(bool bUT) : Time()
 {
   set_current(bUT);
 }
