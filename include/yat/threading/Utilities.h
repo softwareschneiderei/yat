@@ -109,6 +109,14 @@ public:
   //! \param offset_msecs Offset in milliseconds.
   static void get_time (Timespec & abs_time, unsigned long offset_msecs);
 
+  //! \brief Calculates an absolute time in seconds and nanoseconds, suitable for
+  //! use in timed waits (ex: Condition, Semaphore), which is the current time 
+  //! plus the given relative offset (the sum of an offset in seconds and a offset in nanoseconds).
+  //! \param abs_time Absolute time.
+  //! \param offset_secs Offset in seconds.
+  //! \param offset_nsecs Offset in nanoseconds.
+  static void get_time (Timespec & abs_time, unsigned long offset_secs, unsigned long offset_nsecs);
+
 private:
 
 #if defined (YAT_WIN32)
