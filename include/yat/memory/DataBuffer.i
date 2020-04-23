@@ -8,11 +8,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -20,7 +20,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -70,6 +70,23 @@ YAT_INLINE void Buffer<T>::force_length (size_t _new_length)
     this->length_ = this->capacity_;
   else
     this->length_ = _new_length;
+}
+
+// ============================================================================
+// Buffer::append
+// ============================================================================
+template <typename T>
+YAT_INLINE void Buffer<T>::append (const T& _val)
+{
+  if( this->length_ < this->capacity_ )
+  {
+    this->base_[this->length_] = _val;
+    this->length_++;
+  }
+  else
+  {
+    THROW_YAT_ERROR("ERROR", "overflow error", "Buffer<T>::append");
+  }
 }
 
 // ============================================================================
@@ -145,14 +162,14 @@ YAT_INLINE Buffer<T>& Buffer<T>::operator= (const Buffer<T>& src)
 {
   if (&src == this)
     return *this;
-    
+
   if (this->capacity_ < src.length_)
     this->capacity(src.length_);
-    
+
   std::memcpy(this->base_, src.base_, src.length_ * sizeof(T));
-  
+
   this->length_ = src.length_;
-  
+
   return *this;
 }
 
@@ -164,11 +181,11 @@ YAT_INLINE Buffer<T>& Buffer<T>::operator= (const T* _src)
 {
   if (_src == this->base_)
     return *this;
-    
+
   ::memcpy(this->base_, _src, this->capacity_ * sizeof(T));
-  
-  this->length_ = this->capacity_;   
-  
+
+  this->length_ = this->capacity_;
+
   return *this;
 }
 
@@ -180,9 +197,9 @@ YAT_INLINE Buffer<T>& Buffer<T>::operator= (const T& _val)
 {
   for (size_t i = 0; i < this->capacity_; i++)
      *(this->base_ + i) = _val;
-  
-  this->length_ = this->capacity_;   
- 
+
+  this->length_ = this->capacity_;
+
   return *this;
 }
 
@@ -223,12 +240,12 @@ YAT_INLINE ImageBuffer<T> & ImageBuffer<T>::operator= (const ImageBuffer<T> &_sr
 {
   if (&_src == this)
     return *this;
-    
+
   this->Buffer<T>::operator =(_src);
-  
+
   this->width_  = _src.width_;
   this->height_ = _src.height_;
-  
+
   return *this;
 }
 
@@ -239,7 +256,7 @@ template <typename T>
 YAT_INLINE ImageBuffer<T> & ImageBuffer<T>::operator= (const T *base)
 {
   Buffer<T>::operator=(base);
-  
+
   return *this;
 }
 
@@ -250,7 +267,7 @@ template <typename T>
 YAT_INLINE ImageBuffer<T> & ImageBuffer<T>::operator= (const T &val)
 {
   this->fill(val);
-  
+
   return *this;
 }
 
