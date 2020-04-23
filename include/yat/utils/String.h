@@ -165,6 +165,7 @@ public:
   //! The function looks for the first separator occurrence. The extracted token is removed from the std::string.
   //! \param c Separator.
   //! \param[out] pstrToken %std::string object receiving the extracted token.
+  //! \param apply_escape Take care of '\' before c to escape it
   static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken,
                                        bool apply_escape = false);
 
@@ -174,6 +175,7 @@ public:
   //! The function looks for the first separator occurrence. The extracted token is removed from the std::string.
   //! \param c Separator.
   //! \param[out] pstrToken Extracted token.
+  //! \param apply_escape Take care of '\' before c to escape it
   static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken,
                                              bool apply_escape = false);
 
@@ -184,7 +186,9 @@ public:
   //! \param cLeft Left separator.
   //! \param cRight Right separator.
   //! \param[out] pstrToken Extracted token.
-  static ExtractTokenRes extract_token(std::string* str_p, char cLeft, char cRight, std::string *pstrToken);
+  //! \param apply_escape Take care of '\' before cLeft/cRight to escape them
+  static ExtractTokenRes extract_token(std::string* str_p, char cLeft, char cRight,
+                                       std::string *pstrToken, bool apply_escape = false);
 
   //! \brief Looks for enclosed token, from right to left.
   //!
@@ -193,7 +197,9 @@ public:
   //! \param cLeft Left separator.
   //! \param cRight Right separator.
   //! \param[out] pstrToken Extracted token.
-  static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight, std::string *pstrToken);
+  //! \param apply_escape Take care of '\' before cLeft/cRight to escape them
+  static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight,
+                                             std::string *pstrToken, bool apply_escape = false);
 
   //@}
 
@@ -253,6 +259,15 @@ public:
 
   //! \brief Removes white spaces at beginning of all strings in collection.
   static void trim_left(std::vector<std::string>* vec_p);
+
+  //! \brief Removes white spaces at beginning and end of all strings in collection.
+  static void trim(std::vector<yat::String>* vec_p);
+
+  //! \brief Removes white spaces at end of all strings in collection.
+  static void trim_right(std::vector<yat::String>* vec_p);
+
+  //! \brief Removes white spaces at beginning of all strings in collection.
+  static void trim_left(std::vector<yat::String>* vec_p);
 
   //! \brief Builds a std::string with the specified format.
   //!
@@ -831,6 +846,7 @@ public:
   //! The function looks for the first separator occurrence. The extracted token is removed from the string.
   //! \param c Separator.
   //! \param[out] pstrToken %String object receiving the extracted token.
+  //! \param apply_escape Take care of '\' before c to escape it
   ExtractTokenRes extract_token(char c, String *token_p, bool apply_escape=false)
   { return static_cast<ExtractTokenRes>(StringUtil::extract_token(&m_str, c, &(token_p->str()), apply_escape)); }
   ExtractTokenRes extract_token(char c, std::string *token_p, bool apply_escape=false)
@@ -842,6 +858,7 @@ public:
   //! The function looks for the first separator occurrence. The extracted token is removed from the string.
   //! \param c Separator.
   //! \param[out] token_p Extracted token.
+  //! \param apply_escape Take care of '\' before c to escape it
   ExtractTokenRes extract_token_right(char c, String *token_p, bool apply_escape=false)
   { return static_cast<ExtractTokenRes>(StringUtil::extract_token_right(&m_str, c, &(token_p->str()), apply_escape)); }
   ExtractTokenRes extract_token_right(char c, std::string *token_p, bool apply_escape=false)
@@ -854,10 +871,11 @@ public:
   //! \param cl Left separator.
   //! \param cr Right separator.
   //! \param[out] token_p Extracted token.
-  ExtractTokenRes extract_token(char cl, char cr, String *token_p)
-  { return static_cast<ExtractTokenRes>(StringUtil::extract_token(&m_str, cl, cr, &(token_p->str()))); }
-  ExtractTokenRes extract_token(char cl, char cr, std::string *token_p)
-  { return static_cast<ExtractTokenRes>(StringUtil::extract_token(&m_str, cl, cr, token_p)); }
+  //! \param apply_escape Take care of '\' before cl/cr to escape them
+  ExtractTokenRes extract_token(char cl, char cr, String *token_p, bool apply_escape=false)
+  { return static_cast<ExtractTokenRes>(StringUtil::extract_token(&m_str, cl, cr, &(token_p->str()), apply_escape)); }
+  ExtractTokenRes extract_token(char cl, char cr, std::string *token_p, bool apply_escape=false)
+  { return static_cast<ExtractTokenRes>(StringUtil::extract_token(&m_str, cl, cr, token_p, apply_escape)); }
 
   //! \brief Looks for enclosed token, from right to left.
   //!
@@ -866,10 +884,11 @@ public:
   //! \param cl Left separator.
   //! \param cr Right separator.
   //! \param[out] token_p Extracted token.
-  ExtractTokenRes extract_token_right(char cl, char cr, String *token_p)
-  { return static_cast<ExtractTokenRes>(StringUtil::extract_token_right(&m_str, cl, cr, &(token_p->str()))); }
-  ExtractTokenRes extract_token_right(char cl, char cr, std::string *token_p)
-  { return static_cast<ExtractTokenRes>(StringUtil::extract_token_right(&m_str, cl, cr, token_p)); }
+  //! \param apply_escape Take care of '\' before cl/cr to escape them
+  ExtractTokenRes extract_token_right(char cl, char cr, String *token_p, bool apply_escape=false)
+  { return static_cast<ExtractTokenRes>(StringUtil::extract_token_right(&m_str, cl, cr, &(token_p->str()), apply_escape)); }
+  ExtractTokenRes extract_token_right(char cl, char cr, std::string *token_p, bool apply_escape=false)
+  { return static_cast<ExtractTokenRes>(StringUtil::extract_token_right(&m_str, cl, cr, token_p, apply_escape)); }
 
   //@}
 
@@ -919,16 +938,16 @@ public:
   { return StringUtil::match(m_str, mask, tokens_p); }
 
   //! \brief Removes white spaces at beginning and end of string.
-  void trim()
-  { StringUtil::trim(&m_str); }
+  String& trim()
+  { StringUtil::trim(&m_str); return *this; }
 
   //! \brief Removes white spaces at beginning of string.
-  void trim_left()
-  { StringUtil::trim_left(&m_str); }
+  String& trim_left()
+  { StringUtil::trim_left(&m_str); return *this; }
 
   //! \brief Removes white spaces at end of string.
-  void trim_right()
-  { StringUtil::trim_right(&m_str); }
+  String& trim_right()
+  { StringUtil::trim_right(&m_str); return *this; }
 
   //! \brief Builds a string with the specified format.
   //!
@@ -970,8 +989,9 @@ public:
   //! \param c Separator.
   //! \param[out] pstrLeft Left part of the split string.
   //! \param[out] pstrRight Right part of the split string.
-  void split(char c, String *left, String *right)
-  { StringUtil::split(&m_str, c, &(left->m_str), &(right->m_str)); }
+  //! \param trim Trim left & right parts.
+  void split(char c, String *left, String *right, bool trim=false)
+  { StringUtil::split(&m_str, c, &(left->m_str), &(right->m_str), trim); }
   void split(char c, std::string *left, std::string *right)
   { StringUtil::split(&m_str, c, left, right); }
 
@@ -981,10 +1001,10 @@ public:
   //! For instance: join (\<str1, str2\>, ";") gives: str1;str2
   //! \param vec The source vector.
   //! \param sep %String separator.
-  void join(const std::vector<String> &vec, char sep=',')
-  { StringUtil::join(&m_str, vec, sep ); }
-  void join(const std::vector<std::string> &vec, char sep=',')
-  { StringUtil::join(&m_str, vec, sep ); }
+  String& join(const std::vector<String> &vec, char sep=',')
+  { StringUtil::join(&m_str, vec, sep ); return *this; }
+  String& join(const std::vector<std::string> &vec, char sep=',')
+  { StringUtil::join(&m_str, vec, sep ); return *this; }
 
   //! \brief Removes items separated by a specific separator.
   //!
@@ -996,25 +1016,25 @@ public:
   { return StringUtil::remove_item(&m_str, item, sep); }
 
   //! \brief Converts string to lowercase.
-  void to_lower()
-  { StringUtil::to_lower(&m_str); }
+  String& to_lower()
+  { StringUtil::to_lower(&m_str); return *this; }
 
   //! \brief Converts string to uppercase.
-  void to_upper()
-  { StringUtil::to_upper(&m_str); }
+  String& to_upper()
+  { StringUtil::to_upper(&m_str); return *this; }
 
   //! \brief Finds and replaces a string.
   //! \param s1 %String to replace.
   //! \param s2 Substitution string.
-  void replace(pcsz s1, pcsz s2)
-  { StringUtil::replace(&m_str, s1, s2); }
+  String& replace(pcsz s1, pcsz s2)
+  { StringUtil::replace(&m_str, s1, s2); return *this; }
 
   //! \brief Finds and replaces one character.
   //!
   //! \param c1 Character to replace.
   //! \param c2 Substitution character.
-  void replace(char c1, char c2)
-  { StringUtil::replace(&m_str, c1, c2); }
+  String& replace(char c1, char c2)
+  { StringUtil::replace(&m_str, c1, c2); return *this; }
 
 
   //! \brief Returns a 32 bits hash code.
