@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -66,14 +66,14 @@ namespace yat
 #endif
 
 // ============================================================================
-// Message::allocate 
+// Message::allocate
 // ============================================================================
 Message * Message::allocate (size_t _msg_type, size_t _msg_priority, bool _waitable)
 {
-  YAT_TRACE_STATIC("Message::allocate");  
-  
+  YAT_TRACE_STATIC("Message::allocate");
+
   yat::Message * msg = 0;
-     
+
   try
   {
     msg = new yat::Message (_msg_type, _msg_priority, _waitable);
@@ -128,6 +128,33 @@ Message::Message (size_t _msg_type, size_t _msg_priority, bool _waitable)
     processed_ (false),
     type_ (_msg_type),
     priority_ (_msg_priority),
+    user_data_ (0),
+    msg_data_ (0),
+    has_error_ (false),
+    cond_ (0),
+    size_in_bytes_ (sizeof(yat::Message))
+#if defined (YAT_DEBUG)
+    , id_ (++Message::msg_counter)
+#endif
+{
+  YAT_TRACE("Message::Message");
+
+#if defined (YAT_DEBUG)
+  Message::ctor_counter++;
+#endif
+
+  if (_waitable)
+    this->make_waitable();
+}
+
+// ============================================================================
+// Message::Message
+// ============================================================================
+Message::Message (size_t _msg_type, bool _waitable)
+  : SharedObject (),
+    processed_ (false),
+    type_ (_msg_type),
+    priority_ (DEFAULT_MSG_PRIORITY),
     user_data_ (0),
     msg_data_ (0),
     has_error_ (false),
@@ -220,10 +247,10 @@ void Message::dump () const
 }
 
 // ============================================================================
-// Message::make_waitable 
+// Message::make_waitable
 // ============================================================================
 void Message::make_waitable ()
-{ 
+{
   if (this->cond_)
     return;
 
