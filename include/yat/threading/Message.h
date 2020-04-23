@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -59,7 +59,7 @@ namespace yat
 {
 
 // ============================================================================
-//     MSG PRIORITIES - MSG PRIORITIES - MSG PRIORITIES - MSG PRIORITIES  
+//     MSG PRIORITIES - MSG PRIORITIES - MSG PRIORITIES - MSG PRIORITIES
 // ============================================================================
 //-----------------------------------------------------------------------------
 //! Highest message priority
@@ -88,9 +88,9 @@ namespace yat
 // ============================================================================
 
 // ============================================================================
-//! \enum yat::MessageType 
+//! \enum yat::MessageType
 //! \brief Message type enumeration.
-//! 
+//!
 //! INIT, EXIT, TIMEOUT & PERIODIC types are predefined control types.
 //! For user messages, use type number from FIRST_USER_MSG
 //! (for example : \#define MY_MSG_TYPE (FIRST_USER_MSG+1)).
@@ -108,10 +108,10 @@ typedef enum
 } MessageType;
 
 // ============================================================================
-//! \class Message 
+//! \class Message
 //! \brief Message exchanged between Task objects.
 //!
-//! Inherits from SharedObject class. Its main characteristics are : type, priority, 
+//! Inherits from SharedObject class. Its main characteristics are : type, priority,
 //! waitable and associated data. \n
 //! The waitable characteristic is based on a Condition object.
 // ============================================================================
@@ -138,14 +138,14 @@ public:
   void operator delete (void *);
 #endif
 
-  //! \brief Message factory. 
+  //! \brief Message factory.
   //!
   //! Creates a new message of specified type.
   //! \param msg_type %Message type.
   //! \param msg_priority %Message priority.
   //! \param waitable Is message is waitable or not.
   //! \exception OUT_OF_MEMORY Thrown if allocation fails due to lack of memory.
-  static Message * allocate (size_t msg_type, 
+  static Message * allocate (size_t msg_type,
                              size_t msg_priority = DEFAULT_MSG_PRIORITY,
                              bool waitable = false);
 
@@ -156,9 +156,14 @@ public:
   //! \param msg_type %Message type.
   //! \param msg_priority %Message priority.
   //! \param waitable Is message is waitable or not.
-  explicit Message (size_t msg_type, 
+  explicit Message (size_t msg_type,
                     size_t msg_priority = DEFAULT_MSG_PRIORITY,
                     bool waitable = false);
+
+  //! \brief Constructor with parameters.
+  //! \param msg_type %Message type.
+  //! \param waitable Is message is waitable or not.
+  explicit Message (size_t msg_type, bool waitable);
 
   //! \brief Destructor.
   virtual ~Message ();
@@ -185,7 +190,7 @@ public:
   size_t type () const;
 
   //! \brief Sets message type.
-  //! \param t %Message type (from yat::MessageType enumeration + 
+  //! \param t %Message type (from yat::MessageType enumeration +
   //! user defined types).
   void type (size_t t);
 
@@ -214,10 +219,10 @@ public:
   //! \brief Sets message size in bytes.
   //! \param s Size of the message in bytes.
   void size_in_bytes (size_t s);
-  
+
   //! \brief Template function to associate any type of data to a message.
   //!
-  //! Example : 
+  //! Example :
   //! \verbatim m.attach_data<double>(pDouble); \endverbatim
   //! \param _data Data buffer pointer.
   //! \param _transfer_ownership True if data is deleted with message.
@@ -225,7 +230,7 @@ public:
   template <typename T> void attach_data (T * _data, bool _transfer_ownership = true);
   //! \brief Template function to associate any type of data to a message (makes a copy of _data).
   //!
-  //! Example : 
+  //! Example :
   //! \verbatim m.attach_data<double>(myDouble); \endverbatim
   //! \param _data Data buffer.
   //! \exception OUT_OF_MEMORY Thrown if allocation fails due to lack of memory.
@@ -233,7 +238,7 @@ public:
   //! \brief Template function that returns the message associated data.
   //!
   //! Data is left in message and will be deleted with message.
-  //! Example : 
+  //! Example :
   //! \verbatim T &t = m.get_data<T>(); \endverbatim
   //! \exception RUNTIME_ERROR Thrown if wrong data type put in \<T\>.
   template <typename T> T& get_data () const;
@@ -246,15 +251,15 @@ public:
   //! i.e. data is not left in the message and will not be deleted with message.
   //!
   //! Before extracting data, checks specified type and data type.
-  //! Example : 
+  //! Example :
   //! \verbatim m.detach_data<double>(myDouble); \endverbatim
   //! \param _data Data buffer.
   //! \exception RUNTIME_ERROR Thrown if wrong data type specified.
   template <typename T> void detach_data (T*& _data) const;
-  //! \brief Template function that detaches data from message, 
+  //! \brief Template function that detaches data from message,
   //! i.e. data is not left in the message and will not be deleted with message.
   //!
-  //! Example : 
+  //! Example :
   //! \verbatim myDouble = m.detach_data<double>(); \endverbatim
   //! \remark There is no data type check !
   template <typename T> T * detach_data () const;
@@ -262,24 +267,24 @@ public:
   //! \brief Template function that checks the message associated data type.
   //!
   //! Returns true if wright type.
-  //! Example : 
+  //! Example :
   //! \verbatim isDouble = m.check_attached_data_type<double>(); \endverbatim
   template <typename T> bool check_attached_data_type () const;
 
   //! \brief Makes a message waitable.
-  //! 
+  //!
   //! Default value = false.
   //! \exception MEMORY_ERROR Thrown if associated Condition allocation fails on lack of memory.
   void make_waitable ();
   //! \brief Is message waitable ?
-  //! 
+  //!
   //! Returns true if message is waitable, false otherwise.
   bool waitable () const;
 
   //! \brief Waits for the message to be processed by the associated consumer(s).
   //!
-  //! Returns false in case the specified timeout expired before the 
-  //! message was processed. Returns true otherwise. 
+  //! Returns false in case the specified timeout expired before the
+  //! message was processed. Returns true otherwise.
   //! \param tmo_ms Timeout in ms.
   //! \exception PROGRAMMING_ERROR Thrown in case the message is not "waitable".
   bool wait_processed (unsigned long tmo_ms);
@@ -367,7 +372,7 @@ protected:
 };
 
 //---------------------------------------------
-// Message::attach_data 
+// Message::attach_data
 //---------------------------------------------
 template <typename T> void Message::attach_data (T * _data, bool _transfer_ownership)
 {
@@ -396,9 +401,9 @@ template <typename T> void Message::attach_data (T * _data, bool _transfer_owner
     this->msg_data_ = md;
   }
   //- simply change message GenericContainer<T> content
-  else 
+  else
   {
-    GenericContainer<T> * c = reinterpret_cast<GenericContainer<T>*>(this->msg_data_); 
+    GenericContainer<T> * c = reinterpret_cast<GenericContainer<T>*>(this->msg_data_);
     c->set_content(_data, _transfer_ownership);
   }
 }
@@ -433,9 +438,9 @@ template <typename T> void Message::attach_data (const T & _data)
     this->msg_data_ = md;
   }
   //- simply change message GenericContainer<T> content
-  else 
+  else
   {
-    GenericContainer<T> * c = reinterpret_cast<GenericContainer<T>*>(this->msg_data_); 
+    GenericContainer<T> * c = reinterpret_cast<GenericContainer<T>*>(this->msg_data_);
     c->set_content(_data);
   }
 }
