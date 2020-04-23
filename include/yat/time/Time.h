@@ -182,6 +182,10 @@ struct YAT_DECL DateFields
   uint8  day_of_week;
   //! Week of year (1-53).
   uint8  week_of_year;
+  //! is local time
+  bool local_time;
+  //! Time zone bias in minutes
+  int tz_bias;
 
   //! \brief Clears all fields.
   void clear();
@@ -203,15 +207,50 @@ struct YAT_DECL DateFields
 class YAT_DECL Time
 {
 private:
-  int64 m_llTime;   // Complete date with microsecond precision
+  int64 m_llTime;         // Complete date with microsecond precision
+  bool  m_local_time;     // true if time is local
+  mutable int m_tz_bias;  // Time zone bias in minutes (..., -120, -60, 0, 60, 120...)
+                          // -1 if not specified
 
-  // For debugging purpose only
-  // NEVER USE THIS METHOD IN REAL CODE !!
-  void txt() const;
+  void set_tz(const std::string& tz);
 
 public:
+
+  //! Standard date/time output formats
+  //@{
+
+  //! Obsolete format
+  //! 2020-04-07 11:50:32
+  static const std::string date_inter;
+
+  //! standard iso8601 string.
+  //! 2020-04-07T11:50:32
+  static const std::string iso8601;
+
+  //! Date only
+  //! 2020-04-07
+  static const std::string iso8601_d;
+
+  //! Time only
+  //! 11:50:32
+  static const std::string iso8601_t;
+
+  //! Time only with time zone bias
+  //! 11:50:32+0200
+  static const std::string iso8601_tz;
+
+  //! full iso8601 string
+  //! 2020-04-07T11:50:32+0200
+  static const std::string iso8601_z;
+
+  //@}
+
+  //! Standard seconds output precision to be used in 'to_string' family methods
+  static const unsigned short millisec;
+  static const unsigned short microsec;
+
   //! \brief Default constructor.
-  Time() { m_llTime = 0; }
+  Time() { m_llTime = 0; m_local_time = false; m_tz_bias = -1; }
 
   //! \brief Constructor from time fields.
   //!
@@ -221,8 +260,11 @@ public:
   //! \param uiHour Hour in range [0, 23].
   //! \param uiMin Minute in range [0, 59].
   //! \param dSec Seconds in range [0, 59] with microsecond precision.
-  Time(int16 iYear, uint8 uiMonth, uint8 uiDay, uint8 uiHour=0, uint8 uiMin=0, double dSec=0)
-  { set(iYear, uiMonth, uiDay, uiHour, uiMin, dSec); }
+  Time(int16 iYear, uint8 uiMonth, uint8 uiDay, uint8 uiHour=0, uint8 uiMin=0, double dSec=0);
+
+  //! \brief Constructor from string.
+  //! \see to_string
+  Time(const std::string& date_time, const std::string& format);
 
   //-----------------------------------------------------------------
   //! \name Accessors
@@ -244,6 +286,10 @@ public:
   //! \brief Splits the date in "time fields".
   //! \param pTm Structure to fill in.
   void get(DateFields *pTm) const;
+
+  //! \brief Splits the date in "time fields".
+  void get_local(DateFields *df_p) const;
+  void get_utc(DateFields *df_p) const;
 
   //! \brief Returns the microsecond part.
   long micro() const;
@@ -286,6 +332,15 @@ public:
   //! \brief Gets real Julian day taking the time field into account.
   double julian_day() const;
 
+  //! \brief Is local time
+  bool local_time() const { return m_local_time; }
+
+  //! \brief Is coordinated universal time (UTC)
+  bool utc() const { return !m_local_time; }
+
+  //! \brief Time zone bias in minutes
+  int time_zone_bias() const;
+
   //@} Accessors
 
   //-----------------------------------------------------------------
@@ -304,7 +359,7 @@ public:
   //! \exception BAD_ARGS Thrown if date is not correct.
   void set(const DateFields& sTm);
 
-  //! \brief Initializes the ate from explicit values.
+  //! \brief Initializes the time from explicit values.
   //!
   //! \param iYear Year from -4712 to ?
   //! \param uiMonth Month in range [1, 12].
@@ -313,6 +368,14 @@ public:
   //! \param uiMin Minute in range [0, 59].
   //! \param dSec Seconds in range [0, 59] with microsecond precision.
   void set(int16 iYear, uint8 uiMonth, uint8 uiDay,
+           uint8 uiHour=0, uint8 uiMin=0, double dSec=0);
+
+  //! \brief Initializes the local time from explicit values.
+  void set_local(int16 iYear, uint8 uiMonth, uint8 uiDay,
+           uint8 uiHour=0, uint8 uiMin=0, double dSec=0);
+
+  //! \brief Initializes the universal time from explicit values.
+  void set_utc(int16 iYear, uint8 uiMonth, uint8 uiDay,
            uint8 uiHour=0, uint8 uiMin=0, double dSec=0);
 
   //! \brief Initializes the date from the number of the day in the specified year.
@@ -358,6 +421,10 @@ public:
   //! \param ui64 Complete date with microsecond precision (from Julian reference).
   void set(int64 ui64) { m_llTime = ui64; }
 
+  //! \brief force the time zone bias
+  //! \param minutes bias in minutes
+  void set_time_zone_bias(int minutes);
+
   //! \brief Clears the time part (hour, min, sec).
   void clear_time();
 
@@ -365,15 +432,25 @@ public:
   void clear_date();
 
   //! \brief Initializes the date from current time.
-  //! \param bUT If set to true, uses coordinated universal time (UTC) reference,
+  //! \param utc If set to true, uses coordinated universal time (UTC) reference,
   //! otherwise uses local time reference.
-  void set_current(bool bUT=false);
+  Time& set_current(bool utc=false);
+
+  //! \brief Initializes the date from current UTC time.
+  Time& set_current_utc();
+
+  //! \brief Initializes the date from current local time.
+  Time& set_current_local();
+
+  //! \brief Initializes the date from current time.
+  //!        Take care of utc/local time status
+  Time& now();
 
   //! \brief Converts the date from local time to universal time (UTC).
-  void local_to_UT();
+  Time& to_utc();
 
   //! \brief Converts the date from universal time (UTC) to local time.
-  void UT_to_local();
+  Time& to_local();
 
   //! \brief Adds seconds to the date.
   //! \param dSec Number of seconds to add.
@@ -397,37 +474,59 @@ public:
   //! \name Text methods
   //@{
 
-  //! \brief Initializes date from a ISO8601 string.
+  //! \brief Initializes date from a string.
   //!
-  //! Do not use : not implemented function.
-  //! \param ISO8601 %Date in ISO8601 format
   //! \param format date-time format
   //!        ex: %Y-%M-%DT%h:%m:%s.%ms for a ISO8601 string
+  //!          %a 	Abbreviated weekday name 	Sun
+  //!          %A 	Full weekday name 	Sunday
+  //!          %b 	Abbreviated month name 	Mar
+  //!          %B 	Full month name 	March
+  //!          %d 	Day of the month (01-31) 	19
+  //!          %H 	Hour in 24h format (00-23) 	14
+  //!          %j 	Day of the year (001-366) 	231
+  //!          %m 	Month as a decimal number (01-12) 	08
+  //!          %M 	Minute (00-59) 	55
+  //!          %S 	Second (00-60) 	02
+  //!          %<n> Expected seconds precision in number of digits after dot (0-6)
+  //!          %y 	Year, last two digits (00-99) 	01
+  //!          %Y 	Year 	2012
   void from_string(const std::string& date_time, const std::string& format);
 
-  //! \brief Gets the date in a local time ISO8601 format.
-  std::string to_local_ISO8601() const;
+  //! \brief Format date according to the given format
+  //! \param format The format
+  //! \param precision modify the format field '%S' specification to
+  //!        the requested precision: 0 (second) to 6 (microseconds)
+  //
+  //! Supported format specifications are
+  //!          %a 	Abbreviated weekday name 	          Sun
+  //!          %A 	Full weekday name 	                Sunday
+  //!          %b 	Abbreviated month name 	            Mar
+  //!          %h 	Abbreviated month name 	            Mar
+  //!          %B 	Full month name 	                  March
+  //!          %d 	Day of the month (01-31) 	          19
+  //!          %H 	Hour in 24h format (00-23) 	        14
+  //!          %j 	Day of the year (001-366) 	        231
+  //!          %m 	Month as a decimal number (01-12) 	08
+  //!          %M 	Minute (00-59) 	55
+  //!          %R 	Equivalent to %H:%M
+  //!          %s 	The number of seconds since the Epoch, that is, since 1970-01-01 00:00:00 UTC
+  //!          %S 	Second (00-60) 	                    02
+  //!          %t 	A tab character
+  //!          %u 	The day of the week as a decimal, range 1 to 7, Monday being 1
+  //!          %U 	The week number of the current year as a decimal number, range 00 to 53
+  //!          %w 	The day of the week as a decimal, range 0 to 6, Sunday being 0
+  //!          %y 	Year, last two digits (00-99) 	    01
+  //!          %Y 	Year                                2012
+  yat::String to_string(const std::string& format, unsigned short precision=0) const;
 
-  //! \brief Gets the date in a local time ISO8601 format with milliseconds.
-  std::string to_local_ISO8601_ms() const;
+  //! Format convert to local if necessary & format date according to the given format
+  //! \see to_string
+  yat::String to_string_local(const std::string& format, unsigned short precision=0) const ;
 
-  //! \brief Gets the date in a local time ISO8601 format with microseconds.
-  std::string to_local_ISO8601_micro() const;
-
-  //! \brief Gets the date in ISO8601 format.
-  std::string to_ISO8601() const;
-
-  //! \brief Gets the date in ISO8601 format with milliseconds.
-  std::string to_ISO8601_ms() const;
-
-  //! \brief Gets the date in a UTC ISO8601 format with milliseconds.
-  std::string to_ISO8601_ms_TU() const;
-
-  //! \brief Gets the date in ISO8601 format with microseconds.
-  std::string to_ISO8601_micro() const;
-
-  //! \brief Gets the date in a UTC ISO8601 format with microseconds.
-  std::string to_ISO8601_micro_TU() const;
+  //! Format convert to utc if necessary & format date according to the given format
+  //! \see to_string
+  yat::String to_string_utc(const std::string& format, unsigned short precision=0) const;
 
   //! \brief Gets the date in the international format.
   //!
@@ -435,6 +534,7 @@ public:
   std::string to_inter(bool bMillis=true) const;
 
   //@} Text methods
+
 
   //-----------------------------------------------------------------
   //! \name UNIX reference
@@ -445,12 +545,12 @@ public:
   //@{
 
 
-  //! \brief Gets *this* date as a number of seconds since 1970/01/01 00:00.
+  //! \brief Gets *this* utc date as a number of seconds since 1970/01/01 00:00.
   //!
   //! Returns an integer value.
   long long_unix() const;
 
-  //! \brief Initializes date from a number of seconds since 1970/01/01 00:00.
+  //! \brief Initializes utc date from a number of seconds since 1970/01/01 00:00.
   //! \param lRefSec Number of seconds (integer value).
   void set_long_unix(long lRefSec);
 
@@ -518,6 +618,10 @@ public:
   //! \param iMonth Month number.
   static pcsz month_name(uint8 iMonth, bool long_name = false);
 
+  //! \brief Day name.
+  //! \param day day number.
+  static pcsz day_name(uint8 day, bool long_name = false);
+
   //! \brief Gets Unix current time.
   static int32 unix_time();
 
@@ -535,6 +639,33 @@ public:
 
   //@} Static methods
 
+  //-----------------------------------------------------------------
+  //! \name Deprecated methods
+  //@{
+
+  //! \deprecated use to_string_utc(yat::Time::iso8601, yat::Time::millisec) instead
+  std::string to_ISO8601_ms_TU() const;
+  //! \deprecated use to_string_utc(yat::Time::iso8601, yat::Time::microsec) instead
+  std::string to_ISO8601_micro_TU() const;
+  //! \deprecated use to_string_local(yat::Time::iso8601)
+  std::string to_local_ISO8601() const;
+  //! \deprecated use to_string_local(yat::Time::iso8601, yat::Time::millisec)
+  std::string to_local_ISO8601_ms() const;
+  //! \deprecated use to_string_local(yat::Time::iso8601, yat::Time::microsec)
+  std::string to_local_ISO8601_micro() const;
+  //! \deprecated use to_string(yat::Time::iso8601)
+  std::string to_ISO8601() const;
+  //! \deprecated use to_string(yat::Time::iso8601, yat::Time::millisec)
+  std::string to_ISO8601_ms() const;
+  //! \deprecated use to_string(yat::Time::iso8601, yat::Time::microsec)
+  std::string to_ISO8601_micro() const;
+  //! \deprecated use to_utc()
+  void local_to_UT();
+  //! \deprecated use to_local()
+  void UT_to_local();
+
+
+  //@} Deprecated methods
 };
 
 //- Create synonyms for convenience.
@@ -545,7 +676,7 @@ typedef Time DateTime;
 //! \class CurrentTime
 //! \brief Current date class.
 //!
-//! This class is a Time class initialized with current date and time.
+//! This class is a Time class initialized with local current date and time.
 //! Inherits from Time class.
 // ============================================================================
 class YAT_DECL CurrentTime : public Time
@@ -555,12 +686,32 @@ public:
   //!
   //! \param bUT If set to true, the date is initialized with Universal %Time instead
   //! of local time.
-  CurrentTime(bool bUT=false);
+  CurrentTime(bool utc=false);
+};
+
+// ============================================================================
+//! \class UnixTime
+//! \brief data based on unix time value.
+//!
+//! This class is a Time class initialized with a UNIX time value.
+//! Inherits from Time class.
+// ============================================================================
+class YAT_DECL UnixTime : public Time
+{
+public:
+  //! \brief Constructor.
+  //!
+  //! \param bUT If set to true, the date is initialized with Universal %Time instead
+  //! of local time.
+  UnixTime(double unix_time = 0.) : Time()
+  {
+    set_double_unix(unix_time);
+  }
 };
 
 // ============================================================================
 //! \class CurrentUTime
-//! \brief Current time class initialized at current Universal Time (UT).
+//! \brief Current time class initialized at current Coordinated Universal Time (UTC).
 //!
 //! Inherits from CurrentTime class.
 // ============================================================================
@@ -569,8 +720,6 @@ class YAT_DECL CurrentUTime : public CurrentTime
 public:
   //! \brief Constructor.
   //!
-  //! \param bUT If set to true, the date is initialized with Universal %Time instead
-  //! of local time.
   CurrentUTime();
 };
 
