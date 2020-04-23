@@ -806,6 +806,10 @@ class YAT_DECL File: public FileName
   File(const std::string& strFileName)
   { set(strFileName); }
 
+  //! \brief Constructor from full file name.
+  //! \param strFileName %File name.
+  File(const FileName& file_name) : FileName(file_name) {}
+
   //! \brief Constructor from path and file name.
   //! \param strPath Path name.
   //! \param strName %File name.
@@ -1003,6 +1007,10 @@ public:
   //! \brief Constructor.
   //! \param strFile %File name.
   CfgFile(const std::string& strFile);
+
+  //! \brief Constructor.
+  //! \param file_name %File name.
+  CfgFile(const FileName& file_name);
 
   //! \brief Default Constructor.
   CfgFile() { }
