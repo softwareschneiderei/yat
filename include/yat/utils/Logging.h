@@ -104,7 +104,7 @@ public:
   LogStream(ELogLevel level);
 
 private:
-  std::string                       m_the_message;
+  yat::String                       m_the_message;
   ELogLevel                         m_level;
   class ILogTarget*                 m_log_target_p;
   yat::UniquePtr<class yat::Mutex>  m_mtx_msg_uptr;
@@ -490,15 +490,15 @@ do {                                                          \
 #define YAT_FREQUENCY_LIMITED_STATEMENT(statement, interval_sec) \
 do \
 { \
-  static yat::Timer _s_frequency_limited_statement_timer_; \
-  static bool _s_frequency_limited_statement_first_exec_ = false; \
-  if( !_s_frequency_limited_statement_first_exec_ || \
-     _s_frequency_limited_statement_timer_.elapsed_sec() >= interval_sec ) \
+  static yat::Timer _s_yat_frequency_limited_statement_timer_; \
+  static bool _s_yat_frequency_limited_statement_timer_first_exec_ = false; \
+  if( !_s_yat_frequency_limited_statement_timer_first_exec_ || \
+     _s_yat_frequency_limited_statement_timer_.elapsed_sec() >= interval_sec ) \
   { \
    statement;               \
-   _s_frequency_limited_statement_timer_.restart();     \
-   if( !_s_frequency_limited_statement_first_exec_ )    \
-     _s_frequency_limited_statement_first_exec_ = true; \
+   _s_yat_frequency_limited_statement_timer_.restart();     \
+   if( !_s_yat_frequency_limited_statement_timer_first_exec_ )    \
+     _s_yat_frequency_limited_statement_timer_first_exec_ = true; \
   } \
 } while(0)
 
