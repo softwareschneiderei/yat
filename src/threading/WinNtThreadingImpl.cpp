@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -65,7 +65,7 @@
 // ----------------------------------------------------------------------------
 #define MAX_SLEEP_SECONDS (DWORD)4294966  //- this is (2^32 - 2) / 1000
 #define MAX_NSECS 1000000000
-  
+
 namespace yat {
 
 // ****************************************************************************
@@ -124,8 +124,8 @@ Semaphore::Semaphore (unsigned int _initial_value)
 {
   YAT_TRACE("Semaphore::Semaphore");
 
-  this->m_nt_sem = ::CreateSemaphore(WIN_NT_NULL, 
-                                     (LONG)_initial_value, 
+  this->m_nt_sem = ::CreateSemaphore(WIN_NT_NULL,
+                                     (LONG)_initial_value,
                                      (LONG)SEMAPHORE_MAX_COUNT,
                                      WIN_NT_NULL);
   DEBUG_ASSERT(this->m_nt_sem);
@@ -181,10 +181,10 @@ Condition::~Condition ()
 
   ::DeleteCriticalSection(&this->m_waiters_count_lock);
 
-  while (! ::CloseHandle(this->m_nt_sem)) 
+  while (! ::CloseHandle(this->m_nt_sem))
     this->broadcast();
 
-  while (! ::CloseHandle(this->m_waiters_done)) 
+  while (! ::CloseHandle(this->m_waiters_done))
     this->broadcast();
 }
 
@@ -200,17 +200,17 @@ bool Condition::timed_wait (unsigned long _tmo_msecs)
   //- note: in the current impl. we may wait twice the tmo
   if (! _tmo_msecs) _tmo_msecs = INFINITE;
 
-  //- avoid race conditions 
+  //- avoid race conditions
   ::EnterCriticalSection(&this->m_waiters_count_lock);
   this->m_waiters_count++;
   ::LeaveCriticalSection(&this->m_waiters_count_lock);
 
-  //- this call atomically releases the mutex and waits on the semaphore 
-  //- until <Condition::signal> or <Condition::broadcast> are called by 
+  //- this call atomically releases the mutex and waits on the semaphore
+  //- until <Condition::signal> or <Condition::broadcast> are called by
   //- another thread
-  DWORD state = ::SignalObjectAndWait(this->m_external_lock.m_nt_mux, 
-                                      this->m_nt_sem, 
-                                      static_cast<DWORD>(_tmo_msecs), 
+  DWORD state = ::SignalObjectAndWait(this->m_external_lock.m_nt_mux,
+                                      this->m_nt_sem,
+                                      static_cast<DWORD>(_tmo_msecs),
                                       FALSE);
 
   YAT_LOG("Condition::timed_wait::SignalObjectAndWait returned "
@@ -233,14 +233,14 @@ bool Condition::timed_wait (unsigned long _tmo_msecs)
 
   ::LeaveCriticalSection(&this->m_waiters_count_lock);
 
-  //- we're the last waiter thread during this particular broadcast then let all 
+  //- we're the last waiter thread during this particular broadcast then let all
   //- the other threads proceed
   if (last_waiter)
   {
     //- this call atomically signals the <waiters_done_> event and waits until
-    //- it can acquire the <external_mutex>.  This is required to ensure fairness 
-    if (::SignalObjectAndWait(this->m_waiters_done, 
-                              this->m_external_lock.m_nt_mux, 
+    //- it can acquire the <external_mutex>.  This is required to ensure fairness
+    if (::SignalObjectAndWait(this->m_waiters_done,
+                              this->m_external_lock.m_nt_mux,
                               static_cast<DWORD>(INFINITE),
                               FALSE) == WAIT_TIMEOUT)
     {
@@ -259,6 +259,15 @@ bool Condition::timed_wait (unsigned long _tmo_msecs)
 }
 
 // ----------------------------------------------------------------------------
+// Condition::timed_wait
+// ----------------------------------------------------------------------------
+bool Condition::timed_wait (unsigned long _tmo_secs, unsigned long _tmo_nsecs)
+{
+  // Still limited to milliseconds precision on Win32
+  return timed_wait((_tmo_secs * 1000) + (_tmo_nsecs / 1000000));
+}
+
+// ----------------------------------------------------------------------------
 // Condition::signal
 // ----------------------------------------------------------------------------
 void Condition::signal ()
@@ -268,7 +277,7 @@ void Condition::signal ()
   bool have_waiters = this->m_waiters_count > 0;
   ::LeaveCriticalSection(&this->m_waiters_count_lock);
 
-  //- if no waiters then do nothing...  
+  //- if no waiters then do nothing...
   if (have_waiters)
     ::ReleaseSemaphore(this->m_nt_sem, 1, 0);
 }
@@ -278,13 +287,13 @@ void Condition::signal ()
 // ----------------------------------------------------------------------------
 void Condition::broadcast ()
 {
-  //- this is needed to ensure that <m_waiters_count> and <m_was_broadcast> 
+  //- this is needed to ensure that <m_waiters_count> and <m_was_broadcast>
   //- are consistent relative to each other
   ::EnterCriticalSection(&this->m_waiters_count_lock);
 
   bool have_waiters = false;
 
-  if (this->m_waiters_count > 0) 
+  if (this->m_waiters_count > 0)
   {
     //- we are broadcasting, even if there is just one waiter...
     //- record that we are broadcasting, which helps optimize
@@ -293,15 +302,15 @@ void Condition::broadcast ()
     have_waiters = true;
   }
 
-  if (have_waiters) 
+  if (have_waiters)
   {
     //- wake up all the waiters atomically
     ::ReleaseSemaphore(this->m_nt_sem, this->m_waiters_count, 0);
     //- release the waiters countlock
     ::LeaveCriticalSection(&this->m_waiters_count_lock);
-    //- wait for all the awakened threads to acquire the counting semaphore 
+    //- wait for all the awakened threads to acquire the counting semaphore
     ::WaitForSingleObject(this->m_waiters_done, INFINITE);
-    //- this assignment is okay, even without the <waiters_count_lock_> held 
+    //- this assignment is okay, even without the <waiters_count_lock_> held
     //- because no other waiter threads can wake up to access it.
     this->m_was_broadcast = false;
   }
@@ -343,7 +352,7 @@ unsigned __stdcall yat_thread_common_entry_point (Thread::IOArg _p)
       //- ignore any exception
     }
   }
-  else 
+  else
   {
     YAT_LOG_STATIC("yat_thread_common_entry_point::thread " << DUMP_THREAD_UID << " will run undetached");
     //- just protect yat impl. against user code using a try/catch statement
@@ -441,7 +450,7 @@ void Thread::start_undetached ()
 // ----------------------------------------------------------------------------
 // Thread::spawn (common to detatched & undetached threads)
 // ----------------------------------------------------------------------------
-void Thread::spawn () 
+void Thread::spawn ()
 {
   YAT_TRACE("Thread::spawn");
 
@@ -468,7 +477,7 @@ void Thread::spawn ()
   //- check result
   if (this->m_nt_thread_handle == 0)
     throw Exception(); //-TODO: GetLastError(), ..., ...
-    
+
   //- store the thread identifier
   this->m_uid = static_cast<yat::ThreadUID>(nt_uid);
 
@@ -501,9 +510,9 @@ void Thread::join (Thread::IOArg * oarg_)
     //- enter critical section
     MutexLock guard(this->m_lock);
     //- check thread state
-    if (   
-           (this->m_state != yat::Thread::STATE_RUNNING) 
-        && 
+    if (
+           (this->m_state != yat::Thread::STATE_RUNNING)
+        &&
            (this->m_state != yat::Thread::STATE_TERMINATED)
        )
        {
@@ -562,7 +571,7 @@ void Thread::priority (Priority _p)
 // ----------------------------------------------------------------------------
 int Thread::yat_to_nt_priority (Priority _p)
 {
-  switch (_p) 
+  switch (_p)
   {
     case yat::Thread::PRIORITY_LOW:
       return THREAD_PRIORITY_LOWEST;
@@ -621,7 +630,7 @@ unsigned int ThreadingUtilities::harware_concurrency()
 // ----------------------------------------------------------------------------
 // ThreadingUtilities::get_time
 // ----------------------------------------------------------------------------
-void ThreadingUtilities::get_time (Timespec & abs_time, 
+void ThreadingUtilities::get_time (Timespec & abs_time,
                                    unsigned long delay_msecs)
 {
   unsigned long abs_sec_, abs_nano_sec_;
@@ -630,6 +639,21 @@ void ThreadingUtilities::get_time (Timespec & abs_time,
   abs_time.tv_sec  = abs_sec_;
   abs_time.tv_nsec = abs_nano_sec_;
   abs_time.tv_nsec += delay_msecs * 1000000;
+  abs_time.tv_sec  += abs_time.tv_nsec / MAX_NSECS;
+  abs_time.tv_nsec %= MAX_NSECS;
+}
+
+// ----------------------------------------------------------------------------
+// ThreadingUtilities::get_time
+// ----------------------------------------------------------------------------
+void ThreadingUtilities::get_time (Timespec & abs_time, unsigned long delay_secs, unsigned long nano_secs)
+{
+  unsigned long abs_sec_, abs_nano_sec_;
+  ThreadingUtilities::get_time_now (abs_sec_, abs_nano_sec_);
+
+  abs_time.tv_sec  = abs_sec_ + delay_secs;
+  abs_time.tv_nsec = abs_nano_sec_;
+  abs_time.tv_nsec += nano_secs;
   abs_time.tv_sec  += abs_time.tv_nsec / MAX_NSECS;
   abs_time.tv_nsec %= MAX_NSECS;
 }
@@ -651,7 +675,7 @@ void ThreadingUtilities::get_time (unsigned long & abs_sec_,
 // ----------------------------------------------------------------------------
 // ThreadingUtilities::get_time_now
 // ----------------------------------------------------------------------------
-void ThreadingUtilities::get_time_now (unsigned long & abs_sec_, 
+void ThreadingUtilities::get_time_now (unsigned long & abs_sec_,
                                        unsigned long & abs_nano_sec_)
 {
   static int days_in_preceding_months[12]

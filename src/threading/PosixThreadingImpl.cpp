@@ -229,6 +229,34 @@ bool Condition::timed_wait (unsigned long _tmo_msecs)
   return signaled;
 }
 
+// ----------------------------------------------------------------------------
+// Condition::timed_wait
+// ----------------------------------------------------------------------------
+bool Condition::timed_wait (unsigned long _tmo_secs, unsigned long _tmo_nsecs)
+{
+  //- null tmo means infinite wait
+
+  bool signaled = true;
+ 
+  if (_tmo_secs == 0 && _tmo_nsecs == 0) 
+  {
+    ::pthread_cond_wait(&m_posix_cond, &m_external_lock.m_posix_mux);
+  }
+  else 
+  {
+    //- get absoulte time
+    struct timespec ts;
+    ThreadingUtilities::get_time(ts, _tmo_secs, _tmo_nsecs);
+    //- wait for the condition to be signaled or tmo expiration
+    int result = ::pthread_cond_timedwait(&m_posix_cond, 
+                                          &m_external_lock.m_posix_mux, 
+                                          &ts);
+    if (result == ETIMEDOUT)
+      signaled = false;
+  }
+
+  return signaled;
+}
 
 // ****************************************************************************
 // YAT THREAD IMPL
@@ -664,6 +692,21 @@ void ThreadingUtilities::get_time (Timespec & abs_time, unsigned long delay_msec
   delay_msecs -=  delay_msecs / 1000 * 1000;
   abs_time.tv_nsec = now.tv_usec * 1000;
   abs_time.tv_nsec += delay_msecs * 1000000;
+  abs_time.tv_sec  += abs_time.tv_nsec / MAX_NSECS;
+  abs_time.tv_nsec %= MAX_NSECS;
+}
+
+// ----------------------------------------------------------------------------
+// ThreadingUtilities::get_time
+// ----------------------------------------------------------------------------
+void ThreadingUtilities::get_time (Timespec & abs_time, unsigned long delay_secs, unsigned long nano_secs)
+{
+  struct timeval now;
+  ::gettimeofday(&now, NULL); 
+  
+  abs_time.tv_sec  = now.tv_sec + delay_secs;
+  abs_time.tv_nsec = now.tv_usec * 1000;
+  abs_time.tv_nsec += nano_secs;
   abs_time.tv_sec  += abs_time.tv_nsec / MAX_NSECS;
   abs_time.tv_nsec %= MAX_NSECS;
 }
