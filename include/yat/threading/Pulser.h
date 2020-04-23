@@ -15,15 +15,15 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
 //
 // Contributors form the TANGO community:
-// See AUTHORS file 
+// See AUTHORS file
 //
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -31,7 +31,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -44,8 +44,8 @@
 //============================================================================
 /*! \page PulserExample Pulser Example:
     \section P1 Quick & dirty Pulser attribute example of usage:
-    
-	\verbatim 
+
+	\verbatim
 
   #include "yat/threading/Pulser.h"
 
@@ -88,7 +88,7 @@
       std::cout << "Unknown exception caught" << std::endl;
     }
 
-    return 0;  
+    return 0;
   }
 
 	\endverbatim
@@ -128,42 +128,42 @@ class PulserCoreImpl;
     {
     public:
       MyClass() : calls(0) {}
-  
+
       void my_callback (yat::Thread::IOArg arg)
       {
         std::cout << "MyClass::my_callback::call #" << ++calls << std::endl;
       }
-  
+
       size_t calls;
     };
-  
+
     int main (int, char**)
     {
       try
       {
         //- MyClass instance
         MyClass mc;
-  
+
         //- pulser's config
         yat::Pulser::Config cfg;
         cfg.period_in_msecs = 250;
         cfg.num_pulses = 10;
         cfg.callback = yat::PulserCallback::instanciate(mc, &MyClass::my_callback);
         cfg.user_data = 0;
-  
+
         yat::Pulser p(cfg);
         p.start();
-  
+
         yat::Thread::sleep(5000);
-  
+
         std::cout << "done!" << std::endl;
       }
       catch (...)
       {
         std::cout << "Unknown exception caught" << std::endl;
       }
-  
-      return 0;  
+
+      return 0;
     }
     \endverbatim */
 //! \brief Periodically call a callback accepting a Thread::IOArg as input arg.
@@ -176,7 +176,7 @@ public:
   struct YAT_DECL Config
   {
     //! Pulser's period in msecs. Defaults to 1000 (i.e. one 1Hz).
-    size_t period_in_msecs;
+    double period_in_msecs;
     //! Number of pulses to generate (0 means infinite). Defaults to 0.
     size_t num_pulses;
     //! Pulsed callback. No default value!
@@ -186,7 +186,7 @@ public:
     //! Default constructor.
     Config ();
   };
-  
+
   //! \brief Config constructor.
   //! \param cfg Task configuration.
   Pulser (const Config& cfg);
@@ -199,7 +199,7 @@ public:
   //! \exception An exception is thrown in case the pulser initialization failed.
   //! \param sync if set then use wait_msg_handled to ensure the start action is done before return
   virtual void start ();
-  
+
   //! \brief Stops the pulser.
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
@@ -211,7 +211,7 @@ public:
   //! \exception An exception is thrown in case the pulser initialization failed.
   //! \notice Ensure the start action is done before return
   virtual void start_sync ();
-  
+
   //! \brief Stops the pulser synchronously.
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
@@ -220,18 +220,18 @@ public:
 
   //! \brief Changes the pulser's period.
   //! \param p_msecs The new period in msecs.
-  void set_period (size_t p_msecs);
-  
+  void set_period (double p_msecs);
+
   //! \brief Returns the pulser's in msecs.
-  size_t get_period () const;
+  double get_period () const;
 
   //! \brief Changes the number of pulses to be generated.
   //! \param num_pulses The new number of pulses.
   void set_num_pulses (size_t num_pulses);
-  
+
   //! \brief Returns the number of pulses to be generated.
   size_t get_num_pulses () const;
-  
+
   //! \brief Suspends the Pulser activity
   void suspend ();
 
@@ -245,7 +245,7 @@ public:
   //! \brief Check the Pulser activity
   bool is_running () const;
 
-  //! \brief Resumes the Pulser activity 
+  //! \brief Resumes the Pulser activity
   void resume ();
 
   //! \brief Resumes the Pulser activity synchronously
