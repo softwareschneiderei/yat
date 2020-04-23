@@ -279,7 +279,8 @@ StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, 
 // StringUtil::extract_token
 //---------------------------------------------------------------------------
 StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char cLeft,
-                                                      char cRight, std::string *pstrToken)
+                                                      char cRight, std::string *pstrToken,
+                                                      bool apply_escape)
 {
   // Cannot extract a substring a put it in the same string !
   if( str_p == pstrToken )
@@ -296,7 +297,13 @@ StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c
 
   // Search for enclosing characters
   int iLeftPos = str_p->find(cLeft);
+  while( iLeftPos > 0 && '\\' == (*str_p)[iLeftPos-1] )
+    iLeftPos = str_p->find(cLeft, iLeftPos + 1);
+
   int iRightPos = str_p->find(cRight, iLeftPos + 1);
+  while( iRightPos > 0 && '\\' == (*str_p)[iRightPos-1] )
+    iRightPos = str_p->find(cRight, iRightPos + 1);
+
   if( iLeftPos < 0 || iRightPos < 0 || iRightPos < iLeftPos )
   {
     // Not found
@@ -306,6 +313,28 @@ StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c
 
   // Enclosing characters found
   *pstrToken = str_p->substr(iLeftPos + 1, iRightPos - iLeftPos - 1);
+
+  while(true)
+  {
+    bool b = false;
+    std::size_t esc;
+    esc = pstrToken->find('\\');
+    if( pstrToken->find(cLeft) == esc + 1 )
+    {
+        b = true;
+        pstrToken->erase(esc, 1);
+    }
+    esc = pstrToken->find('\\');
+    if( pstrToken->find(cRight) == esc + 1 )
+    {
+        b = true;
+        pstrToken->erase(esc, 1);
+    }
+
+   if( !b )
+      break;
+  }
+
   str_p->erase(iLeftPos, iRightPos - iLeftPos + 1);
   return SEP_FOUND;
 }
@@ -314,7 +343,8 @@ StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c
 // StringUtil::extract_token_right
 //---------------------------------------------------------------------------
 StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, char cLeft,
-                                                            char cRight, std::string *pstrToken)
+                                                            char cRight, std::string *pstrToken,
+                                                            bool apply_escape)
 {
   // Cannot extract a substring a put it in the same string !
   if( str_p == pstrToken )
@@ -331,7 +361,13 @@ StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, 
 
   // Search for enclosing characters
   int iRightPos = str_p->rfind(cRight);
+  while( apply_escape && iRightPos > 0 && '\\' == (*str_p)[iRightPos-1] )
+    iRightPos = str_p->rfind(cRight, iRightPos - 1);
+
   int iLeftPos = iRightPos > 0 ? (int)str_p->rfind(cLeft, iRightPos - 1) : -1;
+  while( apply_escape && iLeftPos > 0 && '\\' == (*str_p)[iLeftPos-1] )
+    iLeftPos = str_p->rfind(cLeft, iLeftPos - 1);
+
   if( iLeftPos < 0 || iRightPos < 0 || iRightPos < iLeftPos )
   {
     // Not found
@@ -341,7 +377,29 @@ StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, 
 
   // Enclosing characters found
   *pstrToken = str_p->substr(iLeftPos+1, iRightPos - iLeftPos - 1);
-  str_p->erase(iLeftPos);
+
+  while( apply_escape )
+  {
+    bool b = false;
+    std::size_t esc;
+    esc = pstrToken->find('\\');
+    if( pstrToken->find(cLeft) == esc + 1 )
+    {
+        b = true;
+        pstrToken->erase(esc, 1);
+    }
+    esc = pstrToken->find('\\');
+    if( pstrToken->find(cRight) == esc + 1 )
+    {
+        b = true;
+        pstrToken->erase(esc, 1);
+    }
+
+   if( !b )
+      break;
+  }
+
+  str_p->erase(iLeftPos, iRightPos - iLeftPos + 1);
   return SEP_FOUND;
 }
 
@@ -699,6 +757,33 @@ void StringUtil::trim_right( std::vector<std::string>* vec_p )
 {
   for( std::size_t i = 0; i < vec_p->size(); ++i )
     trim_right( & (*vec_p)[i] );
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::trim
+//---------------------------------------------------------------------------
+void StringUtil::trim( std::vector<yat::String>* vec_p )
+{
+  for( std::size_t i = 0; i < vec_p->size(); ++i )
+    (*vec_p)[i].trim();
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::trim_left
+//---------------------------------------------------------------------------
+void StringUtil::trim_left( std::vector<yat::String>* vec_p )
+{
+  for( std::size_t i = 0; i < vec_p->size(); ++i )
+    (*vec_p)[i].trim_left();
+}
+
+//---------------------------------------------------------------------------
+// StringUtil::trim_right
+//---------------------------------------------------------------------------
+void StringUtil::trim_right( std::vector<yat::String>* vec_p )
+{
+  for( std::size_t i = 0; i < vec_p->size(); ++i )
+    (*vec_p)[i].trim_right();
 }
 
 //---------------------------------------------------------------------------
