@@ -1,5 +1,53 @@
 YAT history file
 
+1.17.0 (2020/05/11)
+===================
+
+Additions
+    Class StringDictionary
+        New methods that return converted values to numeric types
+        - get_numeric<T>(const std::string& key)
+        - get_bool(const std::string& key)
+
+    Class Task
+        Ability to dispatcvh periodic messages with high precision in time.
+        When this mode is set periodic messages are dispatched with at time precision
+        of ~100µs (0.1ms) and no long term shifting
+        - void enable_precise_periodic_timing (bool enable)
+        -> see <yat/threading/Task.h>
+
+    Class SharedPtr
+        Ability to instantiate an AutoMutex objet on a SharedPtr to allow
+        threadsafe manipulations on pointed data.
+        Verbatim
+            typedef SharedPtr<MyClass> MyClassPtr;
+            {   // In thread A
+
+                MyClassPtr ptr_on_MyClass_obj(new MyClass);
+                thread_B->set_ptr(ptr_on_MyClass_obj);
+            ...
+                AutoMutex<MyClassPtr> _lock(ptr_on_MyClass_obj);
+                ptr_on_MyClass_obj->do_some_action();
+            }
+            ...
+            {
+                // In thread B
+                AutoMutex<MyClassPtr> _lock(ptr_on_MyClass_obj);
+                ptr_on_MyClass_obj->do_some_other_action();
+            }
+
+    Class DataBuffer
+        Append an element at buffer end, increase length by one
+        - void append(const T &val)
+        -> see <yat/memory/DataBuffer.h>
+
+Changes
+    Class Task
+        Periodic message period is now expressed as double float instead of integer
+        - void set_periodic_msg_period (double ms)
+        - double get_periodic_msg_period () const
+        -> see <yat/threading/Task.h>
+
 1.16.3 (2019/12/14)
 ===================
 
