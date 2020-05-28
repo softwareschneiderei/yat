@@ -159,7 +159,7 @@ public:
     from_string(s, sep_pair, sep_key);
   }
 
-  //! \brief construct the dictionary from a <string, string> map 
+  //! \brief construct the dictionary from a <string, string> map
   StringDictionary(const std::map<std::string, std::string>& m)
   {
     m_map = m;
@@ -226,7 +226,18 @@ public:
       YAT_VERBOSE_STREAM( cit->first << ": " << cit->second );
     }
   }
-  
+
+#ifdef YAT_WIN32
+  // VC12 compilation bug work around: useless re-implementation of parent class method
+  Optional<std::string> get(const std::string& key) const
+  {
+    const_iterator cit = m_map.find( key );
+    if( cit != m_map.end() )
+      return cit->second;
+    return Optional<std::string>();
+  }
+#endif
+
   /// Return an optional value
   /// \verbatim
   /// int  i = my_dict.get_numeric<int>(key).value_or(default_value);
@@ -247,7 +258,7 @@ public:
     const_iterator cit = m_map.find( key );
     if( cit != m_map.end() )
     {
-      if( yat::StringUtil::is_equal_no_case(cit->second, "true") || 
+      if( yat::StringUtil::is_equal_no_case(cit->second, "true") ||
           yat::StringUtil::is_equal(cit->second, "1"))
         return true;
       if( yat::StringUtil::is_equal_no_case(cit->second, "false") ||
