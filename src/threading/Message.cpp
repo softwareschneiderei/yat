@@ -148,33 +148,6 @@ Message::Message (size_t _msg_type, size_t _msg_priority, bool _waitable)
 }
 
 // ============================================================================
-// Message::Message
-// ============================================================================
-Message::Message (size_t _msg_type, bool _waitable)
-  : SharedObject (),
-    processed_ (false),
-    type_ (_msg_type),
-    priority_ (DEFAULT_MSG_PRIORITY),
-    user_data_ (0),
-    msg_data_ (0),
-    has_error_ (false),
-    cond_ (0),
-    size_in_bytes_ (sizeof(yat::Message))
-#if defined (YAT_DEBUG)
-    , id_ (++Message::msg_counter)
-#endif
-{
-  YAT_TRACE("Message::Message");
-
-#if defined (YAT_DEBUG)
-  Message::ctor_counter++;
-#endif
-
-  if (_waitable)
-    this->make_waitable();
-}
-
-// ============================================================================
 // Message::~Message
 // ============================================================================
 Message::~Message ()
