@@ -160,11 +160,6 @@ public:
                     size_t msg_priority = DEFAULT_MSG_PRIORITY,
                     bool waitable = false);
 
-  //! \brief Constructor with parameters.
-  //! \param msg_type %Message type.
-  //! \param waitable Is message is waitable or not.
-  explicit Message (size_t msg_type, bool waitable);
-
   //! \brief Destructor.
   virtual ~Message ();
 
