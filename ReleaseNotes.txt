@@ -1,5 +1,20 @@
 YAT history file
 
+1.17.2 (2020/06/15)
+===================
+
+Fix
+    class Message
+          - Remove constructor Message(std::size_t msg_type, bool waitable)
+          added with v1.17.1 because of a compilation error in code using
+          'int' type for msg_type and msg_priority arguments when constructing
+          a Message object with the other c-tor
+
+Additions
+    class WaitableMessage
+          - Convenience class c-tor aimed to explicitaly construct waitable Message
+          object
+
 1.17.1 (2020/05/28)
 ===================
 
@@ -10,9 +25,10 @@ Additions
         - get_bool(const std::string& key)
 
     Class Task
-        Ability to dispatcvh periodic messages with high precision in time.
+        Ability to dispatch periodic messages with high precision in time.
         When this mode is set periodic messages are dispatched with at time precision
-        of ~100µs (0.1ms) and no long term shifting
+        of ~100µs (0.1ms) on Linux platform and not better than 1ms on Windows platform
+        There is also no long term shifting
         - void enable_precise_periodic_timing (bool enable)
         -> see <yat/threading/Task.h>
 
