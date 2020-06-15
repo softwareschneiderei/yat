@@ -366,6 +366,23 @@ protected:
   Message (const Message &);
 };
 
+// ============================================================================
+//! \class WaitableMessage
+//! \brief Convenience class aimed to construct waitable Message objects
+//!
+//! Inherits from Message class
+// ============================================================================
+class YAT_DECL WaitableMessage : public yat::Message
+{
+public:
+  //! \brief Constructor with parameters.
+  //! \param msg_type %Message type.
+  //! \param msg_priority %Message priority.
+  explicit WaitableMessage(std::size_t msg_type,
+                           std::size_t msg_priority = DEFAULT_MSG_PRIORITY)
+  : Message(msg_type, msg_priority, true) {}
+};
+
 //---------------------------------------------
 // Message::attach_data
 //---------------------------------------------
