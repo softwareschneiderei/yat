@@ -381,6 +381,12 @@ public:
   explicit WaitableMessage(std::size_t msg_type,
                            std::size_t msg_priority = DEFAULT_MSG_PRIORITY)
   : Message(msg_type, msg_priority, true) {}
+
+protected:
+  // = Disallow these operations.
+  //--------------------------------------------
+  WaitableMessage & operator= (const WaitableMessage &);
+  WaitableMessage (const WaitableMessage &);
 };
 
 //---------------------------------------------
