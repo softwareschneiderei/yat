@@ -5,7 +5,7 @@ set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 set(MAJOR_VERSION "1")
 set(MINOR_VERSION "17")
-set(PATCH_VERSION "2")
+set(PATCH_VERSION "3")
 set(VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
 
 # check for 64 bit
@@ -16,7 +16,7 @@ else()
 endif()
 
 if (UNIX)
-    add_definitions(-O2 -g -gstabs+ -std=c++0x -Wall -Wno-unused-variable -D_FILE_OFFSET_BITS=64 -DYAT_PROJECT_VERSION=1.17.2 -DYAT_PROJECT_NAME=YAT)
+    add_definitions(-O2 -g -gstabs+ -std=c++0x -Wall -Wno-unused-variable -D_FILE_OFFSET_BITS=64 -DYAT_PROJECT_VERSION=1.17.3 -DYAT_PROJECT_NAME=YAT)
     set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-z,defs")
 endif()
 

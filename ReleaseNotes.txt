@@ -1,5 +1,11 @@
 YAT history file
 
+1.17.3 (2020/07/09)
+===================
+
+Fix
+    Link failure with vc12 concerning the WaitableMessage class
+
 1.17.2 (2020/06/15)
 ===================
 
