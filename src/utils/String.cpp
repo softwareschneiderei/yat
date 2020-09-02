@@ -314,7 +314,7 @@ StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c
   // Enclosing characters found
   *pstrToken = str_p->substr(iLeftPos + 1, iRightPos - iLeftPos - 1);
 
-  while(true)
+  while( apply_escape )
   {
     bool b = false;
     std::size_t esc;
@@ -335,7 +335,7 @@ StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c
       break;
   }
 
-  str_p->erase(iLeftPos, iRightPos - iLeftPos + 1);
+  str_p->erase(0, iRightPos - iLeftPos + 1);
   return SEP_FOUND;
 }
 
@@ -399,7 +399,7 @@ StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, 
       break;
   }
 
-  str_p->erase(iLeftPos, iRightPos - iLeftPos + 1);
+  str_p->erase(iLeftPos);
   return SEP_FOUND;
 }
 
