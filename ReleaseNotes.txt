@@ -1,5 +1,15 @@
 YAT history file
 
+1.17.4 (2020/09/25)
+===================
+
+Fix
+    class StringUtil
+        in extract_token(std::string* str_p, char cLeft, char cRight, std::string *pstrToken, bool apply_escape);
+        & extract_token_right(std::string* str_p, char cLeft, char cRight, std::string *pstrToken, bool apply_escape);
+        Both methods was returning left and right remnants from token extraction
+
+
 1.17.3 (2020/07/09)
 ===================
 
