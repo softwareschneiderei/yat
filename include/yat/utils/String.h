@@ -40,6 +40,9 @@
 #ifndef __YAT_STRING_H__
 #define __YAT_STRING_H__
 
+#include <sstream>
+#include <iostream>
+#include <cctype>
 #include <yat/CommonHeader.h>
 #include <yat/utils/NonCopyable.h>
 #include <yat/Exception.h>
@@ -48,6 +51,11 @@
 #include <string>
 #include <vector>
 #include <deque>
+#include <set>
+#include <list>
+#include <algorithm>
+#include <iomanip>
+#include <bitset>
 
 #if defined YAT_WIN32 && _MSC_VER > 1200
     // Deprecated POSX definitions with VC8+
@@ -102,9 +110,7 @@ public:
   //! \brief Empty string - useful when need a const string &.
   static const std::string empty;
 
-  //! \brief Builds a std::string with a C-std::string like format.
-  //! \param pszFormat The std::string format.
-  //! \param ... The std::string.
+  //! \deprecated
   static std::string str_format(pcsz pszFormat, ...);
 
   //! \brief Compares std::strings (i.e. operator==).
@@ -269,11 +275,7 @@ public:
   //! \brief Removes white spaces at beginning of all strings in collection.
   static void trim_left(std::vector<yat::String>* vec_p);
 
-  //! \brief Builds a std::string with the specified format.
-  //!
-  //! Returns the std::string size.
-  //! \param pszFormat The format.
-  //! \param ... The std::string.
+  //! \deprecated
   static int printf(std::string* str_p, pcsz pszFormat, ...);
 
   //! \brief Splits the std::string.
@@ -760,14 +762,16 @@ public:
   //! \param str The source string.
   String(const String &str) : m_str(str.str()) {}
 
+  //! \brief Constructor from a ostringstream
+  //! \param oss The stream
+  String(const std::ostringstream &oss) : m_str(oss.str()) {}
+
   //! \brief Constructor from std::string.
   //! \param str The string.
   String(const std::string &str) : m_str(str) {}
   //@}
 
-  //! \brief Builds a string with a C-string like format.
-  //! \param format The string format.
-  //! \param ... The string.
+  //! \deprecated
   static String str_format(pcsz format, ...);
 
   //! \brief Compares strings (i.e. operator==).
@@ -949,11 +953,7 @@ public:
   String& trim_right()
   { StringUtil::trim_right(&m_str); return *this; }
 
-  //! \brief Builds a string with the specified format.
-  //!
-  //! Returns the string size.
-  //! \param format The format.
-  //! \param ... The string.
+  //! \deprecated
   int printf(pcsz format, ...);
 
   //! \brief Splits the string.
@@ -1135,6 +1135,81 @@ YAT_DECL bool operator>=(const char* s1, const String& s2);
 
 YAT_DECL std::ostream& operator<<(std::ostream& os, const String& s);
 YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
+
+class StringFormat
+{
+public:
+  //! \brief Default constructor.
+  StringFormat() {}
+
+  //! \brief Constructor from a char pointer.
+  //! \param psz Char pointer.
+  StringFormat(const char *psz) : m_str(psz), m_fmt_idx(0) {}
+
+  //! \brief Constructor from char buffer.
+  //! \param psz Char pointer.
+  //! \param size %Buffer size.
+  StringFormat(const char *psz, int size) : m_str(psz, size), m_fmt_idx(0) {}
+
+  //! \brief Copy Constructor.
+  //! \param str The source string.
+  StringFormat(const String &str) : m_str(str), m_fmt_idx(0) {}
+
+  //! \brief Constructor from std::string.
+  //! \param str The string.
+  StringFormat(const std::string &str) : m_str(str), m_fmt_idx(0) {}
+
+  //! Explicit conversion
+  operator const std::string&() const { return m_str.str(); }
+  operator std::string&() { return m_str; }
+  operator const yat::String&() const { return m_str; }
+  operator yat::String&() { return m_str; }
+
+  //! Apply format
+  //!
+  //! format spec is:
+  //! [[fill]align][sign][#][width][.precision][type]
+  //! fill        ::=  <any character>
+  //! align       ::=  "<" | ">"
+  //! sign        ::=  "+"
+  //! width       ::=  integer
+  //! precision   ::=  integer
+  //! type        ::=  "b" | "B" | "e" | "E" | "f" | "F" | "g" | "G" | "o" | "s" | "x" | "X" | "%"
+  template<class T> StringFormat& format(const T& v)
+  {
+    std::ostringstream oss;
+    char type = 0;
+    yat::String before, after;
+    prepare_format(oss, type, before, after);
+
+    if( 'B' == type )
+    {
+      std::bitset<8 * sizeof(T)> bs(v);
+      oss << bs;
+    }
+    else if( '%' == type )
+    {
+      oss << 100 * v << '%';
+    }
+    else
+      oss << v;
+
+    m_fmt_idx = oss.str().size();
+    oss << after;
+    m_str = oss.str();
+    return *this;
+  }
+
+  StringFormat& format(const bool& v);
+  StringFormat& format(const char *v);
+  StringFormat& format(const std::string& v);
+
+private:
+  yat::String m_str;
+  std::size_t m_fmt_idx;
+
+  void prepare_format(std::ostringstream& oss, char& type, yat::String& before, yat::String& after);
+};
 
 } // namespace
 
