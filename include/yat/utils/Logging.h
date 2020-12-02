@@ -438,7 +438,7 @@ YAT_DECL void log_emergency(const std::string& msg);
 #define YAT_LOG_EMERGENCY(...) yat::log_emergency("emg", __VA_ARGS__)
 
 //=============================================================================
-// Macro for stream log functions
+//! \deprecated Macro for stream log functions
 //=============================================================================
 #define YAT_MSG_STREAM(level, type, s)                        \
 do {                                                          \
