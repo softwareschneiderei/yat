@@ -551,7 +551,7 @@ static pcsz find_sub_str_with_joker(pcsz pszSrc, pcsz pMask, uint32 uiLenMask, s
       }
       else if( tokens_p )
       {
-        tokens_p->push_back( std::string(1, pszSrc[uiOffSrc]) );
+        tokens_p->push_back(std::string(1, pszSrc[uiOffSrc]));
       }
 
       // Next char
@@ -618,6 +618,20 @@ bool StringUtil::match(const std::string& str, pcsz pszMask,
           while (*pszMask == '*' || *pszMask == '?')
             pszMask++;
 
+          if( tokens_p )
+          {
+            // get matching token for joker
+            if (!*pszMask )
+              tokens_p->push_back(pszTxt);
+            else
+            {
+              std::size_t offset = 1;
+              while( pszTxt[offset] != 0 && pszMask[0] != pszTxt[offset] )
+                ++offset;
+              tokens_p->push_back(std::string(pszTxt, offset));
+            }
+          }
+
           if (!*pszMask)
             return true; // Fin
 
@@ -638,9 +652,6 @@ bool StringUtil::match(const std::string& str, pcsz pszMask,
           if (!pEnd)
             // Mask not found
             return false;
-
-          if( tokens_p )
-            tokens_p->push_back( std::string(pszTxt, pEnd - pszTxt) );
 
           pszTxt = pEnd;
           pszMask += uiLenMask;
@@ -1006,8 +1017,7 @@ bool StringUtil::remove_item(std::string* str_p, const std::string &strItem, cha
 //---------------------------------------------------------------------------
 void StringUtil::to_lower(std::string* str_p)
 {
-  for(uint32 ui=0; ui < (*str_p).size(); ui++)
-    (*str_p).replace(ui, 1, 1, tolower((*str_p).c_str()[ui]));
+  std::transform(str_p->begin(), str_p->end(), str_p->begin(), (int(*)(int))std::tolower);
 }
 
 //---------------------------------------------------------------------------
@@ -1015,8 +1025,7 @@ void StringUtil::to_lower(std::string* str_p)
 //---------------------------------------------------------------------------
 void StringUtil::to_upper(std::string* str_p)
 {
-  for(uint32 ui=0; ui < (*str_p).size(); ui++)
-    (*str_p).replace(ui, 1, 1, toupper((*str_p).c_str()[ui]));
+  std::transform(str_p->begin(), str_p->end(), str_p->begin(), (int(*)(int))std::toupper);
 }
 
 //---------------------------------------------------------------------------
@@ -1153,6 +1162,161 @@ int String::printf(pcsz pszFormat, ...)
   va_end(argptr);
   m_str = buf;
   return m_str.size();
+}
+
+//---------------------------------------------------------------------------
+// StringFormat::prepare_format
+//---------------------------------------------------------------------------
+void StringFormat::prepare_format(std::ostringstream& oss, char& type, yat::String& before, yat::String& after)
+{
+  std::size_t start_pos = m_str.find('{', m_fmt_idx);
+  if( std::string::npos == start_pos )
+    throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::StringFormat::format");
+
+  if( start_pos > 0 && m_str[start_pos-1] != '\\' )
+  {
+    std::size_t end_pos = m_str.find('}', start_pos);
+    if( std::string::npos == end_pos )
+      throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::StringFormat::format");
+
+    std::string fmt = m_str.substr(start_pos + 1, end_pos - start_pos - 1);
+    before = m_str.substr(0, start_pos);
+    after = m_str.substr(end_pos + 1);
+    m_fmt_idx = end_pos;
+    bool show_sign = false;
+    bool align_right = false, align_left = false, align_sign = false;
+    bool show_base = false;
+    char fill = 0;
+    std::size_t search_start = 0;
+    // search for align characters
+    std::size_t align_pos = fmt.find_first_of("<>");
+    if( align_pos > 1 && align_pos != std::string::npos )
+      throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::StringFormat::format");
+    if( align_pos != std::string::npos )
+    {
+      switch( fmt[align_pos] )
+      {
+        case '<':
+          align_left = true;
+          break;
+        case '>':
+          align_right = true;
+          break;
+        case '=':
+          align_sign = true;
+          break;
+        default:
+          break;
+      }
+      if( align_pos > 0 )
+        fill = fmt[0];
+      search_start = align_pos;
+    }
+
+    std::size_t sign_pos = fmt.find_first_of("+-", search_start);
+    if( sign_pos != std::string::npos )
+    {
+      if( fmt[sign_pos] == '+' )
+        show_sign = true;
+      search_start = sign_pos;
+    }
+    std::size_t sharp_pos = fmt.find('#', search_start);
+    if( sharp_pos != std::string::npos )
+    {
+      show_base = true;
+      search_start = sharp_pos;
+    }
+
+    std::size_t decimal_point_pos = fmt.find('.', search_start);
+    std::size_t precision_pos = std::string::npos;
+    if( decimal_point_pos != std::string::npos )
+      precision_pos = decimal_point_pos + 1;
+
+    std::size_t width_pos = fmt.find_first_of("0123456789", search_start);
+    if( width_pos ==  precision_pos )
+      width_pos = std::string::npos;
+
+    std::size_t type_pos = std::string::npos;
+    if( fmt.size() > 0 && (std::isalpha(fmt[fmt.size() - 1]) || fmt[fmt.size() - 1] == '%') )
+    {
+      type_pos = fmt.size() - 1;
+      type = fmt[type_pos];
+    }
+
+    std::size_t precision = 0;
+    std::size_t width = 0;
+
+    if( decimal_point_pos != std::string::npos && width_pos != std::string::npos )
+      width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, decimal_point_pos - width_pos));
+    else if( width_pos != std::string::npos )
+      width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, type_pos - width_pos));
+
+    if( precision_pos != std::string::npos )
+      precision = StringUtil::to_num<std::size_t>(fmt.substr(precision_pos, type_pos - precision_pos));
+
+    std::ios_base::fmtflags ff = oss.flags();
+    if( show_base )  ff |= std::ios::showbase;
+    if( show_sign)   ff |= std::ios::showpos;
+    if( align_right) ff |= std::ios::right;
+    if( align_left)  ff |= std::ios::left;
+    if( align_sign)  ff |= std::ios::left;
+    if( 'f' == type || 'F' == type || '%' == type)  ff |= std::ios::fixed;
+    if( 'e' == type || 'E' == type )                ff |= std::ios::scientific;
+    if( 'E' == type || 'X' == type || 'G' == type ) ff |= std::ios::uppercase;
+    if( 'b' == type ) ff |= std::ios::boolalpha;
+
+    oss << before;
+    oss.setf(ff);
+
+    if( 'x' == type || 'X' == type ) oss << std::hex;
+    if( 'o' == type )                oss << std::oct;
+    if( fill )                       oss << std::setfill(fill);
+    if( width > 0 )                  oss << std::setw(width);
+    if( precision > 0 )              oss << std::setprecision(precision);
+  }
+}
+
+StringFormat& StringFormat::format(const char *v)
+{
+  std::ostringstream oss;
+  char type = 0;
+  yat::String before, after;
+  prepare_format(oss, type, before, after);
+
+  oss << v;
+  oss << after;
+  m_str = oss.str();
+  return *this;
+}
+
+StringFormat& StringFormat::format(const std::string& v)
+{
+  std::ostringstream oss;
+  char type = 0;
+  yat::String before, after;
+  prepare_format(oss, type, before, after);
+
+  oss << v;
+  m_fmt_idx = oss.str().size();
+
+  oss << after;
+  m_str = oss.str();
+  return *this;
+}
+
+StringFormat& StringFormat::format(const bool& v)
+{
+  std::ostringstream oss;
+  char type = 'b';
+  yat::String before, after;
+  prepare_format(oss, type, before, after);
+
+  oss << v;
+  m_fmt_idx = oss.str().size();
+
+  oss << after;
+  m_str = oss.str();
+  return *this;
 }
 
 //---------------------------------------------------------------------------
