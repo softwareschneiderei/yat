@@ -1,5 +1,41 @@
 YAT history file
 
+1.17.5 (2020/12/07)
+===================
+
+Changes
+    class StringUtil
+        The following methods are deprecated: str_format, printf
+    class String 
+        The following method is deprecated: printf
+    -> see <yat/utils/String.h>
+
+Additions
+    class String:
+        New constructor: String(std::ostringstream& oss)
+        -> see <yat/utils/String.h>
+
+    New class StringFormat
+        This class is aimed to build strings using a format specification
+        It is inspired by the Python method 'format' of the String class.
+        Format spec is:
+            [[fill]align][sign][#][width][.precision][type]
+            fill        ::=  <any character>
+            align       ::=  "<" | ">"
+            sign        ::=  "+"
+            width       ::=  integer
+            precision   ::=  integer
+            type        ::=  "b" | "B" | "e" | "E" | "f" | "F" | "g" | "G" | "o" | "s" | "x"
+        Verbatim
+            yat::StringFormat strfmt("a: {}; b:{}; c: {>+12.4f}");
+            YAT_INFO << strfmt.format(12).format(true).format(25.36) << YAT_EOL;
+        -> see <yat/utils/String.h>
+
+Fix
+    class String & StringUtil
+        fixed method 'match' that was returned wrong vector of tokens
+        -> see <yat/utils/String.h>
+
 1.17.4 (2020/09/25)
 ===================
 
