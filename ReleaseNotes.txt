@@ -1,5 +1,13 @@
 YAT history file
 
+1.17.6 (2020/12/16)
+===================
+
+Fixes
+    class StringFormat
+        Format string begining with '{}' failed to be properly parsed
+        yat::String was not supported!
+
 1.17.5 (2020/12/07)
 ===================
 
@@ -31,7 +39,7 @@ Additions
             YAT_INFO << strfmt.format(12).format(true).format(25.36) << YAT_EOL;
         -> see <yat/utils/String.h>
 
-Fix
+Fixes
     class String & StringUtil
         fixed method 'match' that was returned wrong vector of tokens
         -> see <yat/utils/String.h>
