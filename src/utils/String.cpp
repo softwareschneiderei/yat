@@ -1173,7 +1173,7 @@ void StringFormat::prepare_format(std::ostringstream& oss, char& type, yat::Stri
   if( std::string::npos == start_pos )
     throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::StringFormat::format");
 
-  if( start_pos > 0 && m_str[start_pos-1] != '\\' )
+  if( (start_pos > 0 && m_str[start_pos-1] != '\\') || 0 == start_pos )
   {
     std::size_t end_pos = m_str.find('}', start_pos);
     if( std::string::npos == end_pos )
@@ -1276,32 +1276,30 @@ void StringFormat::prepare_format(std::ostringstream& oss, char& type, yat::Stri
   }
 }
 
+#define __STRING_TYPES_FORMAT(v) \
+  std::ostringstream oss; \
+  char type = 's'; \
+  yat::String before, after; \
+  prepare_format(oss, type, before, after); \
+  oss << v; \
+  m_fmt_idx = oss.str().size(); \
+  oss << after; \
+  m_str = oss.str(); \
+  return *this; \
+
 StringFormat& StringFormat::format(const char *v)
 {
-  std::ostringstream oss;
-  char type = 0;
-  yat::String before, after;
-  prepare_format(oss, type, before, after);
-
-  oss << v;
-  oss << after;
-  m_str = oss.str();
-  return *this;
+ __STRING_TYPES_FORMAT(v)
 }
 
 StringFormat& StringFormat::format(const std::string& v)
 {
-  std::ostringstream oss;
-  char type = 0;
-  yat::String before, after;
-  prepare_format(oss, type, before, after);
+ __STRING_TYPES_FORMAT(v)
+}
 
-  oss << v;
-  m_fmt_idx = oss.str().size();
-
-  oss << after;
-  m_str = oss.str();
-  return *this;
+StringFormat& StringFormat::format(const yat::String& v)
+{
+ __STRING_TYPES_FORMAT(v)
 }
 
 StringFormat& StringFormat::format(const bool& v)
