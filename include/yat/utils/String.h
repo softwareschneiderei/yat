@@ -1203,6 +1203,7 @@ public:
   StringFormat& format(const bool& v);
   StringFormat& format(const char *v);
   StringFormat& format(const std::string& v);
+  StringFormat& format(const yat::String& v);
 
 private:
   yat::String m_str;
