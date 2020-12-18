@@ -479,6 +479,10 @@ do {                                                          \
 //! \param statement the code to execute
 //! \param interval_sec minimal time interval, is seconds, between to execution of the statement
 //!
+//! \warning In a multithreaded application, and because the macro uses static data,
+//!          it may seems to not working properly if more than one thread execute
+//!          it from the same location in the source code!
+//!
 //! \verbatim
 //! YAT_FREQUENCY_LIMITED_STATEMENT
 //!   (
