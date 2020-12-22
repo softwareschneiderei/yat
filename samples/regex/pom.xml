@@ -24,8 +24,8 @@
             </includePaths>
             <options>
                 <!--option>-Wno-uninitialized</option-->
-                <option>-Wno-unused-parameter</option>
-                <option>-Wno-unused-variable</option>
+                <!--option>-Wno-unused-parameter</option-->
+                <!--option>-Wno-unused-variable</option-->
             </options>
           </cpp>
         </configuration>

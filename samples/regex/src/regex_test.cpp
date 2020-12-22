@@ -26,13 +26,11 @@
 typedef yat::StringFormat _strf;
 
 //-----------------------------------------------------------------------------
-void match_web_addr(const yat::String& in)
+void match_pattern(const yat::String& in)
 {
-  // Regex test
-  yat::StringFormat sfmt("'{}' is a regular web address: {}");
-  sfmt.format(in);
-
-  yat::Regex re(R"(www\.[-_[:alnum:]]+\.[[:lower:]]{2,4})", yat::Regex::extended);
+  yat::Regex re(R"(www\.[-_[:alnum:]]+\.[[:lower:]]{2,4})");
+  yat::StringFormat sfmt("'{}' is an exact match of '{}': {}");
+  sfmt.format(in).format(re.pattern());
   std::cout << sfmt.format(re.match(in)) << std::endl;
 }
 
@@ -105,7 +103,7 @@ void replace_test(const yat::String& in, const yat::String& from,
 {
   yat::Regex re(from);
   yat::String out = re.replace(in, to, mflags);
-  std::cout << _strf("Input string: {}. Search for: {}. Replace by: {}. Result: {}")
+  std::cout << _strf("Input string: {}. Search for: {}. Replace by: {}. Output: {}")
                .format(in).format(from).format(to).format(out) << std::endl;
 }
 
@@ -120,10 +118,10 @@ int main(int argc, char* argv[])
     coordinates_parser("Rect(0,0),-[659,494]");
     std::cout << std::endl;
 
-    match_web_addr("ww.cppreference.com");
-    match_web_addr("www.cppreference.info");
-    match_web_addr("www.cppreference.Com");
-    match_web_addr("www.cppreference.com");
+    match_pattern("ww.cppreference.com");
+    match_pattern("www.cppreference.info");
+    match_pattern("www.cppreference.Com");
+    match_pattern("www.cppreference.com");
     std::cout << std::endl;
 
     extract_submatches_with_iterator("http://www.cppreference.com/w/cpp");
@@ -138,10 +136,13 @@ int main(int argc, char* argv[])
     repeated_searches("Speed: 366, Mass: 35.Speed: 378; Mass: 32! \n   Speed: 400,  Mass: 30");
     std::cout << std::endl;
 
+    std::cout << "A few replace examples...\n" << std::endl;
     replace_test("ga bu zo meu", "zo", "zozo");
     replace_test("ga bu zo meu", "bu", "$&!!");
+    replace_test("ga bu zo meu", "(ga)(.*)(meu)", "$3$2$1");
     replace_test("ga bu zo meu", "(ga) (bu) (zo) (meu)", "$4 $3 $2 $1");
     replace_test("ga bu zo meu", "bu zo", "$'$0$`");
+    std::cout << "In the next example, non matching strings are not copied into the output" << std::endl;
     replace_test("ga bu zo meu", "zo", "zozo", yat::Regex::format_no_copy);
     replace_test("ga 1000€", "ga [0-9]+€", "bu 1100$$ > $0 !");
     std::cout << std::endl;
