@@ -12,16 +12,9 @@
  */
 
 #include <iostream>
-#include <cstring>
-#include <yat/time/Time.h>
 #include <yat/utils/Logging.h>
-#include <yat/file/FileName.h>
-#include <yat/utils/Singleton.h>
-#include <yat/utils/StringTemplate.h>
 #include <yat/Exception.h>
 #include <yat/regex/Regex.h>
-
-
 
 typedef yat::StringFormat _strf;
 
