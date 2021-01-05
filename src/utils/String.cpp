@@ -101,22 +101,6 @@ const std::string StringUtil::empty = "";
 #define BUF_LEN 262144 // 256Ko buffer
 
 //---------------------------------------------------------------------------
-// StringUtil::str_format
-//---------------------------------------------------------------------------
-std::string StringUtil::str_format(pcsz pszFormat, ...)
-{
-  static char buf[BUF_LEN];
-  static Mutex mtx;
-  AutoMutex<> lock(mtx);
-  va_list argptr;
-  va_start(argptr, pszFormat);
-  VSNPRINTF(buf, BUF_LEN, pszFormat, argptr);
-  va_end(argptr);
-
-  return std::string(buf);
-}
-
-//---------------------------------------------------------------------------
 // StringUtil::extract_token
 //---------------------------------------------------------------------------
 StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c,
@@ -797,23 +781,6 @@ void StringUtil::trim_right( std::vector<yat::String>* vec_p )
     (*vec_p)[i].trim_right();
 }
 
-//---------------------------------------------------------------------------
-// StringUtil::printf
-//---------------------------------------------------------------------------
-int StringUtil::printf(std::string* str_p, pcsz pszFormat, ...)
-{
-  static char buf[BUF_LEN];
-  static Mutex mtx;
-  AutoMutex<> lock(mtx);
-  va_list argptr;
-  va_start(argptr, pszFormat);
-  VSNPRINTF(buf, BUF_LEN, pszFormat, argptr);
-  va_end(argptr);
-
-  (*str_p) = buf;
-  return (*str_p).size();
-}
-
 #define _SPLIT_TO_COLLECTION_IMPL_(s_p, coll_p)                                \
 do                                                                             \
 {                                                                              \
@@ -1133,38 +1100,6 @@ uint64 StringUtil::hash64(const std::string& str)
 const String String::nil = "";
 
 //---------------------------------------------------------------------------
-// String::str_format
-//---------------------------------------------------------------------------
-yat::String String::str_format(pcsz pszFormat, ...)
-{
-  static char buf[BUF_LEN];
-  static Mutex mtx;
-  AutoMutex<> lock(mtx);
-  va_list argptr;
-  va_start(argptr, pszFormat);
-  VSNPRINTF(buf, BUF_LEN, pszFormat, argptr);
-  va_end(argptr);
-
-  return yat::String(buf);
-}
-
-//---------------------------------------------------------------------------
-// String::printf
-//---------------------------------------------------------------------------
-int String::printf(pcsz pszFormat, ...)
-{
-  static char buf[BUF_LEN];
-  static Mutex mtx;
-  AutoMutex<> lock(mtx);
-  va_list argptr;
-  va_start(argptr, pszFormat);
-  VSNPRINTF(buf, BUF_LEN, pszFormat, argptr);
-  va_end(argptr);
-  m_str = buf;
-  return m_str.size();
-}
-
-//---------------------------------------------------------------------------
 // StringFormat::prepare_format
 //---------------------------------------------------------------------------
 void StringFormat::prepare_format(std::ostringstream& oss, char& type, yat::String& before, yat::String& after)
@@ -1400,4 +1335,56 @@ std::ostream& operator<<(std::ostream& os, const String& s)
 std::istream& operator>>(std::istream& is, const String& s)
 { return operator>>(is, s.str()); }
 
+#if defined YAT_DEPRECATED // All deprecated methods
+
+std::string StringUtil::str_format(pcsz pszFormat, ...)
+{
+  static char buf[BUF_LEN];
+  static Mutex mtx;
+  AutoMutex<> lock(mtx);
+  va_list argptr;
+  va_start(argptr, pszFormat);
+  VSNPRINTF(buf, BUF_LEN, pszFormat, argptr);
+  va_end(argptr);
+
+  return std::string(buf);
+}
+yat::String String::str_format(pcsz pszFormat, ...)
+{
+  static char buf[BUF_LEN];
+  static Mutex mtx;
+  AutoMutex<> lock(mtx);
+  va_list argptr;
+  va_start(argptr, pszFormat);
+  VSNPRINTF(buf, BUF_LEN, pszFormat, argptr);
+  va_end(argptr);
+
+  return yat::String(buf);
+}
+int String::printf(pcsz pszFormat, ...)
+{
+  static char buf[BUF_LEN];
+  static Mutex mtx;
+  AutoMutex<> lock(mtx);
+  va_list argptr;
+  va_start(argptr, pszFormat);
+  VSNPRINTF(buf, BUF_LEN, pszFormat, argptr);
+  va_end(argptr);
+  m_str = buf;
+  return m_str.size();
+}
+int StringUtil::printf(std::string* str_p, pcsz pszFormat, ...)
+{
+  static char buf[BUF_LEN];
+  static Mutex mtx;
+  AutoMutex<> lock(mtx);
+  va_list argptr;
+  va_start(argptr, pszFormat);
+  VSNPRINTF(buf, BUF_LEN, pszFormat, argptr);
+  va_end(argptr);
+
+  (*str_p) = buf;
+  return (*str_p).size();
+}
+#endif
 } // namespace
