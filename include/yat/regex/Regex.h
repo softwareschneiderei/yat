@@ -41,6 +41,7 @@
 #define __YAT_REGEX_H__
 
 #include <vector>
+#include <yat/memory/SharedPtr.h>
 #include <yat/utils/String.h>
 
 #if defined YAT_HAS_GNUREGEX
@@ -100,7 +101,7 @@ public:
     operator const std::string() const { return str().str(); }
 
   private:
-    SubMatch() {} // no one is allowed to instantiate a Match object, except the Regex
+    SubMatch():m_pos(0), m_length(0) {} // no one is allowed to instantiate a Match object, except the Regex
     std::size_t m_pos;
     std::size_t m_length;
     yat::String m_string;
@@ -165,13 +166,12 @@ public:
     //! checks whether the match was successful
     bool empty() const { return m_submatchs.size() ? false : true; }
 
-    void clear();
-
-
   private:
     std::vector<SubMatch> m_submatchs;
     yat::String           m_string;
   };
+
+  typedef SharedPtr<Match> MatchPtr;
 
   //! c-tor
   Regex(const yat::String& regex, CompFlags flags = extended);
@@ -185,10 +185,16 @@ public:
 
   //! Check if whole string match the regex
   //! \param str string to match
-  //! \result_p result object, may be null ptr if one not interested on sub-matchs
+  //! \param match_p result object, may be null ptr if one not interested on sub-matchs
   bool match(const yat::String& str, Match* match_p = NULL, MatchFlags mflags = match_default);
 
-  //! Search for first match in the given string
+  //! Check if whole string match the regex
+  //! \param str string to match
+  //! \param match_p result object, may be null ptr if one not interested on sub-matchs
+  //! \return sharedptr on a match result object
+  MatchPtr match(const yat::String& str, MatchFlags mflags = match_default);
+
+  //! Search for next match in the given string
   //! \param str matching string
   //! \param result object
   //! \param start_pos starting poition of searching
@@ -215,6 +221,8 @@ private:
   bool        m_compiled;
   ::regex_t   m_regex;
 };
+
+typedef SharedPtr<Regex> RegexPtr;
 
 } // namespace
 
