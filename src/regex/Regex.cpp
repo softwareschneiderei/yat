@@ -69,7 +69,8 @@ Regex::Regex(const Regex& src)
 //---------------------------------------------------------------------------
 Regex::~Regex()
 {
-  regfree(&m_regex);
+  if( m_compiled )
+    regfree(&m_regex);
 }
 
 //---------------------------------------------------------------------------
@@ -77,6 +78,9 @@ Regex::~Regex()
 //---------------------------------------------------------------------------
 void Regex::compile()
 {
+  if( m_pattern.empty() )
+    throw yat::Exception("REGEX_ERROR", "Empty regex.", "yat::Regex::compile");
+
   int cflags = 0;
   if( m_flags & yat::Regex::extended )
     cflags |= REG_EXTENDED;
@@ -157,6 +161,16 @@ bool Regex::match(const yat::String& str, yat::Regex::Match* match_p,
 }
 
 //---------------------------------------------------------------------------
+// Regex::match
+//---------------------------------------------------------------------------
+Regex::MatchPtr Regex::match(const yat::String& str, MatchFlags mflags)
+{
+  Regex::MatchPtr match_ptr = new Regex::Match;
+  exec(str, match_ptr.get(), 0, mflags, str.size());
+  return match_ptr;
+}
+
+//---------------------------------------------------------------------------
 // Regex::exec
 //---------------------------------------------------------------------------
 bool Regex::exec(const yat::String& str, yat::Regex::Match* match_p,
@@ -189,9 +203,12 @@ bool Regex::exec(const yat::String& str, yat::Regex::Match* match_p,
         for( std::size_t i = 0; i < nmatch; ++i )
         {
           yat::Regex::SubMatch submatch;
-          submatch.m_pos = regmatch_p[i].rm_so + start_pos;
-          submatch.m_length = regmatch_p[i].rm_eo - regmatch_p[i].rm_so;
-          submatch.m_string = str;
+          if( regmatch_p[i].rm_so != -1 )
+          {
+            submatch.m_pos = regmatch_p[i].rm_so + start_pos;
+            submatch.m_length = regmatch_p[i].rm_eo - regmatch_p[i].rm_so;
+            submatch.m_string = str;
+          }
           match_p->m_submatchs.push_back(submatch);
         }
       }
@@ -408,15 +425,6 @@ yat::String Regex::Match::suffix() const
   if( 0 < m_submatchs.size() )
     return m_string.substr(m_submatchs[0].position() + m_submatchs[0].length());
   throw yat::Exception("REGEX_ERROR", "No match found.", "yat::Regex::Result::prefix");
-}
-
-//---------------------------------------------------------------------------
-// Regex::Match::clear
-//---------------------------------------------------------------------------
-void Regex::Match::clear()
-{
-  m_submatchs.clear();
-  m_string.empty();
 }
 
 //---------------------------------------------------------------------------
