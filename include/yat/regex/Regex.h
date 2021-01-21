@@ -58,8 +58,9 @@ namespace yat
 //! \class Regex
 //! \brief Wrapper over the GNU Regular expression processor
 //! \verbatim
-//! yat::Regex re ="foo.*bar";
-//! bool match = re.match("foo-bar");
+//! yat::Regex re ="foo-*(bar)?";
+//! yat::Regex::Match m;
+//! bool match = re.match("foo--bar", &m);
 //! \endverbatim
 // ============================================================================
 class YAT_DECL Regex
@@ -211,8 +212,11 @@ public:
   //! \return output string
   yat::String replace(const yat::String& input, const yat::String& replacement, MatchFlags mflags = match_default);
 
-private:
+  //! Compile the Regex, this is not required to manually call this method since
+  //! compiling is automatically performed when needed
   void compile();
+
+private:
   bool exec(const yat::String& str, Match* match_p, std::size_t start_pos,
             Regex::MatchFlags mflags, std::size_t req_len);
 
