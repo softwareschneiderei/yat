@@ -15,11 +15,11 @@
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,7 +27,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
 //      Nicolas Leclercq
@@ -47,17 +47,17 @@
 #include <iostream>
 #include <map>
 
-    
+
 namespace yat
 {
 
 // ============================================================================
-//! \class UniquePtr 
+//! \class UniquePtr
 //! \brief A C++03 emulation of the C++11 unique_ptr
-//! 
+//!
 //! \notice Due to C++ 03 limitation some bad things can't be forbidden:
 //! \notice The copy constructor exists but should not be used
-//! 
+//!
 //! \verbatim
 //! Allocate an object and give ownership to an UniquePtr
 //! yat::UniquePtr ptr(new Object);
@@ -69,14 +69,14 @@ namespace yat
 //! std::set< yat::UniquePtr<Object> > collection;
 //! collection.insert(ptr);
 //! ptr->do_method(); // segmentation fault because ptr no longer own the object pointer
-//! 
+//!
 //! Transferring ownership
 //! yat::UniquePtr ptr2;
 //! YAT_MOVE(ptr, ptr2); // ownership is transferred from ptr to ptr2
-//! 
+//!
 //! Access the object pointer
 //! Object* p = ptr.get();
-//! 
+//!
 //! Release the ownership. The UniquePtr object no longer own the pointer
 //! Object* p = ptr.release();
 //! delete p;
@@ -91,10 +91,10 @@ class UniquePtr
 
 public:
   //! \brief Default constructor.
-  //! 
+  //!
   //! Data pointer is initialized to null value.
   //! Deleter object is initialized to default value
-  UniquePtr() 
+  UniquePtr()
     : m_p(0)
   {
     PTR_DBG("UniquePtr::UniquePtr()");
@@ -102,7 +102,7 @@ public:
 
   //! \brief Constructor from data pointer.
   //! \param p Pointer to type \<T\> data.
-  UniquePtr ( T* p ) 
+  UniquePtr ( T* p )
     : m_p(p)
   {
 
@@ -112,7 +112,7 @@ public:
   //! \brief Constructor from data pointer and specific deleter.
   //! \param p Pointer to type \<T\> data.
   //! \param d Specific deleter. See yat::SharedCounter definition.
-  UniquePtr(T* p, D d) 
+  UniquePtr(T* p, D d)
     : m_p(p), m_deleter(d)
   {
     PTR_DBG("UniquePtr::UniquePtr(" << std::hex << (void*)p << ", d)");
@@ -121,7 +121,7 @@ public:
   //! \brief Copy constructor from same data type \<T\>.
   //! \param s The source pointer.
   //! \notice the owner ship is transfered to the new object
-  UniquePtr(const ThisType & s) 
+  UniquePtr(const ThisType & s)
     : m_p(s.m_p), m_deleter(s.m_deleter)
   {
     PTR_DBG("UniquePtr::UniquePtr(const ThisType & s) - m_p: " << std::hex << (void*)m_p << ")");
@@ -152,7 +152,7 @@ public:
       m_deleter(m_p);
   }
 
-  //! \brief Operator*. 
+  //! \brief Operator*.
   //!
   //! Returns the pointed data (type \<T\>).
   T& operator*() const
@@ -168,12 +168,6 @@ public:
   {
     YAT_ASSERT(m_p);
     return m_p;
-  }
-
-  template<typename Y> 
-  ThisType& operator=( const UniquePtr<Y, D>& )
-  {
-    throw yat::Exception("NOT_ALLOWED", "operator=() not allowed with UniquePtr objects", "UniquePtr::operator=");
   }
 
   //! \brief Gets the data (idem operator ->).
@@ -206,7 +200,7 @@ public:
     T* p = m_p;
     m_p = 0;
     return p;
-  } 
+  }
 
   //! \brief Resets pointer with new type \<T\> data.
   //! \param p New pointed data.
@@ -216,7 +210,7 @@ public:
     if( m_p )
       m_deleter( m_p );
     m_p = p;
-  } 
+  }
 
   //! \brief Resets pointer with new type \<T\> data.
   //! \param p New pointed data.
@@ -227,7 +221,7 @@ public:
     if( m_p )
       m_deleter(m_p);
     cast_copy_data(p);
-  } 
+  }
 
   //! \brief Swaps content with the specified pointer.
   //! \param s The source pointer.
@@ -247,7 +241,7 @@ public:
 
   //! \brief Does *this* point to something ?
   //!
-  //! Returns true if *this* points to a non allocated memory area, 
+  //! Returns true if *this* points to a non allocated memory area,
   //! false otherwise.
   bool is_null() const
   {
@@ -256,11 +250,11 @@ public:
 
   //! \brief Internal implementation of the '<' operator.
   //!
-  //! Returns true if *this* pointed data is "less than" source pointed data, 
+  //! Returns true if *this* pointed data is "less than" source pointed data,
   //! false otherwise.
   //! \param s The source pointer.
   //! \exception BAD_CAST Thrown if type \<Y\> is not compatible with type \<T\>.
-  template<class Y> 
+  template<class Y>
   bool less_than(UniquePtr<Y> const & s) const
   {
     return m_p < s.m_p;
@@ -269,8 +263,11 @@ public:
 private:
 
   //! Duplication not allowed
-  template<typename Y, typename E> 
+  template<typename Y, typename E>
   ThisType& operator=( UniquePtr<Y, E>& );
+
+  //! Direct assignation not allowed
+  ThisType& operator=( T * );
 
   //- Tries to copy data pointer of foreign type.
   template<typename Y>
@@ -294,7 +291,7 @@ private:
 //! \brief Transfer ownership (equivalent to std::move in C++ 11)
 //! \param from_p source pointer
 //! \param to_p destination pointer
-template <typename T, typename D> 
+template <typename T, typename D>
 inline void move(UniquePtr<T, D>& from_p, UniquePtr<T, D>& to_p)
 {
   to_p.reset( from_p.release() );
@@ -303,7 +300,7 @@ inline void move(UniquePtr<T, D>& from_p, UniquePtr<T, D>& to_p)
 //! \brief Transfer ownership (equivalent to std::move in C++ 11)
 //! \param from_p source pointer
 //! \param to_p destination pointer
-template <typename T, typename Y, typename D> 
+template <typename T, typename Y, typename D>
 inline void move(UniquePtr<T, D>& from_p, UniquePtr<Y, D>& to_p)
 {
   to_p.reset( from_p.release() );
@@ -312,7 +309,7 @@ inline void move(UniquePtr<T, D>& from_p, UniquePtr<Y, D>& to_p)
 //! \brief Operator< on UniquePtr type, i.e. is \<a\> less than \<b\> ?
 //! \param a Left shared pointer.
 //! \param b Right shared pointer.
-template <typename T, typename Y, typename D> 
+template <typename T, typename Y, typename D>
 inline bool operator<(UniquePtr<T, D> const & a, UniquePtr<Y, D> const & b)
 {
  return a.less_than(b);
@@ -321,7 +318,7 @@ inline bool operator<(UniquePtr<T, D> const & a, UniquePtr<Y, D> const & b)
 //! \brief Operator== on SharedPtr type, i.e. is \<a\> point to the same object as \<b\> ?
 //! \param a Left shared pointer.
 //! \param b Right shared pointer.
-template <typename T, typename U, typename D, typename E> 
+template <typename T, typename U, typename D, typename E>
 inline bool operator==( const UniquePtr<T, D>& a, const UniquePtr<U, E>& b )
 {
   return a.get() == b.get();
