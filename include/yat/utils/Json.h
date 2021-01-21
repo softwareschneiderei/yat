@@ -79,17 +79,11 @@ namespace yat
     //! \param input JSON content to parse
     //! \param throw_exeption if set can throw an exception, otherwise log on the ERROR stream
     //! \return boolean value 'true' if ok, otherwise 'false' (in throw_exception is not 'true')
-    bool parse(JSONvalue *value_p, const yat::String& input, bool throw_exception=true)
+    void parse(JSONvalue *value_p, const yat::String& input, bool throw_exception=true)
     {
       std::string err = picojson::parse(*value_p, input);
       if( !err.empty() )
-      {
-        if( throw_exception )
-          throw yat::Exception("JSON ERROR", std::string("JSON parsing error: ") + err, "yat::JsonValue::parse");
-        YAT_ERROR << err << YAT_EOL;
-        return false;
-      }
-      return true;
+        throw yat::Exception("JSON ERROR", std::string("JSON parsing error: ") + err, "yat::JsonValue::parse");
     }
   };
 
