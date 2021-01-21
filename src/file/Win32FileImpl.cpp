@@ -71,7 +71,7 @@ mode_t FileName::access_from_string(const std::string& strAccess)
 //-------------------------------------------------------------------
 bool FileName::path_exist() const
 {
-  pcsz pszPath = PSZ(full_name());
+  pcsz pszPath = full_name().c_str();
   if( strchr(pszPath, '*') || strchr(pszPath, '?') )
     // there are wildcard. this is not a valid path
     return false;
@@ -95,7 +95,7 @@ bool FileName::path_exist() const
     // Path ends with '\' => remove '\'
     std::string strPath = pszPath;
     strPath = strPath.substr(0, strPath.size()-1);
-    h = FindFirstFile( PSZ(strPath), &find );
+    h = FindFirstFile(strPath.c_str(), &find);
   }
   else
     h = FindFirstFile( pszPath, &find );
@@ -111,7 +111,7 @@ bool FileName::path_exist() const
 //-------------------------------------------------------------------
 bool FileName::file_exist() const
 {
-  pcsz pcszfull_name = PSZ(full_name());
+  pcsz pcszfull_name = full_name().c_str();
   WIN32_FIND_DATA find;
   HANDLE h = FindFirstFile(pcszfull_name, &find);
   if( h == INVALID_HANDLE_VALUE )
@@ -173,14 +173,14 @@ void FileName::set_full_name(pcsz pszFileName)
     if( StringUtil::start_with(m_strFile, FILE_CYGDRIVE) && m_strFile[11u] == '\\' )
     {
       // Case of paths like '/cygdrive/<letter>/'
-      strDir = StringUtil::str_format("%c:\\", m_strFile[10u]);
-      m_strFile = StringUtil::str_format("%c:\\%s", m_strFile[10u], m_strFile.substr(12, std::string::npos));
+      strDir = StringFormat("{}:\\").format(m_strFile[10u]);
+      m_strFile = StringFormat("{}:\\{}").format(m_strFile[10u]).format(m_strFile.substr(12));
     }
     else if( IsSepPath(m_strFile[0u]) )
     {
       // Absolute path without drive letter:
       // - add drive letter coming from getcwd
-      m_strFile = StringUtil::str_format("%c:\\%s", strDir[0u], PSZ(m_strFile));
+      m_strFile = StringFormat("{}:\\{}").format(strDir[0u]).format(m_strFile);
     }
     else
     {
@@ -205,12 +205,12 @@ std::string FileName::rel_name(const char* pszPath) const
 
   // On windows check if both paths are on the same disk
   // Otherwise we return the full name
-  if( strnicmp(PSZ(m_strFile), PSZ(fnRef.full_name()), 1) )
+  if( strnicmp(m_strFile.c_str(), fnRef.full_name().c_str(), 1) )
     return m_strFile;
 
   // Search for first separator. If not => return full name
-  const char* p = strchr(PSZ(m_strFile), SEP_PATH);
-  const char* pRef = strchr(PSZ(fnRef.full_name()), SEP_PATH);
+  const char* p = strchr(m_strFile.c_str(), SEP_PATH);
+  const char* pRef = strchr(fnRef.full_name().c_str(), SEP_PATH);
   if (!p || !pRef)
     return m_strFile;
 
@@ -261,7 +261,7 @@ void FileName::convert_separators(std::string *pstr)
 {
   char *ptc = new char[pstr->length()+1];
   char *pStart = ptc;
-  strcpy(ptc, PSZ(*pstr));
+  strcpy(ptc, (*pstr).c_str());
 
   // Convert from UNIX to DOS
   char* ptcStart = ptc;
@@ -297,29 +297,29 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const throw( Exception )
   if( str[0u] == SEP_PATH && str[1u] == SEP_PATH )
   {
     // Saute le nom de la machine (qui suit les '\\' du debut)
-    char *p1 = const_cast<char*>(strchr( PSZ(str) + 2, SEP_PATH ));
-    if( p1 == NULL || p1 == PSZ(str) + 2 )
+    char *p1 = const_cast<char*>(strchr( str.c_str() + 2, SEP_PATH ));
+    if( p1 == NULL || p1 == str.c_str() + 2 )
     {
-      std::string strErr = StringUtil::str_format(ERR_CANNOT_CREATE_FOLDER, PSZ(str));
-      throw BadPathException(PSZ(strErr), "FileName::mkdir");
+      std::string strErr = StringFormat(ERR_CANNOT_CREATE_FOLDER).format(str);
+      throw BadPathException(strErr.c_str(), "FileName::mkdir");
     }
     // Saute le nom du share
     p = strchr( p1 + 1, SEP_PATH );
     if( p == NULL || p == p1 + 1 )
     {
-      std::string strErr = StringUtil::str_format(ERR_CANNOT_CREATE_FOLDER, PSZ(str));
-      throw BadPathException(PSZ(strErr), "FileName::mkdir");
+      std::string strErr = StringFormat(ERR_CANNOT_CREATE_FOLDER).format(str);
+      throw BadPathException(strErr.c_str(), "FileName::mkdir");
     }
   }
   else
   {
-    p = const_cast<char*>(strchr(PSZ(str), SEP_PATH));
+    p = const_cast<char*>(strchr(str.c_str(), SEP_PATH));
   }
 
   if( !p )
   {
-    std::string strErr = StringUtil::str_format(ERR_CANNOT_CREATE_FOLDER, PSZ(str));
-    throw BadPathException(PSZ(strErr), "FileName::mkdir");
+    std::string strErr = StringFormat(ERR_CANNOT_CREATE_FOLDER).format(str);
+    throw BadPathException(strErr.c_str(), "FileName::mkdir");
   }
   p = strchr(p+1, SEP_PATH);
   if( !p )
@@ -327,14 +327,14 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const throw( Exception )
     // Check drive
     if( str[1u] != ':' )
     {
-      std::string strErr = StringUtil::str_format(ERR_CANNOT_CREATE_FOLDER, PSZ(str));
-      throw BadDriveException(PSZ(strErr), "FileName::mkdir");
+      std::string strErr = StringFormat(ERR_CANNOT_CREATE_FOLDER).format(str);
+      throw BadDriveException(strErr.c_str(), "FileName::mkdir");
     }
 
-    if( ::GetDriveType(PSZ(str)) <= 1 )
+    if( ::GetDriveType(str.c_str()) <= 1 )
     {
-      std::string strErr = StringUtil::str_format(ERR_CANNOT_CREATE_FOLDER, PSZ(str));
-      throw BadDriveException(PSZ(strErr), "FileName::mkdir");
+      std::string strErr = StringFormat(ERR_CANNOT_CREATE_FOLDER).format(str);
+      throw BadDriveException(strErr.c_str(), "FileName::mkdir");
     }
     // path = racine ; exist
     return;
@@ -344,13 +344,13 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const throw( Exception )
   {
     *p = 0;
     struct stat st;
-    if( ::stat(PSZ(str), &st) )
+    if( ::stat(str.c_str(), &st) )
     {
-      if( ::mkdir(PSZ(str)) )
+      if( ::mkdir(str.c_str()) )
       {
         // creation error
-        std::string strErr = StringUtil::str_format(ERR_CANNOT_CREATE_FOLDER, PSZ(str));
-        ThrowExceptionFromErrno(PSZ(StringUtil::str_format(ERR_CANNOT_CREATE_FOLDER, PSZ(str))), "FileName::mkdir");
+        std::string strErr = StringFormat(ERR_CANNOT_CREATE_FOLDER).format(str);
+        ThrowExceptionFromErrno(StringFormat(ERR_CANNOT_CREATE_FOLDER).format(str), "FileName::mkdir");
       }
     }
     else
@@ -358,8 +358,8 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const throw( Exception )
       if( !(st.st_mode & S_IFDIR) )
       {
         // c'est un fichier : erreur
-        std::string strErr = StringUtil::str_format(ERR_CANNOT_CREATE_FOLDER, PSZ(str));
-        throw BadPathException(PSZ(strErr), "FileName::mkdir");
+        std::string strErr = StringFormat(ERR_CANNOT_CREATE_FOLDER).format(str);
+        throw BadPathException(strErr.c_str(), "FileName::mkdir");
       }
       // Directory : ok
     }
@@ -391,11 +391,11 @@ void FileName::make_sym_link(const std::string& strTarget, uid_t uid, gid_t gid)
 uint32 FileName::size() const throw( Exception )
 {
   WIN32_FIND_DATA find;
-  HANDLE h = FindFirstFile(PSZ(m_strFile), &find);
+  HANDLE h = FindFirstFile(m_strFile.c_str(), &find);
   if( h == INVALID_HANDLE_VALUE )
   {
-    std::string strErr = StringUtil::str_format(ERR_CANNOT_FETCH_INFO, PSZ(m_strFile));
-    throw Exception("FILE_ERROR", PSZ(strErr), "FileName::size");
+    std::string strErr = StringFormat(ERR_CANNOT_FETCH_INFO).format(m_strFile);
+    throw Exception("FILE_ERROR", strErr.c_str(), "FileName::size");
   }
   FindClose(h);
   return (uint32)find.nFileSizeLow;
@@ -407,11 +407,11 @@ uint32 FileName::size() const throw( Exception )
 uint64 FileName::size64() const throw( Exception )
 {
   WIN32_FIND_DATA find;
-  HANDLE h = FindFirstFile(PSZ(m_strFile), &find);
+  HANDLE h = FindFirstFile(m_strFile.c_str(), &find);
   if( h == INVALID_HANDLE_VALUE )
   {
-    std::string strErr = StringUtil::str_format(ERR_CANNOT_FETCH_INFO, PSZ(m_strFile));
-    throw Exception("FILE_ERROR", PSZ(strErr), "FileName::size");
+    std::string strErr = StringFormat(ERR_CANNOT_FETCH_INFO).format(m_strFile);
+    throw Exception("FILE_ERROR", strErr.c_str(), "FileName::size");
   }
   FindClose(h);
   return (uint64)find.nFileSizeLow;
@@ -422,12 +422,12 @@ uint64 FileName::size64() const throw( Exception )
 //----------------------------------------------------------------------------
 void FileName::mod_time(Time *pTm, bool bLocalTime, bool) const throw( Exception )
 {
-  HANDLE hFile = CreateFile(PSZ(full_name()), GENERIC_READ, FILE_SHARE_READ,
+  HANDLE hFile = CreateFile(full_name().c_str(), GENERIC_READ, FILE_SHARE_READ,
                            NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
   if( hFile == INVALID_HANDLE_VALUE )
   {
-    std::string strErr = StringUtil::str_format(ERR_CANNOT_CREATE_WIN32, PSZ(m_strFile));
-    throw Exception("FILE_ERROR", PSZ(strErr), "FileName::mod_time");
+    std::string strErr = StringFormat(ERR_CANNOT_CREATE_WIN32).format(m_strFile);
+    throw Exception("FILE_ERROR", strErr.c_str(), "FileName::mod_time");
   }
   FILETIME fileTime;
   GetFileTime(hFile, NULL, NULL, &fileTime);
@@ -468,20 +468,20 @@ void FileName::set_mod_time(const Time& tm) const throw( Exception )
   else
     iAttribute = FILE_ATTRIBUTE_NORMAL;
 
-  HANDLE hFile = CreateFile(PSZ(full_name()), GENERIC_WRITE,
+  HANDLE hFile = CreateFile(full_name().c_str(), GENERIC_WRITE,
                             FILE_SHARE_READ | FILE_SHARE_WRITE,
                             NULL, OPEN_EXISTING, iAttribute, NULL);
 
   if( hFile == INVALID_HANDLE_VALUE )
   {
-      std::string strErr = StringUtil::str_format(ERR_CANNOT_CREATE_WIN32, PSZ(m_strFile));
-      throw Exception("FILE_ERROR", PSZ(strErr), "FileName::set_mod_time");
+      std::string strErr = StringFormat(ERR_CANNOT_CREATE_WIN32).format(m_strFile);
+      throw Exception("FILE_ERROR", strErr, "FileName::set_mod_time");
   }
   if( !SetFileTime(hFile, NULL, NULL, &fileTime) )
   {
       CloseHandle(hFile);
-      std::string strErr = StringUtil::str_format(ERR_CANNOT_CHANGE_FILE_TIME, PSZ(m_strFile));
-      throw Exception("FILE_ERROR", PSZ(strErr), "FileName::set_mod_time");
+      std::string strErr = StringFormat(ERR_CANNOT_CHANGE_FILE_TIME).format(m_strFile);
+      throw Exception("FILE_ERROR", strErr, "FileName::set_mod_time");
   }
   CloseHandle(hFile);
 }
@@ -493,8 +493,8 @@ void FileName::priv_copy(const std::string& strDst, yat::String*, bool)
 {
   if( !file_exist() )
   { // File doesn't exists
-    std::string strErr = StringUtil::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
-    throw FileNotFoundException(PSZ(strErr), "FileName::copy");
+    std::string strErr = StringFormat(ERR_FILE_NOT_FOUND).format(m_strFile);
+    throw FileNotFoundException(strErr, "FileName::copy");
   }
 
   FileName fDst(strDst);
@@ -502,10 +502,10 @@ void FileName::priv_copy(const std::string& strDst, yat::String*, bool)
     // Take source name
     fDst.set(fDst.path(), name_ext());
 
-  if (!CopyFile(PSZ(full_name()), PSZ(fDst.full_name()), FALSE))
+  if (!CopyFile(full_name().c_str(), fDst.full_name().c_str(), FALSE))
   {
-    std::string strErr = StringUtil::str_format(ERR_COPY_FAILED, PSZ(full_name()), PSZ(fDst.full_name()), (long)GetLastError());
-    throw Exception("FILE_ERROR", PSZ(strErr), "FileName::copy");
+    std::string strErr = StringFormat(ERR_COPY_FAILED).format(full_name()).format(fDst.full_name()).format((long)GetLastError());
+    throw Exception("FILE_ERROR", strErr, "FileName::copy");
   }
 }
 
@@ -516,8 +516,8 @@ void FileName::move(const std::string& strDest) throw( Exception )
 {
   if( !file_exist() )
   { // File doesn't exists
-    std::string strErr = StringUtil::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
-    throw FileNotFoundException(PSZ(strErr), "FileName::move");
+    std::string strErr = StringFormat(ERR_FILE_NOT_FOUND).format(m_strFile);
+    throw FileNotFoundException(strErr, "FileName::move");
   }
 
   FileName fDst(strDest);
@@ -569,7 +569,7 @@ FileName::FSStat FileName::file_system_statistics() const
 void FileName::info( Info* info_p, bool ) const
 {
   struct _stat64 st;
-  int rc = _stat64( PSZ(full_name()), &st );
+  int rc = _stat64(full_name().c_str(), &st );
   if( rc )
   {
     info_p->is_exist = false;
@@ -607,9 +607,9 @@ void FileName::chown(uid_t uid, gid_t gid) throw( Exception )
 //-------------------------------------------------------------------
 // FileName::ThrowExceptionFromErrno
 //-------------------------------------------------------------------
-void FileName::ThrowExceptionFromErrno(const char *pszDesc, const char *pszOrigin)
+void FileName::ThrowExceptionFromErrno(const String& desc, const String& origin)
 {
-  throw Exception("FILE_ERROR", pszDesc, pszOrigin);
+  throw Exception("FILE_ERROR", desc, origin);
 }
 
 //-------------------------------------------------------------------
@@ -674,7 +674,7 @@ bool FileEnum::find() throw(BadPathException, FileNotFoundException, Exception)
     {
       str = path();
       str += '*' ;
-      m_hFind = (HANDLE)FindFirstFile(PSZ(str), (WIN32_FIND_DATA *)m_pfindData);
+      m_hFind = (HANDLE)FindFirstFile(str.c_str(), (WIN32_FIND_DATA *)m_pfindData);
       if( m_hFind == INVALID_HANDLE_VALUE )
         // not fount
         return false;

@@ -99,13 +99,13 @@ bool FileName::path_exist() const
     strPath = strPath.substr(0, strPath.size()-1);
     iRc = stat(PSZ(strPath), &st);
     if( iRc && errno != ENOENT )
-      ThrowExceptionFromErrno(PSZ(StringUtil::str_format(ERR_STAT_FAILED, PSZ(strPath))), "FileName::path_exist");
+      ThrowExceptionFromErrno(StringFormat(ERR_STAT_FAILED).format(strPath), "FileName::path_exist");
   }
   else
   {
     iRc = stat(pszPath, &st);
     if( iRc && errno != ENOENT )
-      ThrowExceptionFromErrno(PSZ(StringUtil::str_format(ERR_STAT_FAILED, pszPath)), "FileName::path_exist");
+      ThrowExceptionFromErrno(StringFormat(ERR_STAT_FAILED).format(pszPath), "FileName::path_exist");
   }
   return !iRc && (st.st_mode & S_IFDIR);
 }
@@ -115,7 +115,7 @@ bool FileName::path_exist() const
 //-------------------------------------------------------------------
 bool FileName::file_exist() const
 {
-  pcsz pcszfull_name = PSZ(full_name());
+  pcsz pcszfull_name = full_name().c_str();
 
   struct stat st;
   return (!access(pcszfull_name, F_OK) &&
@@ -157,7 +157,7 @@ void FileName::set_full_name(pcsz pszFileName)
     // relative name: add current working directory
     char cbuf[_MAX_PATH];
     getcwd(cbuf, _MAX_PATH);
-    m_strFile = StringUtil::str_format("%s/%s", cbuf, PSZ(strFileName));
+    m_strFile = StringFormat("{}/{}").format(yat::String(cbuf)).format(strFileName);
   }
 
 }
@@ -170,8 +170,8 @@ std::string FileName::rel_name(const char* pszPath) const
   FileName fnRef(pszPath);
 
   // Search for first separator. If not => return full name
-  const char* p = strchr(PSZ(m_strFile), SEP_PATH);
-  const char* pRef = strchr(PSZ(fnRef.full_name()), SEP_PATH);
+  const char* p = strchr(m_strFile.c_str(), SEP_PATH);
+  const char* pRef = strchr(fnRef.full_name().c_str(), SEP_PATH);
   if (!p || !pRef)
     return m_strFile;
 
@@ -249,11 +249,11 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const
     return;
 
   char *p;
-  p = ::strchr(const_cast<char*>(PSZ(str)), SEP_PATH);
+  p = ::strchr(const_cast<char*>(str.c_str()), SEP_PATH);
 
   if( !p )
   {
-    std::string strErr = StringUtil::str_format(ERR_CANNOT_CREATE_FOLDER, PSZ(str));
+    std::string strErr = StringFormat(ERR_CANNOT_CREATE_FOLDER).format(str);
     throw BadPathException(PSZ(strErr), "FileName::mkdir");
   }
   p = strchr(p+1, SEP_PATH);
@@ -271,12 +271,12 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const
     {
       if( errno != ENOENT )
         // stat call report error != file not found
-        ThrowExceptionFromErrno(PSZ(StringUtil::str_format(ERR_STAT_FAILED, PSZ(str))), "FileName::mkdir");
+        ThrowExceptionFromErrno(StringFormat(ERR_STAT_FAILED).format(str), "FileName::mkdir");
 
       if( ::mkdir(PSZ(str), 0000777) )
       {
         // failure
-        ThrowExceptionFromErrno(PSZ(StringUtil::str_format(ERR_CANNOT_CREATE_FOLDER, PSZ(str))), "FileName::mkdir");
+        ThrowExceptionFromErrno(StringFormat(ERR_CANNOT_CREATE_FOLDER).format(str), "FileName::mkdir");
       }
 
       // Change access mode if needed
@@ -285,7 +285,7 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const
         if( ::chmod(PSZ(str), mode) )
         {
           // changing access mode failed
-          ThrowExceptionFromErrno(PSZ(StringUtil::str_format(ERR_CHMOD_FAILED, PSZ(str), mode)), "FileName::mkdir");
+          ThrowExceptionFromErrno(StringFormat(ERR_CHMOD_FAILED).format(str).format(mode), "FileName::mkdir");
         }
       }
       // Change owner if needed
@@ -294,7 +294,7 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const
         if( ::chown(PSZ(str), uid, gid) )
         {
           // changing owner mode failed
-          ThrowExceptionFromErrno(PSZ(StringUtil::str_format(ERR_CHOWN_FAILED, PSZ(str), uid, gid)), "FileName::mkdir");
+          ThrowExceptionFromErrno(StringFormat(ERR_CHOWN_FAILED).format(str).format(uid).format(gid), "FileName::mkdir");
         }
       }
     }
@@ -303,8 +303,8 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const
       if( !(st.st_mode & S_IFDIR) )
       {
         // c'est un fichier : erreur
-        std::string strErr = StringUtil::str_format(ERR_CANNOT_CREATE_FOLDER, PSZ(str));
-        throw BadPathException(PSZ(strErr), "FileName::mkdir");
+        std::string strErr = StringFormat(ERR_CANNOT_CREATE_FOLDER).format(str);
+        throw BadPathException(strErr, "FileName::mkdir");
       }
       // Directory : ok
     }
@@ -346,7 +346,7 @@ void FileName::make_sym_link(const std::string& strTarget, uid_t uid, gid_t gid)
   int iRc = symlink(PSZ(strTarget), PSZ(full_name()));
   if( iRc )
   {
-    std::string strErr = StringUtil::str_format(ERR_CANNOT_CREATE_LINK, PSZ(full_name()), PSZ(strTarget));
+    std::string strErr = StringFormat(ERR_CANNOT_CREATE_LINK).format(full_name()).format(strTarget);
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::make_sym_link");
   }
   // Change owner if needed
@@ -355,8 +355,8 @@ void FileName::make_sym_link(const std::string& strTarget, uid_t uid, gid_t gid)
     if( lchown(PSZ(full_name()), uid, gid) )
     {
       // changing owner mode failed
-      std::string strErr = StringUtil::str_format(ERR_CHOWN_FAILED, PSZ(full_name()), uid, gid);
-      ThrowExceptionFromErrno(PSZ(strErr), "FileName::make_sym_link");
+      std::string strErr = StringFormat(ERR_CHOWN_FAILED).format(full_name()).format(uid).format(gid);
+      ThrowExceptionFromErrno(strErr, "FileName::make_sym_link");
     }
   }
 }
@@ -369,7 +369,7 @@ uint32 FileName::size() const throw( Exception )
   struct stat sStat;
   if( stat(PSZ(full_name()), &sStat) == -1 )
   {
-    std::string strErr = StringUtil::str_format(ERR_CANNOT_FETCH_INFO, PSZ(m_strFile));
+    std::string strErr = StringFormat(ERR_CANNOT_FETCH_INFO).format(m_strFile);
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::size");
   }
   return sStat.st_size;
@@ -383,7 +383,7 @@ uint64 FileName::size64() const throw( Exception )
   struct stat64 sStat;
   if( stat64(PSZ(full_name()), &sStat) == -1 )
   {
-    std::string strErr = StringUtil::str_format(ERR_CANNOT_FETCH_INFO, PSZ(m_strFile));
+    std::string strErr = StringFormat(ERR_CANNOT_FETCH_INFO).format(m_strFile);
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::size");
   }
   return sStat.st_size;
@@ -402,8 +402,8 @@ void FileName::mod_time(Time *pTm, bool bLocalTime, bool stat_link) const throw(
     rc = stat(PSZ(full_name()), &sStat);
   if( rc < 0 )
   {
-    std::string strErr = StringUtil::str_format(ERR_CANNOT_GET_FILE_TIME, PSZ(m_strFile));
-    ThrowExceptionFromErrno(PSZ(strErr), "FileName::mod_time");
+    std::string strErr = StringFormat(ERR_CANNOT_GET_FILE_TIME).format(m_strFile);
+    ThrowExceptionFromErrno(strErr, "FileName::mod_time");
   }
 
   if( bLocalTime )
@@ -434,7 +434,7 @@ void FileName::set_mod_time(const Time& tm) const throw( Exception )
   sTm.modtime = tm.long_unix();
   if( utime(PSZ(full_name()), &sTm) )
   {
-    std::string strErr = StringUtil::str_format(ERR_CANNOT_CHANGE_FILE_TIME, PSZ(m_strFile));
+    std::string strErr = StringFormat(ERR_CANNOT_CHANGE_FILE_TIME).format(m_strFile);
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::set_mod_time");
   }
 }
@@ -446,8 +446,8 @@ void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool 
 {
   if( !file_exist() )
   { // File doesn't exists
-    std::string strErr = StringUtil::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
-    throw FileNotFoundException(PSZ(strErr), "FileName::copy");
+    std::string strErr = StringFormat(ERR_FILE_NOT_FOUND).format(m_strFile);
+    throw FileNotFoundException(strErr, "FileName::copy");
   }
 
   FileName fDst(strDst);
@@ -458,16 +458,16 @@ void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool 
   // Self copy ?
   if( m_strFile == fDst.full_name() )
   {
-    std::string strErr = StringUtil::str_format(ERR_COPY_FAILED, PSZ(full_name()), PSZ(fDst.full_name()));
-    throw Exception("FILE_ERROR", PSZ(strErr), "FileName::copy");
+    std::string strErr = StringFormat(ERR_COPY_FAILED).format(full_name()).format(fDst.full_name());
+    throw Exception("FILE_ERROR", strErr, "FileName::copy");
   }
 
   struct stat st;
   int iRc = stat(PSZ(full_name()), &st);
   if( iRc )
   {
-    std::string strErr = StringUtil::str_format(ERR_COPY_FAILED, PSZ(full_name()), PSZ(fDst.full_name()));
-    ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
+    std::string strErr = StringFormat(ERR_COPY_FAILED).format(full_name()).format(fDst.full_name());
+    ThrowExceptionFromErrno(strErr, "FileName::copy");
   }
 
   yat::MD5 md5_processor;
@@ -476,8 +476,8 @@ void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool 
   int fsrc = open(PSZ(full_name()), O_RDONLY);
   if( fsrc < 0 )
   {
-    std::string strErr = StringUtil::str_format(ERR_OPEN_FILE, PSZ(full_name()));
-    ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
+    std::string strErr = StringFormat(ERR_OPEN_FILE).format(full_name());
+    ThrowExceptionFromErrno(strErr, "FileName::copy");
   }
 
   // Buffer
@@ -492,8 +492,8 @@ void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool 
   int fdst = creat(PSZ(fDst.full_name()), st.st_mode);
   if( fdst < 0 )
   {
-    std::string strErr = StringUtil::str_format(ERR_OPEN_FILE, PSZ(fDst.full_name()));
-    ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
+    std::string strErr = StringFormat(ERR_OPEN_FILE).format(fDst.full_name());
+    ThrowExceptionFromErrno(strErr, "FileName::copy");
   }
 
   try
@@ -521,8 +521,8 @@ void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool 
       lReaded = read(fsrc, aBuf, lToRead);
       if( lReaded < 0 )
       {
-        std::string strErr = StringUtil::str_format(ERR_READING_FILE, PSZ(full_name()));
-        ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
+        std::string strErr = StringFormat(ERR_READING_FILE).format(full_name());
+        ThrowExceptionFromErrno(strErr, "FileName::copy");
       }
 
       if( md5sum_p )
@@ -531,8 +531,8 @@ void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool 
       lWritten = write(fdst, aBuf, lToRead);
       if( lWritten < 0 || lWritten != lToRead )
       {
-        std::string strErr = StringUtil::str_format(ERR_WRITING_FILE, PSZ(fDst.full_name()));
-        ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
+        std::string strErr = StringFormat(ERR_WRITING_FILE).format(fDst.full_name());
+        ThrowExceptionFromErrno(strErr, "FileName::copy");
       }
 
       llSize -= lWritten;
@@ -613,8 +613,8 @@ void FileName::move(const std::string& strDest) throw( Exception )
 {
   if( !file_exist() )
   { // File doesn't exists
-    std::string strErr = StringUtil::str_format(ERR_FILE_NOT_FOUND, PSZ(m_strFile));
-    throw FileNotFoundException(PSZ(strErr), "FileName::move");
+    std::string strErr = StringFormat(ERR_FILE_NOT_FOUND).format(m_strFile);
+    throw FileNotFoundException(strErr, "FileName::move");
   }
 
   FileName fDst(strDest);
@@ -664,7 +664,7 @@ FileName::FSType FileName::file_system_type() const throw( Exception )
   int iRc = statfs(PSZ(path()), &buf);
   if( iRc )
   {
-    std::string strErr = StringUtil::str_format(ERR_FSTYPE, PSZ(path()));
+    std::string strErr = StringFormat(ERR_FSTYPE).format(path());
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::file_system_type");
   }
   return FSType(buf.f_type);
@@ -679,7 +679,7 @@ fsid_t FileName::file_system_id() const throw( Exception )
   int iRc = statfs(PSZ(path()), &buf);
   if( iRc )
   {
-    std::string strErr = StringUtil::str_format(ERR_FSTYPE, PSZ(path()));
+    std::string strErr = StringFormat(ERR_FSTYPE).format(path());
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::file_system_type");
   }
   return buf.f_fsid;
@@ -694,8 +694,8 @@ FileName::FSStat FileName::file_system_statistics() const
   int iRc = statvfs(PSZ(path()), &buf);
   if( iRc )
   {
-    std::string strErr = StringUtil::str_format(ERR_FSTYPE, PSZ(path()));
-    ThrowExceptionFromErrno(PSZ(strErr), "FileName::file_system_type");
+    std::string strErr = StringFormat(ERR_FSTYPE).format(path());
+    ThrowExceptionFromErrno(strErr, "FileName::file_system_type");
   }
 
   FSStat stats;
@@ -754,7 +754,7 @@ void FileName::chmod(mode_t mode) throw( Exception )
   int iRc = ::chmod(PSZ(full_name()), mode);
   if( iRc )
   {
-    std::string strErr = StringUtil::str_format(ERR_CHMOD_FAILED, PSZ(full_name()), mode);
+    std::string strErr = StringFormat(ERR_CHMOD_FAILED).format(full_name()).format(mode);
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::chmod");
   }
 }
@@ -767,7 +767,7 @@ void FileName::chown(uid_t uid, gid_t gid) throw( Exception )
   int iRc = ::chown(PSZ(full_name()), uid, gid);
   if( iRc )
   {
-    std::string strErr = StringUtil::str_format(ERR_CHOWN_FAILED, PSZ(full_name()), uid, gid);
+    std::string strErr = StringFormat(ERR_CHOWN_FAILED).format(full_name()).format(uid).format(gid);
     ThrowExceptionFromErrno(PSZ(strErr), "FileName::chown");
   }
 }
@@ -775,9 +775,9 @@ void FileName::chown(uid_t uid, gid_t gid) throw( Exception )
 //-------------------------------------------------------------------
 // FileName::ThrowExceptionFromErrno
 //-------------------------------------------------------------------
-void FileName::ThrowExceptionFromErrno(const char *pszDesc, const char *pszOrigin)
+void FileName::ThrowExceptionFromErrno(const String& desc, const String& origin)
 {
-  std::string strDesc = StringUtil::str_format("%s. [Errno %d] %s", pszDesc, errno, strerror(errno));
+  std::string strDesc = StringFormat("{}. [Errno {}] {}").format(desc).format(int(errno)).format(static_cast<const char*>(strerror(errno)));
   switch( errno )
   {
     case EIO:
@@ -786,23 +786,23 @@ void FileName::ThrowExceptionFromErrno(const char *pszDesc, const char *pszOrigi
     case EINTR:
     case EINVAL:
     case ENOLCK:
-      throw IOException(PSZ(strDesc), pszOrigin);
+      throw IOException(strDesc, origin);
     case EPERM:
     case EACCES:
     case EROFS:
-      throw PermissionException(PSZ(strDesc), pszOrigin);
+      throw PermissionException(strDesc, origin);
     case ENOTEMPTY:
-      throw BadPathConditionException(PSZ(strDesc), pszOrigin);
+      throw BadPathConditionException(strDesc, origin);
     case ENAMETOOLONG:
     case ELOOP:
     case EISDIR:
     case ENOTDIR:
     case EBADF:
-      throw BadPathException(PSZ(strDesc), pszOrigin);
+      throw BadPathException(strDesc, origin);
     case ENOENT:
-      throw FileNotFoundException(PSZ(strDesc), pszOrigin);
+      throw FileNotFoundException(strDesc, origin);
     default:
-      throw Exception("FILE_ERROR", PSZ(strDesc), pszOrigin);
+      throw Exception(String("FILE_ERROR"), strDesc, origin);
   }
 }
 
@@ -827,11 +827,11 @@ yat::String FileName::md5sum() const
   yat::md5::md5_t md5_processor;
 
   // Open source file
-  int fsrc = open(PSZ(full_name()), O_RDONLY);
+  int fsrc = open(full_name().c_str(), O_RDONLY);
   if( fsrc < 0 )
   {
-    std::string strErr = StringUtil::str_format(ERR_OPEN_FILE, PSZ(full_name()));
-    ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
+    std::string strErr = StringFormat(ERR_OPEN_FILE).format(full_name());
+    ThrowExceptionFromErrno(strErr, "FileName::copy");
   }
 
   // Buffer
@@ -848,7 +848,7 @@ yat::String FileName::md5sum() const
     lReaded = read(fsrc, aBuf, lToRead);
     if( lReaded < 0 )
     {
-      std::string strErr = StringUtil::str_format(ERR_READING_FILE, PSZ(full_name()));
+      std::string strErr = StringFormat(ERR_READING_FILE).format(full_name());
       ThrowExceptionFromErrno(PSZ(strErr), "FileName::copy");
     }
 
@@ -894,17 +894,17 @@ void FileEnum::init(const std::string& strPath, EEnumMode eMode) throw(BadPathEx
   set(PSZ(strPath));
 
   // Initialize enumeration
-  m_dirDir = opendir(PSZ(path()));
+  m_dirDir = opendir(path().c_str());
   if( NULL == m_dirDir )
   {
-    std::string strErr = StringUtil::str_format(ERR_CANNOT_ENUM_DIR, PSZ(path()));
+    std::string strErr = StringFormat(ERR_CANNOT_ENUM_DIR).format(path());
     throw BadPathException(PSZ(strErr), "FileEnum::Init");
   }
 
   m_strPath = strPath; // Save initial path.
 
   // translate win separator to unix superator
-  StringUtil::replace( &m_strPath, SEP_PATHDOS, SEP_PATHUNIX );
+  StringUtil::replace(&m_strPath, SEP_PATHDOS, SEP_PATHUNIX);
 }
 
 //-------------------------------------------------------------------
@@ -975,7 +975,7 @@ bool LockFile::priv_lock( int lock_cmd )
       m_fd = open( m_file_name.full_name().c_str(), O_RDONLY );
       if( m_fd < 0 )
       {
-        std::string strErr = StringUtil::str_format(ERR_OPEN_FILE, PSZ(m_file_name.full_name()));
+        std::string strErr = StringFormat(ERR_OPEN_FILE).format(m_file_name.full_name());
         FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::priv_lock");
       }
       fl.l_type = F_RDLCK;
@@ -988,7 +988,7 @@ bool LockFile::priv_lock( int lock_cmd )
       m_fd = open( m_file_name.full_name().c_str(), O_WRONLY );
       if( m_fd < 0 )
       {
-        std::string strErr = StringUtil::str_format(ERR_OPEN_FILE, PSZ(m_file_name.full_name()));
+        std::string strErr = StringFormat(ERR_OPEN_FILE).format(m_file_name.full_name());
         FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::priv_lock");
       }
       fl.l_type = F_WRLCK;
@@ -1007,7 +1007,7 @@ bool LockFile::priv_lock( int lock_cmd )
   }
   else if( rc < 0 )
   {
-    std::string strErr = StringUtil::str_format("Locking file %s failed", PSZ(m_file_name.full_name()));
+    std::string strErr = StringFormat("Locking file {} failed").format(m_file_name.full_name());
     FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::priv_lock");
   }
 
@@ -1043,7 +1043,7 @@ void LockFile::unlock()
   close ( m_fd );
   if( rc < 0 )
   {
-    std::string strErr = StringUtil::str_format("Unlocking file %s failed", PSZ(m_file_name.full_name()));
+    std::string strErr = StringFormat("Unlocking file {} failed").format(m_file_name.full_name());
     FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::unlock");
   }
 }
