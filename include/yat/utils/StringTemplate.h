@@ -141,7 +141,7 @@ public:
   //! done by symbol interpreters.
   //! Returns true if at least one variable to evaluate was found, false otherwise.
   //! \param[in,out] pstrTemplate %String to evaluate, will contain the result.
-  //! \param[out] not_found_p list of variables that can't be evaluated.
+  //! \param[out] not_found_p list (not cleared) of variables that can't be evaluated
   bool substitute_ex(std::string *pstrTemplate, std::vector<std::string>* not_found_p);
 
   //! \deprecated
