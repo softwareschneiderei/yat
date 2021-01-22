@@ -40,6 +40,64 @@
 #ifndef __YAT_REGEX_H__
 #define __YAT_REGEX_H__
 
+// ============================================================================
+//! \page Regex documentation
+//! \tableofcontents
+//! The Regex class is a class wrapper on top on the native GNU regex functions
+//! (Linux), on the integrated gnu implementation (Windows)
+//!
+//! \section secRE1 yat::Regex
+//! This main class manage a regular expression and allow to:
+//!  - check if a string exactly match the regex ('match' method)
+//!  - found each match of the regex in a given string ('search' method)
+//!  - search and replace regex matches by a replacement string ('replace' method)
+//! The compiling step is perform automatically the first time one of the three
+//! method is called
+//! Currently supported regex grammar are BRE (Basic Regular Expression) & ERE
+//! Extended Regular Expression). The later is the default.
+//! BRE/ERE syntax can be found here:
+//! https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap09.html#tag_09_04
+//! or here:
+//! https://en.wikibooks.org/wiki/Regular_Expressions/POSIX-Extended_Regular_Expressions
+//!
+//! \section secRE2 yat::Regex::Match
+//! 'match' & 'search' function result is stored in a yat::Regex::Match object
+//! this object contains a yat::Regex::SubMatch for each resulting submatch
+//! an yat::Match object that containing no submatches means the input string
+//! does not match the regular expression
+//!
+//! Match example:
+//! yat::Regex re("([^/]+)/([^/]+)/([^/]+)");
+//! yat::Regex::Match m;
+//! yat::String dev_name = "my/outstanding/device";
+//! if( re.match(dev_name, &m) )
+//! {
+//!   std::cout << "domain: " << m.str(1) << std::endl;
+//!   std::cout << "family: " << m.str(2) << std::endl;
+//!   std::cout << "member: " << m.str(3) << std::endl;
+//! }
+//! else
+//!   std::cout << "This is not a device name!" << std::cout;
+//!
+//! Search example:
+//! yat::Regex re("\w+");
+//! yat::Regex::Match m;
+//! while( re.search("What a beautiful day!", &m) )
+//! {
+//!   std::cout << "found word: " << m.str() << std::endl;
+//! }
+//!
+//! Replace Example:
+//! yat::Regex re("\w+");
+//! yat::String str = re.replace("ga bu zo meu", "[$0]");
+//! std::cout << str << std::endl;
+//!
+//! Links to sub classes :
+//!   - yat::Regex::Match
+//!   - yat::Regex::SubMatch
+//!   - yat::Regex::Match::iterator
+// ============================================================================
+
 #include <vector>
 #include <yat/memory/SharedPtr.h>
 #include <yat/utils/String.h>
@@ -184,16 +242,19 @@ public:
   //! Returns the pattern
   const yat::String& pattern() const { return m_pattern; }
 
-  //! Check if whole string match the regex
+  //! Check if whole string match the regex and fill match object
   //! \param str string to match
   //! \param match_p result object, may be null ptr if one not interested on sub-matchs
+  //! \param mflags match flags
+  //! \return true/false
   bool match(const yat::String& str, Match* match_p = NULL, MatchFlags mflags = match_default);
 
-  //! Check if whole string match the regex
+  //! Check if whole string match the regex and return a match object
   //! \param str string to match
   //! \param match_p result object, may be null ptr if one not interested on sub-matchs
+  //! \param mflags match flags
   //! \return sharedptr on a match result object
-  MatchPtr match(const yat::String& str, MatchFlags mflags = match_default);
+  MatchPtr match2(const yat::String& str, MatchFlags mflags = match_default);
 
   //! Search for next match in the given string
   //! \param str matching string
