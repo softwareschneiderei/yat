@@ -161,9 +161,9 @@ bool Regex::match(const yat::String& str, yat::Regex::Match* match_p,
 }
 
 //---------------------------------------------------------------------------
-// Regex::match
+// Regex::match2
 //---------------------------------------------------------------------------
-Regex::MatchPtr Regex::match(const yat::String& str, MatchFlags mflags)
+Regex::MatchPtr Regex::match2(const yat::String& str, MatchFlags mflags)
 {
   Regex::MatchPtr match_ptr = new Regex::Match;
   exec(str, match_ptr.get(), 0, mflags, str.size());
