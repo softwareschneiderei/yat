@@ -41,7 +41,7 @@
 #define __YAT_REGEX_H__
 
 // ============================================================================
-//! \page Regex documentation
+//! \page RegexPage Regex documentation
 //! \tableofcontents
 //! The Regex class is a class wrapper on top on the native GNU regex functions
 //! (Linux), on the integrated gnu implementation (Windows)
