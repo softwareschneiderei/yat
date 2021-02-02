@@ -46,6 +46,7 @@
             <defines>
               <define>YAT_PROJECT_VERSION=${project.version}</define>
               <define>YAT_PROJECT_NAME=${project.name}</define>
+              <define>YAT_DEPRECATED</define>
             </defines>
           </cpp>
           <specificConfigurations>
@@ -54,6 +55,12 @@
               <activation>
                 <os>Windows</os>
               </activation>
+              <c>
+                <sourceDirectory>src</sourceDirectory>
+                <includePaths>
+                  <includePath>include</includePath>
+                </includePaths>
+              </c>
               <cpp>
                 <excludes>
                   <exclude>**/*Unix*.cpp</exclude>
@@ -71,7 +78,18 @@
                 <os>Windows</os>
                 <libraryType>shared</libraryType>
               </activation>
+              <c>
+                <sourceDirectory>src</sourceDirectory>
+                <includePaths>
+                  <includePath>include</includePath>
+                </includePaths>
+              </c>
               <cpp>
+                <excludes>
+                  <exclude>**/*Unix*.cpp</exclude>
+                  <exclude>**/*Posix*.cpp</exclude>
+                  <exclude>**/*Work*.cpp</exclude>
+                </excludes>
                 <defines>
                   <define>YAT_DLL</define>
                   <define>YAT_BUILD</define>
@@ -92,9 +110,15 @@
               <activation>
                 <os>Linux</os>
               </activation>
+              <c>
+                <defines>
+                  <define>YAT_HAS_GNUREGEX</define>
+                </defines>
+              </c>
               <cpp>
                 <defines>
                   <define>_FILE_OFFSET_BITS=64</define>
+                  <define>YAT_HAS_GNUREGEX</define>
                 </defines>
                 <excludes>
                   <exclude>**/*WinNt*.cpp</exclude>
