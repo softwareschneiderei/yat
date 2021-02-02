@@ -125,7 +125,7 @@ init_syntax_once ()
 #define SYNTAX(c) re_syntax_table[c]
 
 #endif /* not emacs */
-
+
 /* Get the interface, including the syntax bits.  */
 #include <yat/regex/impl/gnuregex.h>
 
