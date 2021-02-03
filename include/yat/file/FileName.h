@@ -106,51 +106,53 @@ namespace yat
 
 
 //! %File error message
-const char ERR_CANNOT_CREATE_FOLDER[]     = "Cannot create directory '%s'";
+const String ERR_CANNOT_CREATE_FOLDER     = "Cannot create directory '{}'";
 //! %File error message
-const char ERR_CANNOT_CREATE_LINK[]       = "Cannot create link; name = '%s', target='%s'";
+const String ERR_CANNOT_CREATE_LINK       = "Cannot create link; name = '{}', target='{}'";
 //! %File error message
-const char ERR_CANNOT_ENUM_DIR[]          = "Cannot enumerate directory '%s'";
+const String ERR_CANNOT_ENUM_DIR          = "Cannot enumerate directory '{}'";
 //! %File error message
-const char ERR_CANNOT_REMOVE_FILE[]       = "Cannot remove file '%s'";
+const String ERR_CANNOT_REMOVE_FILE       = "Cannot remove file '{}'";
 //! %File error message
-const char ERR_CANNOT_FETCH_INFO[]        = "Cannot fetch informations for file '%s'";
+const String ERR_CANNOT_FETCH_INFO        = "Cannot fetch informations for file '{}'";
 //! %File error message
-const char ERR_CANNOT_RENAME_FILE[]       = "Cannot rename file '%s'";
+const String ERR_CANNOT_RENAME_FILE       = "Cannot rename file '{}'";
 //! %File error message
-const char ERR_FILE_NOT_FOUND[]           = "File '%s' not found";
+const String ERR_FILE_NOT_FOUND           = "File '{}' not found";
 //! %File error message
-const char ERR_DIR_NOT_FOUND[]            = "Directory '%s' not found";
+const String ERR_DIR_NOT_FOUND            = "Directory '{}' not found";
 //! %File error message
-const char ERR_COPY_FAILED[]              = "A error has occured while copying from '%s' to '%s'";
+const String ERR_COPY_FAILED              = "A error has occured while copying from '{}' to '{}'";
 //! %File error message
-const char ERR_OPEN_FILE[]                = "Cannot open file '%s'";
+const String ERR_OPEN_FILE                = "Cannot open file '{}'";
 //! %File error message
-const char ERR_CANNOT_CREATE_WIN32[]      = "Cannot get handle for '%s' (Win32 API)";
+const String ERR_CANNOT_CREATE_WIN32      = "Cannot get handle for '{}' (Win32 API)";
 //! %File error message
-const char ERR_CANNOT_CHANGE_FILE_TIME[]  = "Cannot change file time for '%s'";
+const String ERR_CANNOT_CHANGE_FILE_TIME  = "Cannot change file time for '{}'";
 //! %File error message
-const char ERR_CANNOT_GET_FILE_TIME[]     = "Cannot get file time for '%s'";
+const String ERR_CANNOT_GET_FILE_TIME     = "Cannot get file time for '{}'";
 //! %File error message
-const char ERR_READING_FILE[]             = "Error while reading file '%s'";
+const String ERR_READING_FILE             = "Error while reading file '{}'";
 //! %File error message
-const char ERR_WRITING_FILE[]             = "Error while writing file '%s'";
+const String ERR_WRITING_FILE             = "Error while writing file '{}'";
 //! %File error message
-const char ERR_STAT_FAILED[]              = "Cannot get informations about file '%s'";
+const String ERR_STAT_FAILED              = "Cannot get informations about file '{}'";
 //! %File error message
-const char ERR_CHMOD_FAILED[]             = "Cannot change access for '%s' to '%o'";
+const String ERR_CHMOD_FAILED             = "Cannot change access for '{}' to '{o}'";
 //! %File error message
-const char ERR_CHOWN_FAILED[]             = "Cannot change owner for '%s' to %d:%d";
+const String ERR_CHOWN_FAILED             = "Cannot change owner for '{}' to {}:{}";
 //! %File error message
-const char ERR_FSTYPE[]                   = "Error gathering file system information on '%s'";
+const String ERR_FSTYPE                   = "Error gathering file system information on '{}'";
 //! %File error message
-const char ERR_NOT_A_DIRECTORY[]          = "Is not a directory";
+const String ERR_NOT_A_DIRECTORY          = "Is not a directory";
 //! %File error message
-const char ERR_DELETE_DIRECTORY[]         = "Cannot delete directory '%s'";
+const String ERR_DELETE_DIRECTORY         = "Cannot delete directory '{}'";
 //! %File error message
-const char ERR_BAD_DEST_PATH[]            = "Bad destination path '%s'";
+const String ERR_BAD_DEST_PATH            = "Bad destination path '{}'";
 //! %File error message
-const char ERR_TEST_LINK[]                = "Cannot check entry '%s'";
+const String ERR_TEST_LINK                = "Cannot check entry '{}'";
+//! %File error message
+const String ERR_SECTION_NOT_FOUND        = "Section '{}' not found";
 
 //! Begining of cygwin absolute file names
 const char FILE_CYGDRIVE[] = "\\cygdrive\\";
@@ -180,7 +182,14 @@ public:
   //! \param pcszOrigin Exception origin.
   IOException(const char *pcszDesc, const char *pcszOrigin):
   yat::Exception("IO_ERROR", pcszDesc, pcszOrigin)
-  {  }
+  { }
+
+  //! \brief Constructor.
+  //! \param pcszDesc Exception description.
+  //! \param pcszOrigin Exception origin.
+  IOException(const std::string& desc, const std::string& origin):
+  yat::Exception("IO_ERROR", desc, origin)
+  { }
 };
 
 // ============================================================================
@@ -197,6 +206,13 @@ public:
   //! \param pcszOrigin Exception origin.
   BadPathException(const char *pcszDesc, const char *pcszOrigin):
   yat::Exception("BAD_PATH", pcszDesc, pcszOrigin)
+  { }
+
+  //! \brief Constructor.
+  //! \param desc Exception description.
+  //! \param origin Exception origin.
+  BadPathException(const std::string& desc, const std::string& origin):
+  yat::Exception("BAD_PATH", desc, origin)
   { }
 };
 
@@ -216,6 +232,13 @@ public:
   BadPathConditionException(const char *pcszDesc, const char *pcszOrigin):
   yat::Exception("BAD_PATH_CONDITION", pcszDesc, pcszOrigin)
   { }
+
+  //! \brief Constructor.
+  //! \param desc Exception description.
+  //! \param origin Exception origin.
+  BadPathConditionException(const std::string& desc, const std::string& origin):
+  yat::Exception("BAD_PATH_CONDITION", desc, origin)
+  { }
 };
 
 // ============================================================================
@@ -233,6 +256,13 @@ public:
   //! \param pcszOrigin Exception origin.
   FileNotFoundException(const char *pcszDesc, const char *pcszOrigin):
   yat::Exception("FILE_NOT_FOUND", pcszDesc, pcszOrigin)
+  { }
+
+  //! \brief Constructor.
+  //! \param desc Exception description.
+  //! \param origin Exception origin.
+  FileNotFoundException(const std::string& desc, const std::string& origin):
+  yat::Exception("FILE_NOT_FOUND", desc, origin)
   { }
 };
 
@@ -252,6 +282,13 @@ public:
   PermissionException(const char *pcszDesc, const char *pcszOrigin):
   yat::Exception("PERMISSION_ERROR", pcszDesc, pcszOrigin)
   { }
+
+  //! \brief Constructor.
+  //! \param desc Exception description.
+  //! \param origin Exception origin.
+  PermissionException(const std::string& desc, const std::string& origin):
+  yat::Exception("PERMISSION_ERROR", desc, origin)
+  { }
 };
 
 // ============================================================================
@@ -269,6 +306,13 @@ public:
   //! \param pcszOrigin Exception origin.
   BadDriveException(const char *pcszDesc, const char *pcszOrigin):
   yat::Exception("BAD_DRIVE", pcszDesc, pcszOrigin)
+  { }
+
+  //! \brief Constructor.
+  //! \param desc Exception description.
+  //! \param origin Exception origin.
+  BadDriveException(const std::string& desc, const std::string& origin):
+  yat::Exception("BAD_DRIVE", desc, origin)
   { }
 };
 
@@ -450,7 +494,7 @@ public:
   };
 
   //- Throws a "FILE_ERROR" yat::Exception.
-  static void ThrowExceptionFromErrno(const char *pszError, const char *pszMethod);
+  static void ThrowExceptionFromErrno(const String& error, const String& method);
 
 private:
 
