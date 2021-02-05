@@ -1,5 +1,33 @@
 YAT history file
 
+1.18.0 (2021/02/08)
+===================
+
+Additions
+    classes Regex, Regex::Match, Regex::Match::iterator, Regex::SubMatch
+    The Regex class is a wrapper on the GNU Regex implementation
+    It offer a simple object-type interface to use regular expressions
+    Its interface is intended to easely encapsulate the std:regex classes
+    family, that will be done in a few months, ensuring smooth transition to cpp11+.
+    The default grammar is GNU ERE (Extended Regular Expression).
+        This example:
+            yat::Regex re(R"((www)\.([-_[:alnum:]]+)\.([[:lower:]]{2,4}))");
+            yat::Regex::Match m;
+            re.search("http://www.cppreference.com/w/cpp", &m);
+            for( yat::Regex::Match::iterator it = m.begin(); it != m.end(); ++it )
+            {
+                std::cout << *it <<std::endl;
+            }
+        should output:
+            www.cppreference.com
+            www
+            cppreference
+            com
+    -> see <yat/regex/Regex.h>
+
+    YAT_DEPRECATED switch to be set in Makefile or CMakeLists.txt or pom.xml,...
+        if set then deprecated methods will be still available
+
 1.17.6 (2020/12/16)
 ===================
 
@@ -14,7 +42,7 @@ Fixes
 Changes
     class StringUtil
         The following methods are deprecated: str_format, printf
-    class String 
+    class String
         The following method is deprecated: printf
     -> see <yat/utils/String.h>
 
@@ -410,7 +438,7 @@ Additions
         Get information about a file
         -> See <yat/file/FileName.h>
 
-    template<typename T> bool fp_is_equal(T, a, T b, T precision)
+    template<typename T> bool fp_is_equal(T a, T b, T precision)
         Floating point comparison operator
         -> See <yat/CommonHeader.h>
 
