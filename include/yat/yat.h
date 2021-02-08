@@ -101,7 +101,7 @@
 //! See COPYING file for license details
 //!
 //! <b>Main Contact:</b>\n
-//!   Nicolas Leclercq - Synchrotron SOLEIL - France
+//!   Stephane Poirier - Synchrotron SOLEIL - France
 // ----------------------------------------------------------------------------
 
 #endif // _YAT_H_
