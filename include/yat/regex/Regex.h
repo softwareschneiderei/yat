@@ -66,33 +66,60 @@
 //! an yat::Match object that containing no submatches means the input string
 //! does not match the regular expression
 //!
-//! Match example:
-//! yat::Regex re("([^/]+)/([^/]+)/([^/]+)");
-//! yat::Regex::Match m;
-//! yat::String dev_name = "my/outstanding/device";
-//! if( re.match(dev_name, &m) )
-//! {
-//!   std::cout << "domain: " << m.str(1) << std::endl;
-//!   std::cout << "family: " << m.str(2) << std::endl;
-//!   std::cout << "member: " << m.str(3) << std::endl;
-//! }
-//! else
-//!   std::cout << "This is not a device name!" << std::cout;
+//! \par Match example:
+//! \code{.cpp}
+//!   yat::Regex re("([^/]+)/([^/]+)/([^/]+)");
+//!   yat::Regex::Match m;
+//!   yat::String dev_name = "my/outstanding/device";
+//!   if( re.match(dev_name, &m) )
+//!   {
+//!     std::cout << "full match: " << m.str(0) << std::endl;
+//!     std::cout << "domain: " << m.str(1) << std::endl;
+//!     std::cout << "family: " << m.str(2) << std::endl;
+//!     std::cout << "member: " << m.str(3) << std::endl;
+//!   }
+//!   else
+//!     std::cout << "This is not a device name!" << std::cout;
+//! \endcode
+//! Should output on the terminal:
+//! \code{.unparsed}
+//! $ full match: my/outstanding/device
+//! $ domain: my
+//! $ family: outstanding
+//! $ member: device
+//! \endcode
 //!
-//! Search example:
-//! yat::Regex re("\w+");
-//! yat::Regex::Match m;
-//! while( re.search("What a beautiful day!", &m) )
-//! {
-//!   std::cout << "found word: " << m.str() << std::endl;
-//! }
+//! \par Search example:
+//! \code{.cpp}
+//!   yat::Regex re(R"(\w+)");
+//!   yat::Regex::Match m;
+//!   while( re.search("What a beautiful day!", &m) )
+//!   {
+//!     std::cout << "found word: " << m.str() << std::endl;
+//!   }
+//! \endcode
+//! Should output on the terminal:
+//! \code{.unparsed}
+//! $ found word: what
+//! $ found word: a
+//! $ found word: beautiful
+//! $ found word: day
+//! \endcode
 //!
-//! Replace Example:
-//! yat::Regex re("\w+");
-//! yat::String str = re.replace("ga bu zo meu", "[$0]");
-//! std::cout << str << std::endl;
+//! \par Replace Example:
+//! \code{.cpp}
+//!   yat::Regex re(R"(\w+)");
+//!   yat::String str = re.replace("ga bu zo meu", "[$0]");
+//!   std::cout << str << std::endl;
+//! \endcode
+//! Should output on the terminal:
+//! \code{.unparsed}
+//! $ [ga] [bu] [zo] [meu]
+//! \endcode
 //!
-//! Links to sub classes :
+//! \section secRE3 Regex classes
+//! Links to regex classes :
+//!   - yat::Regex
 //!   - yat::Regex::Match
 //!   - yat::Regex::SubMatch
 //!   - yat::Regex::Match::iterator
@@ -143,6 +170,7 @@ public:
     format_first_only = 16 // Regex::replace only
   };
 
+  //! Sub-match result
   class SubMatch
   {
     friend class Regex;
