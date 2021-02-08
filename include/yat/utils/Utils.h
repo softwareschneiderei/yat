@@ -80,6 +80,7 @@
 //!   - yat::CountBase
 //!   - yat::CountImpl
 //!   - yat::String
+//!   - yat::StringFormat
 //!   - yat::ISymbolInterpreter
 //!   - yat::EnvVariableInterpreter
 //!   - yat::StringTemplate
