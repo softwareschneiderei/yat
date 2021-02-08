@@ -1136,6 +1136,22 @@ YAT_DECL bool operator>=(const char* s1, const String& s2);
 YAT_DECL std::ostream& operator<<(std::ostream& os, const String& s);
 YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 
+// ============================================================================
+//! \class StringFormat
+//! \brief Format string using printf-like format spec
+//! \par Usage:
+//! \code{.cpp}
+//! std::cout << yat::StringFormat("ga: {}, bu: {}, zo: {}, meu: {}").format("pomper").format(true).format(12).format(3.14) << std::endl;
+//! std::cout << yat::StringFormat("shadock={<10}").format("gabu") << std::endl;
+//! std::cout << yat::StringFormat("shadock={>10}").format("zomeu") << std::endl;
+//! std::cout << yat::StringFormat("ga {b} zo {s}").format(true).format("meu") << std::endl;
+//! std::cout << yat::StringFormat("pct {.1%}").format(0.2) << std::endl;
+//! std::cout << yat::StringFormat("bu {B}").format(h) << std::endl;
+//! std::cout << yat::StringFormat("bu {*>#8x}").format(12) << std::endl;
+//! std::cout << yat::StringFormat("bu {X}").format(12) << std::endl;
+//! std::cout << yat::StringFormat("ga {12} {8.4} {*<+30} {!>15g} {8.7E} {>12.2f}").format(5).format(65*3.47).format(42).format(42).format(4.245684451).format(42) << std::endl;
+//! \endcode
+// ============================================================================
 class StringFormat
 {
 public:
@@ -1167,14 +1183,34 @@ public:
 
   //! Apply format
   //!
-  //! format spec is:
-  //! [[fill]align][sign][#][width][.precision][type]
-  //! fill        ::=  <any character>
-  //! align       ::=  "<" | ">"
-  //! sign        ::=  "+"
-  //! width       ::=  integer
-  //! precision   ::=  integer
-  //! type        ::=  "b" | "B" | "e" | "E" | "f" | "F" | "g" | "G" | "o" | "s" | "x" | "X" | "%"
+  //! format spec is:\n
+  //! [[fill]align][sign][#][width][.precision][type] \n
+  //! fill        ::=  any character\n
+  //! align       ::=  "<" | ">"\n
+  //! sign        ::=  "+" | "-"\n
+  //! width       ::=  integer\n
+  //! precision   ::=  integer\n
+  //! type        ::=  "b" | "B" | "e" | "E" | "f" | "F" | "g" | "G" | "o" | "s" | "x" | "X" | "%"\n
+  //! \par align:
+  //! '<' Forces the field to be left-aligned within the available space (this is the default for most objects).\n
+  //! '>' Forces the field to be right-aligned within the available space (this is the default for numbers).
+  //! \par sign
+  //! '+' indicates that a sign should be used for both positive as well as negative numbers.\n
+  //! '-' indicates that a sign should be used only for negative numbers (this is the default behavior).
+  //! \par '#' character
+  //! only valid for integers, and only for binary, octal, or hexadecimal output. If present, it specifies that the output will be prefixed by '0b', '0o', or '0x', respectively.
+  //! \par type
+  //! 's' String format. This is the default type for strings and may be omitted.\n
+  //! 'B' Binary format. Outputs the number in base 2.\n
+  //! 'o' Octal format. Outputs the number in base 8.\n
+  //! 'x' Hex format. Outputs the number in base 16, using lower- case letters for the digits above 9.\n
+  //! 'X' Hex format. Outputs the number in base 16, using upper- case letters for the digits above 9.\n
+  //! 'e' Exponent notation. Prints the number in scientific notation using the letter ‘e’ to indicate the exponent. The default precision is 6.\n
+  //! 'E' Exponent notation. Same as 'e' except it uses an upper case ‘E’ as the separator character.\n
+  //! 'f' Fixed-point notation. Displays the number as a fixed-point number. The default precision is 6.\n
+  //! 'g' General format. For a given precision p >= 1, this rounds the number to p significant digits and then formats the result in either fixed-point format or in scientific notation, depending on its magnitude.\n
+  //! 'G' General format. Same as 'g' except switches to 'E' if the number gets too large. The representations of infinity and NaN are uppercased, too.\n
+  //! '%%' Percentage. Multiplies the number by 100 and displays in fixed ('f') format, followed by a percent sign.\n
   template<class T> StringFormat& format(const T& v)
   {
     std::ostringstream oss;
