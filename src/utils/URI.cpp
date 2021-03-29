@@ -45,6 +45,7 @@
 // DEPENDENCIES
 // ============================================================================
 #include <sstream>
+#include <yat/threading/Mutex.h>
 #include <yat/utils/Logging.h>
 #include <yat/utils/URI.h>
 
@@ -52,6 +53,71 @@ namespace yat
 {
 
 const std::string uri_syntax_error = "BAD_URI_SYNTAX";
+Mutex URI::s_regex_mtx;
+
+#define _PCT_ENCODED   R"(%[[:xdigit:]][[:xdigit:]])"
+#define _GEN_DELIMS    R"([]:/?@#[])"
+#define _SUB_DELIMS    R"([!$&'()*+,;=])"
+#define _UNRESERVED    R"([-.~_[:alnum:]])"
+#define _PCHAR         "(" _UNRESERVED "|" _PCT_ENCODED "|" _SUB_DELIMS "|:|@)"
+#define _SEGMENT       _PCHAR "*"
+#define _SEGMENT_NZ    _PCHAR "+"
+#define _SEGMENT_NZ_NC "(" _UNRESERVED "|" _PCT_ENCODED "|" _SUB_DELIMS "|@)+"
+#define _PATH_ABEMPTY  "((/" _SEGMENT ")*)"
+#define _PATH_ABSOLUTE "(/(" _SEGMENT_NZ "(/" _SEGMENT ")*)*)"
+#define _PATH_NOSCHEME "(" _SEGMENT_NZ_NC "(/" _SEGMENT ")*)"
+#define _PATH_ROOTLESS "(" _SEGMENT_NZ "(/" _SEGMENT ")*)"
+#define _PATH_EMPTY    _PCHAR "{0}"
+#define _PATH          "(" _PATH_ABEMPTY "|" _PATH_ABSOLUTE "|" _PATH_ROOTLESS "|" _PATH_EMPTY ")"
+#define _SCHEME        "([[:alpha:]][-+.[:alnum:]]*)"
+#define _QUERY         "((" _PCHAR R"(|/|\?)*))"
+#define _FRAGMENT      "((" _PCHAR R"(|/|\?)*))"
+#define _REG_NAME      "(" _UNRESERVED "|" _PCT_ENCODED "|" _SUB_DELIMS ")*"
+#define _USERINFO      "(" _UNRESERVED "|" _PCT_ENCODED "|" _GEN_DELIMS "|:)*"
+#define _DEC_OCTET     "([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])"
+#define _AUTHORITY     "(((" _USERINFO ")@)?" _HOST "(:" _PORT ")?)"
+#define _PORT          "([0-9]*)"
+#define _IPV4          _DEC_OCTET R"(\.)" _DEC_OCTET R"(\.)" _DEC_OCTET R"(\.)" _DEC_OCTET
+#define _H16           "[[:xdigit:]]{1,4}"
+#define _LS32          "(" _H16 ":" _H16 "|" _IPV4 ")"
+#define _IPV6_1                                     "(" _H16 ":){6}" _LS32
+#define _IPV6_2                                   "::(" _H16 ":){5}" _LS32
+#define _IPV6_3                        "(" _H16 ")?::(" _H16 ":){4}" _LS32
+#define _IPV6_4        "((" _H16 ":){0,1}" _H16 ")?::(" _H16 ":){3}" _LS32
+#define _IPV6_5        "((" _H16 ":){0,2}" _H16 ")?::(" _H16 ":){2}" _LS32
+#define _IPV6_6        "((" _H16 ":){0,3}" _H16 ")?::(" _H16 ":){1}" _LS32
+#define _IPV6_7        "((" _H16 ":){0,4}" _H16 ")?::" _LS32
+#define _IPV6_8        "((" _H16 ":){0,5}" _H16 ")?::" _H16
+#define _IPV6_9        "((" _H16 ":){0,6}" _H16 ")?::"
+#define _IPV6          "(" _IPV6_1 "|" _IPV6_2 "|" _IPV6_3 "|" _IPV6_4 "|" _IPV6_5 \
+                       "|" _IPV6_6 "|" _IPV6_7 "|" _IPV6_8 "|" _IPV6_9 ")"
+#define _IPVFUTURE     R"(([vV][[:xdigit:]]+\.()" _UNRESERVED "|" _SUB_DELIMS "|:))"
+#define _IP_LITERAL    R"((\[()" _IPV6 "|" _IPVFUTURE R"()\]))"
+#define _HOST          "(" _IP_LITERAL "|" _IPV4 "|" _REG_NAME ")"
+#define _HIER_PART     "((//" _AUTHORITY _PATH_ABEMPTY ")|" _PATH_ABSOLUTE \
+                       "|" _PATH_ROOTLESS "|" _PATH_EMPTY ")"
+#define _URI           _SCHEME ":" _HIER_PART R"((\?)" _QUERY ")?(#" _FRAGMENT ")?"
+
+Regex URI::s_re_scheme(_SCHEME, Regex::extended | Regex::nosubs);
+Regex URI::s_re_userinfo(_USERINFO, Regex::extended | Regex::nosubs);
+Regex URI::s_re_path(_PATH, Regex::extended | Regex::nosubs);
+Regex URI::s_re_host(_HOST, Regex::extended | Regex::nosubs);
+Regex URI::s_re_port(_PORT, Regex::extended | Regex::nosubs);
+Regex URI::s_re_query(_QUERY, Regex::extended | Regex::nosubs);
+Regex URI::s_re_fragment(_FRAGMENT, Regex::extended | Regex::nosubs);
+Regex URI::s_re_authority(_AUTHORITY, Regex::extended);
+Regex URI::s_re_full(_URI, Regex::extended);
+
+yat::String URI::get_full_pattern() { return _URI; }
+
+//----------------------------------------------------------------------------
+// URI::re_match
+//----------------------------------------------------------------------------
+bool URI::re_match(Regex& re, const String& str, Regex::Match* match_p)
+{
+  AutoMutex<> _lock(s_regex_mtx);
+  return re.match(str, match_p);
+}
 
 //----------------------------------------------------------------------------
 // URI::URI (const std::string& uri_string)
@@ -66,21 +132,22 @@ URI::URI(const std::string& uri_string)
 //----------------------------------------------------------------------------
 URI::URI(const URI::Fields& fields)
 {
-  check(URI::SCHEME, fields.scheme);
-  check(URI::USERINFO, fields.userinfo);
-  check(URI::HOST, fields.host);
-  check(URI::PORT, fields.port);
-  check(URI::PATH, fields.path);
-  check(URI::QUERY, fields.query);
-  check(URI::FRAGMENT, fields.fragment);
-
-  m_part[URI::SCHEME]    = fields.scheme;
-  m_part[URI::USERINFO]  = fields.userinfo;
-  m_part[URI::HOST]      = fields.host;
-  m_part[URI::PORT]      = fields.port;
-  m_part[URI::PATH]      = fields.path;
-  m_part[URI::QUERY]     = fields.query;
-  m_part[URI::FRAGMENT]  = fields.fragment;
+  if( check(URI::SCHEME, fields.scheme) &&
+      check(URI::USERINFO, fields.userinfo) &&
+      check(URI::HOST, fields.host) &&
+      check(URI::PORT, fields.port) &&
+      check(URI::PATH, fields.path) &&
+      check(URI::QUERY, fields.query) &&
+      check(URI::FRAGMENT, fields.fragment) )
+  {
+    m_part[URI::SCHEME]    = fields.scheme;
+    m_part[URI::USERINFO]  = fields.userinfo;
+    m_part[URI::HOST]      = fields.host;
+    m_part[URI::PORT]      = fields.port;
+    m_part[URI::PATH]      = fields.path;
+    m_part[URI::QUERY]     = fields.query;
+    m_part[URI::FRAGMENT]  = fields.fragment;
+  }
 }
 
 const std::string ALPHA = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -95,16 +162,16 @@ const std::string TO_ENCODE = SUB_DELIMS + GEN_DELIMS + "%";
 //----------------------------------------------------------------------------
 // URI::check_value
 //----------------------------------------------------------------------------
-bool URI::check_value(const std::string& value, const std::string &accepted_chars,
-                      const std::string& value_name, bool throw_exception)
+bool URI::check_value(const std::string& part, Regex &re,
+                         const std::string& part_name, bool throw_exception)
 {
-  if( value.find_first_not_of(accepted_chars) != std::string::npos )
+  if( !re_match(re, part) )
   {
     if( throw_exception )
       THROW_YAT_ERROR(uri_syntax_error,
-                      "Bad '" << value_name << "' syntax: " << value,
-                      "URI::check_value" );
-    YAT_WARNING << "Bad '" << value_name << "' syntax: " << value << std::endl;
+                      "Bad '" << part_name << "' syntax: " << part,
+                      "yat::URI::check_value" );
+    YAT_WARNING << "Bad '" << part_name << "' syntax: " << part << std::endl;
     return false;
   }
   return true;
@@ -118,41 +185,35 @@ bool URI::check(URI::Part part, const std::string& value, bool throw_exception)
   switch ( part )
   {
     case URI::SCHEME:
-      return check_value(value, ALPHA + DIGIT + "+-.",
-                         PSZ_FMT("Bad scheme syntax: %s.", PSZ(value)), throw_exception);
+      return check_value(value, s_re_scheme, "scheme", throw_exception);
 
     case URI::AUTHORITY:
-    {
-      URI::Fields fields;
-      return check_authority(value, &fields, throw_exception);
-    }
+      return check_value(value, s_re_authority, "authority", throw_exception);
 
     case URI::USERINFO:
-      return check_value(value, UNRESERVED + PCT_ENCODED + SUB_DELIMS + ":",
-                         "userinfo", throw_exception);
+      return check_value(value, s_re_userinfo, "userinfo", throw_exception);
 
     case URI::HOST:
-      return check_value(value, UNRESERVED + PCT_ENCODED + SUB_DELIMS + ":" + "[]",
-                         "host", throw_exception);
+      return check_value(value, s_re_host, "host", throw_exception);
 
     case URI::PORT:
-      return check_value(value, DIGIT, "port", throw_exception);
+      return check_value(value, s_re_port, "port", throw_exception);
 
     case URI::PATH:
-      return check_value(value, UNRESERVED + PCT_ENCODED + SUB_DELIMS + ":@/",
-                         "path", throw_exception);
+      return check_value(value, s_re_path, "path", throw_exception);
 
     case URI::QUERY:
-      return check_value(value, UNRESERVED + PCT_ENCODED + SUB_DELIMS + ":@/?",
-                         "query", throw_exception);
+      return check_value(value, s_re_query, "query", throw_exception);
 
     case URI::FRAGMENT:
-      return check_value(value, UNRESERVED + PCT_ENCODED + SUB_DELIMS + ":@/?",
-                         "fragment", throw_exception);
+      return check_value(value, s_re_fragment, "fragment", throw_exception);
+
+    default:
+      throw Exception("ERROR", "invalid part specified", "yat::URI::check");
   }
 
   if( throw_exception )
-    throw Exception(uri_syntax_error, "invalid URI::Part specified", "URI::check_value");
+    throw Exception(uri_syntax_error, "invalid value for specified uri part", "yat::URI::check");
 
   return false;
 }
@@ -188,108 +249,49 @@ void URI::split_authority(const std::string& authority, std::string* userinfo_pt
 bool URI::check_authority(const std::string& authority, URI::Fields* fields_ptr,
                           bool throw_exception)
 {
-  split_authority(authority, &(fields_ptr->userinfo),
-                             &(fields_ptr->host),
-                             &(fields_ptr->port));
-
-  if( fields_ptr->host.empty() )
+  if( !authority.empty() )
   {
-    if( throw_exception )
-      throw Exception(uri_syntax_error, "'host' part must not be empty!",
-                      "URI::check_authority");
-    return false;
-  }
-  if( !check(URI::USERINFO, fields_ptr->userinfo, throw_exception) )
-    return false;
-  if( !check(URI::HOST, fields_ptr->host, throw_exception) )
-    return false;
-  if( !check(URI::PORT, fields_ptr->port, throw_exception) )
-    return false;
+    Regex::Match m;
+    if( !re_match(s_re_authority, authority, &m) )
+    {
+      if( throw_exception )
+        throw Exception(uri_syntax_error,
+                        StringFormat("'{}' is not a valid authority!").format(authority),
+                        "yat::URI::check_authority");
+      return false;
+    }
 
+    fields_ptr->userinfo = m.str(3);
+    fields_ptr->host = m.str(5);
+    fields_ptr->port = m.str(71);
+  }
   return true;
 }
 
 //----------------------------------------------------------------------------
-// URI::parse
+// URI::parse_ex
 //----------------------------------------------------------------------------
 void URI::parse(const std::string& uri)
 {
-  URI::Fields fields;
-  std::string all = uri, authority, query, fragment, userinfo, host, port;
+  AutoMutex<> _lock(s_regex_mtx);
 
-  // Scheme part is mandatory
-  yat::StringUtil::extract_token(&all, ':', &fields.scheme);
-
-  if( fields.scheme.empty() )
-    THROW_YAT_ERROR(uri_syntax_error, "scheme part is mandatory", "URI::parse");
-
-  yat::StringUtil::to_lower(&fields.scheme);
-  check(URI::SCHEME, fields.scheme, true);
-
-  // Hierarchical part (authority or path) is mandatory
-  // This part ends with first '?' or '#'
-  std::string hierarchical_part;
-  char found_sep = 0;
-  if( all.find('?') != std::string::npos )
+  Regex::Match m;
+  if( !s_re_full.match(uri, &m) )
   {
-    yat::StringUtil::extract_token(&all, '?', &hierarchical_part);
-    found_sep = '?';
-  }
-  else if(  all.find('#') != std::string::npos )
-  {
-    yat::StringUtil::extract_token(&all, '#', &hierarchical_part);
-    found_sep = '#';
-  }
-  else
-    hierarchical_part = all;
-
-  if( hierarchical_part.empty() )
-    throw Exception(uri_syntax_error,
-                    "Hierarchical part (authority and/or path) must not be empty!",
-                    "URI::parse");
-
-  if( yat::StringUtil::match(hierarchical_part, "//*") )
-  {
-    // There is an authority
-    hierarchical_part = hierarchical_part.substr(2);
-    std::string authority;
-    yat::StringUtil::extract_token(&hierarchical_part, '/', &authority);
-    check_authority(authority, &fields, true);
-
-    // Last part is the path
-    fields.path = "/" + hierarchical_part;
-  }
-  else
-  {
-    fields.path = hierarchical_part;
+    THROW_YAT_ERROR(uri_syntax_error,
+                    StringFormat("'{}' is not a valid uri").format(uri),
+                   "yat::URI::validate_parse");
   }
 
-  check(URI::PATH, fields.path, true);
-
-  if( '?' == found_sep )
-  {
-    // Extract query part
-    if(  all.find('#') != std::string::npos )
-      yat::StringUtil::extract_token_right(&all, '#', &fields.fragment);
-    fields.query = all;
-    check(URI::QUERY, fields.query, true);
-  }
-  else if( '#' == found_sep )
-  {
-    fields.fragment = all;
-    check(URI::FRAGMENT, fields.fragment, true);
-  }
-
-  // Sets the values
-  m_part[SCHEME]    = fields.scheme;
-  m_part[USERINFO]  = fields.userinfo;
-  m_part[HOST]      = fields.host;
-  m_part[PORT]      = fields.port;
-  m_part[PATH]      = fields.path;
-  m_part[QUERY]     = fields.query;
-  m_part[FRAGMENT]  = fields.fragment;
+  m_part[SCHEME]     = m.str(1);
+  m_part[AUTHORITY]  = m.str(4);
+  m_part[USERINFO]   = m.str(6);
+  m_part[HOST]       = m.str(8);
+  m_part[PORT]       = m.str(74);
+  m_part[PATH]       = m.str(75).empty() ? m.str(83) : m.str(75);
+  m_part[QUERY]      = m.str(89);
+  m_part[FRAGMENT]   = m.str(93);
 }
-
 
 //----------------------------------------------------------------------------
 // URL::empty
@@ -374,7 +376,6 @@ std::string URI::get(URI::Part part) const
   {
     v = value(part);
   }
-  pct_decode(&v);
   return v;
 }
 
@@ -384,7 +385,6 @@ std::string URI::get(URI::Part part) const
 void URI::set(URI::Part part, const std::string &v)
 {
   std::string val = v;
-  pct_encode(&val);
 
   if( URI::AUTHORITY == part )
   {
@@ -446,7 +446,7 @@ void URI::pct_encode(std::string* to_encode, const std::string& reserved)
       else
       {
         if( i > size - 2 )
-          throw yat::Exception("ERROR", "Bad URI string", "URI::pct_decode");
+          throw yat::Exception("ERROR", "Bad URI string", "yat::URI::pct_decode");
 
         int n;
         std::istringstream( (*to_decode).substr(i+1, 2) ) >> std::hex >> n;
