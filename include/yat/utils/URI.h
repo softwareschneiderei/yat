@@ -47,11 +47,15 @@
 
 #include <map>
 #include <yat/utils/String.h>
+#include <yat/threading/Mutex.h>
+#include <yat/regex/Regex.h>
 
 namespace yat
 {
 
-const std::string URI_RESERVED = "!$&'()*+,;=:?#[]@%";
+const std::string URI_RESERVED = " !$&'()*+,;=:?#[]@%";
+const std::string URI_RESERVED_AUTHORITY = " !$&'()*+,;=?#%";
+const std::string URI_PCT_ENCODED = " %!$&'()*+,;=?#";
 
 // ============================================================================
 //! \class URI
@@ -108,16 +112,29 @@ public:
   };
 
 private:
+
+  static Regex s_re_full;
+  static Regex s_re_scheme;
+  static Regex s_re_authority;
+  static Regex s_re_userinfo;
+  static Regex s_re_host;
+  static Regex s_re_port;
+  static Regex s_re_path;
+  static Regex s_re_query;
+  static Regex s_re_fragment;
+  static Mutex s_regex_mtx;
   std::map<Part, std::string> m_part;
 
-  void parse(const std::string& URI);
   std::string value(Part part) const;
-  static bool check_value(const std::string& value, const std::string &accepted_chars,
-                          const std::string& error_desc, bool throw_exception);
   static void split_authority(const std::string& authority, std::string* userinfo_ptr,
                               std::string* host_ptr, std::string* port_ptr);
   static bool check_authority(const std::string& authority, URI::Fields* fields_ptr,
                               bool throw_exception);
+
+  void parse(const std::string& URI);
+  static bool check_value(const std::string& value, Regex &re,
+                          const std::string& error_desc, bool throw_exception);
+  static bool re_match(Regex& re, const yat::String& str, Regex::Match* m=NULL);
 
 public:
   //! \brief Constructor from URI.
@@ -179,6 +196,8 @@ public:
 
   //! \brief percent decoding for any string that have to be part of an uri
   static void pct_decode(std::string* to_encode);
+
+  static yat::String get_full_pattern();
 };
 
 
