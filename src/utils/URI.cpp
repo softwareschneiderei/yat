@@ -150,15 +150,6 @@ URI::URI(const URI::Fields& fields)
   }
 }
 
-const std::string ALPHA = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const std::string DIGIT = "0123456789";
-const std::string UNRESERVED = ALPHA + DIGIT + std::string("-._~|");
-const std::string HEXDIGIT ="0123456789abcdefABCDEF";
-const std::string PCT_ENCODED  = HEXDIGIT + "%";
-const std::string SUB_DELIMS = "!$&'()*+,;=";
-const std::string GEN_DELIMS = ":?#[]@";
-const std::string TO_ENCODE = SUB_DELIMS + GEN_DELIMS + "%";
-
 //----------------------------------------------------------------------------
 // URI::check_value
 //----------------------------------------------------------------------------
