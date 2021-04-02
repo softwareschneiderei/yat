@@ -261,7 +261,7 @@ public:
   typedef SharedPtr<Match> MatchPtr;
 
   //! c-tor
-  Regex(const yat::String& regex, CompFlags flags = extended);
+  Regex(const yat::String& regex, int flags = extended);
   Regex(const Regex& src);
 
   //! d-tor
@@ -310,7 +310,7 @@ private:
             Regex::MatchFlags mflags, std::size_t req_len);
 
   yat::String m_pattern;
-  CompFlags   m_flags;
+  int         m_flags;
   bool        m_compiled;
   ::regex_t   m_regex;
 };

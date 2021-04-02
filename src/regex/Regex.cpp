@@ -51,7 +51,7 @@ namespace yat
 //---------------------------------------------------------------------------
 // Regex::Regex(const yat::String&, yat::Regex::Flags)
 //---------------------------------------------------------------------------
-Regex::Regex(const yat::String& pattern, yat::Regex::CompFlags flags)
+Regex::Regex(const yat::String& pattern, int flags)
 : m_pattern(pattern), m_flags(flags), m_compiled(false)
 {
 }
@@ -181,7 +181,14 @@ bool Regex::exec(const yat::String& str, yat::Regex::Match* match_p,
     compile();
 
   bool res = false;
-  std::size_t nmatch = m_regex.re_nsub + 1;
+
+  std::size_t nmatch = 0;
+  regmatch_t* regmatch_p = NULL;
+  if( !(m_flags & yat::Regex::nosubs) )
+  {
+    nmatch = m_regex.re_nsub + 1;
+    regmatch_p = new regmatch_t[nmatch];
+  }
 
   int eflags = 0;
   if( mflags & match_not_bol)
@@ -189,11 +196,12 @@ bool Regex::exec(const yat::String& str, yat::Regex::Match* match_p,
   if( mflags & match_not_eol)
     eflags += REG_NOTEOL;
 
-  regmatch_t* regmatch_p = new regmatch_t[nmatch];
   int rc = ::regexec(&m_regex, str.c_str() + start_pos, nmatch, regmatch_p, eflags);
   if( !rc )
   { // success match
-    if( ((std::size_t)regmatch_p[0].rm_eo - (std::size_t)regmatch_p[0].rm_so >= req_len )
+    if( m_flags & yat::Regex::nosubs )
+      res = true;
+    else if( ((std::size_t)regmatch_p[0].rm_eo - (std::size_t)regmatch_p[0].rm_so >= req_len )
       && ( !(mflags & match_continuous) || ((mflags & match_continuous) && (std::size_t)regmatch_p[0].rm_so == 0 )) )
     {
       if( match_p )
@@ -217,7 +225,8 @@ bool Regex::exec(const yat::String& str, yat::Regex::Match* match_p,
     else
       res = false;
   }
-  delete [] regmatch_p;
+  if( regmatch_p )
+    delete [] regmatch_p;
   return res;
 }
 
