@@ -108,6 +108,7 @@ Regex URI::s_re_fragment(_FRAGMENT, Regex::extended | Regex::nosubs);
 Regex URI::s_re_authority(_AUTHORITY, Regex::extended);
 Regex URI::s_re_full(_URI, Regex::extended);
 
+// just for the fun!
 yat::String URI::get_full_pattern() { return _URI; }
 
 //----------------------------------------------------------------------------

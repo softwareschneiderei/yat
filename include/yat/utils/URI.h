@@ -197,6 +197,7 @@ public:
   //! \brief percent decoding for any string that have to be part of an uri
   static void pct_decode(std::string* to_encode);
 
+  //! \brief Just the the fun ;)
   static yat::String get_full_pattern();
 };
 
