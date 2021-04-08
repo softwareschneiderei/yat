@@ -1,5 +1,20 @@
 YAT history file
 
+1.18.1 (2021/04/08)
+===================
+
+Fixes
+    class Regex
+    - regex match with 'nosubs' flag was returning a wrong result
+    - regex flags have to be passed through a 'int' value rather than CompFlags enum type
+    -> see <yat/regex/Regex.h>
+
+    class URI
+        To solve the ambiguous difference beween regular host name and ipv4 address,
+        the parsing algorithm now considere that host name like x.y.z.t
+        (where x/y/z/t are numerical values) should be ipv4 address and therefore is
+        checked against ipv4 syntax (four values in [0-255] range).
+
 1.18.0 (2021/02/08)
 ===================
 
