@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,21 +9,21 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2011  N.Leclercq & The Tango Community
+// Copyright (C) 2006-2021  N.Leclercq & The Tango Community
 //
 // Part of the code comes from the ACE Framework (i386 asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
 //
 // Contributors form the TANGO community:
-// See AUTHORS file 
+// See AUTHORS file
 //
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -31,10 +31,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -64,7 +64,7 @@
 // ----------------------------------------------------------------------------
 // SOME PSEUDO CONSTs
 // ----------------------------------------------------------------------------
-#define MAX_SLEEP_SECONDS  (long)4294966  //- this is (2^32 - 2) / 1000 
+#define MAX_SLEEP_SECONDS  (long)4294966  //- this is (2^32 - 2) / 1000
 #define MAX_NSECS 1000000000
 
 // ----------------------------------------------------------------------------
@@ -125,7 +125,7 @@ Mutex::Mutex ()
 Mutex::~Mutex()
 {
   YAT_TRACE("Mutex::~Mutex");
-  
+
   ::pthread_mutex_destroy(&m_posix_mux);
 }
 
@@ -135,9 +135,9 @@ Mutex::~Mutex()
 MutexState Mutex::timed_try_lock (unsigned long tmo_msecs)
 {
   MutexState ms = yat::MUTEX_BUSY;
-  
+
   yat::Timeout tmo(tmo_msecs, yat::Timeout::TMO_UNIT_MSEC, true);
-  
+
   while ( ! tmo.expired() )
   {
     ms = this->try_lock();
@@ -145,7 +145,7 @@ MutexState Mutex::timed_try_lock (unsigned long tmo_msecs)
       break;
     yat::Thread::yield();
   }
-  
+
   return ms;
 }
 
@@ -208,19 +208,19 @@ bool Condition::timed_wait (unsigned long _tmo_msecs)
   //- null tmo means infinite wait
 
   bool signaled = true;
- 
-  if (_tmo_msecs == 0) 
+
+  if (_tmo_msecs == 0)
   {
     ::pthread_cond_wait(&m_posix_cond, &m_external_lock.m_posix_mux);
   }
-  else 
+  else
   {
     //- get absoulte time
     struct timespec ts;
     ThreadingUtilities::get_time(ts, _tmo_msecs);
     //- wait for the condition to be signaled or tmo expiration
-    int result = ::pthread_cond_timedwait(&m_posix_cond, 
-                                          &m_external_lock.m_posix_mux, 
+    int result = ::pthread_cond_timedwait(&m_posix_cond,
+                                          &m_external_lock.m_posix_mux,
                                           &ts);
     if (result == ETIMEDOUT)
       signaled = false;
@@ -237,19 +237,19 @@ bool Condition::timed_wait (unsigned long _tmo_secs, unsigned long _tmo_nsecs)
   //- null tmo means infinite wait
 
   bool signaled = true;
- 
-  if (_tmo_secs == 0 && _tmo_nsecs == 0) 
+
+  if (_tmo_secs == 0 && _tmo_nsecs == 0)
   {
     ::pthread_cond_wait(&m_posix_cond, &m_external_lock.m_posix_mux);
   }
-  else 
+  else
   {
     //- get absoulte time
     struct timespec ts;
     ThreadingUtilities::get_time(ts, _tmo_secs, _tmo_nsecs);
     //- wait for the condition to be signaled or tmo expiration
-    int result = ::pthread_cond_timedwait(&m_posix_cond, 
-                                          &m_external_lock.m_posix_mux, 
+    int result = ::pthread_cond_timedwait(&m_posix_cond,
+                                          &m_external_lock.m_posix_mux,
                                           &ts);
     if (result == ETIMEDOUT)
       signaled = false;
@@ -300,7 +300,7 @@ Thread::IOArg yat_thread_common_entry_point (Thread::IOArg _p)
       //- ignore any exception
     }
   }
-  else 
+  else
   {
     YAT_LOG_STATIC("yat_thread_common_entry_point::thread " << DUMP_THREAD_UID << " will run undetached");
     //- just protect yat impl. against user code using a try/catch statement
@@ -365,7 +365,7 @@ Thread::Thread (Thread::IOArg _iarg, Thread::Priority _p)
  {
    lowest_priority = ::sched_get_priority_min(SCHED_FIFO);
    highest_priority = ::sched_get_priority_max(SCHED_FIFO);
-   switch (highest_priority - lowest_priority) 
+   switch (highest_priority - lowest_priority)
    {
      case 0:
      case 1:
@@ -442,8 +442,8 @@ void Thread::spawn ()
 
   //- set detach attribute
   YAT_LOG("Thread::spawn::changing thread detach-state attr");
-  int ds = this->m_detached 
-         ? PTHREAD_CREATE_DETACHED 
+  int ds = this->m_detached
+         ? PTHREAD_CREATE_DETACHED
          : PTHREAD_CREATE_JOINABLE;
   ::pthread_attr_setdetachstate(&thread_attrs, ds);
 
@@ -463,15 +463,15 @@ void Thread::spawn ()
   YAT_LOG("Thread::spawn::spawing thread");
   int result = 0;
 #if (PthreadDraftVersion == 4)
-  result = ::pthread_create(&m_posix_thread, 
-                            thread_attrs, 
-                            yat_thread_common_entry_point, 
+  result = ::pthread_create(&m_posix_thread,
+                            thread_attrs,
+                            yat_thread_common_entry_point,
                             static_cast<void*>(this));
   ::pthread_attr_delete(&thread_attrs);
 #else
-  result = ::pthread_create(&m_posix_thread, 
-                            &thread_attrs, 
-                            yat_thread_common_entry_point, 
+  result = ::pthread_create(&m_posix_thread,
+                            &thread_attrs,
+                            yat_thread_common_entry_point,
                             static_cast<void*>(this));
   ::pthread_attr_destroy(&thread_attrs);
 #endif
@@ -494,9 +494,9 @@ void Thread::join (Thread::IOArg * oarg_)
     //- enter critical section
     AutoMutex<Mutex> guard(this->m_lock);
     //- check thread state
-    if (   
-           (this->m_state != yat::Thread::STATE_RUNNING) 
-        && 
+    if (
+           (this->m_state != yat::Thread::STATE_RUNNING)
+        &&
            (this->m_state != yat::Thread::STATE_TERMINATED)
        )
        {
@@ -516,7 +516,7 @@ void Thread::join (Thread::IOArg * oarg_)
     throw Exception(); //-TODO
 
 #if (PthreadDraftVersion == 4)
-  //- with draft 4 pthreads implementations we have to detach the thread 
+  //- with draft 4 pthreads implementations we have to detach the thread
   //- after join. if not, the storage for the thread will not be reclaimed.
   ::pthread_detach(&m_posix_thread);
 #endif
@@ -526,7 +526,7 @@ void Thread::join (Thread::IOArg * oarg_)
   //- return the "thread result"
   if (oarg_)
     *oarg_ = this->m_oarg;
-  
+
   //- commit suicide
   delete this;
 }
@@ -540,7 +540,7 @@ void Thread::priority (Priority _p)
 
   //- enter critical section
   AutoMutex<Mutex> guard(this->m_lock);
-  
+
   //- check thread state
   if (this->m_state != yat::Thread::STATE_RUNNING)
     throw Exception(); //-TODO
@@ -587,7 +587,7 @@ void Thread::yield ()
 int Thread::yat_to_posix_priority (Priority _p)
 {
 #if defined(PthreadSupportThreadPriority)
-  switch (_p) 
+  switch (_p)
   {
     case yat::Thread::PRIORITY_LOW:
       return lowest_priority;
@@ -602,11 +602,11 @@ int Thread::yat_to_posix_priority (Priority _p)
       return normal_priority;
   }
 #else
-  switch (_p) 
+  switch (_p)
   {
     default:
       throw Exception(); //-TODO
-  } 
+  }
 #endif
 }
 
@@ -628,9 +628,9 @@ void ThreadingUtilities::sleep (long _secs, long _nano_secs)
   timespec ts2;
   timespec ts1 = {_secs, _nano_secs};
 
-  while (::nanosleep(&ts1, &ts2)) 
+  while (::nanosleep(&ts1, &ts2))
   {
-    if (errno == EINTR) 
+    if (errno == EINTR)
     {
       ts1.tv_sec  = ts2.tv_sec;
       ts1.tv_nsec = ts2.tv_nsec;
@@ -640,9 +640,9 @@ void ThreadingUtilities::sleep (long _secs, long _nano_secs)
 
 #else
 
-  if (_secs > 2000) 
+  if (_secs > 2000)
     while ((_secs = ::sleep(_secs))) ;
-  else 
+  else
      ::usleep(_secs * 1000000 + (_nano_secs / 1000));
 
 #endif
@@ -667,7 +667,7 @@ void ThreadingUtilities::get_time (unsigned long & abs_sec_,
   timespec abs;
 
   struct timeval tv;
-  ::gettimeofday(&tv, NULL); 
+  ::gettimeofday(&tv, NULL);
 
   abs.tv_sec = tv.tv_sec;
   abs.tv_nsec = tv.tv_usec * 1000;
@@ -686,8 +686,8 @@ void ThreadingUtilities::get_time (unsigned long & abs_sec_,
 void ThreadingUtilities::get_time (Timespec & abs_time, unsigned long delay_msecs)
 {
   struct timeval now;
-  ::gettimeofday(&now, NULL); 
-  
+  ::gettimeofday(&now, NULL);
+
   abs_time.tv_sec  = now.tv_sec + delay_msecs / 1000;
   delay_msecs -=  delay_msecs / 1000 * 1000;
   abs_time.tv_nsec = now.tv_usec * 1000;
@@ -702,8 +702,8 @@ void ThreadingUtilities::get_time (Timespec & abs_time, unsigned long delay_msec
 void ThreadingUtilities::get_time (Timespec & abs_time, unsigned long delay_secs, unsigned long nano_secs)
 {
   struct timeval now;
-  ::gettimeofday(&now, NULL); 
-  
+  ::gettimeofday(&now, NULL);
+
   abs_time.tv_sec  = now.tv_sec + delay_secs;
   abs_time.tv_nsec = now.tv_usec * 1000;
   abs_time.tv_nsec += nano_secs;

@@ -2,17 +2,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -20,16 +20,16 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
  * \author See AUTHORS file
  */
- 
+
 #ifndef _TARGET_PLATFORM_H_
 #define _TARGET_PLATFORM_H_
 
@@ -41,8 +41,8 @@
 // WINDOWS on INTEL PENTIUM OR AMD ATHLON-XP [*** TESTED ***]
 //-----------------------------------------------------------------------------
 // supported compiler: Microsoft Vsual C++ [>= 6.0]
-// supported processors: 32 bits Intel Pentium and AMD Athlon-XP 
-// endianness : little 
+// supported processors: 32 bits Intel Pentium and AMD Athlon-XP
+// endianness : little
 //-----------------------------------------------------------------------------
 #if defined(WIN32)
 
@@ -65,8 +65,8 @@
 // LINUX on INTEL PENTIUM OR AMD ATHLON-XP [*** TESTED ***]
 //-----------------------------------------------------------------------------
 // supported compiler: gcc [>= 3.2.0]
-// supported processors: 32 bits Intel Pentium and AMD Athlon-XP 
-// endianness : little 
+// supported processors: 32 bits Intel Pentium and AMD Athlon-XP
+// endianness : little
 //-----------------------------------------------------------------------------
 #elif defined(_linux_) || defined (__linux__)
 
@@ -81,18 +81,18 @@
 #  error "no support for this compiler - GCC compiler required"
 # else
 #  define _HAS_STATIC_OBJ_MANAGER_ 0
-# endif 
+# endif
 
 //-----------------------------------------------------------------------------
 // SunOS on SPARC or PENTIUM [*** NOT TESTED ***]
 //-----------------------------------------------------------------------------
 // supported compiler: sun pro cc [>= ?]
 // supported processors: 32 bits SPARC or PENTIUM
-// endianness : big on SPARC, little on Pentium 
+// endianness : big on SPARC, little on Pentium
 //-----------------------------------------------------------------------------
 // NOTE FOR SOLARIS USERS: add -Dsun to your compiler flags
 //-----------------------------------------------------------------------------
-#elif defined(__sun) || defined (sun) 
+#elif defined(__sun) || defined (sun)
 # if defined(__sparcv9)
 #  error "no support for 64 bits mode"
 # elif (__sparc) || defined (__sparc__)

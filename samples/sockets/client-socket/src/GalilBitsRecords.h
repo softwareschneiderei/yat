@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -22,7 +22,7 @@
 #include <yat/bitsstream/BitsRecord.h>
 
 //----------------------------------------------------------------------------
-//-    SOME USEFUL TYPEDEF - SOME USEFUL TYPEDEF - SOME USEFUL TYPEDEF 
+//-    SOME USEFUL TYPEDEF - SOME USEFUL TYPEDEF - SOME USEFUL TYPEDEF
 //----------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 //- TYPDEDEF: AxisIdentifier
@@ -60,7 +60,7 @@ typedef enum
   STOP_CMD,
   //-------------
   MAX_COMMAND
-} CommandIdentifier; 
+} CommandIdentifier;
 
 #define NO_COMMAND MIN_COMMAND;
 
@@ -112,14 +112,14 @@ END_BITS_RECORD(BR_Header)
 //- EXTRACTOR: BR_Header
 //------------------------------------------------------------------------------
 BEGIN_BITS_RECORD_EXTRACTOR(BR_Header)
-  EXTRACT_MEMBER(always_1); 
-  SKIP_BITS(4);		
+  EXTRACT_MEMBER(always_1);
+  SKIP_BITS(4);
   EXTRACT_MEMBER(i_block_present);
-  EXTRACT_MEMBER(t_block_present);	
+  EXTRACT_MEMBER(t_block_present);
   EXTRACT_MEMBER(s_block_present);
   EXTRACT_MEMBER(h_block_present);
   EXTRACT_MEMBER(g_block_present);
-  EXTRACT_MEMBER(f_block_present);	
+  EXTRACT_MEMBER(f_block_present);
   EXTRACT_MEMBER(e_block_present);
   EXTRACT_MEMBER(d_block_present);
   EXTRACT_MEMBER(c_block_present);
@@ -133,7 +133,7 @@ END_BITS_RECORD_EXTRACTOR(BR_Header)
 //------------------------------------------------------------------------------
 BEGIN_BITS_RECORD_DUMP(BR_Header)
   DUMP_MEMBER(always_1);
-  DUMP_SKIP_BITS(4);	
+  DUMP_SKIP_BITS(4);
   DUMP_MEMBER(i_block_present);
   DUMP_MEMBER(t_block_present);
   DUMP_MEMBER(s_block_present);
@@ -157,14 +157,14 @@ public:
   //--------------------------------------------
   Header ()
   //--------------------------------------------
-  { 
-    //-noop ctor 
+  {
+    //-noop ctor
   }
   //--------------------------------------------
   ~Header ()
   //--------------------------------------------
-  { 
-    //-noop dtor 
+  {
+    //-noop dtor
   }
 };
 
@@ -176,8 +176,8 @@ public:
 //------------------------------------------------------------------------------
 BEGIN_BITS_RECORD(BR_GenIO)
 	//-- byte 0 ------------------------
-  MEMBER(sample_num, 16, unsigned short); 
-  //- 10 bytes of general input    
+  MEMBER(sample_num, 16, unsigned short);
+  //- 10 bytes of general input
   IGNORE_MEMBER(gen_in_0, 8, unsigned char); //- general input 0
 	IGNORE_MEMBER(gen_in_1, 8, unsigned char); //- general input 1
 	IGNORE_MEMBER(gen_in_2, 8, unsigned char); //- general input 2
@@ -216,11 +216,11 @@ END_BITS_RECORD(BR_GenIO)
 //- EXTRACTOR: BR_GenIO
 //------------------------------------------------------------------------------
 BEGIN_BITS_RECORD_EXTRACTOR(BR_GenIO)
-  EXTRACT_MEMBER(sample_num); 
-  SKIP_BITS(160);		
+  EXTRACT_MEMBER(sample_num);
+  SKIP_BITS(160);
   EXTRACT_MEMBER(err_code);
-  EXTRACT_MEMBER(program_running);	
-  SKIP_BITS(4);	
+  EXTRACT_MEMBER(program_running);
+  SKIP_BITS(4);
   EXTRACT_MEMBER(wait_for_input);
   EXTRACT_MEMBER(trace_on);
   EXTRACT_MEMBER(echo_on);
@@ -231,7 +231,7 @@ END_BITS_RECORD_EXTRACTOR(BR_GenIO)
 //------------------------------------------------------------------------------
 BEGIN_BITS_RECORD_DUMP(BR_GenIO)
   DUMP_MEMBER(sample_num);
-  DUMP_SKIP_BITS(160);	
+  DUMP_SKIP_BITS(160);
   DUMP_MEMBER(err_code);
   DUMP_MEMBER(program_running);
   DUMP_SKIP_BITS(4);
@@ -249,14 +249,14 @@ public:
   //--------------------------------------------
   GenIO ()
   //--------------------------------------------
-  { 
-    //-noop ctor 
+  {
+    //-noop ctor
   }
   //--------------------------------------------
   ~GenIO ()
   //--------------------------------------------
-  { 
-    //-noop dtor 
+  {
+    //-noop dtor
   }
 };
 
@@ -318,12 +318,12 @@ END_BITS_RECORD(BR_FirmwareAxisState)
 BEGIN_BITS_RECORD_EXTRACTOR(BR_FirmwareAxisState)
   EXTRACT_MEMBER(negative_dir);
   EXTRACT_MEMBER(mode_contour);
-  EXTRACT_MEMBER(motion_slew); 
+  EXTRACT_MEMBER(motion_slew);
   EXTRACT_MEMBER(stop_st_or_ls);
-  EXTRACT_MEMBER(final_ecal);  				
-  EXTRACT_MEMBER(latch_armed); 					
-  EXTRACT_MEMBER(off_on_err_armed); 		
-  EXTRACT_MEMBER(motor_off); 
+  EXTRACT_MEMBER(final_ecal);
+  EXTRACT_MEMBER(latch_armed);
+  EXTRACT_MEMBER(off_on_err_armed);
+  EXTRACT_MEMBER(motor_off);
 
   EXTRACT_MEMBER(moving);
   EXTRACT_MEMBER(mode_PA_PR);
@@ -334,14 +334,14 @@ BEGIN_BITS_RECORD_EXTRACTOR(BR_FirmwareAxisState)
   EXTRACT_MEMBER(HM_phase_2_or_FI);
   EXTRACT_MEMBER(mode_coord);
 
-  EXTRACT_MEMBER(latch_occured); 				
-  EXTRACT_MEMBER(latch_state); 					
-  SKIP_BITS(2); 						 						
-  EXTRACT_MEMBER(no_forward_lsw); 					
-  EXTRACT_MEMBER(no_backward_lsw);  				
-  EXTRACT_MEMBER(home_sw); 							
+  EXTRACT_MEMBER(latch_occured);
+  EXTRACT_MEMBER(latch_state);
+  SKIP_BITS(2);
+  EXTRACT_MEMBER(no_forward_lsw);
+  EXTRACT_MEMBER(no_backward_lsw);
+  EXTRACT_MEMBER(home_sw);
   EXTRACT_MEMBER(sm_jumper_present);
-  
+
   EXTRACT_MEMBER(stopcode);
   EXTRACT_MEMBER(ref_pos);
   EXTRACT_MEMBER(mot_pos);
@@ -358,12 +358,12 @@ END_BITS_RECORD_EXTRACTOR(BR_FirmwareAxisState)
 BEGIN_BITS_RECORD_DUMP(BR_FirmwareAxisState)
   DUMP_MEMBER(negative_dir);
   DUMP_MEMBER(mode_contour);
-  DUMP_MEMBER(motion_slew); 
+  DUMP_MEMBER(motion_slew);
   DUMP_MEMBER(stop_st_or_ls);
-  DUMP_MEMBER(final_ecal);  				
-  DUMP_MEMBER(latch_armed); 					
-  DUMP_MEMBER(off_on_err_armed); 		
-  DUMP_MEMBER(motor_off); 
+  DUMP_MEMBER(final_ecal);
+  DUMP_MEMBER(latch_armed);
+  DUMP_MEMBER(off_on_err_armed);
+  DUMP_MEMBER(motor_off);
   DUMP_MEMBER(moving);
   DUMP_MEMBER(mode_PA_PR);
   DUMP_MEMBER(mode_PA);
@@ -372,13 +372,13 @@ BEGIN_BITS_RECORD_DUMP(BR_FirmwareAxisState)
   DUMP_MEMBER(HM_phase_1);
   DUMP_MEMBER(HM_phase_2_or_FI);
   DUMP_MEMBER(mode_coord);
-  DUMP_MEMBER(latch_occured); 				
-  DUMP_MEMBER(latch_state); 					
-  DUMP_SKIP_BITS(2); 						 						
-  DUMP_MEMBER(no_forward_lsw); 					
-  DUMP_MEMBER(no_backward_lsw);  				
-  DUMP_MEMBER(home_sw); 							
-  DUMP_MEMBER(sm_jumper_present); 		
+  DUMP_MEMBER(latch_occured);
+  DUMP_MEMBER(latch_state);
+  DUMP_SKIP_BITS(2);
+  DUMP_MEMBER(no_forward_lsw);
+  DUMP_MEMBER(no_backward_lsw);
+  DUMP_MEMBER(home_sw);
+  DUMP_MEMBER(sm_jumper_present);
   DUMP_MEMBER(stopcode);
   DUMP_MEMBER(ref_pos);
   DUMP_MEMBER(mot_pos);
@@ -398,14 +398,14 @@ public:
   //--------------------------------------------
   FirmwareAxisState ()
   //--------------------------------------------
-  { 
-    //-noop ctor 
+  {
+    //-noop ctor
   }
   //--------------------------------------------
   ~FirmwareAxisState ()
   //--------------------------------------------
-  { 
-    //-noop dtor 
+  {
+    //-noop dtor
   }
 };
 
@@ -449,7 +449,7 @@ END_BITS_RECORD_EXTRACTOR(BR_QRBlock)
 //------------------------------------------------------------------------------
 BEGIN_BITS_RECORD_DUMP(BR_QRBlock)
   DUMP_MEMBER(gh);
-  DUMP_MEMBER(gio);  
+  DUMP_MEMBER(gio);
   DUMP_MEMBER(ab_a);
   DUMP_MEMBER(ab_b);
   DUMP_MEMBER(ab_c);
@@ -469,14 +469,14 @@ public:
   //--------------------------------------------
   QRBlock ()
   //--------------------------------------------
-  { 
-    //-noop ctor 
+  {
+    //-noop ctor
   }
   //--------------------------------------------
   ~QRBlock ()
   //--------------------------------------------
-  { 
-    //-noop dtor 
+  {
+    //-noop dtor
   }
 };
 
@@ -528,50 +528,50 @@ END_BITS_RECORD(BR_UCodeAxisState)
 //------------------------------------------------------------------------------
 //- EXTRACTOR: BR_UCodeAxisState
 //------------------------------------------------------------------------------
-BEGIN_BITS_RECORD_EXTRACTOR(BR_UCodeAxisState) 
+BEGIN_BITS_RECORD_EXTRACTOR(BR_UCodeAxisState)
   //- byte 0
   EXTRACT_MEMBER(pos_done);
   EXTRACT_MEMBER(motor_ctrl_allowed);
   EXTRACT_MEMBER(pwr_ctrl_allowed);
   EXTRACT_MEMBER(specific_microcode);
   EXTRACT_MEMBER(remote_manual);
-  EXTRACT_MEMBER(closed_loop_stepper); 
+  EXTRACT_MEMBER(closed_loop_stepper);
   EXTRACT_MEMBER(encoder_present);
   EXTRACT_MEMBER(mot_type);
   //- byte 1
   EXTRACT_MEMBER(axis_master);
-  EXTRACT_MEMBER(axis_slave); 			
+  EXTRACT_MEMBER(axis_slave);
   EXTRACT_MEMBER(follow_error);
   EXTRACT_MEMBER(pos_err_lim);
   EXTRACT_MEMBER(ref_pos_err);
-  EXTRACT_MEMBER(ref_pos_done); 
+  EXTRACT_MEMBER(ref_pos_done);
   EXTRACT_MEMBER(ref_pos_in_progress);
   EXTRACT_MEMBER(pos_err);
   //- byte 2
-  SKIP_BITS(7); 
+  SKIP_BITS(7);
   EXTRACT_MEMBER(is_initialised);
   //- byte 3
-  SKIP_BITS(8); 
+  SKIP_BITS(8);
 END_BITS_RECORD_EXTRACTOR(BR_UCodeAxisState)
 
 //------------------------------------------------------------------------------
 //- DUMP: BR_UCodeAxisState
 //------------------------------------------------------------------------------
-BEGIN_BITS_RECORD_DUMP(BR_UCodeAxisState) 		
+BEGIN_BITS_RECORD_DUMP(BR_UCodeAxisState)
   DUMP_MEMBER(pos_done);
   DUMP_MEMBER(motor_ctrl_allowed);
   DUMP_MEMBER(pwr_ctrl_allowed);
   DUMP_MEMBER(specific_microcode);
   DUMP_MEMBER(remote_manual);
-  DUMP_MEMBER(closed_loop_stepper); 
+  DUMP_MEMBER(closed_loop_stepper);
   DUMP_MEMBER(encoder_present);
   DUMP_MEMBER(mot_type);
   DUMP_MEMBER(axis_master);
-  DUMP_MEMBER(axis_slave); 			
+  DUMP_MEMBER(axis_slave);
   DUMP_MEMBER(follow_error);
   DUMP_MEMBER(pos_err_lim);
   DUMP_MEMBER(ref_pos_err);
-  DUMP_MEMBER(ref_pos_done); 
+  DUMP_MEMBER(ref_pos_done);
   DUMP_MEMBER(ref_pos_in_progress);
   DUMP_MEMBER(pos_err);
   DUMP_MEMBER(is_initialised);
@@ -586,14 +586,14 @@ public:
   //--------------------------------------------
   UCodeAxisState ()
   //--------------------------------------------
-  { 
-    //-noop ctor 
+  {
+    //-noop ctor
   }
   //--------------------------------------------
   ~UCodeAxisState ()
   //--------------------------------------------
-  { 
-    //-noop dtor 
+  {
+    //-noop dtor
   }
 };
 
@@ -613,7 +613,7 @@ BEGIN_BITS_RECORD(BR_UCodeAxisCommand)
 	 MEMBER(req_jog_minus, 1, bool);			 //- request jog negative direction
 	 MEMBER(req_jog_plus, 1, bool); 			 //- request jog positive direction
 	 MEMBER(req_stop, 1, bool);						 //- request to stop
-	 //- byte 1 
+	 //- byte 1
 	 IGNORE_MEMBER(reserved_15, 1, bool);  //- N/A
 	 IGNORE_MEMBER(reserved_14, 1, bool);  //- N/A
 	 IGNORE_MEMBER(reserved_13, 1, bool);  //- N/A
@@ -640,21 +640,21 @@ BEGIN_BITS_RECORD(BR_UCodeAxisCommand)
 	 IGNORE_MEMBER(reserved_26, 1, bool);  //- N/A
 	 IGNORE_MEMBER(reserved_25, 1, bool);  //- N/A
 	 IGNORE_MEMBER(reserved_24, 1, bool);  //- N/A
-END_BITS_RECORD(BR_UCodeAxisCommand)   
+END_BITS_RECORD(BR_UCodeAxisCommand)
 
 //------------------------------------------------------------------------------
 //- EXTRACTOR: BR_UCodeAxisCommand
 //------------------------------------------------------------------------------
-BEGIN_BITS_RECORD_EXTRACTOR(BR_UCodeAxisCommand)	
+BEGIN_BITS_RECORD_EXTRACTOR(BR_UCodeAxisCommand)
   EXTRACT_MEMBER(update_gearing_mode);
   EXTRACT_MEMBER(set_motor_off);
-  EXTRACT_MEMBER(set_motor_on); 			
+  EXTRACT_MEMBER(set_motor_on);
   EXTRACT_MEMBER(req_init_ref_pos);
   EXTRACT_MEMBER(req_pos);
   EXTRACT_MEMBER(req_jog_minus);
-  EXTRACT_MEMBER(req_jog_plus); 
+  EXTRACT_MEMBER(req_jog_plus);
   EXTRACT_MEMBER(req_stop);
-  SKIP_BITS(24); 
+  SKIP_BITS(24);
 END_BITS_RECORD_EXTRACTOR(BR_UCodeAxisCommand)
 
 //------------------------------------------------------------------------------
@@ -663,11 +663,11 @@ END_BITS_RECORD_EXTRACTOR(BR_UCodeAxisCommand)
 BEGIN_BITS_RECORD_DUMP(BR_UCodeAxisCommand)
   DUMP_MEMBER(update_gearing_mode);
   DUMP_MEMBER(set_motor_off);
-  DUMP_MEMBER(set_motor_on); 			
+  DUMP_MEMBER(set_motor_on);
   DUMP_MEMBER(req_init_ref_pos);
   DUMP_MEMBER(req_pos);
   DUMP_MEMBER(req_jog_minus);
-  DUMP_MEMBER(req_jog_plus); 
+  DUMP_MEMBER(req_jog_plus);
   DUMP_MEMBER(req_stop);
 END_BITS_RECORD_DUMP(BR_UCodeAxisCommand)
 
@@ -680,14 +680,14 @@ public:
   //--------------------------------------------
   UCodeAxisCommandState ()
   //--------------------------------------------
-  { 
-    //-noop ctor 
+  {
+    //-noop ctor
   }
   //--------------------------------------------
   ~UCodeAxisCommandState ()
   //--------------------------------------------
-  { 
-    //-noop dtor 
+  {
+    //-noop dtor
   }
   //--------------------------------------------
   bool any_command_in_progress () const
@@ -750,7 +750,7 @@ public:
     return false;
   }
   //--------------------------------------------
-  const char * command_name (CommandIdentifier _cmd_id) const 
+  const char * command_name (CommandIdentifier _cmd_id) const
   //--------------------------------------------
   {
     return galil_command_name[_cmd_id];
@@ -768,7 +768,7 @@ END_BITS_RECORD(BR_UCodeAxisCommand)
 //------------------------------------------------------------------------------
 //- DUMP: BR_UCodeStatus
 //------------------------------------------------------------------------------
-BEGIN_BITS_RECORD_DUMP(BR_UCodeStatus) 		
+BEGIN_BITS_RECORD_DUMP(BR_UCodeStatus)
   DUMP_MEMBER(running);
   DUMP_MEMBER(processing_ref_pos);
 END_BITS_RECORD_DUMP(BR_UCodeStatus)
@@ -782,14 +782,14 @@ public:
   //--------------------------------------------
   UCodeStatus ()
   //--------------------------------------------
-  { 
-    //-noop ctor 
+  {
+    //-noop ctor
   }
   //--------------------------------------------
   ~UCodeStatus ()
   //--------------------------------------------
-  { 
-    //-noop dtor 
+  {
+    //-noop dtor
   }
 };
 
@@ -803,37 +803,37 @@ public:
   HardwareStatus ()
   //--------------------------------------------
   : tc_error(0), tc_error_str("no error")
-  { 
-    //-noop ctor 
+  {
+    //-noop ctor
   }
   //--------------------------------------------
   ~HardwareStatus ()
   //--------------------------------------------
-  { 
-    //-noop dtor 
+  {
+    //-noop dtor
   }
   //--------------------------------------------
   void operator= (const HardwareStatus& src)
   //--------------------------------------------
-  { 
+  {
     tc_error = src.tc_error;
     tc_error_str = src.tc_error_str;
   }
   //--------------------------------------------
   void dump () const
   //--------------------------------------------
-  { 
-    std::cout << " - TC error code..." 
+  {
+    std::cout << " - TC error code..."
               << static_cast<unsigned short>(tc_error)
               << std::endl;
-    std::cout << " - TC error desc..." 
+    std::cout << " - TC error desc..."
               << tc_error_str
               << std::endl;
   }
 
   //- TC error code
   unsigned char tc_error;
-  
+
   //- TC error string
   const char* tc_error_str;
 };

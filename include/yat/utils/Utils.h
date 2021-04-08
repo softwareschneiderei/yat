@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,7 +9,7 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2012  N.Leclercq & The Tango Community
+// Copyright (C) 2006-2021  N.Leclercq & The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
@@ -34,7 +34,7 @@
 // See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -65,33 +65,34 @@
 //!
 //! \section secU2 Utilities classes
 //! Links to utilities classes :
-//!   - yat::CallbackContainer
 //!   - yat::Callback
-//!   - yat::FunctionCallbackContainer
-//!   - yat::MemberCallbackContainer
-//!   - yat::ILogTarget
+//!   - yat::CallbackContainer
+//!   - yat::CommandLine
+//!   - yat::CountBase
+//!   - yat::CountImpl
+//!   - yat::DefaultDeleter
 //!   - yat::DefaultLogHandler
 //!   - yat::Dictionary
+//!   - yat::EnvVariableInterpreter
+//!   - yat::FunctionCallbackContainer
+//!   - yat::ISymbolInterpreter
+//!   - yat::ILogTarget
 //!   - yat::LogManager
 //!   - yat::LogForward
 //!   - yat::LogCatcher
+//!   - yat::MemberCallbackContainer
+//!   - yat::NonCopyable
 //!   - yat::Signal
-//!   - yat::DefaultDeleter
-//!   - yat::CountBase
-//!   - yat::CountImpl
+//!   - yat::Singleton
 //!   - yat::String
+//!   - yat::StringDictionary
 //!   - yat::StringFormat
-//!   - yat::ISymbolInterpreter
-//!   - yat::EnvVariableInterpreter
 //!   - yat::StringTemplate
 //!   - yat::StringTokenizer
-//!   - yat::XString
-//!   - yat::CommandLine
-//!   - yat::NonCopyable
-//!   - yat::Singleton
 //!   - yat::URI
 //!   - yat::picojson
 //!   - yat::md5:md5_t
+//!   - yat::XString
 // ============================================================================
 
 #endif // _UTILS_H_

@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -102,7 +102,7 @@ public:
   //! \brief Wait for the condition to be \link Condition::signal signaled\endlink
   //! or \link Condition::broadcast broadcast\endlink by another thread.
   //!
-  //! Returns \c false in case the specified timeout expired before the condition 
+  //! Returns \c false in case the specified timeout expired before the condition
   //! was notified. Returns \c true otherwise.
   //!
   //! The associated \a external_mutex <b>must be locked</b> by the calling thread.
@@ -115,7 +115,7 @@ public:
   //! \brief Wait for the condition to be \link Condition::signal signaled\endlink
   //! or \link Condition::broadcast broadcast\endlink by another thread.
   //!
-  //! Returns \c false in case the specified timeout expired before the condition 
+  //! Returns \c false in case the specified timeout expired before the condition
   //! was notified. Returns \c true otherwise.
   //!
   //! The associated \a external_mutex <b>must be locked</b> by the calling thread.
@@ -139,13 +139,13 @@ public:
 private:
   //- The so called "external mutex" (see D.Schmidt's article).
   Mutex & m_external_lock;
-  
+
   //- Not implemented private member.
   Condition (const Condition&);
-  
+
   //- Not implemented private member.
   Condition & operator= (const Condition&);
-  
+
   //- hidden/abstract platform specific implementation.
   YAT_CONDITION_IMPLEMENTATION;
 };

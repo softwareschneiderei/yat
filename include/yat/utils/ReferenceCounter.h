@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -45,12 +45,12 @@
 // ============================================================================
 #include <iostream>
 #include <utility>
-#include <typeinfo> 
+#include <typeinfo>
 #include <yat/CommonHeader.h>
 #include <yat/threading/Mutex.h>
 #include <yat/threading/Utilities.h>
 
-namespace yat 
+namespace yat
 {
 
 #define PTR_DBG(s)
@@ -60,7 +60,7 @@ namespace yat
 typedef yat::uint32 counter_t;
 
 // ============================================================================
-//! \class DefaultDeleter 
+//! \class DefaultDeleter
 //! \brief Default deleter function.
 //!
 //! This template structure provides a default destructor for \<T\> type object.
@@ -84,17 +84,17 @@ struct DefaultDeleter
 };
 
 // ============================================================================
-//! \class CountBase 
+//! \class CountBase
 //! \brief Base class for counter implementation.
 //!
 //! This template class is the base class for a generic \<C\> type counter
-//! (see CountImpl for instance). At least, the virtual function *dispose()* must 
+//! (see CountImpl for instance). At least, the virtual function *dispose()* must
 //! be implemented.
-//! 
-//! If counter lock is not necessary, use a yat::NullMutex type for example: 
+//!
+//! If counter lock is not necessary, use a yat::NullMutex type for example:
 //! \verbatim myCounter = new CountBase<yat::uint64, yat::NullMutex>(); \endverbatim
-//! 
-//! If counter lock is necessary, use a mutex type (default value in 
+//!
+//! If counter lock is necessary, use a mutex type (default value in
 //! the template definition), for example:
 //! \verbatim myCounter = new CountBase<yat::uint64>(); \endverbatim
 //!
@@ -108,7 +108,7 @@ public:
   {
     PTR_DBG("CountBase::CountBase");
   }
-  
+
   //! \brief Destructor.
   virtual ~CountBase()
   {
@@ -128,7 +128,7 @@ public:
     ++m_use_count;
     return m_use_count;
   }
-  
+
   //! \brief Adds a weak reference to counter.
   //!
   //! Increments weak counter by 1.
@@ -161,7 +161,7 @@ public:
     --m_weak_count;
     return std::make_pair(m_use_count, m_weak_count);
   }
-  
+
   //! \brief Gets the counter value.
   C use_count() const
   {
@@ -200,18 +200,18 @@ protected:
 };
 
 // ============================================================================
-//! \class CountImpl 
+//! \class CountImpl
 //! \brief Counter implementation.
 //!
-//! This template class is a generic \<C\> type counter implementation. 
+//! This template class is a generic \<C\> type counter implementation.
 //! It inherits from CountBase class and provides:
 //! - a generic \<D\> type deleter,
 //! - a generic \<T\> type object.
-//! 
-//! If counter lock is not necessary, use a yat::NullMutex type for example: 
+//!
+//! If counter lock is not necessary, use a yat::NullMutex type for example:
 //! \verbatim myCounter = new CountImpl<myDeleterType, myObjType, yat::NullMutex>(); \endverbatim
-//! 
-//! If counter lock is necessary, use a mutex type (default value in 
+//!
+//! If counter lock is necessary, use a mutex type (default value in
 //! the template definition), for example:
 //! \verbatim myCounter = new CountImpl<myDeleterType, myObjType>(); \endverbatim
 //!
@@ -227,7 +227,7 @@ public:
   {
     PTR_DBG("CountImpl::CountImpl");
   }
-  
+
   //! \brief A "do nothing" destructor.
   ~CountImpl()
   {
@@ -251,16 +251,16 @@ private:
 template <typename C = counter_t, typename L = yat::Mutex> class WeakCounter;
 
 // ============================================================================
-//! \class SharedCounter 
+//! \class SharedCounter
 //! \brief Shared counter implementation.
 //!
-//! This template class is a generic \<C\> type counter implementation. 
+//! This template class is a generic \<C\> type counter implementation.
 //! It uses a CountImpl counter.
-//! 
-//! If counter lock is not necessary, use a yat::NullMutex type for example: 
+//!
+//! If counter lock is not necessary, use a yat::NullMutex type for example:
 //! \verbatim myCounter = new SharedCounter<yat::NullMutex>(); \endverbatim
-//! 
-//! If counter lock is necessary, use a mutex type (default value in 
+//!
+//! If counter lock is necessary, use a mutex type (default value in
 //! the template definition), for example:
 //! \verbatim myCounter = new SharedCounter<>(); \endverbatim
 //!
@@ -273,7 +273,7 @@ public:
 
   //! Shared counter type.
   typedef SharedCounter<C,L> ThisType;
-  
+
   //! \brief Constructor.
   //!
   //! uses the default deleter class: DefaultDeleter.
@@ -322,7 +322,7 @@ public:
   {
     PTR_DBG("SharedCounter::SharedCounter(const ThisType&)");
     m_count = cnt.m_count;
-    m_count->add_ref();    
+    m_count->add_ref();
   }
 
   //! \brief Releases counter and underlying object.
@@ -361,7 +361,7 @@ public:
     }
     return *this;
   }
-  
+
   //! \brief Swaps counters content.
   //! \param s The source counter.
   void swap (ThisType& s)
@@ -421,19 +421,19 @@ private:
 };
 
 // ============================================================================
-//! \class WeakCounter 
+//! \class WeakCounter
 //! \brief Weak counter implementation.
 //!
-//! This template class is a generic \<C\> type counter implementation. 
+//! This template class is a generic \<C\> type counter implementation.
 //! It uses a SharedCounter counter.
-//! 
-//! If counter lock is not necessary, use a yat::NullMutex type for example: 
+//!
+//! If counter lock is not necessary, use a yat::NullMutex type for example:
 //! \verbatim myCounter = new WeakCounter<yat::uint16, yat::NullMutex>(); \endverbatim
-//! 
+//!
 //! If counter lock is necessary, use a mutex type , for example:
 //! \verbatim myCounter = new WeakCounter<yat::uint16, yat::Mutex>(); \endverbatim
 //!
-//! This class is used by the WeakPtr pointer type. 
+//! This class is used by the WeakPtr pointer type.
 //!
 // ============================================================================
 template <typename C, typename L>
@@ -444,7 +444,7 @@ class WeakCounter
 public:
 
   typedef WeakCounter<C,L> ThisType;
-  
+
   //! \brief Default constructor.
   WeakCounter ()
   {
@@ -493,7 +493,7 @@ public:
     }
     return *this;
   }
-  
+
   //! \brief Releases counter.
   void release()
   {

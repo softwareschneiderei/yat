@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,7 +9,7 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2012  The Tango Community
+// Copyright (C) 2006-2021  The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
@@ -34,7 +34,7 @@
 // See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -122,6 +122,8 @@ private:
   static Regex s_re_path;
   static Regex s_re_query;
   static Regex s_re_fragment;
+  static Regex s_re_ipv4form;
+  static Regex s_re_ipv4;
   static Mutex s_regex_mtx;
   std::map<Part, std::string> m_part;
 
@@ -130,6 +132,7 @@ private:
                               std::string* host_ptr, std::string* port_ptr);
   static bool check_authority(const std::string& authority, URI::Fields* fields_ptr,
                               bool throw_exception);
+  static bool check_host(const std::string& host, bool throw_exception);
 
   void parse(const std::string& URI);
   static bool check_value(const std::string& value, Regex &re,

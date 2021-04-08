@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -41,22 +41,22 @@ typedef unsigned long   CmdDataLength;
 typedef unsigned char * CmdData;
 typedef char            CmdStatus;
 
-const int           kERROR          = -1; 
+const int           kERROR          = -1;
 const int           kNO_ERROR       =  0;
 const CmdIdentifier INVALID_CMD     =  0xFF;
 
-const CmdDataSize CMD_HEADER_SIZE = sizeof(CmdIdentifier) 
-                                  + sizeof(CmdDataSize) 
+const CmdDataSize CMD_HEADER_SIZE = sizeof(CmdIdentifier)
+                                  + sizeof(CmdDataSize)
                                   + sizeof(CmdDataLength);
 
-typedef struct 
+typedef struct
 {
   ClientSocket  cs; //- client socket (for reply)
   CmdIdentifier id; //- cmd identifier
   CmdDataSize   ds; //- cmd data size in bytes
   CmdDataSize   rd; //- total number of bytes received for the cmd (expecting {CMD_HEADER_SIZE + <ds>} bytes in one or more buffers)
   CmdDataLength dl; //- cmd data length in number of elements
-  CmdData       db; //- cmd data buffer (will be reinterpreted by cmd processing function) 
+  CmdData       db; //- cmd data buffer (will be reinterpreted by cmd processing function)
 } CmdInfo;
 
 //- the current processed cmd (cmds are processed one at a time - means one and only one connected client)
@@ -77,8 +77,8 @@ static int send_reply_data (CmdStatus stt, CmdDataSize nbt, CmdDataLength nbe, u
 
 //- simulate SPI board TCP/IP callback
 void socket_callback (ClientSocket client_socket,
-                      SocketEvent socket_event, 
-                      CmdDataSize num_bytes_from_client, 
+                      SocketEvent socket_event,
+                      CmdDataSize num_bytes_from_client,
                       CmdData client_socket_buffer);
 
 //-----------------------------------------------------------------------
@@ -99,12 +99,12 @@ static void init_cmd (void)
 static void clear_cmd (void)
 {
   //- release memory (leak otherwise)
-  if ( current_cmd.db ) 
+  if ( current_cmd.db )
   {
     free(current_cmd.db);
     current_cmd.db = 0;
   }
-  
+
   //- clear the whole structure
   memset(&current_cmd, 0, sizeof(CmdInfo));
 
@@ -116,32 +116,32 @@ static void clear_cmd (void)
 // socket_callback (simulates SPI callback)
 //-----------------------------------------------------------------------
 void socket_callback (SOCKET client_socket,
-                      int socket_event, 
-                      size_t num_bytes_from_client, 
+                      int socket_event,
+                      size_t num_bytes_from_client,
                       char * client_socket_buffer)
 {
   unsigned long elem_size = 0;
   unsigned long n_bytes_to_push = 0;
-  
+
   //- here we simulate the SPI callback
   switch ( socket_event )
   {
     case SOCKET_EVENT_CONNECT:
-      std::cout << "socket_callback::SOCKET_EVENT_CONNECT" << std::endl;  
+      std::cout << "socket_callback::SOCKET_EVENT_CONNECT" << std::endl;
       init_cmd ();
       break;
     case SOCKET_EVENT_DISCONNECT:
-      std::cout << "socket_callback::SOCKET_EVENT_DISCONNECT" << std::endl;  
+      std::cout << "socket_callback::SOCKET_EVENT_DISCONNECT" << std::endl;
       clear_cmd ();
       break;
     default:
       break;
   }
-  
+
   //- any data to process?
   if ( num_bytes_from_client == 0 || client_socket_buffer == 0)
     return;
-    
+
   //- offset to data in <buffer>
   size_t buffer_offset = 0;
 
@@ -165,7 +165,7 @@ void socket_callback (SOCKET client_socket,
     std::cout << "processing 'new' cmd-" << (unsigned int)current_cmd.id << std::endl;
     std::cout << "expecting " << current_cmd.dl << " elements of " << elem_size << " byte(s) each" << std::endl;
     std::cout << "expecting " << current_cmd.ds << " bytes of data (excluding header)" << std::endl;
-    //- allocate cmd data buffer (will be released/freed by the <clear_cmd> function) 
+    //- allocate cmd data buffer (will be released/freed by the <clear_cmd> function)
     current_cmd.db = (CmdData)::malloc(current_cmd.ds);
     //- check allocated memory
     if ( ! current_cmd.db )
@@ -180,11 +180,11 @@ void socket_callback (SOCKET client_socket,
     buffer_offset = CMD_HEADER_SIZE;
   }
 
-  std::cout << "processing cmd-" 
-           <<  (unsigned int)current_cmd.id 
-           << " - till now we received " 
+  std::cout << "processing cmd-"
+           <<  (unsigned int)current_cmd.id
+           << " - till now we received "
            << current_cmd.rd
-           << " bytes for this cmd" 
+           << " bytes for this cmd"
            << std::endl;
 
   //- push cmd data into cmd buffer...
@@ -193,26 +193,26 @@ void socket_callback (SOCKET client_socket,
   if ( n_bytes_to_push > num_bytes_from_client)
     n_bytes_to_push = num_bytes_from_client - buffer_offset;
 
-  std::cout << "processing cmd-" 
-           <<  (unsigned int)current_cmd.id 
-           << " - pushing " 
+  std::cout << "processing cmd-"
+           <<  (unsigned int)current_cmd.id
+           << " - pushing "
            << n_bytes_to_push
-           << " bytes into cmd data buffer" 
+           << " bytes into cmd data buffer"
            << std::endl;
 
-  memcpy(current_cmd.db + current_cmd.rd, 
-         client_socket_buffer + buffer_offset, 
+  memcpy(current_cmd.db + current_cmd.rd,
+         client_socket_buffer + buffer_offset,
          n_bytes_to_push);
 
-  //- increment the "received data for the current" counter  
+  //- increment the "received data for the current" counter
   current_cmd.rd += n_bytes_to_push;
 
   //- received all expected data for the current cmd?
   if ( current_cmd.rd == current_cmd.ds )
   {
-    std::cout << "received expected amount of data for cmd-" 
-             <<  (unsigned int)current_cmd.id 
-             << " - calling cmd processor..." 
+    std::cout << "received expected amount of data for cmd-"
+             <<  (unsigned int)current_cmd.id
+             << " - calling cmd processor..."
              << std::endl;
 
     //- call cmd processor (will also send reply to client)
@@ -229,7 +229,7 @@ void socket_callback (SOCKET client_socket,
 static int process_cmd (void)
 {
   double * p = 0;
-  
+
   std::cout << "processing cmd-" << (unsigned int)current_cmd.id << std::endl;
 
   switch ( current_cmd.id )
@@ -237,15 +237,15 @@ static int process_cmd (void)
     case CMD_0:
     {
      p = (double *)current_cmd.db;
-     std::cout << "processing cmd-" 
-               << (unsigned int)current_cmd.id 
+     std::cout << "processing cmd-"
+               << (unsigned int)current_cmd.id
                << " cmd-data["
                << 0
                << "] = "
                << *p
                << std::endl;
-     std::cout << "processing cmd-" 
-               << (unsigned int)current_cmd.id 
+     std::cout << "processing cmd-"
+               << (unsigned int)current_cmd.id
                << " cmd-data["
                << current_cmd.dl - 1
                << "] = "
@@ -253,7 +253,7 @@ static int process_cmd (void)
                << std::endl;
      //- let's say that CMD-0 simply returns the data it received...
      send_reply_data(kNO_ERROR, current_cmd.ds, current_cmd.dl, current_cmd.db);
-    } 
+    }
     break;
 
    default:
@@ -268,39 +268,39 @@ static int process_cmd (void)
 //-----------------------------------------------------------------------
 static int send_reply_txt (CmdStatus stt, const char * txt)
 {
-  std::cout << "returning txt to client for cmd-" 
+  std::cout << "returning txt to client for cmd-"
             << (unsigned int)current_cmd.id
             << ": "
             << txt
             << std::endl;
-    
+
   return send_reply_data(stt, strlen(txt), strlen(txt), (unsigned char*)txt);
 }
 
 //-----------------------------------------------------------------------
 // send_reply_data
 //-----------------------------------------------------------------------
-static int send_reply_data (CmdStatus     stt, //- status 
+static int send_reply_data (CmdStatus     stt, //- status
                             CmdDataSize   nbt, //- num of bytes
                             CmdDataLength nbe, //- num of elements
                             CmdData       buf) //- data
 {
   CmdData db = 0;
   unsigned long offset = 0;
-  
+
   std::cout << "returning "
             << nbt
-            << " bytes of data to client for cmd-" 
+            << " bytes of data to client for cmd-"
             << (unsigned int)current_cmd.id
             << std::endl;
-    
-  size_t bs = sizeof(CmdIdentifier) 
-            + sizeof(CmdStatus) 
-            + sizeof(CmdDataSize) 
-            + sizeof(CmdDataLength) 
+
+  size_t bs = sizeof(CmdIdentifier)
+            + sizeof(CmdStatus)
+            + sizeof(CmdDataSize)
+            + sizeof(CmdDataLength)
             + nbt;
 
-  db = (CmdData)malloc(bs); 
+  db = (CmdData)malloc(bs);
   if ( db == 0 )
   {
     //- error handling goes here...
@@ -324,7 +324,7 @@ static int send_reply_data (CmdStatus     stt, //- status
   memcpy(db + offset, &nbe, sizeof(CmdDataLength));
 
   offset += sizeof(CmdDataLength);
-  
+
   memcpy(db + offset, buf, nbt);
 
   int result = kNO_ERROR;
@@ -334,7 +334,7 @@ static int send_reply_data (CmdStatus     stt, //- status
     //- oops... error handling goes here...
     result = kERROR;
   }
-   
+
   //- release allocated memory...
   free(db);
 

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -70,7 +70,7 @@
   typedef int socklen_t;
 # define err_no WSAGetLastError()
 # define SIGPIPE SIGABRT
-# define INVALID_SOCKET_DESC INVALID_SOCKET 
+# define INVALID_SOCKET_DESC INVALID_SOCKET
 #else
 # define INVALID_SOCKET_DESC -1
 # define err_no errno
@@ -116,12 +116,12 @@ void Socket::init ()
     return;
 
 #ifdef WIN32
-  //- windows hell: magic initialization call 
+  //- windows hell: magic initialization call
   WSADATA wsdata;
   if (::WSAStartup(MAKEWORD(2,2), &wsdata))
   {
-    THROW_YAT_ERROR("YAT_INTERNAL_ERROR", 
-                    "win32::socket2 library initialization failed", 
+    THROW_YAT_ERROR("YAT_INTERNAL_ERROR",
+                    "win32::socket2 library initialization failed",
                     "Address::ns_lookup");
   }
 #endif
@@ -148,9 +148,9 @@ void Socket::default_rd_buffer_size (size_t dbs)
 // ----------------------------------------------------------------------------
 // Socket::Socket
 // ----------------------------------------------------------------------------
-Socket::Socket (Socket::Protocol _p) 
+Socket::Socket (Socket::Protocol _p)
   : m_protocol(_p),
-    m_os_desc (INVALID_SOCKET_DESC), 
+    m_os_desc (INVALID_SOCKET_DESC),
     m_buffer(0)
 {
   YAT_TRACE("yat::Socket::Socket");
@@ -194,16 +194,16 @@ void Socket::open ()
       this->m_os_desc = static_cast<Socket::OSDescriptor>(::socket(AF_INET, SOCK_STREAM, 0));
       break;
     default:
-      THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR,  
-                             "invalid protocol specified [should be UDP or TCP]", 
+      THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR,
+                             "invalid protocol specified [should be UDP or TCP]",
                              "yat::Socket::open");
       break;
   }
-  
-  if (this->m_os_desc == INVALID_SOCKET_DESC) 
+
+  if (this->m_os_desc == INVALID_SOCKET_DESC)
   {
-    THROW_SOCKET_ERROR(err_no, 
-                       "Socket descriptor instanciation failed [OS <socket> call failed]", 
+    THROW_SOCKET_ERROR(err_no,
+                       "Socket descriptor instanciation failed [OS <socket> call failed]",
                        "yat::Socket::open");
   }
 }
@@ -215,7 +215,7 @@ void Socket::close ()
 {
   YAT_TRACE("yat::Socket::close");
 
-  if (this->m_os_desc != INVALID_SOCKET_DESC) 
+  if (this->m_os_desc != INVALID_SOCKET_DESC)
   {
 #ifdef WIN32
     ::shutdown(this->m_os_desc, SD_BOTH);
@@ -227,7 +227,7 @@ void Socket::close ()
     if (::close(this->m_os_desc))
 #endif
     {
-      THROW_SOCKET_ERROR(err_no, 
+      THROW_SOCKET_ERROR(err_no,
                          "OS <close> call failed",
                          "yat::Socket::close");
     }
@@ -260,7 +260,7 @@ Address Socket::get_address () const
 
   socklen_t l = sizeof(sa);
 
-  if (::getpeername(this->m_os_desc, &sa, &l)) 
+  if (::getpeername(this->m_os_desc, &sa, &l))
   {
     THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR,
                        "OS <getpeername> call failed [unable to retrieve peer address]",
@@ -291,8 +291,8 @@ void Socket::bind (size_t _port)
   sa.sin_port = htons((unsigned short)_port);
   sa.sin_addr.s_addr = htonl(INADDR_ANY);
   ::memset(&sa.sin_zero, 0, 8);
-  
-  if (::bind(this->m_os_desc, reinterpret_cast<sockaddr*>(&sa), sizeof(sa))) 
+
+  if (::bind(this->m_os_desc, reinterpret_cast<sockaddr*>(&sa), sizeof(sa)))
   {
     OSStream oss;
     oss << "OS <bind> call failed for port "
@@ -330,13 +330,13 @@ Socket::OSDescriptor Socket::accept_incoming_connections ()
   struct sockaddr_in sa;
   socklen_t l = sizeof(sa);
 
-  OSDescriptor d =  
+  OSDescriptor d =
     static_cast<Socket::OSDescriptor>(::accept(this->m_os_desc, reinterpret_cast<sockaddr*>(&sa), &l));
 
   if (d < 0)
   {
-    THROW_SOCKET_ERROR(err_no,  
-                       "OS <accept> call failed", 
+    THROW_SOCKET_ERROR(err_no,
+                       "OS <accept> call failed",
                        "yat::Socket::accept_incoming_connections");
   }
 
@@ -360,8 +360,8 @@ void Socket::connect (const Address & _addr)
   sa.sin_port = htons((unsigned short)_addr.get_port_number());
   sa.sin_addr.s_addr = ::inet_addr(_addr.get_ip_address().c_str());
   ::memset(&sa.sin_zero, 0, 8);
-  
-  if (::connect(this->m_os_desc, reinterpret_cast<sockaddr*>(&sa), sizeof(sa))) 
+
+  if (::connect(this->m_os_desc, reinterpret_cast<sockaddr*>(&sa), sizeof(sa)))
   {
     OSStream oss;
     oss << "OS <connect> call failed for host "
@@ -381,24 +381,24 @@ bool Socket::select (size_t _tmo_msecs)
   YAT_TRACE("yat::Socket::select");
 
   CHECK_SOCK_DESC("yat::Socket::select");
- 
+
   struct timeval tv = {0, 0};
   if (_tmo_msecs)
   {
     tv.tv_sec = (long)_tmo_msecs / 1000;
-    tv.tv_usec = ((long)_tmo_msecs - (tv.tv_sec * 1000)) *  1000; 
+    tv.tv_usec = ((long)_tmo_msecs - (tv.tv_sec * 1000)) *  1000;
   }
-  
+
   fd_set sock_list;
   FD_ZERO(&sock_list);
   FD_SET(this->m_os_desc, &sock_list);
-  
+
   int status = ::select(static_cast<int>(this->m_os_desc + 1), &sock_list, (fd_set*)0, (fd_set*)0, &tv);
   if (-1 == status)
   {
     THROW_SOCKET_ERROR(err_no, "OS <select> call failed", "yat::Socket::select");
   }
-  
+
   return status && FD_ISSET(this->m_os_desc, &sock_list);
 }
 
@@ -411,41 +411,41 @@ int Socket::yat_to_native_option (Socket::Option _opt) const
 
   int native_opt;
 
-  switch(_opt) 
+  switch(_opt)
   {
-    case SOCK_OPT_KEEP_ALIVE: 
-      native_opt = SO_KEEPALIVE; 
+    case SOCK_OPT_KEEP_ALIVE:
+      native_opt = SO_KEEPALIVE;
       break;
-    case SOCK_OPT_LINGER: 
-      native_opt = SO_LINGER; 
+    case SOCK_OPT_LINGER:
+      native_opt = SO_LINGER;
       break;
-    case SOCK_OPT_NO_DELAY: 
-      native_opt = TCP_NODELAY; 
+    case SOCK_OPT_NO_DELAY:
+      native_opt = TCP_NODELAY;
       break;
-    case SOCK_OPT_PROTOCOL_TYPE: 
-      native_opt = SO_TYPE; 
+    case SOCK_OPT_PROTOCOL_TYPE:
+      native_opt = SO_TYPE;
       break;
-    case SOCK_OPT_REUSE_ADDRESS: 
-      native_opt = SO_REUSEADDR; 
+    case SOCK_OPT_REUSE_ADDRESS:
+      native_opt = SO_REUSEADDR;
       break;
-    case SOCK_OPT_IBUFFER_SIZE: 
-      native_opt = SO_RCVBUF; 
+    case SOCK_OPT_IBUFFER_SIZE:
+      native_opt = SO_RCVBUF;
       break;
-    case SOCK_OPT_OBUFFER_SIZE: 
-      native_opt = SO_SNDBUF; 
+    case SOCK_OPT_OBUFFER_SIZE:
+      native_opt = SO_SNDBUF;
       break;
-    case SOCK_OPT_ITIMEOUT: 
-      native_opt = SO_RCVTIMEO; 
+    case SOCK_OPT_ITIMEOUT:
+      native_opt = SO_RCVTIMEO;
       break;
-    case SOCK_OPT_OTIMEOUT: 
-      native_opt = SO_SNDTIMEO; 
+    case SOCK_OPT_OTIMEOUT:
+      native_opt = SO_SNDTIMEO;
       break;
     case SOCK_OPT_OPAQUE_1:
       native_opt = IP_ADD_MEMBERSHIP;
       break;
-    default: 
-      THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR, 
-                         "invalid socket option specified [programming error - check code]", 
+    default:
+      THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR,
+                         "invalid socket option specified [programming error - check code]",
                          "yat::Socket::yat_to_native_option");
   }
 
@@ -460,14 +460,14 @@ int Socket::status () const
   YAT_TRACE("yat::Socket::status");
 
   CHECK_SOCK_DESC("yat::Socket::get_option");
-  
+
   int err_status;
   socklen_t l = sizeof(err_status);
-  
+
   if (::getsockopt(this->m_os_desc, SOL_SOCKET, SO_ERROR, (char*)(&err_status), &l))
   {
-    THROW_SOCKET_ERROR(err_no, 
-                       "OS <getsockopt> call failed", 
+    THROW_SOCKET_ERROR(err_no,
+                       "OS <getsockopt> call failed",
                        "yat::Socket::status");
   }
 
@@ -479,32 +479,32 @@ int Socket::status () const
 // ----------------------------------------------------------------------------
 int Socket::option_level (Option _opt) const
 {
-  return (_opt == Socket::SOCK_OPT_NO_DELAY) 
-         ? IPPROTO_TCP 
+  return (_opt == Socket::SOCK_OPT_NO_DELAY)
+         ? IPPROTO_TCP
          : SOL_SOCKET;
 }
 
 // ----------------------------------------------------------------------------
 // Socket::get_sock_option (avoid to break strict-aliasing rules)
 // ----------------------------------------------------------------------------
-template <typename T> 
-void _get_sock_option_ (Socket::OSDescriptor _socket_desc, 
-                        int _level, 
+template <typename T>
+void _get_sock_option_ (Socket::OSDescriptor _socket_desc,
+                        int _level,
                         int _opt,
                         T& dest_)
 {
   socklen_t l = sizeof(T);
-  
+
   ::memset(&dest_, 0, l);
-  
+
   if (::getsockopt(_socket_desc, _level, _opt, (char*)&dest_, &l))
   {
-    THROW_SOCKET_ERROR(err_no, 
-                       "OS <getsockopt> call failed", 
+    THROW_SOCKET_ERROR(err_no,
+                       "OS <getsockopt> call failed",
                        "yat::Socket::get_option");
   }
 }
-    
+
 // ----------------------------------------------------------------------------
 // Socket::get_option
 // ----------------------------------------------------------------------------
@@ -515,30 +515,30 @@ int Socket::get_option (Socket::Option _opt) const
   CHECK_SOCK_DESC("yat::Socket::get_option");
 
   int level = this->option_level(_opt);
-  
+
   int native_opt = this->yat_to_native_option(_opt);
-  
+
   int opt_value;
 
-  switch(_opt) 
+  switch(_opt)
   {
-    case SOCK_OPT_KEEP_ALIVE: 
-    case SOCK_OPT_NO_DELAY: 
-    case SOCK_OPT_REUSE_ADDRESS: 
+    case SOCK_OPT_KEEP_ALIVE:
+    case SOCK_OPT_NO_DELAY:
+    case SOCK_OPT_REUSE_ADDRESS:
 #ifdef WIN32
       {
         BOOL b;
         _get_sock_option_(this->m_os_desc, level, native_opt, b);
         opt_value = static_cast<int>(b);
       }
-#else 
+#else
       {
         _get_sock_option_(this->m_os_desc, level, native_opt, opt_value);
       }
 #endif
       break;
-    case SOCK_OPT_IBUFFER_SIZE: 
-    case SOCK_OPT_OBUFFER_SIZE: 
+    case SOCK_OPT_IBUFFER_SIZE:
+    case SOCK_OPT_OBUFFER_SIZE:
     case SOCK_OPT_PROTOCOL_TYPE:
       {
         _get_sock_option_(this->m_os_desc, level, native_opt, opt_value);
@@ -548,33 +548,33 @@ int Socket::get_option (Socket::Option _opt) const
       {
         struct linger lp;
         _get_sock_option_(this->m_os_desc, level, native_opt, lp);
-        if (lp.l_onoff) 
+        if (lp.l_onoff)
           opt_value = lp.l_linger;
-        else 
+        else
           opt_value = -1;
       }
       break;
-    case SOCK_OPT_ITIMEOUT: 
+    case SOCK_OPT_ITIMEOUT:
     case SOCK_OPT_OTIMEOUT:
 #ifdef WIN32
       {
         //- on windows timeout is an int
         _get_sock_option_(this->m_os_desc, level, native_opt, opt_value);
       }
-#else 
+#else
       //- on unix timeout is a timeval
       {
         struct timeval tv;
         _get_sock_option_(this->m_os_desc, level, native_opt, tv);
-        opt_value = 1000 
-                  * tv.tv_sec 
+        opt_value = 1000
+                  * tv.tv_sec
                   + static_cast<int>(static_cast<double>(tv.tv_usec) / 1000.);
       }
 #endif
       break;
-    default: 
-      THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR, 
-                             "invalid socket option specified [programming error - check code]", 
+    default:
+      THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR,
+                             "invalid socket option specified [programming error - check code]",
                              "yat::Socket::get_option");
   }
 
@@ -584,18 +584,18 @@ int Socket::get_option (Socket::Option _opt) const
 // ----------------------------------------------------------------------------
 // Socket::set_sock_option (avoid to break strict-aliasing rules)
 // ----------------------------------------------------------------------------
-template <typename T> 
-void set_sock_option (Socket::OSDescriptor _socket_desc, 
-                      int _level, 
+template <typename T>
+void set_sock_option (Socket::OSDescriptor _socket_desc,
+                      int _level,
                       int _opt,
                       T& _src)
 {
   socklen_t l = sizeof(T);
-  
+
   if (::setsockopt(_socket_desc, _level, _opt, (char*)&_src, l))
   {
-    THROW_SOCKET_ERROR(err_no, 
-                       "OS <setsockopt> call failed", 
+    THROW_SOCKET_ERROR(err_no,
+                       "OS <setsockopt> call failed",
                        "yat::Socket::set_option");
   }
 }
@@ -610,14 +610,14 @@ void Socket::set_option (Socket::Option _opt, int _value)
   CHECK_SOCK_DESC("yat::Socket::set_option");
 
   int level = this->option_level(_opt);
-            
+
   int native_opt = this->yat_to_native_option(_opt);
-  
-  switch(_opt) 
+
+  switch(_opt)
   {
-    case SOCK_OPT_KEEP_ALIVE: 
-    case SOCK_OPT_NO_DELAY: 
-    case SOCK_OPT_REUSE_ADDRESS: 
+    case SOCK_OPT_KEEP_ALIVE:
+    case SOCK_OPT_NO_DELAY:
+    case SOCK_OPT_REUSE_ADDRESS:
 #ifdef WIN32
       {
         BOOL b = _value ? true : false;
@@ -627,14 +627,14 @@ void Socket::set_option (Socket::Option _opt, int _value)
       set_sock_option(this->m_os_desc, level, native_opt, _value);
 #endif
       break;
-    case SOCK_OPT_IBUFFER_SIZE: 
-    case SOCK_OPT_OBUFFER_SIZE: 
+    case SOCK_OPT_IBUFFER_SIZE:
+    case SOCK_OPT_OBUFFER_SIZE:
       set_sock_option(this->m_os_desc, level, native_opt, _value);
       break;
     case SOCK_OPT_LINGER:
       set_sock_option(this->m_os_desc, level, native_opt, _value);
       break;
-    case SOCK_OPT_ITIMEOUT: 
+    case SOCK_OPT_ITIMEOUT:
     case SOCK_OPT_OTIMEOUT:
       {
         if (_value < 0) _value = 0;
@@ -651,8 +651,8 @@ void Socket::set_option (Socket::Option _opt, int _value)
       }
       break;
     default:
-      THROW_SOCKET_ERROR(SoErr_OpNotSupported, 
-                         "invalid or unsupported socket option", 
+      THROW_SOCKET_ERROR(SoErr_OpNotSupported,
+                         "invalid or unsupported socket option",
                          "yat::Socket::set_option");
       break;
   }
@@ -665,21 +665,21 @@ void Socket::join_multicast_group (const yat::Address& multicast_group_addr)
 {
   if ( yat::Socket::UDP_PROTOCOL != this->get_protocol()  )
   {
-    throw yat::SocketException("SOCKET_ERROR", 
-                               "failed to join the mulitacast group - wrong IP protocol [must be a UDP socket]", 
-                               "yat::Socket::join_multicast_group", 
-                               SocketException::yat_to_native_error(SoErr_Other)); 
-  } 
-  
+    throw yat::SocketException("SOCKET_ERROR",
+                               "failed to join the mulitacast group - wrong IP protocol [must be a UDP socket]",
+                               "yat::Socket::join_multicast_group",
+                               SocketException::yat_to_native_error(SoErr_Other));
+  }
+
   struct ip_mreq mg;
   mg.imr_multiaddr.s_addr = inet_addr(multicast_group_addr.get_ip_address().c_str());
   mg.imr_interface.s_addr = htonl(INADDR_ANY);
   if ( ::setsockopt(this->m_os_desc, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mg, sizeof(mg)) )
   {
-    throw yat::SocketException("SOCKET_ERROR", 
-                               "failed to join the mulitacast group - os call to ::setsockopt failed", 
-                               "yat::Socket::join_multicast_group", 
-                               SocketException::yat_to_native_error(SoErr_Other)); 
+    throw yat::SocketException("SOCKET_ERROR",
+                               "failed to join the mulitacast group - os call to ::setsockopt failed",
+                               "yat::Socket::join_multicast_group",
+                               SocketException::yat_to_native_error(SoErr_Other));
   }
 }
 
@@ -690,21 +690,21 @@ void Socket::join_multicast_group (const yat::Address& multicast_group_addr, con
 {
   if ( yat::Socket::UDP_PROTOCOL != this->get_protocol()  )
   {
-    throw yat::SocketException("SOCKET_ERROR", 
-                               "failed to join the mulitacast group - wrong IP protocol [must be a UDP socket]", 
-                               "yat::Socket::join_multicast_group", 
-                               SocketException::yat_to_native_error(SoErr_Other)); 
-  } 
-  
+    throw yat::SocketException("SOCKET_ERROR",
+                               "failed to join the mulitacast group - wrong IP protocol [must be a UDP socket]",
+                               "yat::Socket::join_multicast_group",
+                               SocketException::yat_to_native_error(SoErr_Other));
+  }
+
   struct ip_mreq mg;
   mg.imr_multiaddr.s_addr = inet_addr(multicast_group_addr.get_ip_address().c_str());
   mg.imr_interface.s_addr = inet_addr(local_interface_addr.get_ip_address().c_str());
   if ( ::setsockopt(this->m_os_desc, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mg, sizeof(mg)) )
   {
-    throw yat::SocketException("SOCKET_ERROR", 
-                               "failed to join the mulitacast group - os call to ::setsockopt failed", 
-                               "yat::Socket::join_multicast_group", 
-                               SocketException::yat_to_native_error(SoErr_Other)); 
+    throw yat::SocketException("SOCKET_ERROR",
+                               "failed to join the mulitacast group - os call to ::setsockopt failed",
+                               "yat::Socket::join_multicast_group",
+                               SocketException::yat_to_native_error(SoErr_Other));
   }
 }
 
@@ -714,31 +714,31 @@ void Socket::join_multicast_group (const yat::Address& multicast_group_addr, con
 void Socket::attach_to_network_interface (const yat::Address& local_interface_addr)
 {
 #ifdef WIN32
-  
+
   DWORD dwip = inet_addr(local_interface_addr.get_ip_address().c_str());
-  
+
   if ( ::setsockopt(this->m_os_desc, IPPROTO_IP, IP_MULTICAST_IF, (char*)&dwip, sizeof(dwip)) )
   {
-    THROW_SOCKET_ERROR(err_no, 
-                       "OS <setsockopt> call failed", 
+    THROW_SOCKET_ERROR(err_no,
+                       "OS <setsockopt> call failed",
                        "yat::Socket::attach_to_network_interface");
   }
-  
+
 #else
-  
+
   struct in_addr addr;
-  
+
   ::memset(&addr, 0, sizeof(addr));
-  
+
   addr.s_addr = inet_addr(local_interface_addr.get_ip_address().c_str());
-  
+
   if ( ::setsockopt(this->m_os_desc, IPPROTO_IP, IP_MULTICAST_IF, &addr, sizeof(addr)) )
   {
-    THROW_SOCKET_ERROR(err_no, 
-                       "OS <setsockopt> call failed", 
+    THROW_SOCKET_ERROR(err_no,
+                       "OS <setsockopt> call failed",
                        "yat::Socket::attach_to_network_interface");
   }
-  
+
 #endif
 }
 
@@ -754,7 +754,7 @@ size_t Socket::receive (char * ib, size_t nb)
   ssize_t rb = 0;
   ssize_t total_rb = 0;
   bool was_interrupted = false;
-  
+
   do
   {
     //- read some data
@@ -763,17 +763,17 @@ size_t Socket::receive (char * ib, size_t nb)
     if (rb <= 0)
     {
       //- connection may have been reset/closed by peer
-      if (rb == 0) 
+      if (rb == 0)
       {
-        THROW_SOCKET_ERROR(SoErr_ConnectionClosed, 
-                           "OS <recv> call failed", 
+        THROW_SOCKET_ERROR(SoErr_ConnectionClosed,
+                           "OS <recv> call failed",
                            "yat::Socket::receive");
       }
       //- operation may block caller (for non blocking socket)
       if (this->current_op_is_blocking())
       {
-        THROW_SOCKET_ERROR(SoErr_WouldBlock, 
-                           "OS <recv> call failed", 
+        THROW_SOCKET_ERROR(SoErr_WouldBlock,
+                           "OS <recv> call failed",
                            "yat::Socket::receive");
       }
 #if ! defined(WIN32)
@@ -786,22 +786,22 @@ size_t Socket::receive (char * ib, size_t nb)
       if (::WSAGetLastError() == WSAECONNRESET)
       {
         this->close();
-        THROW_SOCKET_ERROR(SoErr_ConnectionClosed, 
-                           "OS <recv> call failed", 
+        THROW_SOCKET_ERROR(SoErr_ConnectionClosed,
+                           "OS <recv> call failed",
                            "yat::Socket::receive");
       }
 #endif
       //- reamining error cases
-      THROW_SOCKET_ERROR(err_no, 
-                         "OS <recv> call failed", 
+      THROW_SOCKET_ERROR(err_no,
+                         "OS <recv> call failed",
                          "yat::Socket::receive");
     }
     total_rb += rb;
-  } 
+  }
   while (was_interrupted);
-  
+
   YAT_LOG("yat::Socket::receive::got " << rb << " bytes from peer");
-  
+
   return static_cast<size_t>(total_rb);
 }
 
@@ -846,20 +846,20 @@ size_t Socket::receive (std::string & data_str)
   }
   catch (const Exception&)
   {
-    THROW_SOCKET_ERROR(SoErr_OutOfMemory, 
-                           "yat::Buffer reallocation failed", 
+    THROW_SOCKET_ERROR(SoErr_OutOfMemory,
+                           "yat::Buffer reallocation failed",
                            "yat::Socket::receive");
   }
   catch (...)
   {
-    THROW_SOCKET_ERROR(SoErr_OutOfMemory, 
-                           "yat::Buffer reallocation failed", 
+    THROW_SOCKET_ERROR(SoErr_OutOfMemory,
+                           "yat::Buffer reallocation failed",
                            "yat::Socket::receive");
   }
-    
+
   //- clear buffer content
   this->m_buffer.clear();
-  
+
   //- get some data from socket
   size_t rb = this->receive(this->m_buffer.base(), this->m_buffer.capacity());
 
@@ -870,17 +870,17 @@ size_t Socket::receive (std::string & data_str)
   }
   catch (const std::exception &)
   {
-    THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR, 
-                           "std::exception caught [std::string error]", 
+    THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR,
+                           "std::exception caught [std::string error]",
                            "yat::Socket::receive");
   }
   catch (...)
   {
-    THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR, 
-                           "unknown exception caught [from std::string member function]", 
+    THROW_SOCKET_ERROR(GENERIC_SOCKET_ERROR,
+                           "unknown exception caught [from std::string member function]",
                            "yat::Socket::receive");
   }
-  
+
   return rb;
 }
 
@@ -905,7 +905,7 @@ size_t Socket::receive_from (char * ib, size_t nb, yat::Address * src_addr)
   {
     //- read some data
     rb = ::recvfrom(this->m_os_desc, ib + total_rb, (int)(nb - total_rb), 0, (struct sockaddr*)&sender, &addr_len);
-    
+
     //- in case of error/exception....
     if ( rb <= 0 )
     {
@@ -1038,7 +1038,7 @@ size_t Socket::receive_from (std::string & data_str, yat::Address * src_addr)
 
 // ----------------------------------------------------------------------------
 // Socket::send
-// ---------------------------------------------------------------------------- 
+// ----------------------------------------------------------------------------
 void Socket::send (const char * ob, size_t nb)
 {
   YAT_TRACE("yat::Socket::send");
@@ -1049,16 +1049,16 @@ void Socket::send (const char * ob, size_t nb)
   size_t btr = nb;
 
   //- send data
-  while (btr) 
+  while (btr)
   {
     int sb = ::send(this->m_os_desc, ob + nb - btr, (int)btr, 0);
-    if (sb <= 0) 
+    if (sb <= 0)
     {
       //- operation may block caller (for non blocking socket)
       if (this->current_op_is_blocking())
       {
-        THROW_SOCKET_ERROR(SoErr_WouldBlock, 
-                               "OS <recv> call failed", 
+        THROW_SOCKET_ERROR(SoErr_WouldBlock,
+                               "OS <recv> call failed",
                                "yat::Socket::send");
       }
 #if ! defined(WIN32)
@@ -1069,14 +1069,14 @@ void Socket::send (const char * ob, size_t nb)
       if (::WSAGetLastError() == WSAECONNRESET)
       {
         this->close();
-        THROW_SOCKET_ERROR(SoErr_ConnectionClosed, 
-                               "OS <send> call failed", 
+        THROW_SOCKET_ERROR(SoErr_ConnectionClosed,
+                               "OS <send> call failed",
                                "yat::Socket::send");
       }
 #endif
       //- reamining error cases
-      THROW_SOCKET_ERROR(err_no, 
-                                "OS <send> call failed", 
+      THROW_SOCKET_ERROR(err_no,
+                                "OS <send> call failed",
                                 "yat::Socket::send");
     }
     //- cumulate read bytes
@@ -1086,20 +1086,20 @@ void Socket::send (const char * ob, size_t nb)
 
 // ----------------------------------------------------------------------------
 // Socket::send
-// ---------------------------------------------------------------------------- 
+// ----------------------------------------------------------------------------
 void Socket::send (const Socket::Data & ob)
 {
   YAT_TRACE("yat::Socket::send [Socket::Data]");
 
   CHECK_SOCK_DESC("yat::Socket::send");
-  
+
   //- send data
   this->send(ob.base(), ob.length());
 }
-      
+
 // ----------------------------------------------------------------------------
 // Socket::send
-// ---------------------------------------------------------------------------- 
+// ----------------------------------------------------------------------------
 void Socket::send (const std::string & os)
 {
   YAT_TRACE("yat::Socket::send [std::string]");
@@ -1123,23 +1123,23 @@ void Socket::set_blocking_mode ()
   unsigned long n = 0;
   if (::ioctlsocket(this->m_os_desc, FIONBIO, &n))
   {
-    THROW_SOCKET_ERROR(err_no, 
-                              "OS <ioctlsocket> call failed", 
+    THROW_SOCKET_ERROR(err_no,
+                              "OS <ioctlsocket> call failed",
                               "yat::Socket::set_blocking_mode");
   }
 #else
   long flags = ::fcntl(this->m_os_desc, F_GETFL);
   if (flags == -1)
   {
-    THROW_SOCKET_ERROR(err_no, 
-                              "OS <fcntl::F_GETFL> call failed", 
-                              "yat::Socket::set_blocking_mode"); 
+    THROW_SOCKET_ERROR(err_no,
+                              "OS <fcntl::F_GETFL> call failed",
+                              "yat::Socket::set_blocking_mode");
   }
   flags &= ~O_NONBLOCK;
   if (::fcntl(this->m_os_desc, F_SETFL, flags))
   {
-    THROW_SOCKET_ERROR(err_no, 
-                              "OS <fcntl::F_SETFL> call failed", 
+    THROW_SOCKET_ERROR(err_no,
+                              "OS <fcntl::F_SETFL> call failed",
                               "yat::Socket::set_blocking_mode");
   }
 #endif
@@ -1158,23 +1158,23 @@ void Socket::set_non_blocking_mode ()
   unsigned long n = 1;
   if (::ioctlsocket(this->m_os_desc, FIONBIO, &n ))
   {
-    THROW_SOCKET_ERROR(err_no, 
-                              "OS <ioctlsocket> call failed", 
+    THROW_SOCKET_ERROR(err_no,
+                              "OS <ioctlsocket> call failed",
                               "yat::Socket::set_non_blocking_mode");
   }
 #else
   long flags = ::fcntl(this->m_os_desc, F_GETFL);
   if (flags == -1)
   {
-    THROW_SOCKET_ERROR(err_no, 
-                              "OS <fcntl::F_GETFL> call failed", 
-                              "yat::Socket::set_non_blocking_mode"); 
+    THROW_SOCKET_ERROR(err_no,
+                              "OS <fcntl::F_GETFL> call failed",
+                              "yat::Socket::set_non_blocking_mode");
   }
   flags |= O_NONBLOCK;
   if (::fcntl(this->m_os_desc, F_SETFL, flags))
   {
-    THROW_SOCKET_ERROR(err_no, 
-                              "OS <fcntl::F_SETFL> call failed", 
+    THROW_SOCKET_ERROR(err_no,
+                              "OS <fcntl::F_SETFL> call failed",
                               "yat::Socket::set_non_blocking_mode");
   }
 #endif

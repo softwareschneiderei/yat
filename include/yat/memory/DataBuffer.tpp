@@ -2,17 +2,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -20,10 +20,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -42,7 +42,7 @@
 # include <yat/memory/DataBuffer.i>
 #endif // YAT_INLINE_IMPL
 
-namespace yat 
+namespace yat
 {
 
 // ===========================================================================
@@ -52,10 +52,10 @@ template <typename T>
 Buffer<T>::Buffer (size_t _capacity, bool _clear)
  : base_(0), capacity_(0), length_(0)
 {
-  //- allocate the buffer 
+  //- allocate the buffer
   this->capacity(_capacity);
-  
-  //- reset content 
+
+  //- reset content
   if (_clear)
     this->clear();
 }
@@ -67,24 +67,24 @@ template <typename T>
 Buffer<T>::Buffer (size_t _length, const T* _base)
  : base_(0), capacity_(0), length_(0)
 {
-  //- allocate the buffer 
+  //- allocate the buffer
   this->capacity(_length);
-    
+
   ::memcpy(this->base_, _base, _length * sizeof(T));
- 
+
   this->length_ = _length;
 }
 
 // ============================================================================
 // Buffer::Buffer
 // ============================================================================
-template <typename T> 
+template <typename T>
 Buffer<T>::Buffer (const Buffer<T>& _src)
  : base_(0), capacity_(0), length_(0)
 {
-  //- allocate the buffer 
+  //- allocate the buffer
   this->capacity(_src.capacity());
-  
+
   //- copy from source to destination using <Buffer::operator=>.
   *this = _src;
 }
@@ -92,7 +92,7 @@ Buffer<T>::Buffer (const Buffer<T>& _src)
 // ============================================================================
 // Buffer::~Buffer
 // ============================================================================
-template <typename T> 
+template <typename T>
 Buffer<T>::~Buffer()
 {
   SAFE_DELETE_ARRAY(this->base_);
@@ -101,16 +101,16 @@ Buffer<T>::~Buffer()
 // ============================================================================
 // Buffer::detach_buffer
 // ============================================================================
-template <typename T> 
+template <typename T>
 void Buffer<T>::detach_data (T*& base, size_t& length)
 {
-  //- shrink buffer 
+  //- shrink buffer
   this->capacity(this->length_, true);
-    
+
   //- transfer content to caller
   base = this->base_;
   length = this->length_;
-  
+
   //- clear content
   this->base_ = 0;
   this->length_ = 0;
@@ -120,7 +120,7 @@ void Buffer<T>::detach_data (T*& base, size_t& length)
 // ============================================================================
 // Buffer::capacity
 // ============================================================================
-template <typename T> 
+template <typename T>
 void Buffer<T>::capacity (size_t _new_capacity, bool _keep_content)
 {
   //- special case: do (almost) nothing
@@ -134,7 +134,7 @@ void Buffer<T>::capacity (size_t _new_capacity, bool _keep_content)
   //- special case: null capacity
   if (_new_capacity == 0)
   {
-    SAFE_DELETE_ARRAY(this->base_); 
+    SAFE_DELETE_ARRAY(this->base_);
     this->capacity_ = 0;
     this->length_ = 0;
     return;
@@ -161,18 +161,18 @@ void Buffer<T>::capacity (size_t _new_capacity, bool _keep_content)
   if (_keep_content && this->length_)
   {
     size_t copy_length = (this->length_ > _new_capacity) ? _new_capacity : this->length_;
-    
+
     ::memcpy(new_base, this->base_, copy_length * sizeof(T));
-    
+
     this->length_ = copy_length;
   }
   else
   {
     this->length_ = 0;
   }
-  
-  SAFE_DELETE_ARRAY(this->base_); 
-  
+
+  SAFE_DELETE_ARRAY(this->base_);
+
   this->base_ = new_base;
 
   this->capacity_ = _new_capacity;
@@ -185,7 +185,7 @@ template <typename T>
 void Buffer<T>::memcpy (const void *src, size_t num_elements, size_t offset)
 {
   std::memcpy(this->base_ + offset, src, num_elements * sizeof(T));
- 
+
   this->force_length(this->length_ + num_elements);
 }
 
@@ -273,7 +273,7 @@ void ImageBuffer<T>::resize (size_t new_width, size_t new_height)
   this->length_ = new_width * new_height;
   this->width_ = new_width;
   this->height_ = new_height;
-  
+
 #ifdef YAT_DEFINED_MIN
 #  undef min
 #  undef YAT_DEFINED_MIN
@@ -306,7 +306,7 @@ SharedBuffer<T>::SharedBuffer(size_t _length,  const T* _base)
 // ============================================================================
 // Buffer::Buffer
 // ============================================================================
-template <typename T> 
+template <typename T>
 SharedBuffer<T>::SharedBuffer(const Buffer<T>& _src)
   : Buffer<T>(_src), SharedObject()
 {
@@ -316,7 +316,7 @@ SharedBuffer<T>::SharedBuffer(const Buffer<T>& _src)
 // ============================================================================
 // Buffer::~Buffer
 // ============================================================================
-template <typename T> 
+template <typename T>
 SharedBuffer<T>::~SharedBuffer()
 {
  //- noop ctor
@@ -330,7 +330,7 @@ SharedBuffer<T>::~SharedBuffer()
 // ============================================================================
 template <typename T, typename L>
 CircularBuffer<T,L>::CircularBuffer()
-  : wp_(0), 
+  : wp_(0),
     frozen_(false),
     data_ (0),
     ordered_data_ (0),
@@ -344,7 +344,7 @@ CircularBuffer<T,L>::CircularBuffer()
 // ============================================================================
 template <typename T, typename L>
 CircularBuffer<T,L>::CircularBuffer(size_t _capacity)
-  : wp_(0), 
+  : wp_(0),
     frozen_(false),
     data_ (0),
     ordered_data_ (0),
@@ -398,24 +398,24 @@ void CircularBuffer<T,L>::clear ()
 // ============================================================================
 // Buffer::capacity
 // ============================================================================
-template <typename T, typename L> 
+template <typename T, typename L>
 void CircularBuffer<T,L>::capacity (size_t _capacity)
 {
   yat::AutoMutex<L> guard(this->lock_);
-  
+
   //- set buffer length.
   this->data_.capacity(_capacity);
   this->data_.force_length(_capacity);
   this->data_.clear();
-  
+
   //- update write pointer
   this->wp_ = this->data_.base();
-  
+
   //- (re)allocate ordered data buffer
   this->ordered_data_.capacity(_capacity);
   this->ordered_data_.force_length(_capacity);
   this->ordered_data_.clear();
-  
+
   //- reset num of cycles
   this->num_cycles_ = 0;
 }
@@ -423,7 +423,7 @@ void CircularBuffer<T,L>::capacity (size_t _capacity)
 // ============================================================================
 // CircularBuffer::fill
 // ============================================================================
-template <typename T, typename L> 
+template <typename T, typename L>
 void CircularBuffer<T,L>::fill(const T& _val)
 {
   yat::AutoMutex<L> guard(this->lock_);
@@ -435,27 +435,27 @@ void CircularBuffer<T,L>::fill(const T& _val)
 // ============================================================================
 template <typename T, typename L>
 void CircularBuffer<T,L>::push(T _data)
-{ 
+{
   yat::AutoMutex<L> guard(this->lock_);
-  
+
   //- check preallocation
-  if (! this->data_.capacity()) 
+  if (! this->data_.capacity())
   {
-    THROW_YAT_ERROR("PROGRAMMING_ERROR", 
-                    "Circular buffer was not initialized properly", 
+    THROW_YAT_ERROR("PROGRAMMING_ERROR",
+                    "Circular buffer was not initialized properly",
                     "CircularBuffer<T,L>::push");
-  } 
-  
+  }
+
   //- if frozen then ignore the data
   if (this->frozen_)
     return;
 
   *this->wp_ = _data;
 
-  //- update write pointer 
+  //- update write pointer
   this->wp_++;
-  
-  //- modulo 
+
+  //- modulo
   if (static_cast<size_t>(this->wp_ - this->data_.base()) >= this->data_.capacity())
   {
     this->num_cycles_++;
@@ -466,21 +466,21 @@ void CircularBuffer<T,L>::push(T _data)
 // ============================================================================
 // CircularBuffer::ordered_data
 // ============================================================================
-template <typename T, typename L> 
+template <typename T, typename L>
 const Buffer<T> & CircularBuffer<T,L>::ordered_data ()
 {
   yat::AutoMutex<L> guard(this->lock_);
-  
+
   //- check preallocation
   if (this->ordered_data_.capacity() != this->data_.capacity())
   {
     THROW_YAT_ERROR("INTERNAL_ERROR", "Unexpected buffer size", "CircularBuffer::ordered_data");
   }
-  
+
   //- clear ordered data buffer
   this->ordered_data_.clear();
-  
-  long newer_data_count = this->wp_ - this->data_.base(); 
+
+  long newer_data_count = this->wp_ - this->data_.base();
   long older_data_count = this->data_.length() - newer_data_count;
 
   //- reorder the data
@@ -500,7 +500,7 @@ const Buffer<T> & CircularBuffer<T,L>::ordered_data ()
   return this->ordered_data_;
 }
 
-} // namespace 
+} // namespace
 
 #endif // _DATA_BUFFER_CPP_
 

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -49,7 +49,7 @@ namespace yat
 //!
 //! This function offers two usages :
 //! - pulInitValue set to NULL value : CRC is calculated for the input buffer,
-//! - pulInitValue NOT set to NULL : CRC is calculated for a set of buffers. 
+//! - pulInitValue NOT set to NULL : CRC is calculated for a set of buffers.
 //! For example, with p1 & p2 two buffer pointers :
 //! \n
 //!    uint32 ulCrc = 0xFFFFFFFFL;\n
@@ -141,11 +141,11 @@ inline void invert_int64(int64 *pi64)
   (int)&(((type*)NULL)->field)
 
 //===========================================================================
-//! \class MemBuf 
+//! \class MemBuf
 //! \brief Auto-sized binary buffer with cryptographic capabilities.
 //!
 //! This class provides a managed buffer with :
-//! - auto memory re-allocation in case used binary blocs length exceeds the current 
+//! - auto memory re-allocation in case used binary blocs length exceeds the current
 //! buffer capacity,
 //! - insertion functions (including streaming functions) to fill the buffer,
 //! - extraction functions (including streaming functions) to read the buffer,
@@ -179,7 +179,7 @@ public:
   //! Returns true if buffers are equal, false otherwise.
   //! \param mb The source buffer.
   bool operator==(const MemBuf &mb) const;
-  
+
   //! \brief Attachment from an external buffer.
   //!
   //! \param pBuf Pointer to memory area to attach.
@@ -201,14 +201,14 @@ public:
 
   //! \brief Returns the buffer pointer in *bytes* data type.
   byte *bytes() const { return (byte *)m_pBuf; }
-   
+
   //! \brief Returns the current read position of the buffer.
   uint32 pos() const    { return m_uiPos; }
 
   //! \brief Sets new buffer capacity in bytes.
   //!
   //! \param ui New buffer capacity in bytes.
-  //! \remark If the specified capacity is greater than current capacity, memory is 
+  //! \remark If the specified capacity is greater than current capacity, memory is
   //! reallocated for the buffer.
   void set_len(uint32 ui);
 
@@ -224,7 +224,7 @@ public:
   //! Inserts a binary block of data at the end of the buffer.
   //! \param p Pointer to the binary block to add.
   //! \param uiNb Size of the binary block in bytes.
-  //! \remark If the block size is greater than the remaining capacity of the buffer, 
+  //! \remark If the block size is greater than the remaining capacity of the buffer,
   //! memory is reallocated and the buffer capacity increased.
   void put_bloc(const void* p, uint32 uiNb);
 
@@ -240,13 +240,13 @@ public:
   int get_bloc(void* p, uint32 uiNb);
 
   //! \brief Inserts a binary block in the buffer at given offset.
-  //! 
+  //!
   //! Inserts a binary block of data at the specified position. The current data
   //! at the specified position are moved after inserted data.
   //! \param p Pointer to the binary block to insert.
   //! \param uiNb Size of the binary block in bytes.
   //! \param uiPos Position in bytes.
-  //! \remark If the block size is greater than the remaining capacity of the buffer, 
+  //! \remark If the block size is greater than the remaining capacity of the buffer,
   //! memory is reallocated and the buffer capacity increased.
   void insert_bloc(const void* p, uint32 uiNb, uint32 uiPos);
 
@@ -313,7 +313,7 @@ public:
   //! \brief Input stream function for a character value.
   //! \param c Character value to add in buffer.
   MemBuf& operator<<(char c);
-  
+
   //! \brief Output stream function for a character value.
   //! \param c Character value read from buffer.
   MemBuf& operator>>(char &c);
@@ -408,19 +408,19 @@ public:
 
 private:
   //- Read position
-  uint32  m_uiPos; 
+  uint32  m_uiPos;
 
   //- Size of used binary blocks in bytes.
-  uint32  m_uiLen;         
+  uint32  m_uiLen;
 
   //- Buffer capacity (allocated size) in bytes.
-  uint32  m_uiLenBuf;  
+  uint32  m_uiLenBuf;
 
   //- Buffer pointer.
-  char* m_pBuf;      
+  char* m_pBuf;
 
   //- If true the instance owns the buffer.
-  bool  m_bOwner;            
+  bool  m_bOwner;
 
   //- Re-allocation function.
   void realloc_with_margin(uint32 uiNewSize) ;

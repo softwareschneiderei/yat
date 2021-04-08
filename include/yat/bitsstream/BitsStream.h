@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -68,13 +68,13 @@
 //! - endianness management.
 //!
 //! \section secBS2 Bit stream classes
-//! Links to file access classes : 
+//! Links to file access classes :
 //!   - yat::BitsSet
 //!   - yat::BitsStream
 //!   - yat::Endianness
 // ============================================================================
 
-namespace yat 
+namespace yat
 {
 
 //=============================================================================
@@ -87,12 +87,12 @@ namespace yat
 #endif
 
 //=============================================================================
-// class: BitsStream 
+// class: BitsStream
 //=============================================================================
 class YAT_DECL BitsStream;
 
 // ============================================================================
-//! \class BitsSet 
+//! \class BitsSet
 //! \brief Set of bits abstraction.
 //!
 //! This template class provides an implementation of a bit data storage with the
@@ -100,13 +100,13 @@ class YAT_DECL BitsStream;
 //! - \<n\> bits stored in a \<T\> type variable (which size is sizeof(\<T\>)),
 //! - stream operators provided.
 // ============================================================================
-template <size_t _n, typename T> 
+template <size_t _n, typename T>
 class YAT_DECL BitsSet
 {
 public:
   //! \brief Constructor.
   //! \param _value \<T\> type bit set value.
-  BitsSet (const T& _value = 0) 
+  BitsSet (const T& _value = 0)
     : m_value (_value)
   {
     //- noop ctor
@@ -131,7 +131,7 @@ public:
   //! \param _src The source \<T\> type value.
   BitsSet<_n, T> & operator= (const T& _src)
   {
-    m_value = _src; 
+    m_value = _src;
     return *this;
   }
 
@@ -147,7 +147,7 @@ public:
   //! \param _src The source \<T\> type value.
   BitsSet<_n, T> & operator|= (const T& _src)
   {
-    m_value |= _src; 
+    m_value |= _src;
     return *this;
   }
 
@@ -163,7 +163,7 @@ public:
   //! \param _src The source \<T\> type value.
   BitsSet<_n, T> & operator&= (const T& _src)
   {
-    m_value &= _src; 
+    m_value &= _src;
     return *this;
   }
 
@@ -198,11 +198,11 @@ private:
 };
 
 // ============================================================================
-//! \class BitsStream 
+//! \class BitsStream
 //! \brief Input stream of bits abstraction.
 //!
-//! This template class provides a bits stream abstraction that offers stream 
-//! reading functions. 
+//! This template class provides a bits stream abstraction that offers stream
+//! reading functions.
 // ============================================================================
 class YAT_DECL BitsStream
 {
@@ -211,7 +211,7 @@ public:
   //! \param _data Data buffer pointer.
   //! \param _size Data buffer size in bytes.
   //! \param _endianness Data buffer endianness.
-  BitsStream (unsigned char * _data = 0, 
+  BitsStream (unsigned char * _data = 0,
               size_t _size = 0,
               const Endianness::ByteOrder& _endianness = Endianness::BO_LITTLE_ENDIAN);
 
@@ -284,7 +284,7 @@ private:
 
   //- the <tmp> input buffer (use internally for bits reading)
   yat::BitsStorage m_current_byte;
-  
+
   //- the current number of bits in m_current_byte
   int m_bits_in_current_byte;
 
@@ -294,7 +294,7 @@ private:
   //- the data buffer size
   size_t m_ibuffer_size;
 
-  //- the current byte index in the data buffer 
+  //- the current byte index in the data buffer
   size_t m_ibuffer_ptr;
 
   //- is the input stream big or little endian?
@@ -304,22 +304,22 @@ private:
   template <typename T> void binary_dump (const std::string & n, const T & v )
   {
     yat::BitsSet<8 * sizeof(T), T> bs(v);
-    std::cout << "- " 
+    std::cout << "- "
               << std::setw(25)
               << std::left
               << std::setfill('.')
-              << n 
-              << bs.to_string() 
+              << n
+              << bs.to_string()
               << std::right
               << std::endl;
   }
-  
+
   //- this extracts _num_bits bits or skips _num_bits if bits == 0
   inline bool read_bits_i (int _num_bits, yat::BitsStorage * _bits)
   {
     bool retval = true;
-    
-    if ( m_ibuffer != 0 ) 
+
+    if ( m_ibuffer != 0 )
     {
       //- this part of the algorithm extracts full byte(s)
       while ( _num_bits > m_bits_in_current_byte )
@@ -344,7 +344,7 @@ private:
           break;
         }
       }
-      
+
       //- this part of the algorithm extracts individual bit
       if ( _num_bits > 0 && retval )
       {
@@ -357,20 +357,20 @@ private:
           }
           *_bits |= m_current_byte & bit_mask;
         }
-   
+
         m_current_byte = m_current_byte >> _num_bits;
-        
+
         m_bits_in_current_byte -= _num_bits;
       }
     }
-    
+
     return retval;
   }
 };
 
 //=============================================================================
 //! \brief operator>> for a bits set.
-//! 
+//!
 //! Extracts _n bits from source then puts result into dest.value.
 //! \param source The source bits stream.
 //! \param dest The extracted bits set.
@@ -413,12 +413,12 @@ BitsStream& operator>> (BitsStream& source, BitsSet<_n, _T>& dest)
       }
       break;
     }
-  } 
+  }
 
-  dest.value() = t; 
+  dest.value() = t;
 
   return source;
-} 
+}
 
 //=============================================================================
 //! \brief operator>> for an array of \<T\> type elements.
@@ -432,7 +432,7 @@ BitsStream& operator>> (BitsStream& _source, const _T _dest[])
     _source >> _dest[i];
   return _source;
 }
-  
+
 } //- namespace
 
 #endif //- _BITS_STREAM_H_

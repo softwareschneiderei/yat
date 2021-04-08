@@ -2,17 +2,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -20,10 +20,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -40,7 +40,7 @@ namespace yat
 YAT_INLINE void * Message::operator new (size_t)
 {
   YAT_TRACE_STATIC("Message::operator new");
-  
+
   return (void *) Message::m_cache.malloc();
 }
 
@@ -50,7 +50,7 @@ YAT_INLINE void * Message::operator new (size_t)
 YAT_INLINE void Message::operator delete (void * p)
 {
   YAT_TRACE_STATIC("Message::operator delete");
-  
+
   Message::m_cache.free(reinterpret_cast<Message*>(p));
 }
 #endif
@@ -70,7 +70,7 @@ YAT_INLINE void Message::release ()
 {
   this->SharedObject::release ();
 }
-  
+
 // ============================================================================
 // Message::is_task_ctrl_message
 // ============================================================================
@@ -133,7 +133,7 @@ YAT_INLINE void Message::user_data (void* _ud)
 YAT_INLINE bool Message::wait_processed (unsigned long _tmo_ms)
 {
   YAT_TRACE("Message::wait_processed");
-  
+
   AutoMutex<Mutex> guard (this->lock_);
 
   if (! this->waitable())
@@ -142,10 +142,10 @@ YAT_INLINE bool Message::wait_processed (unsigned long _tmo_ms)
                     "Message::wait_processed called on a none waitable message [check code]",
                     "Message::wait_processed");
   }
-  
+
   if (this->processed_)
     return true;
- 
+
   return this->cond_->timed_wait(_tmo_ms);
 }
 
@@ -160,7 +160,7 @@ YAT_INLINE void Message::processed ()
 
   this->processed_ = true;
 
-  if (this->cond_) 
+  if (this->cond_)
     this->cond_->broadcast();
 }
 

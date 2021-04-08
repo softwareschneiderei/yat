@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,16 +27,16 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
  * \author See AUTHORS file
  */
- 
+
 #ifndef _YAT_ADDRESS_H_
 #define _YAT_ADDRESS_H_
 
@@ -46,13 +46,13 @@
 #include <string>
 #include <yat/CommonHeader.h>
 
-namespace yat { 
-  
+namespace yat {
+
 // ============================================================================
-//! \class Address 
+//! \class Address
 //! \brief The YAT network address class.
 //!
-//! This class provides an implementation of a basic IP network adress. 
+//! This class provides an implementation of a basic IP network adress.
 //! This address is defined by the following features:
 //! - IP address or host name,
 //! - Port number.
@@ -78,9 +78,9 @@ public:
   //! \param addr The address to be copied.
   Address & operator= (const Address& addr);
 
-  //! \brief Destructor. 
+  //! \brief Destructor.
   virtual ~Address();
-  
+
   //! \brief Returns host name.
   const std::string& get_host_name () const;
 
@@ -89,7 +89,7 @@ public:
 
   //! \brief Returns port number.
   size_t get_port_number () const;
-      
+
 protected:
   //! \brief Resolves host name <-> ip_address.
   //!
@@ -107,7 +107,7 @@ protected:
   std::string m_host_name;
 };
 
-} // namespace yat 
+} // namespace yat
 
 #if defined (YAT_INLINE_IMPL)
 # include <yat/network/Address.i>

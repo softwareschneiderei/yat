@@ -2,17 +2,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -20,10 +20,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -46,7 +46,7 @@ YAT_INLINE bool MessageQ::periodic_tmo_expired_i (double _tmo_msecs)
 // ============================================================================
 YAT_INLINE void MessageQ::lo_wm (size_t _lo_wm)
 {
-  this->lo_wm_ = _lo_wm;  
+  this->lo_wm_ = _lo_wm;
 
   if (this->lo_wm_ < kMIN_LO_WATER_MARK)
     this->lo_wm_ = kMIN_LO_WATER_MARK;
@@ -108,7 +108,7 @@ YAT_INLINE size_t MessageQ::clear ()
 YAT_INLINE void MessageQ::wm_unit (MessageQ::WmUnit _u)
 {
   this->wm_unit_ = _u;
-  this->stats_.wm_unit_ = _u; 
+  this->stats_.wm_unit_ = _u;
 }
 
 // ============================================================================
@@ -128,12 +128,12 @@ YAT_INLINE void MessageQ::inc_pending_charge_i (Message * _msg)
                          ? 1
                          : _msg->size_in_bytes();
 }
-  
+
 // ============================================================================
 // MessageQ::dec_pending_charge_i
 // ============================================================================
 YAT_INLINE void MessageQ::dec_pending_charge_i (Message * _msg)
-{ 
+{
   this->pending_charge_ -= (this->wm_unit_ == NUM_OF_MSGS)
                          ? 1
                          : _msg->size_in_bytes();
@@ -149,7 +149,7 @@ YAT_INLINE const MessageQ::Statistics & MessageQ::statistics ()
     this->stats_.pending_charge_ = this->pending_charge_;
     this->stats_.pending_mgs_ = this->msg_q_.size();
   }
-  
+
   return this->stats_;
 }
 

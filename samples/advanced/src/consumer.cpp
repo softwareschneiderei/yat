@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    An advanced yat example
  * \author   N. Leclercq - Synchrotron SOLEIL
  */
@@ -60,16 +60,16 @@ void Consumer::handle_message (yat::Message& _msg)
 		  {
         std::cout << "Consumer::"
                   << this
-                  << "::exit::parsed " 
+                  << "::exit::parsed "
                   << this->index
-                  << " objs" 
+                  << " objs"
                   << std::endl;
       }
 			break;
     //- NEW_DATA_AVAILABLE_MSG
     case NEW_DATA_AVAILABLE_MSG:
       {
-        //- get data associated with the message 
+        //- get data associated with the message
         size_t no = _msg.get_data<size_t>();
         //- parse last <no> objects in repository
         this->parse_objects( no );
@@ -96,15 +96,15 @@ void Consumer::parse_objects (size_t no)
 {
   //- parse new objects
   const size_t max = this->index + no;
-  
+
   /*
   std::cout << "Consumer::"
             << this
-            << "::parse_objects::parsing objs {" 
+            << "::parse_objects::parsing objs {"
             << Context::instance().data[this->index]->inst_id
             << ","
             << Context::instance().data[max - 1]->inst_id
-            << "}" 
+            << "}"
             << std::endl;
   */
 

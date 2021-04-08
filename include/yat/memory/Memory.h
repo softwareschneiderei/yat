@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,7 +9,7 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2011  N.Leclercq & The Tango Community
+// Copyright (C) 2006-2021  N.Leclercq & The Tango Community
 //
 // Part of the code comes from the ACE Framework (i386 asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
@@ -34,7 +34,7 @@
 // See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -60,17 +60,17 @@
 //!
 //! \section secM2 Memory classes
 //! Links to memory classes : \n
-//!   - yat::NewAllocator
-//!   - yat::CachedAllocator
 //!   - yat::Buffer
-//!   - yat::ImageBuffer
-//!   - yat::SharedBuffer
+//!   - yat::CachedAllocator
 //!   - yat::CircularBuffer
+//!   - yat::ImageBuffer
 //!   - yat::MemBuf
+//!   - yat::NewAllocator
+//!   - yat::SharedBuffer
+//!   - yat::SharedObjectPtr
 //!   - yat::SharedPtr
 //!   - yat::UniquePtr
 //!   - yat::WeakPtr
-//!   - yat::SharedObjectPtr
 // ============================================================================
 
 #endif // _MEMORY_H_

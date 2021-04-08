@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    An example of yat::Task (and related classes) usage. .
  * \author   N. Leclercq, J. Malik - Synchrotron SOLEIL
  */
@@ -56,7 +56,7 @@ private:
 #if defined (YAT_DEBUG)
   //- id of the last received msg
   yat::Message::MessageID last_msg_id;
-  //- num of lost msg 
+  //- num of lost msg
   unsigned long lost_msg_counter;
   //- num msg received in wrong order
   unsigned long wrong_order_msg_counter;

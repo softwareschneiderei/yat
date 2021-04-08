@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    An example of yat::Task (and related classes) usage.
  * \author   N. Leclercq, J. Malik - Synchrotron SOLEIL
  */
@@ -36,16 +36,16 @@
 int main(int argc, char* argv[])
 {
   yat::Message * m = 0;
-  
+
   YAT_LOG_STATIC("Instanciating Task...");
-	
+
   Consumer * dt = new Consumer(kLO_WATER_MARK, kHI_WATER_MARK);
-  
+
   YAT_LOG_STATIC("Starting Task...");
-	
+
   try
   {
-    dt->go(2000); 
+    dt->go(2000);
   }
   catch (const yat::Exception&)
   {
@@ -85,17 +85,17 @@ int main(int argc, char* argv[])
     }
   }
 */
- 
+
   yat::Buffer<double> data(kNUM_MSGS);
   for ( size_t i = 0; i < kNUM_MSGS; i++ )
     data[i] = 1. * i;
   data.force_length(kNUM_MSGS);
-  
+
   for (size_t i = 0; i < kNUM_MSGS; i++)
   {
     try
     {
-      //- 
+      //-
       SharedBuffer* sb = new SharedBuffer();
       sb->capacity(i + 1);
       sb->memcpy(data.base(), i + 1);
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
       YAT_LOG_STATIC("unknown except. caught - could not post msg#" << i);
     }
   }
-  
+
   try
   {
     dt->exit();
@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
 
   std::vector<yat::Message *> msgs(kNUM_MSGS);
 
-  yat::Timer t;      
+  yat::Timer t;
 
   for (size_t i = 0; i < msgs.size(); i++)
     msgs[i] = new yat::Message(kDUMMY_MSG);
@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
 
 
 //- THIS IS JUST A TEST CODE BACKUP FOR THE MESSAGE DATA ALLOC OPTIMISATION
-#ifdef _MESSAGE_DATA_OPTIMISATION_ 
+#ifdef _MESSAGE_DATA_OPTIMISATION_
 
   double d = 1.2345;
   double * dp = new double;
@@ -264,4 +264,4 @@ int main(int argc, char* argv[])
 
   return 0;
 
-#endif //- _MESSAGE_DATA_OPTIMISATION_ 
+#endif //- _MESSAGE_DATA_OPTIMISATION_

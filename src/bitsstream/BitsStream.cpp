@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -43,7 +43,7 @@
 #include <yat/bitsstream/Endianness.h>
 #include <yat/bitsstream/BitsStream.h>
 
-namespace yat 
+namespace yat
 {
 
 //=============================================================================
@@ -54,8 +54,8 @@ YAT_DECL size_t kINDENT_COUNTER = 0;
 //=============================================================================
 // BitsStream::BitsStream
 //=============================================================================
-BitsStream::BitsStream (unsigned char * _data, 
-                        size_t _size, 
+BitsStream::BitsStream (unsigned char * _data,
+                        size_t _size,
                         const Endianness::ByteOrder& _endianness)
  : m_current_byte (0),
    m_bits_in_current_byte (0),
@@ -82,13 +82,13 @@ BitsStream::~BitsStream ()
 inline bool read_bits_i (int _num_bits, yat::BitsStorage * _bits)
 {
   bool retval = true;
-      
+
   std::cout << "-------------------------------------" << std::endl;
   std::cout << "> initial bits............." << *_bits << std::endl;
   std::cout << "> initial num_bits........." << _num_bits << std::endl;
   binary_dump("current-byte", m_current_byte);
-  
-  if ( m_ibuffer != 0 ) 
+
+  if ( m_ibuffer != 0 )
   {
     //- this while loop extracts full bytes
     while ( _num_bits > m_bits_in_current_byte )
@@ -98,17 +98,17 @@ inline bool read_bits_i (int _num_bits, yat::BitsStorage * _bits)
       if ( _bits )
       {
         int shift = _num_bits - m_bits_in_current_byte;
-        std::cout << "> doing: *bits |= m_current_byte << " << shift << std::endl; 
+        std::cout << "> doing: *bits |= m_current_byte << " << shift << std::endl;
         binary_dump("bits", *_bits);
         *_bits |= m_current_byte << shift;
         binary_dump("shifted-current-byte", m_current_byte << shift);
         binary_dump("bits", *_bits);
       }
-      
+
       std::cout << "- num_bits................." << _num_bits << std::endl;
       std::cout << "- bits_in_current_byte....." << m_bits_in_current_byte << std::endl;
       _num_bits -= m_bits_in_current_byte;
-      std::cout << "> consumed " << m_bits_in_current_byte << " bits of the current byte" << std::endl; 
+      std::cout << "> consumed " << m_bits_in_current_byte << " bits of the current byte" << std::endl;
       std::cout << "- num_bits................." << _num_bits << std::endl;
 
       if ( m_ibuffer_ptr != m_ibuffer_size )
@@ -132,14 +132,14 @@ inline bool read_bits_i (int _num_bits, yat::BitsStorage * _bits)
     if ( _num_bits > 0 && retval )
     {
       std::cout << "> num_bits > 0 && retval is true" << std::endl;
-      
+
       if ( _bits )
       {
         yat::BitsStorage bit_mask = 0x0001;
         for ( int i = 1; i < _num_bits; i++ )
           bit_mask = ( bit_mask << 1 ) | 0x0001;
 
-        std::cout << "> doing: *bits |= current_byte & bit_mask" << std::endl; 
+        std::cout << "> doing: *bits |= current_byte & bit_mask" << std::endl;
         binary_dump("current-byte", m_current_byte);
         binary_dump("bit_mask", bit_mask);
         binary_dump("current_byte & bit_mask", m_current_byte & bit_mask);
@@ -147,17 +147,17 @@ inline bool read_bits_i (int _num_bits, yat::BitsStorage * _bits)
         *_bits |= m_current_byte & bit_mask;
         binary_dump("bits", *_bits);
       }
-      
-      std::cout << "> doing: current_byte = current_byte >> " << _num_bits << std::endl; 
+
+      std::cout << "> doing: current_byte = current_byte >> " << _num_bits << std::endl;
       m_current_byte = m_current_byte >> _num_bits;
       binary_dump("current-byte", m_current_byte);
-        
-      std::cout << "> doing: bits_in_current_byte -= num_bits" << std::endl; 
+
+      std::cout << "> doing: bits_in_current_byte -= num_bits" << std::endl;
       std::cout << "- num_bits................." << _num_bits << std::endl;
       std::cout << "- bits_in_current_byte....." << m_bits_in_current_byte << std::endl;
-      
+
       m_bits_in_current_byte -= _num_bits;
-      
+
       std::cout << "- bits_in_current_byte....." << m_bits_in_current_byte << std::endl;
     }
   }

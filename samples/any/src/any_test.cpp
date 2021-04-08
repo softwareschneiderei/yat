@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    An example of yat::any usage.
  * \author   N. Leclercq - Synchrotron SOLEIL
  */
@@ -60,11 +60,11 @@ int main(int argc, char* argv[])
 
   //- try to extract an <int> from an Any holding an <int>
   //- this should complete successfully
-  try 
+  try
   {
     int as_int_val = yat::any_cast<int>(any_holding_val);
-    std::cout << "ok: yat::Any::any_cast<int> returned " 
-              << as_int_val 
+    std::cout << "ok: yat::Any::any_cast<int> returned "
+              << as_int_val
               << " as expected"
               << std::endl;
   }
@@ -75,13 +75,13 @@ int main(int argc, char* argv[])
 
   //- try to extract an <int*> from an Any holding an <int*>
   //- this should complete successfully
-  try 
+  try
   {
     int * int_ptr = yat::any_cast<int*>(any_holding_ptr);
 
     std::cout << "ok: yat::Any::any_cast<int*> returned 0x"
-              << std::hex 
-              << int_ptr 
+              << std::hex
+              << int_ptr
               << std::dec
               << " - value is: "
               << *int_ptr
@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 
   //- try to extract an <int> from an Any holding an <int&>
   //- this should complete successfully
-  try 
+  try
   {
     int int_val = yat::any_cast<int>(any_holding_ref);
 
@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 
   //- try to extract an <int> from an Any holding an <int&>
   //- this should complete successfully
-  try 
+  try
   {
     int int_val = yat::any_cast_ext<int>(any_holding_ref);
 
@@ -130,11 +130,11 @@ int main(int argc, char* argv[])
 
   //- try to extract an <int> from an Any holding an <int*>
   //- this should fail!
-  try 
+  try
   {
     int int_val = yat::any_cast<int>(any_holding_ptr);
-    std::cout << "ko: yat::Any::any_cast<int> returned " 
-              << int_val 
+    std::cout << "ko: yat::Any::any_cast<int> returned "
+              << int_val
               << " - should have failed!"
               << std::endl;
   }
@@ -145,13 +145,13 @@ int main(int argc, char* argv[])
 
   //- try to extract an <int *> from an Any holding an <int>
   //- this should fail!
-  try 
+  try
   {
     int * int_ptr = yat::any_cast<int*>(any_holding_val);
 
     std::cout << "ko: yat::Any::any_cast<int*> returned 0x"
-              << std::hex 
-              << int_ptr 
+              << std::hex
+              << int_ptr
               << std::dec
               << " - value is: "
               << *int_ptr
@@ -165,13 +165,13 @@ int main(int argc, char* argv[])
 
   //- try to extract an <int *> from an Any holding an <int&>
   //- this should fail!
-  try 
+  try
   {
     int * int_ptr = yat::any_cast<int*>(any_holding_ref);
 
     std::cout << "ko: yat::Any::any_cast<int*> returned 0x"
-              << std::hex 
-              << int_ptr 
+              << std::hex
+              << int_ptr
               << std::dec
               << " - value is: "
               << *int_ptr

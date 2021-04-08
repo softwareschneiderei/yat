@@ -1,18 +1,19 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    An example of yat::UniquePtr usage
  * \author   N. Leclercq, J. Malik - Synchrotron SOLEIL
  */
 
 #include <iostream>
 #include <yat/memory/UniquePtr.h>
+#include <yat/utils/URI.h>
 
 //-----------------------------------------------------------------------------
 // MyObject
@@ -89,6 +90,13 @@ struct MyObjectDeleter
 //-----------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
+  std::string toto("_#1");
+  std::cout << toto << std::endl;
+  yat::URI::pct_encode(&toto);
+  std::cout << toto << std::endl;
+  yat::URI::pct_decode(&toto);
+  std::cout << toto << std::endl;
+
   typedef yat::UniquePtr<MyObject> MyObjectPtr;
   typedef yat::UniquePtr<MyDerivedObject> MyDerivedObjectPtr;
 

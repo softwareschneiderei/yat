@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -50,12 +50,12 @@ typedef std::vector<std::string> PlugInObjectParams;
 
 
 // ============================================================================
-//! \class IPlugInFactory 
+//! \class IPlugInFactory
 //! \brief Abstract interface for a Plugin factory.
 //!
-//! This class is a base factory for "dynamic library" objects. At least the virtual 
+//! This class is a base factory for "dynamic library" objects. At least the virtual
 //! function *create()* must be implemented by derived classes.
-//! 
+//!
 // ============================================================================
 class YAT_DECL IPlugInFactory
 {
@@ -63,7 +63,7 @@ class YAT_DECL IPlugInFactory
 
 public:
   //! \brief Creates a plugin object.
-  //! \param[in,out] object A reference to a IPlugInObject pointer that will hold 
+  //! \param[in,out] object A reference to a IPlugInObject pointer that will hold
   //! the address of the created object.
   //! \param[in] params A set of parameters to customize the object creation if necessary.
   virtual void create(IPlugInObject*& object,

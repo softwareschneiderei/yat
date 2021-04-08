@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -65,9 +65,9 @@ namespace yat {
 #else
   typedef unsigned long ThreadUID;
 #endif
-  
+
 // ============================================================================
-//! \class ThreadingUtilities 
+//! \class ThreadingUtilities
 //! \brief The YAT threading utilities.
 //!
 //! This class provides threading utilities such as thread Id and time management
@@ -91,7 +91,7 @@ public:
   static unsigned int harware_concurrency();
 
   //! \brief Calculates an absolute time in seconds and nanoseconds, suitable for
-  //! use in timed waits (ex: Condition, Semaphore), which is the current 
+  //! use in timed waits (ex: Condition, Semaphore), which is the current
   //! time plus the given relative offset.
   //! \param abs_sec Absolute time in seconds.
   //! \param abs_nsec Nanoseconds precision of absolute time.
@@ -103,14 +103,14 @@ public:
                         unsigned long offset_nsec = 0);
 
   //! \brief Calculates an absolute time in seconds and nanoseconds, suitable for
-  //! use in timed waits (ex: Condition, Semaphore), which is the current time 
+  //! use in timed waits (ex: Condition, Semaphore), which is the current time
   //! plus the given relative offset.
   //! \param abs_time Absolute time.
   //! \param offset_msecs Offset in milliseconds.
   static void get_time (Timespec & abs_time, unsigned long offset_msecs);
 
   //! \brief Calculates an absolute time in seconds and nanoseconds, suitable for
-  //! use in timed waits (ex: Condition, Semaphore), which is the current time 
+  //! use in timed waits (ex: Condition, Semaphore), which is the current time
   //! plus the given relative offset (the sum of an offset in seconds and a offset in nanoseconds).
   //! \param abs_time Absolute time.
   //! \param offset_secs Offset in seconds.
@@ -121,11 +121,11 @@ private:
 
 #if defined (YAT_WIN32)
   //- internal impl
-  static void ThreadingUtilities::get_time_now (unsigned long & abs_sec_, 
+  static void ThreadingUtilities::get_time_now (unsigned long & abs_sec_,
                                                 unsigned long & abs_nano_sec_);
-#endif  
+#endif
 };
 
-} // namespace yat 
+} // namespace yat
 
 #endif //- _YAT_THREADING_UTILS_H_

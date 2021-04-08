@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,7 +9,7 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
@@ -30,7 +30,7 @@
 // See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -368,7 +368,7 @@ void Time::set_tz(const std::string& tz)
   }
   else
   {
-    if( tz.size() != 5 || (tz[0] != '+' && tz[0] != '-') || 
+    if( tz.size() != 5 || (tz[0] != '+' && tz[0] != '-') ||
         !isdigit(tz[1]) || !isdigit(tz[2]) || !isdigit(tz[3]) || !isdigit(tz[4]) )
       throw yat::Exception("BAD_FORMAT", "Bad time zone field string", "Time::set_tz");
 
@@ -1019,7 +1019,7 @@ std::string _iso8601_bias(const Time &tm)
 {
   if( tm.utc() )
     return "Z";
-  
+
   std::string fmt;
   int bias = tm.time_zone_bias();
   if( bias < 0 )
@@ -1038,7 +1038,7 @@ std::string _iso8601_bias(const Time &tm)
 //----------------------------------------------------------------------------
 yat::String Time::to_string(const std::string& format, unsigned short precision) const
 {
-  bool get_identifier = false;  
+  bool get_identifier = false;
   std::ostringstream oss;
   DateFields df;
   get(&df);
@@ -1218,7 +1218,7 @@ void Time::from_string(const std::string& date_time, const std::string& format)
         {
           v.append(date_time.substr(i_s, field_len));
           i_s += field_len;
-        }  
+        }
 
         switch( format[i_f] )
         {

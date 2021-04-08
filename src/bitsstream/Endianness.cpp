@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -40,7 +40,7 @@
 //=============================================================================
 //- Endianness.cpp
 //=============================================================================
-// abstraction.......Optimized bytes swapping 
+// abstraction.......Optimized bytes swapping
 // class.............Endianness
 // original authors..Aniruddha Gokhale, Carlos O'Ryan, ... (ACE lib)
 // hacker............Nicolas Leclercq - SOLEIL
@@ -51,22 +51,22 @@
 //=============================================================================
 #include <yat/bitsstream/Endianness.h>
 
-namespace yat 
+namespace yat
 {
 
 //=============================================================================
 // HOST ENDIANNESS
 //=============================================================================
 #if YAT_LITTLE_ENDIAN_PLATFORM == 1
-  const Endianness::ByteOrder 
-    Endianness::host_endianness = Endianness::BO_LITTLE_ENDIAN; 
-  const Endianness::ByteOrder 
-    Endianness::not_host_endianness = Endianness::BO_BIG_ENDIAN; 
+  const Endianness::ByteOrder
+    Endianness::host_endianness = Endianness::BO_LITTLE_ENDIAN;
+  const Endianness::ByteOrder
+    Endianness::not_host_endianness = Endianness::BO_BIG_ENDIAN;
 #else
-  const Endianness::ByteOrder 
-    Endianness::host_endianness = Endianness::BO_BIG_ENDIAN; 
-  const Endianness::ByteOrder 
-    Endianness::not_host_endianness = Endianness::BO_LITTLE_ENDIAN; 
+  const Endianness::ByteOrder
+    Endianness::host_endianness = Endianness::BO_BIG_ENDIAN;
+  const Endianness::ByteOrder
+    Endianness::not_host_endianness = Endianness::BO_LITTLE_ENDIAN;
 #endif
 
 //=============================================================================
@@ -101,7 +101,7 @@ inline char * PTR_ALIGN_BINARY (unsigned char const * ptr, uintptr_t alignment)
   //- take advantage of local swapping implementation
 # include <byteswap.h>
 #endif
-  
+
   //- the number of bytes in a long
 #include <limits.h>
 #if ! defined (YAT_SIZEOF_LONG)
@@ -115,7 +115,7 @@ inline char * PTR_ALIGN_BINARY (unsigned char const * ptr, uintptr_t alignment)
 #   error: unsupported long size, must be updated for this platform!
 # endif
 #endif
-  
+
 //=============================================================================
 // Endianness::swap_2
 //=============================================================================
@@ -145,7 +145,7 @@ void Endianness::swap_2 (const char *orig, char* target)
   *udst = (usrc << 8) | (usrc >> 8);
 #endif
 }
-  
+
 //=============================================================================
 // Endianness::swap_4
 //=============================================================================
@@ -243,7 +243,7 @@ void Endianness::swap_16 (const char* orig, char* target)
   Endianness::swap_8(orig + 8, target);
   Endianness::swap_8(orig, target + 8);
 }
-  
+
 //=============================================================================
 // Endianness::swap_2_array
 //=============================================================================
@@ -310,7 +310,7 @@ void Endianness::swap_2_array (const char* orig, char* target, size_t n)
       asm ( "rol $16, %1"   : "=r" (b) : "0" (b) );
       * reinterpret_cast<unsigned int*> (target) = a;
       * reinterpret_cast<unsigned int*> (target + 4) = b;
-#elif ! defined(YAT_NO_INLINE_ASM) && YAT_HAS_PENTIUM && defined(_MSC_VER) 
+#elif ! defined(YAT_NO_INLINE_ASM) && YAT_HAS_PENTIUM && defined(_MSC_VER)
       __asm mov ecx, orig;
       __asm mov edx, target;
       __asm mov eax, [ecx];
@@ -453,7 +453,7 @@ else
   }
 
   // (n & 3) == (n % 4).
-  switch (n&3) 
+  switch (n&3)
   {
     case 3:
       Endianness::swap_2(orig, target);
@@ -657,7 +657,7 @@ void Endianness::swap_4_array (const char* orig, char* target, size_t n)
 #endif /* YAT_SIZEOF_LONG == 8 */
 
   // (n & 3) == (n % 4).
-  switch (n & 3) 
+  switch (n & 3)
   {
     case 3:
       Endianness::swap_4(orig, target);
@@ -708,5 +708,5 @@ void Endianness::swap_16_array (const char* orig, char* target, size_t n)
   }
 }
 
-} //- namespace 
+} //- namespace
 

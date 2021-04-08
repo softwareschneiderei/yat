@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -54,7 +54,7 @@
 #include <iomanip>
 #include <yat/bitsstream/BitsStream.h>
 
-namespace yat 
+namespace yat
 {
 
 //=============================================================================
@@ -104,7 +104,7 @@ extern YAT_DECL size_t kINDENT_COUNTER;
     DUMP_INC_INDENT; \
     DUMP_CLASS(_CLASS_NAME_) \
     DUMP_INC_INDENT;
-                    
+
 //=============================================================================
 //! MACRO: DUMP_MEMBER
 //=============================================================================
@@ -148,13 +148,13 @@ extern YAT_DECL size_t kINDENT_COUNTER;
 //=============================================================================
 inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<8,unsigned char>& _brm)
 {
-  _os << static_cast<unsigned int>(_brm()) 
-      << " [" 
+  _os << static_cast<unsigned int>(_brm())
+      << " ["
       << std::hex
       << static_cast<unsigned int>(_brm.value())
       << std::dec
-      << "] [" 
-      << _brm.to_string() 
+      << "] ["
+      << _brm.to_string()
       << "]";
   return _os;
 }
@@ -166,13 +166,13 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<8,unsigne
 //=============================================================================
 inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<8,char>& _brm)
 {
-  _os << static_cast<int>(_brm()) 
-      << " [" 
+  _os << static_cast<int>(_brm())
+      << " ["
       << std::hex
       << static_cast<int>(_brm.value())
       << std::dec
-      << "] [" 
-      << _brm.to_string() 
+      << "] ["
+      << _brm.to_string()
       << "]";
   return _os;
 }
@@ -182,16 +182,16 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<8,char>& 
 //! \param _os Output stream.
 //! \param _brm Input value.
 //=============================================================================
-template <size_t _n, typename _T> 
+template <size_t _n, typename _T>
 inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<_n,_T>& _brm)
 {
-  _os << _brm() 
-      << " [" 
+  _os << _brm()
+      << " ["
       << std::hex
       << _brm.value()
       << std::dec
-      << "] [" 
-      << _brm.to_string() 
+      << "] ["
+      << _brm.to_string()
       << "]";
   return _os;
 }
@@ -215,9 +215,9 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<_n,_T>& _
 //=============================================================================
 #define YAT_END_BR(_CLASS_NAME_) \
   };
-   
+
 //=============================================================================
-//! MACRO: YAT_BEGIN_EXT_BR 
+//! MACRO: YAT_BEGIN_EXT_BR
 //=============================================================================
 #define YAT_BEGIN_EXT_BR(_CLASS_NAME_, _INHERITED_CLASS_NAME_) \
   class _CLASS_NAME_ : public _INHERITED_CLASS_NAME_ \
@@ -229,22 +229,22 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<_n,_T>& _
       std::ostream& _os = std::cout; \
       INDENT_STREAM << *this << std::endl; \
     }
-      
+
 //=============================================================================
 //! MACRO: YAT_END_EXT_BR
 //=============================================================================
 #define YAT_END_EXT_BR(_CLASS_NAME_) \
   };
-  
+
 //=============================================================================
 //! MACRO: MEMBER
-//=============================================================================   
+//=============================================================================
 #define MEMBER(_MEMBER_NAME_, _BITS_, _CPP_TYPE_) \
   yat::BitsSet<_BITS_, _CPP_TYPE_> _MEMBER_NAME_;
 
 //=============================================================================
 //! MACRO: IGNORE_MEMBER
-//=============================================================================   
+//=============================================================================
 #define IGNORE_MEMBER(_MEMBER_NAME_, _BITS_, _CPP_TYPE_)
 
 //=============================================================================
@@ -272,8 +272,8 @@ inline std::ostream& operator<< (std::ostream& _os, const yat::BitsSet<_n,_T>& _
 #define YAT_END_BR_EXTRACTOR(_CLASS_NAME_) \
   }
 
-} //- namespace 
-   
+} //- namespace
+
 #endif //- _YAT_BITS_RECORD_H_
 
 

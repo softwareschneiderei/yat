@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -48,7 +48,7 @@
 #include <iostream>
 #include <map>
 
-    
+
 namespace yat
 {
 
@@ -59,7 +59,7 @@ template <typename T, typename L = yat::Mutex> class WeakPtr;
 
 /* TO BE CONTINUED... DO NOT DELETE !
 // ============================================================================
-//! \class enable_shared_from_this 
+//! \class enable_shared_from_this
 //! \brief A allow the pointed object to return a SharedPtr from itself
 //!
 // ============================================================================
@@ -89,19 +89,19 @@ private:
 */
 
 // ============================================================================
-//! \class SharedPtr 
+//! \class SharedPtr
 //! \brief A shared pointer abstraction class.
 //!
-//! This template class provides a shared pointer on type \<T\> data with selectable 
+//! This template class provides a shared pointer on type \<T\> data with selectable
 //! locking strategy (type \<L\> parameter).
 //!
-//! If object lock is not necessary, use a yat::NullMutex type, for example : 
+//! If object lock is not necessary, use a yat::NullMutex type, for example :
 //! \verbatim myPointer = new SharedPtr<mySimpleObjectType, yat::NullMutex>(ptr); // defines a "simple" object pointer \endverbatim
-//! 
+//!
 //! If object lock is necessary, use a mutex type (default value in template definition
 //! uses yat::Mutex), for example :
 //! \verbatim myPointer = new SharedPtr<mySharedObjectType>(ptr); // defines a shared object pointer \endverbatim
-//! 
+//!
 // ============================================================================
 template <typename T, typename L = yat::Mutex>
 class SharedPtr
@@ -114,10 +114,10 @@ class SharedPtr
 
 public:
   //! \brief Default constructor.
-  //! 
+  //!
   //! Data pointer and reference counter are initialized to null value.
   //! Default yat::Mutex type used for locking strategy.
-  SharedPtr () 
+  SharedPtr ()
     : m_data(0), m_ref_count((T*)0)
   {
     PTR_DBG("SharedPtr::SharedPtr()");
@@ -126,7 +126,7 @@ public:
   //! \brief Constructor from data pointer.
   //! \param p Pointer to type \<T\> data.
   //! Default yat::Mutex type used for locking strategy.
-  SharedPtr (T* p) 
+  SharedPtr (T* p)
     : m_data(p), m_ref_count(p)
   {
     PTR_DBG("SharedPtr::SharedPtr(" << std::hex << (void*)p << ")");
@@ -137,7 +137,7 @@ public:
   //! \param d Specific deleter. See yat::SharedCounter definition.
   //! Default yat::Mutex type used for locking strategy.
   template <typename D>
-  SharedPtr (T* p, D d) 
+  SharedPtr (T* p, D d)
     : m_data(p), m_ref_count(p, d)
   {
     PTR_DBG("SharedPtr::SharedPtr(" << std::hex << (void*)p << ")");
@@ -145,8 +145,8 @@ public:
 
   //! \brief Copy constructor from same data type \<T\>.
   //! \param s The source pointer.
-  SharedPtr (const ThisType & s) 
-    : m_data(s.m_data), m_ref_count(s.m_ref_count) 
+  SharedPtr (const ThisType & s)
+    : m_data(s.m_data), m_ref_count(s.m_ref_count)
   {
     PTR_DBG("SharedPtr::SharedPtr(const ThisType & s) - m_data: " << std::hex << (void*)m_data << ")");
     PTR_DBG("SharedPtr::SharedPtr(const ThisType & s) - use_count: " << use_count());
@@ -156,7 +156,7 @@ public:
   //! \param s The source pointer.
   //! \exception BAD_CAST Thrown if type \<Y\> is not compatible with type \<T\>.
   template<typename Y>
-  SharedPtr (const SharedPtr<Y,L> & s): m_ref_count(s.m_ref_count) 
+  SharedPtr (const SharedPtr<Y,L> & s): m_ref_count(s.m_ref_count)
   {
     cast_copy_data(s.m_data);
     PTR_DBG("SharedPtr::SharedPtr(const SharedPtr<Y,L> & s) - m_data: " << std::hex << (void*)m_data << ")");
@@ -230,7 +230,7 @@ public:
     return *this;
   }
 
-  //! \brief Operator*. 
+  //! \brief Operator*.
   //!
   //! Returns the pointed data (type \<T\>).
   T& operator* () const
@@ -260,7 +260,7 @@ public:
   {
     PTR_DBG("SharedPtr::reset()");
     ThisType().swap(*this);
-  } 
+  }
 
   //! \brief Resets pointer with new type \<T\> data.
   //! \param p New pointed data.
@@ -268,39 +268,39 @@ public:
   {
     PTR_DBG("SharedPtr::reset(" << std::hex << (void*)p << ")");
     ThisType(p).swap(*this);
-  } 
+  }
 
   //! \brief Resets pointer with new type \<T\> data and new type \<D\> deleter.
   //! \param p New pointed data.
   //! \param d New deleter.
-  template <typename D> 
+  template <typename D>
   void reset (T * p, D d)
   {
     PTR_DBG("SharedPtr::reset(" << std::hex << (void*)p << ", d)");
     ThisType(p, d).swap(*this);
-  } 
+  }
 
   //! \brief Resets pointer with new type \<Y\> data (\<Y\> must be \<T\> convertible).
   //! \param p New pointed data.
   //! \exception BAD_CAST Thrown if type \<Y\> is not compatible with type \<T\>.
-  template <typename Y> 
+  template <typename Y>
   void reset (Y * p)
   {
     PTR_DBG("template <typename Y>SharedPtr::reset(" << std::hex << (void*)p << ")");
     ThisType(p).swap(*this);
-  } 
+  }
 
   //! \brief Resets pointer with new type \<Y\> data and new type \<D\> deleter
   //! (\<Y\> must be \<T\> convertible).
   //! \param p New pointed data.
   //! \param d New deleter.
   //! \exception BAD_CAST Thrown if type \<Y\> is not compatible with type \<T\>.
-  template <typename Y, typename D> 
+  template <typename Y, typename D>
   void reset (Y * p, D d)
   {
     PTR_DBG("template <typename Y>SharedPtr::reset(" << std::hex << (void*)p << ", d)");
     ThisType(p, d).swap(*this);
-  } 
+  }
 
   //! \brief Swaps content with the specified pointer.
   //! \param s The source pointer.
@@ -325,7 +325,7 @@ public:
   {
     m_ref_count.lock();
   }
-  
+
   // Explicitely unlock counter mutex
   // Should never be explicitaly called. Prefere to use a AutoMutex<MySharedPtr_type> object
   //
@@ -335,7 +335,7 @@ public:
   }
 
   //! \brief Gets the shared pointer use count.
-  //! 
+  //!
   unsigned long use_count () const
   {
     return m_ref_count.use_count();
@@ -351,7 +351,7 @@ public:
 
   //! \brief Does *this* point to something ?
   //!
-  //! Returns true if *this* points to a non allocated memory area, 
+  //! Returns true if *this* points to a non allocated memory area,
   //! false otherwise.
   bool is_null () const
   {
@@ -360,11 +360,11 @@ public:
 
   //! \brief Internal implementation of the '<' operator.
   //!
-  //! Returns true if *this* pointed data is "less than" source pointed data, 
+  //! Returns true if *this* pointed data is "less than" source pointed data,
   //! false otherwise.
   //! \param s The source pointer.
   //! \exception BAD_CAST Thrown if type \<Y\> is not compatible with type \<T\>.
-  template<class Y> 
+  template<class Y>
   bool less_than (SharedPtr<Y,L> const & s) const
   {
     return m_data < s.m_data;
@@ -385,7 +385,7 @@ private:
   }
 
 /*
-  template<class Y> 
+  template<class Y>
   void initialize_shared_from_this(Y* obj_p)
   {
     enable_shared_from_this<T> p = dynamic_cast< enable_shared_from_this<T> >;
@@ -393,7 +393,7 @@ private:
     {
       if( p->m_weak_ptr->is_null() )
       {
-        // create shared Initialize weak ptr object 
+        // create shared Initialize weak ptr object
       }
     }
   }
@@ -410,7 +410,7 @@ private:
 //! \brief Operator< on SharedPtr type, i.e. is \<a\> less than \<b\> ?
 //! \param a Left shared pointer.
 //! \param b Right shared pointer.
-template <typename T, typename U, typename L> 
+template <typename T, typename U, typename L>
 inline bool operator<(SharedPtr<T, L> const & a, SharedPtr<U, L> const & b)
 {
  return a.less_than(b);
@@ -426,19 +426,19 @@ inline bool operator==( const SharedPtr<T>& a, const SharedPtr<U>& b )
 }
 
 // ============================================================================
-//! \class WeakPtr 
+//! \class WeakPtr
 //! \brief A weak pointer abstraction class.
 //!
-//! This template class provides a weak pointer on type \<T\> data with selectable 
+//! This template class provides a weak pointer on type \<T\> data with selectable
 //! locking strategy (type \<L\> parameter).
 //!
-//! If object lock is not necessary, use a yat::NullMutex type, for example : 
+//! If object lock is not necessary, use a yat::NullMutex type, for example :
 //! \verbatim myPointer = new WeakPtr<mySimpleObjectType, yat::NullMutex>(ptr); // defines a "simple" object pointer \endverbatim
-//! 
-//! If object lock is necessary, use a mutex type (default value in template 
+//!
+//! If object lock is necessary, use a mutex type (default value in template
 //! definition uses yat::Mutex), for example :
 //! \verbatim myPointer = new WeakPtr<mySharedObjectType>(ptr); // defines a shared object pointer \endverbatim
-//! 
+//!
 // ============================================================================
 template <typename T, typename L> class WeakPtr
 {
@@ -450,10 +450,10 @@ template <typename T, typename L> class WeakPtr
 
 public:
   //! \brief Default constructor.
-  //! 
+  //!
   //! Data pointer and reference counter are initialized to null value.
   //! Default yat::Mutex type used for locking strategy.
-  WeakPtr () 
+  WeakPtr ()
     : m_data(0)
   {
     PTR_DBG("WeakPtr::WeakPtr()");
@@ -461,18 +461,18 @@ public:
 
   //! \brief Copy constructor from same data type \<T\>.
   //! \param s The source pointer.
-  WeakPtr (const WeakPtr<T,L> & s) 
-    : m_data(s.m_data), m_ref_count(s.m_ref_count) 
+  WeakPtr (const WeakPtr<T,L> & s)
+    : m_data(s.m_data), m_ref_count(s.m_ref_count)
   {
     PTR_DBG("WeakPtr::WeakPtr(const ThisType & s) - m_data: " << std::hex << (void*)m_data << ")");
     PTR_DBG("WeakPtr::WeakPtr(const ThisType & s) - use_count: " << use_count());
   }
 
-  //! \brief Copy constructor from other data type \<Y\>. 
+  //! \brief Copy constructor from other data type \<Y\>.
   //! \param s The source pointer.
   //! \exception BAD_CAST Thrown if type \<Y\> is not compatible with type \<T\>.
   template <typename Y>
-  WeakPtr (const WeakPtr<Y,L> & s) 
+  WeakPtr (const WeakPtr<Y,L> & s)
   {
     cast_copy_data(s.m_data);
     m_ref_count = s.m_ref_count;
@@ -482,8 +482,8 @@ public:
 
   //! \brief Constructor from SharedPtr<T,L>.
   //! \param s The source shared pointer.
-  WeakPtr (const SharedPtr<T,L> & s) 
-    : m_data(s.m_data), m_ref_count(s.m_ref_count) 
+  WeakPtr (const SharedPtr<T,L> & s)
+    : m_data(s.m_data), m_ref_count(s.m_ref_count)
   {
     PTR_DBG("WeakPtr::WeakPtr(const ThisType & s) - m_data: " << std::hex << (void*)m_data << ")");
     PTR_DBG("WeakPtr::WeakPtr(const ThisType & s) - use_count: " << use_count());
@@ -493,7 +493,7 @@ public:
   //! \param s The source shared pointer.
   //! \exception BAD_CAST Thrown if type \<Y\> is not compatible with type \<T\>.
   template <typename Y>
-  WeakPtr (const SharedPtr<Y,L> & s) 
+  WeakPtr (const SharedPtr<Y,L> & s)
   {
     cast_copy_data(s.m_data);
     m_ref_count = s.m_ref_count;
@@ -577,7 +577,7 @@ public:
   {
     PTR_DBG("WeakPtr::reset()");
     ThisType().swap(*this);
-  } 
+  }
 
   //! \brief Swaps content with the specified pointer.
   //! \param s The source pointer.
@@ -588,7 +588,7 @@ public:
   }
 
   //! \brief Gets the shared pointer use count.
-  //! 
+  //!
   unsigned long use_count () const
   {
     return m_ref_count.use_count();
@@ -597,12 +597,12 @@ public:
   //! \brief Returns a shared pointer in order to provide safe access to the pointed data.
   SharedPtr<T,L> lock() const
   {
-    PTR_DBG("WeakPtr::lock()");      
+    PTR_DBG("WeakPtr::lock()");
     // Returns a sharedptr in order to get access to the pointed object
     return SharedPtr<T,L>(*this);
   }
-  
-  
+
+
   typedef T* ThisType::*anonymous_bool_type;
 
   //! \brief Implicit conversion to bool.
@@ -613,7 +613,7 @@ public:
 
   //! \brief Does the weak pointer point to something ?
   //!
-  //! Returns true if *this* points to a non allocated memory area, 
+  //! Returns true if *this* points to a non allocated memory area,
   //! false otherwise.
   bool is_null () const
   {
@@ -630,11 +630,11 @@ public:
 
   //! \brief Internal implementation of the '\<' operator.
   //!
-  //! Returns true if *this* pointed data is "less than" source pointed data, 
+  //! Returns true if *this* pointed data is "less than" source pointed data,
   //! false otherwise.
   //! \param s The source pointer (on data type \<Y\>).
   //! \exception BAD_CAST Thrown if type \<Y\> is not compatible with type \<T\>.
-  template<class Y> 
+  template<class Y>
   bool less_than (WeakPtr<Y,L> const & s) const
   {
     return m_data < s.m_data;
@@ -664,14 +664,14 @@ private:
 //! \brief Operator< on WeakPtr type, i.e. is \<a\> less than \<b\> ?
 //! \param a Left weak pointer.
 //! \param b Right weak pointer.
-template <typename T, typename U, typename L> 
+template <typename T, typename U, typename L>
 inline bool operator<(WeakPtr<T, L> const & a, WeakPtr<U, L> const & b)
 {
  return a.less_than(b);
 }
 
 // ============================================================================
-//! \class SharedObjectPtr 
+//! \class SharedObjectPtr
 //! \brief A shared object pointer abstraction class.
 //!
 //! This template class provides a shared object pointer on type \<T\>.
@@ -688,16 +688,16 @@ public:
     //- noop
   }
 
-  //! \brief Constructor with initialization. 
+  //! \brief Constructor with initialization.
   //!
-  //! Takes ownership of the specified yat::SharedObject. 
+  //! Takes ownership of the specified yat::SharedObject.
   //! \<Y\> must inherit from yat::SharedObject.
   //! \param so Shared object.
   template <typename Y> explicit SharedObjectPtr( Y * so ) : m_so(so)
   {
     //- noop
   }
-  
+
   //! \brief Destructor.
   ~SharedObjectPtr()
   {
@@ -708,7 +708,7 @@ public:
   //!
   //! Releases currently pointed SharedObject, then points to the specified one.
   //! \param r New shared object pointer.
-  SharedObjectPtr& operator= (SharedObjectPtr& r) 
+  SharedObjectPtr& operator= (SharedObjectPtr& r)
   {
     T * new_so = r ? r.m_so->duplicate() : 0;
     if (m_so)
@@ -718,8 +718,8 @@ public:
   }
 
   //! \brief Resets the shared object pointer.
-  //! 
-  //! Releases the currently pointed yat::SharedObject then takes ownership of 
+  //!
+  //! Releases the currently pointed yat::SharedObject then takes ownership of
   //! the specified one.
   //! \param so New shared object.
   void reset ( T* so = 0 )
@@ -734,19 +734,19 @@ public:
   {
     return m_so;
   }
-  
+
   //! \brief Underlying yat::SharedObject accessor.
   T* operator-> ()
   {
     return m_so;
   }
-  
+
   //! \brief Underlying yat::SharedObject data accessor.
   T& operator* ()
   {
     return *m_so;
   }
-  
+
   typedef T* SharedObjectPtr::*anonymous_bool_type;
 
   //! \brief Implicit conversion to bool.

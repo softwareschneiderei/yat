@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    A yat::BitsStream example.
  * \author   N. Leclercq, J. Malik - Synchrotron SOLEIL
  */
@@ -84,17 +84,17 @@ int main (int argc, char* argv[])
       //- retrieve data from peer
       //- std::cout << "Retrieving data from peer" << std::endl;
       yat::Socket::Data data(253);
-      size_t nb = sock.receive(data); 
+      size_t nb = sock.receive(data);
       std::cout << "Got " << nb << " bytes from peer" << std::endl;
 
       //- extract data into a QRBlock
-      yat::BitsStream bs(reinterpret_cast<unsigned char *>(data.base()), 
-											   data.size(), 
+      yat::BitsStream bs(reinterpret_cast<unsigned char *>(data.base()),
+											   data.size(),
 											   yat::Endianness::BO_LITTLE_ENDIAN);
       QRBlock qr_block;
 		  bs >> qr_block;
       qr_block.dump();
-    } 
+    }
     while (0);
 
     //- disconnect from peer
@@ -116,11 +116,11 @@ int main (int argc, char* argv[])
       std::cout << "Err-" << err << "::origin..." << se.errors[err].origin << std::endl;
       std::cout << "Err-" << err << "::code....." << se.errors[err].code << std::endl;
     }
-  } 
+  }
   catch (...)
   {
     std::cout << "Unknown exception caught" << std::endl;
   }
 
-	return 0;  
+	return 0;
 }

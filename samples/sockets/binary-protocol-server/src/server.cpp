@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -114,7 +114,7 @@ void app(SocketCallback cb)
                //- client disconnected
                if (num_bytes_from_client == 0)
                {
-                  cb(clients[i].sock, 1, 0, 0); 
+                  cb(clients[i].sock, 1, 0, 0);
                   closesocket(clients[i].sock);
                   remove_client(clients, i, &actual);
                   continue;

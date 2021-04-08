@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    An example of yat::SharedPtr usage
  * \author   N. Leclercq, J. Malik - Synchrotron SOLEIL
  */
@@ -32,7 +32,7 @@ struct MySharedObject : public yat::SharedObject
     std::cout << "MySharedObject::calling dtor for " << some_attribute << std::endl;
   }
 
-  //- reimplements yat::yat::SharedObject::duplicate so that it returns a <MySharedObject*> 
+  //- reimplements yat::yat::SharedObject::duplicate so that it returns a <MySharedObject*>
   //- instead of a <yat::SharedObject*>...
   MySharedObject* duplicate()
   {
@@ -54,7 +54,7 @@ struct MySharedObject : public yat::SharedObject
             << (ptr ? ptr->reference_count() : 0) \
             << "]" \
             << std::endl
-            
+
 //-----------------------------------------------------------------------------
 // MAIN
 //-----------------------------------------------------------------------------
@@ -63,60 +63,60 @@ int main(int argc, char* argv[])
   typedef yat::SharedObjectPtr<MySharedObject> MySharedObjectPtr;
 
   MySharedObjectPtr foo ( new MySharedObject("foo-so") );
- 
+
   MySharedObjectPtr bar ( new MySharedObject("bar-so") );
 
   MySharedObjectPtr tmp;
 
   std::cout << std::endl; //-----------------------------------------------------
-  
+
   std::cout << "initial state:" << std::endl;
   DUMP( tmp );
   DUMP( foo );
   DUMP( bar );
 
   std::cout << std::endl; //-----------------------------------------------------
-  
+
   tmp = foo;
   std::cout << "after 'tmp = foo' :" << std::endl;
-  
+
   DUMP( tmp );
   DUMP( foo );
   DUMP( bar );
 
   std::cout << std::endl; //-----------------------------------------------------
-  
+
   tmp = bar;
-  
+
   std::cout << "after 'tmp = bar' :" << std::endl;
-  
+
   DUMP( tmp );
   DUMP( foo );
   DUMP( bar );
 
   std::cout << std::endl; //-----------------------------------------------------
-  
+
   tmp.reset();
-  
+
   std::cout << "after 'tmp.reset()' :" << std::endl;
-  
+
   DUMP( tmp );
   DUMP( foo );
   DUMP( bar );
 
   std::cout << std::endl; //-----------------------------------------------------
-  
-  tmp = foo; 
-  
+
+  tmp = foo;
+
   foo.reset( new MySharedObject("oof-so") );
-  
+
   std::cout << "after 'tmp = foo; foo.reset( new MySharedObject(\"oof-so\") )' :" << std::endl;
-  
+
   DUMP( tmp );
   DUMP( foo );
   DUMP( bar );
 
   std::cout << std::endl;
-  
+
   return 0;
 }

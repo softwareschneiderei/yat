@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -61,19 +61,19 @@ public:
 
   //! \brief Constructor.
   SharedObject ();
-  
+
   //! \brief Destructor.
   virtual ~SharedObject ();
-  
+
   //! \brief Returns a "shallow" copy of the shared object (avoids deep copy).
   //!
   //! Increments the shared reference count by 1.
   SharedObject * duplicate ();
 
-  //! \brief Decreases the shared reference count by 1. 
-  //! 
-  //! If the reference count equals to 0 and \<commit_suicide\> is true, 
-  //! then delete *this* and return 0. Returns 1 otherwise. 
+  //! \brief Decreases the shared reference count by 1.
+  //!
+  //! If the reference count equals to 0 and \<commit_suicide\> is true,
+  //! then delete *this* and return 0. Returns 1 otherwise.
   //! \param commit_suicide Indicates if object is to be deleted if
   //! no one uses it.
   //! \remark Behaviour is undefined if reference count < 0.
@@ -81,16 +81,16 @@ public:
 
   //! \brief Returns the current reference count.
   int reference_count () const;
-  
+
   //! \brief Locks the underlying mutex.
   void lock ();
-  
+
   //! \brief Unlocks the underlying mutex.
   void unlock ();
 
   //! \brief Returns the underlying synchronization object (mutex).
   Mutex & mutex ();
-  
+
 protected:
   //! \brief Mutex to protect the data during any operation on them.
   Mutex lock_;

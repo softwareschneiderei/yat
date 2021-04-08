@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -55,7 +55,7 @@
 //!   - yat::Any
 //!   - yat::Container
 //!   - yat::GenericContainer
-//! 
+//!
 // ============================================================================
 
 #include <typeinfo>
@@ -64,10 +64,10 @@
 namespace yat
 {
 // ============================================================================
-//! \class Any 
+//! \class Any
 //! \brief Basic container implementation.
 //!
-//! This class provides a basic container implementation, with elementary  
+//! This class provides a basic container implementation, with elementary
 //! manipulation functions (eg swap, clear, copy, operators...) and cast functions.
 // ============================================================================
     class Any
@@ -84,7 +84,7 @@ namespace yat
 
         //! \brief Constructor from \<ValueType\> type.
         //! \param value \<ValueType\> type value.
-        template<typename ValueType> 
+        template<typename ValueType>
         Any (const ValueType & value)
           : m_content (new Holder<ValueType>(value))
         {
@@ -117,7 +117,7 @@ namespace yat
 
         //! \brief Operator= template function.
         //! \param src The source value to affect to *this* content.
-        template<typename ValueType> 
+        template<typename ValueType>
         Any & operator= (const ValueType & src)
         {
             Any(src).swap(*this);
@@ -133,7 +133,7 @@ namespace yat
         }
 
         //! \brief Tells if content is NULL value or not.
-        //! 
+        //!
         //! Returns true if *this* content is NULL value, false otherwise.
         bool empty() const
         {
@@ -157,19 +157,19 @@ namespace yat
         }
 
         // ============================================================================
-        //! \class Placeholder 
+        //! \class Placeholder
         //! \brief Pure virtual container class : has to be implemented.
         // ============================================================================
         class Placeholder
         {
         public:
             //! \brief Destructor.
-            virtual ~Placeholder() 
+            virtual ~Placeholder()
             {
               //- noop ctor
             }
         public:
-            //! \brief Gets the real type of content. 
+            //! \brief Gets the real type of content.
             //!
             //! Virtual function : has to be implemented.
             virtual const std::type_info & type() const = 0;
@@ -181,7 +181,7 @@ namespace yat
         };
 
         // ============================================================================
-        //! \class Holder 
+        //! \class Holder
         //! \brief Template class implementing a PlaceHoleder content of \<ValueType\> type data.
         // ============================================================================
         template<typename ValueType>
@@ -195,8 +195,8 @@ namespace yat
             {
               //- noop ctor
             }
-      
-            //! \brief Gets the real type of content. 
+
+            //! \brief Gets the real type of content.
             virtual const std::type_info & type() const
             {
               return typeid(ValueType);
@@ -211,13 +211,13 @@ namespace yat
             //! \brief Container content.
             ValueType m_held;
         };
-    
+
         //! \brief Pointer to content.
         Placeholder * m_content;
     };
 
     //! \brief Cast function from Any type to \<ValueType\> type.
-    //! 
+    //!
     //! If \<operand\> is NULL pointer or \<operand\> type is not compatible
     //! with \<ValueType\>, returns 0.
     //! \param operand Pointer to value to cast.
@@ -231,14 +231,14 @@ namespace yat
 
     //! \brief Cast function from Any type to \<ValueType\> type.
     //! \brief Supposed to be used when trying to cast something exchanged between to RTTI contexts (e.g. a process and a shared lib)
-    //! 
+    //!
     //! If \<operand\> is NULL pointer or \<operand\> type is not compatible
     //! with \<ValueType\>, returns 0.
     //! \param operand Pointer to value to cast.
     template<typename ValueType>
     ValueType * any_cast_ext (Any * operand)
     {
-        return operand 
+        return operand
             && static_cast<std::string>(operand->type().name()) == static_cast<std::string>(typeid(ValueType).name())
              ? &static_cast<Any::Holder<ValueType> *>(operand->m_content)->m_held
              : 0;
@@ -246,7 +246,7 @@ namespace yat
 
     //! \brief Cast function from *const* Any type to *const* \<ValueType\> type.
     //! \brief Supposed to be used when trying to cast something exchanged between to RTTI contexts (e.g. a process and a shared lib)
-    //! 
+    //!
     //! If \<operand\> is NULL pointer or \<operand\> type is not compatible
     //! with \<ValueType\>, returns 0.
     //! \param operand Pointer to value to cast.
@@ -257,7 +257,7 @@ namespace yat
     }
 
     //! \brief Cast function from *const* Any type to *const* \<ValueType\> type.
-    //! 
+    //!
     //! If \<operand\> is NULL pointer or \<operand\> type is not compatible
     //! with \<ValueType\>, returns 0.
     //! \param operand Pointer to const value to cast.
@@ -274,30 +274,30 @@ namespace yat
     const ValueType & any_cast (const Any & operand)
     {
         const ValueType * result = any_cast<ValueType>(&operand);
-    
+
         if (! result)
           THROW_YAT_ERROR(_CPTC("yat::any_cast error"),
                           _CPTC("yat::any_cast conversion failed"),
                           _CPTC("yat::any_cast"));
-      
+
         return *result;
     }
 
     //! \brief Cast function from *const* Any type to *const* \<ValueType\> type.
     //! \brief Supposed to be used when trying to cast something exchanged between to RTTI contexts (e.g. a process and a shared lib)
-    //! 
+    //!
     //! \param operand Const value to cast.
     //! \exception yat::Exception Thrown if cast conversion fails.
     template<typename ValueType>
     const ValueType & any_cast_ext (const Any & operand)
     {
         const ValueType * result = any_cast_ext<ValueType>(&operand);
-    
+
         if (! result)
           THROW_YAT_ERROR(_CPTC("yat::any_cast error"),
                           _CPTC("yat::any_cast conversion failed"),
                           _CPTC("yat::any_cast"));
-      
+
         return *result;
     }
 
@@ -308,16 +308,16 @@ namespace yat
     ValueType & any_cast (Any & operand)
     {
         ValueType * result = any_cast<ValueType>(&operand);
-    
+
         if (! result)
           THROW_YAT_ERROR(_CPTC("yat::any_cast error"),
                           _CPTC("yat::any_cast conversion failed"),
                           _CPTC("yat::any_cast"));
-      
+
         return *result;
     }
 
-    //! \brief Cast function from Any type to \<ValueType\> type. 
+    //! \brief Cast function from Any type to \<ValueType\> type.
     //! \brief Supposed to be used when trying to cast something exchanged between to RTTI contexts (e.g. a process and a shared lib)
     //! \param operand Value to cast.
     //! \exception yat::Exception Thrown if cast conversion fails.
@@ -325,12 +325,12 @@ namespace yat
     ValueType & any_cast_ext (Any & operand)
     {
         ValueType * result = any_cast_ext<ValueType>(&operand);
-    
+
         if ( ! result )
           THROW_YAT_ERROR(_CPTC("yat::any_cast error"),
                           _CPTC("yat::any_cast conversion failed"),
                           _CPTC("yat::any_cast_ext"));
-      
+
         return *result;
     }
 
@@ -354,7 +354,7 @@ namespace yat
     {
         return unsafe_any_cast<ValueType>(const_cast<Any *>(operand));
     }
-  
+
 } //- namespace
 
 #endif //- _YAT_ANY_H_

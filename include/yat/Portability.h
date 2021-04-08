@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,16 +27,16 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
  * \author See AUTHORS file
  */
- 
+
 #ifndef _YAT_PORTABILITY_H_
 #define _YAT_PORTABILITY_H_
 
@@ -44,7 +44,7 @@
 # include <float.h>
 # include <yat/config-win32.h>
 #elif (defined _linux_ || defined __linux__)
-# include <cmath> 
+# include <cmath>
 # include <yat/config-linux.h>
 #elif (defined __APPLE__)
 # include <math.h>
@@ -66,13 +66,13 @@ namespace yat
 
 # define IEEE_NAN ieee_nan()
 
-  template <typename T> 
+  template <typename T>
   bool is_nan ( const T & v )
   {
 #if defined (WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
     return _isnan(static_cast<double>(v));
 #else
-    return std::isnan(static_cast<double>(v));  
+    return std::isnan(static_cast<double>(v));
 #endif
   }
 }
@@ -103,9 +103,9 @@ namespace yat
       std::string str()
       {
         //- in case it is not already done, add an 'end of string' character
-        (*this) << '\0'; 
+        (*this) << '\0';
         //- create a string containing the data of the strstream
-        std::string ret(std::ostrstream::str()); 
+        std::string ret(std::ostrstream::str());
         //- call freeze such that the std::ostrstream will delete its internal string
         std::ostrstream::freeze(false);
         return ret;
@@ -118,9 +118,9 @@ namespace yat
       std::string str()
       {
         //- in case it is not already done, add an 'end of string' character
-        (*this) << '\0'; 
+        (*this) << '\0';
         //- create a string containing the data of the strstream
-        std::string ret(std::istrstream::str()); 
+        std::string ret(std::istrstream::str());
         //- call freeze such that the std::istrstream will delete its internal string
         std::istrstream::freeze(false);
         return ret;
@@ -133,9 +133,9 @@ namespace yat
       std::string str()
       {
         //- in case it is not already done, add an 'end of string' character
-        (*this) << '\0'; 
+        (*this) << '\0';
         //- create a string containing the data of the strstream
-        std::string ret(std::strstream::str()); 
+        std::string ret(std::strstream::str());
         //- call freeze such that the std::strstream will delete its internal string
         std::strstream::freeze(false);
         return ret;

@@ -9,7 +9,7 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (i386 asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
@@ -34,7 +34,7 @@
 // See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 
@@ -66,7 +66,7 @@
 //! is better adapted to the context of TANGO Device than the yat::Task.\n
 //!
 //! <b>Main Authors & Maintainers:</b>\n
-//!   - Nicolas Leclercq - Synchrotron SOLEIL - France\n
+//!   - Nicolas Leclercq - ESRF - France\n
 //!   - Stephane Poirier - Synchrotron SOLEIL - France\n
 //!
 //! <b>Contributors:</b>\n
@@ -79,7 +79,7 @@
 //!
 //! <b>YAT license:</b>
 //!
-//! Copyright (C) 2006-2016 The Tango Community (http://tango-controls.org)
+//! Copyright (C) 2006-2021 The Tango Community (http://tango-controls.org)
 //!
 //! Part of the code comes from the ACE Framework (i386 asm bytes swaping code).\n
 //! See http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE

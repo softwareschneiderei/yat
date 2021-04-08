@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -171,6 +171,7 @@ int main(int argc, char* argv[])
         if( CFG_FILE_DEFAULT_SECTION == *cit || (!test_exec.empty() && !re_test.search(*cit)) )
           continue;
 
+
         std::cout << "----\ntest name: " << *cit << std::endl;
         f.set_section(*cit);
         yat::CfgFile::Parameters pl = f.get_parameters();
@@ -180,13 +181,22 @@ int main(int argc, char* argv[])
             std::cout << cit->first << " -> " << substitute(pg, pl, cit->second) << std::endl;
         }
 
-        yat::RegexPtr re_ptr = new yat::Regex(substitute(pg, pl, f.get_param_value("pattern")));
-        std::cout << "Pattern: " << re_ptr->pattern() << "\n-" << std::endl;
-
-        yat::String op = f.get_param_value("function");
+        yat::RegexPtr re_ptr;
         yat::CfgFile::Values test_strings = f.get_values();
+        yat::String op = f.get_param_value("function");
         for( std::size_t i = 0; i < test_strings.size(); ++i )
         {
+          int flags = yat::Regex::extended;
+          std::cout << "opt : " << opt << std::endl;
+          if( !(opt & sub) && op.is_equal_no_case("match") )
+            flags |= yat::Regex::nosubs;
+
+          if( !re_ptr )
+          {
+            re_ptr = new yat::Regex(substitute(pg, pl, f.get_param_value("pattern")), flags);
+            std::cout << "Pattern: " << re_ptr->pattern() << "\n-" << std::endl;
+          }
+
           if( op.is_equal_no_case("match") )
             match(re_ptr, test_strings[i], opt);
           else if( op.is_equal_no_case("search") )

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,21 +9,21 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2011  N.Leclercq & The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (i386 asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
 //
 // Contributors form the TANGO community:
-// See AUTHORS file 
+// See AUTHORS file
 //
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -31,10 +31,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -48,22 +48,22 @@
 // ============================================================================
 //! \page threadingPage Threading documentation
 //! \tableofcontents
-//! The threading utilities provide a set of classes implementing classical threading 
+//! The threading utilities provide a set of classes implementing classical threading
 //! concepts as well as the specific task notion. \n
 //!
 //! \section sec1 Classical threading concepts
 //! The threading utilities provide the following classical threading concepts :
 //! - thread
-//! - mutex 
+//! - mutex
 //! - semaphore
 //! - barrier
-//! 
-//! \subsection ssec11 Thread concept 
+//!
+//! \subsection ssec11 Thread concept
 //! The Thread class is a basic implementation of the thread concept. It's an abstract class
 //! that must be derived to be used.\n
-//! A Thread has a state, an identifier and a priority, managed by an internal mutex. 
+//! A Thread has a state, an identifier and a priority, managed by an internal mutex.
 //! It provides both "detached" and "undetached" (i.e. joinable) behaviour.\n
-//! For example, a Thread class can be used to implement a simple data acquisition thread. 
+//! For example, a Thread class can be used to implement a simple data acquisition thread.
 //! For more complex threaded treatments, use the Task concept described below.
 //!
 //! \subsection ssec12 Mutex concept
@@ -82,17 +82,17 @@
 //! \section sec2 Task concept
 //! \subsection ssec21 Task class description
 //! The yat task provides a simplified thread concept which hides shared memory management by using stimulation messages.\n
-//! The Task class inherits from the Thread class and manage a message queue (MessageQ class). The task activity is only stimulated by 
+//! The Task class inherits from the Thread class and manage a message queue (MessageQ class). The task activity is only stimulated by
 //! message reception (predefined yat message or user defined messages), which can be synchronous or asynchronous.\n
-//! 
-//! - Asynchronous mechanism : the task posts a message and waits for the message to be properly posted (not handled). 
+//!
+//! - Asynchronous mechanism : the task posts a message and waits for the message to be properly posted (not handled).
 //! An exception is thrown if timeout expires.
-//! - Synchronous mechanism: the task posts a waitable message and waits for the message to be handled by the recipient. 
+//! - Synchronous mechanism: the task posts a waitable message and waits for the message to be handled by the recipient.
 //! An exception is thrown if timeout expires (on post or treatment).
 //!
 //! \subsection ssec22 Task life cycle
 //! Here are the main actions to realize in order to use a Task class :
-//! - Inherits from yat::Task to implement your own task 
+//! - Inherits from yat::Task to implement your own task
 //! (override the message manager function handle_message() which is called when a message is received in the message queue).
 //! - Define specific commands to activate the task (it is recommended not to expose messages but only a command like interface,
 //! and define a private function to self-post a message).
@@ -110,19 +110,19 @@
 //! - Message priority : useful in message queue management (a highest priority message will be handled first)
 //! - Waitable : specifies if message can be used in synchronous mechanism
 //! - data : data sent with message
-//! 
+//!
 //! \remark A message type can be PERIODIC or TIMEOUT :
 //! - PERIODIC : message sent every specified period (best effort)
 //! - TIMEOUT : message sent if no message received after specified timeout
 //!
-//! \subsection ssec24 Message queue 
-//! The MessageQ message queue is a FIFO message queue for equal priority messages, 
+//! \subsection ssec24 Message queue
+//! The MessageQ message queue is a FIFO message queue for equal priority messages,
 //! i.e. an incoming message is put in the message queue before messages with lowest priority.\n
-//! 
+//!
 //! In order to prevent message queue congestion, two water marks are used :
 //! - High Water Mark : if message number in queue < HWM, a message can be posted
 //! - Low Water Mark : if message number in queue > HWM, wait until message number in queue < LWM before posting a message
-//! 
+//!
 //! \remark The MessageQ class also provides statistics on message queue running.
 //!
 //! \subsection ssec25 Shared object concept

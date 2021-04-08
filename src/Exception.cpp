@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -44,7 +44,7 @@
 #include <yat/CommonHeader.h>
 #include <yat/Exception.h>
 
-namespace yat 
+namespace yat
 {
   // ============================================================================
   // Error::Error
@@ -65,7 +65,7 @@ namespace yat
   Error::Error (const char *_reason,
                 const char *_desc,
                 const char *_origin,
-                int _code, 
+                int _code,
                 int _severity)
     :  reason (_reason),
        desc (_desc),
@@ -82,7 +82,7 @@ namespace yat
   Error::Error (const std::string& _reason,
                 const std::string& _desc,
                 const std::string& _origin,
-                int _code, 
+                int _code,
                 int _severity)
     :  reason (_reason),
        desc (_desc),
@@ -117,7 +117,7 @@ namespace yat
   // ============================================================================
   // Error::operator=
   // ============================================================================
-  Error& Error::operator= (const Error& _src) 
+  Error& Error::operator= (const Error& _src)
   {
     //- no self assignment
     if (this == &_src)
@@ -135,7 +135,7 @@ namespace yat
   // ============================================================================
   // Exception::Exception
   // ============================================================================
-  Exception::Exception () 
+  Exception::Exception ()
     : errors(0)
   {
     //- noop
@@ -147,8 +147,8 @@ namespace yat
   Exception::Exception (const char *_reason,
                         const char *_desc,
                         const char *_origin,
-                        int _code, 
-                        int _severity) 
+                        int _code,
+                        int _severity)
     : errors(0)
   {
     this->push_error(Error(_reason, _desc, _origin, _code, _severity));
@@ -160,8 +160,8 @@ namespace yat
   Exception::Exception (const std::string& _reason,
                         const std::string& _desc,
                         const std::string& _origin,
-                        int _code, 
-                        int _severity) 
+                        int _code,
+                        int _severity)
     : errors(0)
   {
     this->push_error(Error(_reason, _desc, _origin, _code, _severity));
@@ -170,7 +170,7 @@ namespace yat
   // ============================================================================
   // Exception::Exception
   // ============================================================================
-  Exception::Exception (const Exception& _src) 
+  Exception::Exception (const Exception& _src)
     : errors(0)
   {
     for (unsigned int i = 0; i < _src.errors.size();  i++)
@@ -180,7 +180,7 @@ namespace yat
   // ============================================================================
   // Exception::Exception
   // ============================================================================
-  Exception& Exception::operator= (const Exception& _src) 
+  Exception& Exception::operator= (const Exception& _src)
   {
     //- no self assignment
     if (this == &_src)
@@ -207,8 +207,8 @@ namespace yat
   // ============================================================================
   void Exception::push_error (const char *_reason,
                               const char *_desc,
-                              const char *_origin, 
-                              int _code, 
+                              const char *_origin,
+                              int _code,
                               int _severity)
   {
     this->errors.push_back(Error(_reason, _desc, _origin, _code, _severity));
@@ -219,8 +219,8 @@ namespace yat
   // ============================================================================
   void Exception::push_error (const std::string& _reason,
                               const std::string& _desc,
-                              const std::string& _origin, 
-                              int _code, 
+                              const std::string& _origin,
+                              int _code,
                               int _severity)
   {
     this->errors.push_back(Error(_reason, _desc, _origin, _code, _severity));
@@ -263,16 +263,16 @@ namespace yat
           << this->errors[e].code
           << std::endl;
     }
-    return oss.str(); 
+    return oss.str();
   }
-  
+
   // ============================================================================
   // Exception::dump
   // ============================================================================
   void Exception::dump () const
   {
     std::cout << "-- yat::Exception ----------------------------" << std::endl;
-    std::cout << this->to_string()                                << std::endl; 
+    std::cout << this->to_string()                                << std::endl;
     std::cout << "----------------------------------------------" << std::endl;
   }
 

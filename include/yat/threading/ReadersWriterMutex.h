@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,21 +9,21 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2012  N.Leclercq & The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
 //
 // Contributors form the TANGO community:
-// See AUTHORS file 
+// See AUTHORS file
 //
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -31,10 +31,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -56,10 +56,10 @@ namespace yat {
 //! \class ReadersWriterMutex
 //! \brief The YAT n-readers/1-writer mutex class.
 //!
-//! This class implements a n-readers/1-writer mutex. This is a synchronization 
-//! tool for protecting resources that can be accessed for reading and writing. 
-//! We want to allow multiple threads to have simultaneous read-only access, 
-//! but as soon as one thread wants to write to the resource, all other threads 
+//! This class implements a n-readers/1-writer mutex. This is a synchronization
+//! tool for protecting resources that can be accessed for reading and writing.
+//! We want to allow multiple threads to have simultaneous read-only access,
+//! but as soon as one thread wants to write to the resource, all other threads
 //! must be blocked until the writing is complete.
 //!
 //! \remark This class is not supposed to be derived.
@@ -69,7 +69,7 @@ class YAT_DECL ReadersWriterMutex
 public:
   //! \brief Constructor.
   ReadersWriterMutex (size_t max_readers = 32)
-      : m_semaphore(max_readers), 
+      : m_semaphore(max_readers),
         m_max_readers(max_readers)
   {
     //- noop
@@ -82,30 +82,30 @@ public:
   }
 
   //! Locks the resource for reading
-  inline void lock_for_reading () 
-  { 
-    this->m_semaphore.wait(); 
+  inline void lock_for_reading ()
+  {
+    this->m_semaphore.wait();
   }
 
   //! Unlocks the resource for reading
-  inline void unlock_for_reading () 
-  { 
-    this->m_semaphore.post(); 
+  inline void unlock_for_reading ()
+  {
+    this->m_semaphore.post();
   }
 
   //! Locks the resource for writing
-  inline void lock_for_writing () 
-  { 
+  inline void lock_for_writing ()
+  {
     yat::MutexLock guard(this->m_mutex);
     for (size_t i = 0; i < this->m_max_readers; ++i)
-      m_semaphore.wait(); 
+      m_semaphore.wait();
   }
 
   //! Unocks the resource for writing
-  inline void unlock_for_writing () 
-  { 
+  inline void unlock_for_writing ()
+  {
     for (size_t i = 0; i < this->m_max_readers; ++i)
-      m_semaphore.post(); 
+      m_semaphore.post();
   }
 
 private:
@@ -120,8 +120,8 @@ private:
 //!
 //! The AutoReaderMutex class provides an auto lock/unlock mechanism.\n
 //!
-//! The AutoReaderMutex is ideal in context where some exceptions may be thrown. 
-//! Whatever is the exit path of your code, the AutoMutex class will garantee 
+//! The AutoReaderMutex is ideal in context where some exceptions may be thrown.
+//! Whatever is the exit path of your code, the AutoMutex class will garantee
 //! that the associated mutex is properly unlock.\n
 // ============================================================================
 class YAT_DECL AutoReaderMutex
@@ -163,8 +163,8 @@ private:
 //!
 //! The AutoWriterMutex class provides an auto lock/unlock mechanism.\n
 //!
-//! The AutoWriterMutex is ideal in context where some exceptions may be thrown. 
-//! Whatever is the exit path of your code, the AutoMutex class will garantee 
+//! The AutoWriterMutex is ideal in context where some exceptions may be thrown.
+//! Whatever is the exit path of your code, the AutoMutex class will garantee
 //! that the associated mutex is properly unlock.\n
 // ============================================================================
 class YAT_DECL AutoWriterMutex
@@ -200,6 +200,6 @@ private:
   AutoWriterMutex & operator= (const AutoWriterMutex&);
 };
 
-} // namespace yat 
+} // namespace yat
 
 #endif //- _YAT_RW_MUTEX_H_

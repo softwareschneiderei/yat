@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -52,7 +52,7 @@ namespace yat {
 // ----------------------------------------------------------------------------
 // ClientSocket::ClientSocket
 // ----------------------------------------------------------------------------
-ClientSocket::ClientSocket (Socket::Protocol _p) 
+ClientSocket::ClientSocket (Socket::Protocol _p)
   : Socket(_p),
     m_connection_status(ClientSocket::CONNECTED_NO)
 {
@@ -71,7 +71,7 @@ ClientSocket::~ClientSocket ()
     this->close();
   }
   catch (...)
-  { 
+  {
     //- ignore any error
   }
 }
@@ -142,18 +142,18 @@ bool ClientSocket::can_read_without_blocking ()
 bool ClientSocket::wait_input_data (size_t _tmo, bool _throw)
 {
   YAT_TRACE("yat::ClientSocket::wait_input_data");
- 
+
   if ( ! this->select(_tmo) )
   {
     if (! _throw)
       return false;
 
-    throw yat::SocketException("SOCKET_ERROR", 
-                               SocketException::get_error_text(SoErr_TimeOut), 
-                               "yat::ClientSocket::wait_input_data", 
-                               SocketException::yat_to_native_error(SoErr_TimeOut)); 
-  } 
-  
+    throw yat::SocketException("SOCKET_ERROR",
+                               SocketException::get_error_text(SoErr_TimeOut),
+                               "yat::ClientSocket::wait_input_data",
+                               SocketException::yat_to_native_error(SoErr_TimeOut));
+  }
+
   return true;
 }
 

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,7 +9,7 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2009  The Tango Community
+// Copyright (C) 2006-2021  The Tango Community
 //
 // Part of the code comes from the ACE Framework
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
@@ -31,7 +31,7 @@
 // See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -48,24 +48,24 @@
  *  Deprecated. Use new definitions below
  */
 #include <stdint.h>
-typedef int8_t   yat_int8_t;            //CORBA::Char
-typedef uint8_t  yat_uint8_t;           //CORBA::UChar
-typedef int16_t  yat_int16_t;           //CORBA::Short
-typedef uint16_t yat_uint16_t;          //CORBA::UShort
+typedef int8_t   yat_int8_t;
+typedef uint8_t  yat_uint8_t;
+typedef int16_t  yat_int16_t;
+typedef uint16_t yat_uint16_t;
 #if __WORDSIZE == 64
-typedef int yat_int32_t;                //CORBA::Long
-typedef unsigned int yat_uint32_t;      //CORBA::ULong
+typedef int yat_int32_t;
+typedef unsigned int yat_uint32_t;
 #else
-typedef long yat_int32_t;               //CORBA::Long
-typedef unsigned long yat_uint32_t;     //CORBA::ULong
+typedef long yat_int32_t;
+typedef unsigned long yat_uint32_t;
 #endif
 
 #if __WORDSIZE == 64
-typedef long yat_int64_t;                //CORBA::LongLong
-typedef unsigned long yat_uint64_t;      //CORBA::ULongLong
+typedef long yat_int64_t;
+typedef unsigned long yat_uint64_t;
 #else
-typedef long long yat_int64_t;           //CORBA::LongLong
-typedef unsigned long long yat_uint64_t; //CORBA::ULongLong
+typedef long long yat_int64_t;
+typedef unsigned long long yat_uint64_t;
 #endif
 
 /**
@@ -130,6 +130,11 @@ namespace yat
  *  Pthread related stuffs
  */
 #define YAT_HAS_PTHREAD_YIELD 1
+
+/**
+ * Regex related
+ */
+/*#define YAT_HAS_GNUREGEX 1*/
 
 /**
  *  Endianness related stuffs

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -7,8 +7,8 @@
 //----------------------------------------------------------------------------
 /*!
  * \file
- * \brief    An example of yat::Timeout usage
- * \author   N. Leclercq, J. Malik - Synchrotron SOLEIL
+ * \brief    An example of yat::Regex usage
+ * \author   S. Poirier - Synchrotron SOLEIL
  */
 
 #include <iostream>
@@ -19,19 +19,19 @@
 typedef yat::StringFormat _strf;
 
 //-----------------------------------------------------------------------------
-void match_pattern(const yat::String& in)
+void match_pattern(const yat::String& in, const yat::String& pattern)
 {
-  yat::Regex re(R"(www\.[-_[:alnum:]]+\.[[:lower:]]{2,4})");
+  yat::Regex re(pattern);
   yat::StringFormat sfmt("'{}' is an exact match of '{}': {}");
   sfmt.format(in).format(re.pattern());
-  std::cout << sfmt.format(re.match(in)) << std::endl;
+  std::cout << sfmt.format(re.match(in, NULL)) << std::endl;
 }
 
 //-----------------------------------------------------------------------------
 void coordinates_parser(const yat::String& in)
 {
   std::cout << "Parsing coordinates from " << in << std::endl;
-  yat::Regex re(R"(Rect\(([0-9]+),([0-9]+)\),-\[([0-9]+),([0-9]+)\])");
+  yat::Regex re(R"(Rect\s*\(([0-9]+),([0-9]+)\),-\[([0-9]+),([0-9]+)\])");
   yat::Regex::Match m;
   yat::String str("Rect(0,0),-[659,494]");
   if( re.search(in, &m) )
@@ -58,20 +58,19 @@ void extract_submatches_with_iterator(const yat::String& in)
 }
 
 //-----------------------------------------------------------------------------
-void extract_submatches(const yat::String& in)
+void extract_submatches(const yat::String& in, const yat::String& pattern)
 {
-  // hex color codes pattern
-  yat::Regex re("#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})");
+  yat::Regex re(pattern);
 
   // perform a simple match
-  std::cout << _strf("Is '{}' contains a hexadecimal color code: {}")
-                    .format(in).format(re.search(in)) << std::endl;
+  std::cout << _strf("Is '{}' contains pattern '{}': {}")
+                    .format(in).format(pattern).format(re.search(in)) << std::endl;
 
    // show contents of marked subexpressions within each match
   yat::Regex::Match m;
   if( re.search(in, &m) )
   {
-      std::cout << "matches for '" << in << "'\n";
+      std::cout << m.size() << " submatches for '" << in << "'\n";
       std::cout << "Prefix: '" << m.prefix() << "'\n";
       for (size_t j = 0; j < m.size(); ++j)
           std::cout << j << ": " << m.str(j) << '\n';
@@ -80,13 +79,15 @@ void extract_submatches(const yat::String& in)
 }
 
 //-----------------------------------------------------------------------------
-void repeated_searches(const yat::String& in)
+void repeated_searches(const yat::String& in, const yat::String& pattern)
 {
-  yat::Regex re("Speed: [0-9]+");
+  yat::Regex re(pattern);
   yat::Regex::Match m;
   while( re.search(in, &m) )
   {
-    std::cout << m.str() << '\n';
+    std::cout << m.str() << " >> " << m.suffix() << std::endl;
+    for (size_t j = 0; j < m.size(); ++j)
+        std::cout << j << ": '" << m.str(j) << "'" << std::endl;
   }
 }
 
@@ -108,29 +109,37 @@ int main(int argc, char* argv[])
   std::cout << std::endl;
   try
   {
+/*
     coordinates_parser("Rect(0,0),-[659,494]");
     std::cout << std::endl;
 
-    match_pattern("ww.cppreference.com");
-    match_pattern("www.cppreference.info");
-    match_pattern("www.cppreference.Com");
-    match_pattern("www.cppreference.com");
+    yat::String http_addr_pattern(R"(www\.[-_[:alnum:]]+\.[[:lower:]]{2,4})");
+    match_pattern("ww.cppreference.com", http_addr_pattern);
+    match_pattern("www.cppreference.info", http_addr_pattern);
+    match_pattern("www.cppreference.Com", http_addr_pattern);
+    match_pattern("www.cppreference.com", http_addr_pattern);
+    match_pattern("Two words", R"(\w+ \w+)");
     std::cout << std::endl;
 
     extract_submatches_with_iterator("http://www.cppreference.com/w/cpp");
     std::cout << std::endl;
 
-    extract_submatches("Roses are #ff0000.");
-    extract_submatches("Violets are #0000ff.");
-    extract_submatches("All of my base are belong to you.");
+    const yat::String color_pattern("#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2})");
+    extract_submatches("Roses are #ff0000.", color_pattern);
+    extract_submatches("Violets are #0000ff.", color_pattern);
+    extract_submatches("All of my base are belong to you.", color_pattern);
     std::cout << std::endl;
 
-    // repeated search
-    repeated_searches("Speed: 366, Mass: 35.Speed: 378; Mass: 32! \n   Speed: 400,  Mass: 30");
+    // repeated searches
+    repeated_searches("Two words", R"(\w+)");
     std::cout << std::endl;
 
+    repeated_searches("Speed: 366, Mass: 35.Speed: 378; Mass: 32! \n   Speed: 400,  Mass: 30", "Speed: [0-9]+");
+    std::cout << std::endl;
+*/
     std::cout << "A few replace examples...\n" << std::endl;
     replace_test("ga bu zo meu", "zo", "zozo");
+    replace_test("ga bu zo meu", "\\w+", "[$0]");
     replace_test("ga bu zo meu", "bu", "$&!!");
     replace_test("ga bu zo meu", "(ga)(.*)(meu)", "$3$2$1");
     replace_test("ga bu zo meu", "(ga) (bu) (zo) (meu)", "$4 $3 $2 $1");
@@ -139,6 +148,7 @@ int main(int argc, char* argv[])
     replace_test("ga bu zo meu", "zo", "zozo", yat::Regex::format_no_copy);
     replace_test("ga 1000€", "ga [0-9]+€", "bu 1100$$ > $0 !");
     std::cout << std::endl;
+
   }
   catch(const yat::Exception& e)
   {

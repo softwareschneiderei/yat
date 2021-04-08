@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,16 +27,16 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
  * \author See AUTHORS file
  */
- 
+
 #pragma once
 
 #include <list>
@@ -45,13 +45,13 @@
 
 
 
-namespace yat 
+namespace yat
 {
 // ============================================================================
-//! \class Signal 
+//! \class Signal
 //! \brief The YAT signal class.
 //!
-//! This class is a template class to which different callbacks can be registered and 
+//! This class is a template class to which different callbacks can be registered and
 //! then run when they are triggered. The generic type \<ParamType_\> is the callback
 //! argument type.
 //!
@@ -60,15 +60,15 @@ namespace yat
 //!
 //! The callbacks are defined as yat::Callback objects.
 //!
-//! If signal lock is not necessary, use a yat::NullMutex type (default value in 
-//! the template definition), for example: 
+//! If signal lock is not necessary, use a yat::NullMutex type (default value in
+//! the template definition), for example:
 //! \verbatim mySignal = new Signal<myCallbackArgType>(); \endverbatim
-//! 
+//!
 //! If signal lock is necessary, use a mutex type, for example:
 //! \verbatim mySignal = new Signal<myCallbackArgType, yat::Mutex>(); \endverbatim
 //!
 // ============================================================================
-template <typename ParamType_, typename LockType_ = yat::NullMutex> 
+template <typename ParamType_, typename LockType_ = yat::NullMutex>
 class Signal
 {
 public:
@@ -83,14 +83,14 @@ protected:
   std::list<Slot> observers_;
 
   //! \brief Internal run function.
-  //! 
+  //!
   //! Calls for each connected observer's callback function.
   //! Returns true if no problem occurs, false otherwise.
   //! \param param %Callback parameter.
   //! \param observers Connected observers list.
   bool _run(ParamType_ param, std::list<Slot> & observers)
   {
-    typename std::list<Slot>::iterator 
+    typename std::list<Slot>::iterator
                 i(observers.begin()),
                 e(observers.end());
     bool everythingOk = true;
@@ -118,7 +118,7 @@ public:
   }
 
   //! \brief Tests whether the connected observers list is empty.
-  //! 
+  //!
   //! Returns true if the connected observers list is empty, false otherwise.
   bool connected() const
   {

@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -53,12 +53,12 @@ namespace yat
 {
 
 // ============================================================================
-//! \class Endianness 
+//! \class Endianness
 //! \brief Endianness management class.
 //!
 //! This class provides endianness swaping functions for different data types.
-//! \remark The current implementation assumes that the host has 1-byte, 2-byte and 
-//! 4-byte integral types, and that it has single precision and double precision 
+//! \remark The current implementation assumes that the host has 1-byte, 2-byte and
+//! 4-byte integral types, and that it has single precision and double precision
 //! IEEE floats. Those assumptions are pretty good these days, with Crays being
 //! the only known exception.
 // ============================================================================
@@ -73,7 +73,7 @@ public:
     //! Big endian.
     BO_BIG_ENDIAN
   } ByteOrder;
-  
+
   //! \brief Host bytes ordering.
   static const Endianness::ByteOrder host_endianness;
 
@@ -99,7 +99,7 @@ public:
   //! \param orig The source scalar.
   //! \param target The swaped scalar.
   static void swap_4  (const char *orig, char *target);
-  
+
   //! \brief Byte swapping for a 8-bytes scalar.
   //! \param orig The source scalar.
   //! \param target The swaped scalar.
@@ -135,7 +135,7 @@ public:
   static void swap_16_array (const char *orig, char *target, size_t length);
 };
 
-} //- namespace 
+} //- namespace
 
 
 #endif //- _ENDIANNESS_H_

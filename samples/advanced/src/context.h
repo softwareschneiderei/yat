@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    An advanced yat example
  * \author   N. Leclercq - Synchrotron SOLEIL
  */
@@ -30,7 +30,7 @@ class Consumer;
 // ============================================================================
 #define NEW_DATA_AVAILABLE_MSG      10000
 #define RESET_INDEX_MSG             10001
-  
+
 // ============================================================================
 // typedefs
 // ============================================================================
@@ -41,7 +41,7 @@ typedef std::vector<yat::Task*> ConsumersRepository;
 // struct: Context
 // ============================================================================
 struct Context
-{   
+{
   static void init (size_t nb = 10, size_t bs = 1000)
   {
     //- initialize the object memory cache
@@ -49,7 +49,7 @@ struct Context
     //- instanciate the context singleton
     Context::singleton = new Context;
   }
-  
+
   static void fini ()
   {
     //- release instanciated objects
@@ -63,19 +63,19 @@ struct Context
     delete Context::singleton;
     Context::singleton = 0;
   }
-  
+
   inline static Context & instance ()
   {
     return * Context::singleton;
   }
-  
-  //- the consumers repository 
+
+  //- the consumers repository
   ConsumersRepository  consumers;
- 
-  //- the objects repository 
+
+  //- the objects repository
   ObjectsRepository  data;
-  
-  //- the Object repository 
+
+  //- the Object repository
   static Context * singleton;
 };
 

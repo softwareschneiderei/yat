@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -57,7 +57,7 @@
 namespace yat {
 
 // ============================================================================
-//! \enum yat::MutexState 
+//! \enum yat::MutexState
 //! \brief Mutex state enumeration.
 //! The Mutex::try_lock() function may return one of the MutexState value.
 // ============================================================================
@@ -107,7 +107,7 @@ public:
   //! \brief Locks (i.e. acquires) the mutex. Synonym of lock().
   void acquire ();
 
-  //! \brief Tries to lock (i.e. acquire) the mutex. 
+  //! \brief Tries to lock (i.e. acquire) the mutex.
   //!
   //! Always returns MUTEX_LOCKED.
   MutexState try_lock ();
@@ -139,7 +139,7 @@ public:
 private:
   //- Not implemented private member
   NullMutex (const NullMutex&);
-  
+
   //- Not implemented private member
   NullMutex & operator= (const NullMutex&);
 };
@@ -171,7 +171,7 @@ public:
   //! Returns MUTEX_LOCKED in case the mutex was successfully locked.
   //! Returns MUTEX_BUSY if it is already owned by another thread.
   MutexState try_lock ();
-  
+
   //! \brief Tries to lock (i.e. acquire) the the mutex. Synonym of try_lock().
   //!
   //! Returns MUTEX_LOCKED in case the mutex was successfully locked.
@@ -197,7 +197,7 @@ public:
 
   //! \brief Unlocks (i.e. releases) the mutex.
   void unlock ();
-  
+
   //! \brief Unlocks (i.e. releases) the mutex.
   //! Synonym of unlock().
   void release ();
@@ -205,7 +205,7 @@ public:
 private:
   //- Not implemented private member
   Mutex (const Mutex&);
-  
+
   //- Not implemented private member
   Mutex & operator= (const Mutex&);
 
@@ -243,8 +243,8 @@ private:
 //! even if an exception is thrown. Since the AutoMutex is created on the stack,
 //! its destructor will be called whatever is the exit path of critical section.\n
 //!
-//! \remark Note that the AutoMutex type can be used with any "LOCK_TYPE" whose 
-//! interface contains both a lock() and a unlock() method. 
+//! \remark Note that the AutoMutex type can be used with any "LOCK_TYPE" whose
+//! interface contains both a lock() and a unlock() method.
 //! For example, the yat::SharedObject class offers such a compatible "LOCK_TYPE".
 // ============================================================================
 template <typename LOCK_TYPE = yat::Mutex> class AutoMutex
@@ -291,7 +291,7 @@ typedef AutoMutex<Mutex> MutexLock;
   extern Mutex g_logging_mux;
 #endif
 
-} // namespace yat 
+} // namespace yat
 
 #if defined (YAT_INLINE_IMPL)
 # if defined (YAT_WIN32)

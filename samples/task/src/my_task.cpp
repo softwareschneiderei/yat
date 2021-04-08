@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    An example of yat::Task (and related classes) usage. .
  * \author   N. Leclercq, J. Malik - Synchrotron SOLEIL
  */
@@ -29,7 +29,7 @@
                  << s \
                  << std::endl; \
     } while (0)
-    
+
 // ============================================================================
 // Consumer::Consumer
 // ============================================================================
@@ -60,7 +60,7 @@ Consumer::Consumer (size_t _lo_wm, size_t _hi_wm)
 Consumer::~Consumer (void)
 {
 	YAT_TRACE("Consumer::~Consumer");
-	
+
 #if defined (YAT_DEBUG)
   YAT_LOG("Consumer::statistics::ctrl msg:: " << this->ctrl_msg_counter);
   YAT_LOG("Consumer::statistics::user msg:: " << this->user_msg_counter);
@@ -85,7 +85,7 @@ void Consumer::handle_message (yat::Message& _msg)
   	    //- "initialization" code goes here
   	    YAT_LOG("Consumer::handle_message::TASK_INIT::task is starting up");
         this->ctrl_msg_counter++;
-      } 
+      }
 		  break;
 		//- TASK_EXIT ----------------------
 		case yat::TASK_EXIT:

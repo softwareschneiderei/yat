@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,16 +27,16 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
  * \author See AUTHORS file
  */
- 
+
 #ifndef _YAT_THREAD_H_
 #define _YAT_THREAD_H_
 
@@ -63,7 +63,7 @@ namespace yat {
 //! This abstract class can not be used as this and must be derived.
 //! At least, the exit() function and one of run() (used in detached mode) or run_undetached() (used in undetached mode)
 //! functions must be implemented in derived class.
-//! 
+//!
 //! \remark For example, a Thread class can be used to implement a simple data acquisition thread.
 //! For more complex threaded treatment, use Task class.
 // ============================================================================
@@ -74,7 +74,7 @@ public:
   typedef void * IOArg;
 
   //! The possible thread priorities (default is NORMAL).
-  //! Be aware that setting the thread priority to HIGH or RT may 
+  //! Be aware that setting the thread priority to HIGH or RT may
   //! prevent other threads from running (CPU starvation).
   enum Priority
   {
@@ -116,10 +116,10 @@ public:
   Thread::State state ();
 
   //! \brief This pure virtual member _must_ cause the "run" (for detached threads)
-  //! or "run_undetached" (for undetached threads) to return. 
+  //! or "run_undetached" (for undetached threads) to return.
   //!
-  //! In other words, exit _must_ make the thread quit its "infinite loop" 
-  //! and return. Its content is purely application dependent - that's why 
+  //! In other words, exit _must_ make the thread quit its "infinite loop"
+  //! and return. Its content is purely application dependent - that's why
   //! the actual implementation is delegated to the derived class.
   virtual void exit () = 0;
 
@@ -129,8 +129,8 @@ public:
   //! \brief Causes the thread to sleep for the given time.
   //! \param msecs Time.
   static void sleep (unsigned long msecs);
-  
-  //! \brief Causes the thread to be detached.  
+
+  //! \brief Causes the thread to be detached.
   //!
   //! In this case, the thread executes the run() member function.
   void start ();
@@ -141,9 +141,9 @@ public:
   void start_undetached ();
 
 protected:
-  //! \brief This constructor is used in a derived class. 
+  //! \brief This constructor is used in a derived class.
   //!
-  //! The thread will execute the run() or run_undetached() member functions 
+  //! The thread will execute the run() or run_undetached() member functions
   //! depending on whether start() or start_undetached() is called respectively.
   //! \param a Thread argument.
   //! \param p Thread priotity.
@@ -151,9 +151,9 @@ protected:
 
   //! \brief Join causes the calling thread to wait for another's completion,
   //! putting the return value in the IOArg type argument, whose address
-  //! is given (unless passed a null pointer). 
+  //! is given (unless passed a null pointer).
   //!
-  //! Only undetached threads may be joined. Storage for the thread will be reclaimed. 
+  //! Only undetached threads may be joined. Storage for the thread will be reclaimed.
   //! \param <> %Thread "result".
   //! \exception ToBeDefined Thrown in case the thread is either "not running" or "terminated".
   //! \exception ToBeDefined Thrown in case the thread is "detached".
@@ -161,11 +161,11 @@ protected:
   void join (Thread::IOArg *);
 
   //! \brief The Thread destructor cannot be called by user (except via a derived class).
-  //! Use exit() instead. 
+  //! Use exit() instead.
   //!
   //! This also means a thread object must be allocated with
   //! new - it cannot be statically or automatically allocated. The destructor of
-  //! a class that inherits from omni_thread shouldn't be public either (otherwise 
+  //! a class that inherits from omni_thread shouldn't be public either (otherwise
   //! the thread object can be destroyed while the underlying thread is still running).
   virtual ~Thread ();
 
@@ -244,7 +244,7 @@ struct ThreadExiter
   }
 };
 
-} // namespace yat 
+} // namespace yat
 
 #if defined (YAT_INLINE_IMPL)
 # if defined (YAT_WIN32)

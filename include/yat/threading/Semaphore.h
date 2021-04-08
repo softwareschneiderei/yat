@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -59,7 +59,7 @@
 namespace yat {
 
 // ============================================================================
-//! \enum yat::SemaphoreState 
+//! \enum yat::SemaphoreState
 //! \brief Semaphore state enumeration.
 //!
 //! The Semaphore::try_wait() may return one of the SemaphoreState value.
@@ -91,39 +91,39 @@ public:
 
   //! \brief Waits for semaphore to be signaled.
   //!
-  //! If semaphore value is > 0 then decrements it and carries on. 
-  //! If semaphore value is already 0 then blocks until the semaphore 
+  //! If semaphore value is > 0 then decrements it and carries on.
+  //! If semaphore value is already 0 then blocks until the semaphore
   //! is "signaled" by another thread (with Semaphore::post() function).
   void wait ();
 
   //! \brief Waits for semaphore to be signaled until specified timeout elapses.
   //!
-  //! If semaphore value is > 0 then decrements it and returns "true". 
+  //! If semaphore value is > 0 then decrements it and returns "true".
   //! Returns "false" in case the specified timeout expired before the semaphore
   //! has been "signaled" by another thread.
   //! \param tmo_msecs Timeout in ms.
   bool timed_wait (unsigned long tmo_msecs);
 
   //! \brief Gets semaphore if it is signaled or gives up.
-  //! 
-  //! If the current semaphore value is > 0, then decrements it and returns 
-  //! SEMAPHORE_DEC. In case the semaphore value is already 0, 
+  //!
+  //! If the current semaphore value is > 0, then decrements it and returns
+  //! SEMAPHORE_DEC. In case the semaphore value is already 0,
   //! this method does not block and "immediately" returns SEMAPHORE_NO_RSC.
   SemaphoreState try_wait ();
 
   //! \brief Signals the semaphore to other threads.
   //!
-  //! If any threads are blocked in wait(), wakes one of them up. 
-  //! Otherwise increments the value of the semaphore. 
+  //! If any threads are blocked in wait(), wakes one of them up.
+  //! Otherwise increments the value of the semaphore.
   void post ();
 
 private:
   //- Not implemented private member
   Semaphore (const Semaphore&);
-  
+
   //- Not implemented private member
   Semaphore & operator= (const Semaphore&);
-  
+
   //- platform specific implementation
   YAT_SEMAPHORE_IMPLEMENTATION;
 };
@@ -157,7 +157,7 @@ private:
 
   //- Not implemented private member
   AutoSemaphore (const AutoSemaphore&);
-  
+
   //- Not implemented private member
   AutoSemaphore & operator= (const AutoSemaphore&);
 };

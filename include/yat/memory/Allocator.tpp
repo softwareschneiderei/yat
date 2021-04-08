@@ -2,17 +2,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -20,10 +20,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -42,7 +42,7 @@
 # include <yat/memory/Allocator.i>
 #endif // YAT_INLINE_IMPL
 
-namespace yat 
+namespace yat
 {
 
 // ============================================================================
@@ -76,7 +76,7 @@ T * NewAllocator<T>::malloc ()
   //- use default new "array" operator - infinite loop otherwise!
   //- that's the C++ trick os this class guys! ACE impl. made me understand!
   //- the compiler will take care of alignment for us.
-   
+
   return new T[1];
 }
 
@@ -91,9 +91,9 @@ void NewAllocator<T>::free (T * p)
 }
 
 #else //- USE_NEW_OPERATOR
-  
+
 // ============================================================================
-// VERY NICE TRICK STOLEN FROM THE ACE LIB FOR OBJS MEMORY SPACE ALLOCATION 
+// VERY NICE TRICK STOLEN FROM THE ACE LIB FOR OBJS MEMORY SPACE ALLOCATION
 // TAKING INTO ACCOUNT THAT MEMORY IS ALLOCATED USING <char> WHILE OBJ STORAGE
 // NEEDS ALIGNMENT...
 // ============================================================================
@@ -118,7 +118,7 @@ T * NewAllocator<T>::malloc ()
   //- use the generic byte type (i.e. char) to allocate space
   //- in this case we have to take care of alignment. the space
   //- required is >= sizeof (T). using the ACE lib trick, it gives...
-  
+
   size_t chunk_size = sizeof(T);
   chunk_size = ROUNDUP(chunk_size, sizeof(yat_max_align_info));
   return (T *) new char[chunk_size];
@@ -139,7 +139,7 @@ void NewAllocator<T>::free (T * p)
 // ============================================================================
 // CachedAllocator::CachedAllocator
 // ============================================================================
-template <typename T, typename L> 
+template <typename T, typename L>
 CachedAllocator<T,L>::CachedAllocator (size_t nb_bunches, size_t nb_objs_per_bunch)
   : m_nb_objs_per_bunch(nb_objs_per_bunch)
 {
@@ -154,39 +154,39 @@ CachedAllocator<T,L>::CachedAllocator (size_t nb_bunches, size_t nb_objs_per_bun
 // ============================================================================
 // CachedAllocator::~CachedAllocator
 // ============================================================================
-template <typename T, typename L> 
-CachedAllocator<T,L>::~CachedAllocator () 
-{   
+template <typename T, typename L>
+CachedAllocator<T,L>::~CachedAllocator ()
+{
    this->clear(100.);
 }
-  
+
 // ============================================================================
 // CachedAllocator::malloc
 // ============================================================================
-template <typename T, typename L> 
+template <typename T, typename L>
 T * CachedAllocator<T,L>::malloc ()
-{ 
+{
   //- enter critical section
   yat::AutoMutex<L> guard(this->m_lock);
-  
+
   //- reallocate a bunch of T in case the cache is empty
   if ( m_cache.empty() && m_nb_objs_per_bunch )
   {
     for (size_t i = 0; i < m_nb_objs_per_bunch; i++)
       m_cache.push_back( NewAllocator<T>::malloc() );
   }
-  
+
   //- return first available T in cache
   if ( ! m_cache.empty() )
   {
     //- get ref. to the first available chunk of memory
     T * p = m_cache.front();
-    //- remove chunk for list of available 
+    //- remove chunk for list of available
     m_cache.pop_front();
     //- return storage to caller
     return p;
   }
-    
+
   //- cache empty && m_nb_objs_per_bunch == 0
   return NewAllocator<T>::malloc();
 }
@@ -194,22 +194,22 @@ T * CachedAllocator<T,L>::malloc ()
 // ============================================================================
 // CachedAllocator::free
 // ============================================================================
-template <typename T, typename L> 
+template <typename T, typename L>
 void CachedAllocator<T,L>::free (T * p)
-{   
+{
   //- enter critical section
   yat::AutoMutex<L> guard(this->m_lock);
 
   //- push T back into the cache
   this->m_cache.push_back(p);
 }
-  
+
 // ============================================================================
 // CachedAllocator::release
 // ============================================================================
-template <typename T, typename L> 
+template <typename T, typename L>
 void CachedAllocator<T,L>::release (T * p)
-{   
+{
   //- enter critical section
   yat::AutoMutex<L> guard(this->m_lock);
 
@@ -220,9 +220,9 @@ void CachedAllocator<T,L>::release (T * p)
 // ============================================================================
 // CachedAllocator::clear
 // ============================================================================
-template <typename T, typename L> 
+template <typename T, typename L>
 void CachedAllocator<T,L>::clear (const double p)
-{   
+{
   //- enter critical section
   yat::AutoMutex<L> guard(this->m_lock);
 
@@ -230,7 +230,7 @@ void CachedAllocator<T,L>::clear (const double p)
 	return;
 
   size_t n = 0;
-  
+
   if ( p >= 100. )
     n = this->m_cache.size();
   else
@@ -245,7 +245,7 @@ void CachedAllocator<T,L>::clear (const double p)
   }
 }
 
-} // namespace 
+} // namespace
 
 #endif // _ALLOCATOR_TPP_
 

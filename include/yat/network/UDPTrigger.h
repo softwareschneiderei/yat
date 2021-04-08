@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -54,7 +54,7 @@
 
 namespace yat
 {
-  
+
 //-----------------------------------------------------------------------------
 // PSEUDO CONST
 //-----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ namespace yat
 
 //-----------------------------------------------------------------------------
 //! \brief class UDPTrigger
-//! 
+//!
 //! UDP Trigger: Send an udp event
 //--------------------------------------------------------
 //! how to spawn a udp trigger
@@ -125,9 +125,9 @@ public:
     //! optional callback called when triggering fail
     ErrorCallback error_callback;
     //-----------------------------------
-    
+
     //! \brief default constructor
-    Config() 
+    Config()
         : udp_port(0),
           trigger_period_ms(0),
           task_to_notify(0),
@@ -152,11 +152,11 @@ public:
           trig_callback(src.trig_callback),
           error_callback(src.error_callback)
     {}
-  }; 
-  
+  };
+
   //--------------------------------------------------------
   //! \brief c-tor
-  //! 
+  //!
   //! once instanciated and configured, the UDPTrigger must be started by a call to
   //! yat::Thread::start_undetached (inherited method)
   UDPTrigger( const UDPTrigger::Config& cfg )
@@ -193,23 +193,23 @@ public:
 
   //--------------------------------------------------------
   //! \brief stop the UDP trigger
-  //! 
-  //! any UDP received after a call to stop will be ignored 
+  //!
+  //! any UDP received after a call to stop will be ignored
   void stop()
   {
     if( m_pulser_ptr )
       m_pulser_ptr->stop();
   }
-  
+
   //--------------------------------------------------------
   //! \brief in manual mode, send the next UDP trigger
-  //! 
+  //!
   void next_trigger()
   {
     if( !m_pulser_ptr )
       send_next();
   }
-  
+
   //--------------------------------------------------------
   //- d-tor
   virtual ~UDPTrigger()
@@ -219,7 +219,7 @@ protected:
 
   //--------------------------------------------------------
   //! \brief in manual mode, send the next UDP trigger
-  //! 
+  //!
   void send_next()
   {
     if( m_sequence_length > 0 && m_trigger_cnt == m_sequence_length )
@@ -227,23 +227,23 @@ protected:
       yat::log_warning("yat::UDPTrigger::udp_callback: rejecting pulser trigger! [num. of expected notifications reached]");
       return;
     }
-    
+
     //- inc. trigger counter before sending it to over the network
     ++m_trigger_cnt;
-    
+
     //- send udp packet
-    int cnt = ::sendto( m_udp_socket, 
-                        &m_trigger_cnt, 
-                        sizeof( m_trigger_cnt ), 
-                        0, 
-                        (struct sockaddr*)&m_multicast_addr, 
+    int cnt = ::sendto( m_udp_socket,
+                        &m_trigger_cnt,
+                        sizeof( m_trigger_cnt ),
+                        0,
+                        (struct sockaddr*)&m_multicast_addr,
                         sizeof( m_multicast_addr )
                         );
-    if( cnt < 0 ) 
+    if( cnt < 0 )
     {
       m_completion_mtx.unlock();
       yat::OSStream oss;
-      oss << "failed to send UDP packet to " 
+      oss << "failed to send UDP packet to "
           << m_cfg.udp_addr
           << ":"
           << m_cfg.udp_port;
@@ -289,13 +289,13 @@ protected:
       {
         m_cfg.task_to_notify->post( m_cfg.eos_notification_msg_id );
       }
-    }  
+    }
   }
-  
+
 
   //--------------------------------------------------------
   void udp_callback( yat::Thread::IOArg )
-  { 
+  {
     send_next();
   }
 
@@ -303,13 +303,13 @@ protected:
   void setup_udp_socket()
   {
     m_udp_socket = ::socket(AF_INET, SOCK_DGRAM, 0);
-    if ( m_udp_socket < 0 ) 
+    if ( m_udp_socket < 0 )
     {
       throw yat::Exception("SOCKET_ERROR", "failed to create UDP socket", "yat::UDPTrigger::start");
     }
-    
+
     ::memset((char *)&m_multicast_addr, 0, sizeof(m_multicast_addr));
-   
+
     m_multicast_addr.sin_family = AF_INET;
     m_multicast_addr.sin_port = htons( m_cfg.udp_port );
     if ( 0 == inet_aton( m_cfg.udp_addr.c_str(), &m_multicast_addr.sin_addr) )

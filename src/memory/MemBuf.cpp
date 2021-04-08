@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -69,7 +69,7 @@ namespace yat
 MemBuf::MemBuf(uint32 uiLenBuf)
  : m_uiLenBuf(uiLenBuf),m_bOwner(true)
 {
-  
+
   if( m_uiLenBuf )
   {
     m_pBuf = new char[m_uiLenBuf];
@@ -93,7 +93,7 @@ MemBuf::MemBuf(const MemBuf& buf)
     memcpy(m_pBuf, buf.buf(), m_uiLen);
   }
   else
-  { 
+  {
     // empty buffer
     m_uiLenBuf = 0;
     m_pBuf = NULL;
@@ -335,7 +335,7 @@ uint32 crc_32_tab[] = {
 
 //---------------------------------------------------------------------------
 // @func API de calcul de CRC 32 bits.
-// Deux utilisations possibles de cette API : 
+// Deux utilisations possibles de cette API :
 //  soit on laisse pulInitValue a NULL, auquel cas elle calcule le crc
 //  global du buffer. Soit pulInitValue n'est pas NULL, et cela permet de
 //  calcul un crc global sur un ensemble de buffers. Par exemple si p1 et
@@ -355,13 +355,13 @@ uint32 crc( const byte *pBuf, uint32 uiLen, uint32 *pulInitValue )
 
   if( uiLen == 0 )
     return ulVal;
- 
+
   if( pulInitValue == NULL )
     ulVal = 0xffffffffL;
 
   // Main loop : under Visual C++, use assembly language
   #if defined(_MSC_VER) && defined(_M_IX86)
-      _asm 
+      _asm
       {
         mov   ecx, uiLen
         jecxz AsmEnd
@@ -478,34 +478,34 @@ int MemBuf::give_ownership(MemBuf* pToHaveOwnership)
 //-------------------------------------------------------------------
 MemBuf& MemBuf::operator<<(bool b)
 {
-  put_bloc(&b, sizeof(b)); 
+  put_bloc(&b, sizeof(b));
   return *this;
 }
 MemBuf& MemBuf::operator>>(bool &b)
 {
-  get_bloc(&b, sizeof(b));           
+  get_bloc(&b, sizeof(b));
   return *this;
 }
 
 MemBuf& MemBuf::operator<<(char c)
 {
-  put_bloc(&c, sizeof(c)); 
+  put_bloc(&c, sizeof(c));
   return *this;
 }
 MemBuf& MemBuf::operator>>(char &c)
 {
-  get_bloc(&c, sizeof(c));           
+  get_bloc(&c, sizeof(c));
   return *this;
 }
 
 MemBuf& MemBuf::operator<<(byte uc)
 {
-  put_bloc(&uc, sizeof(uc)); 
+  put_bloc(&uc, sizeof(uc));
   return *this;
 }
 MemBuf& MemBuf::operator>>(byte &uc)
 {
-  get_bloc(&uc, sizeof(uc));           
+  get_bloc(&uc, sizeof(uc));
   return *this;
 }
 
@@ -515,12 +515,12 @@ MemBuf& MemBuf::operator<<(int16 s)
   #ifdef __MOTOROLA_ENDIAN__
     invert_short(&s);
   #endif
-  put_bloc(&s, sizeof(s)); 
+  put_bloc(&s, sizeof(s));
   return *this;
 }
 MemBuf& MemBuf::operator>>(int16 &s)
 {
-  get_bloc(&s, sizeof(s));           
+  get_bloc(&s, sizeof(s));
   #ifdef __MOTOROLA_ENDIAN__
     invert_short(&s);
   #endif
@@ -532,12 +532,12 @@ MemBuf& MemBuf::operator<<(uint16 us)
   #ifdef __MOTOROLA_ENDIAN__
     invert_short((short*)&us);
   #endif
-  put_bloc(&us, sizeof(us)); 
+  put_bloc(&us, sizeof(us));
   return *this;
 }
 MemBuf& MemBuf::operator>>(uint16 &us)
 {
-  get_bloc(&us, sizeof(us));           
+  get_bloc(&us, sizeof(us));
   #ifdef __MOTOROLA_ENDIAN__
     invert_short((short*)&us);
   #endif
@@ -549,12 +549,12 @@ MemBuf& MemBuf::operator<<(int32 l)
   #ifdef __MOTOROLA_ENDIAN__
     invert_long(&l);
   #endif
-  put_bloc(&l, sizeof(l)); 
+  put_bloc(&l, sizeof(l));
   return *this;
 }
 MemBuf& MemBuf::operator>>(int32 &l)
 {
-  get_bloc(&l, sizeof(l));           
+  get_bloc(&l, sizeof(l));
   #ifdef __MOTOROLA_ENDIAN__
     invert_long(&l);
   #endif
@@ -565,12 +565,12 @@ MemBuf& MemBuf::operator<<(uint32 ul)
   #ifdef __MOTOROLA_ENDIAN__
     invert_long((long*)&ul);
   #endif
-  put_bloc(&ul, sizeof(ul)); 
+  put_bloc(&ul, sizeof(ul));
   return *this;
 }
 MemBuf& MemBuf::operator>>(uint32 &ul)
 {
-  get_bloc(&ul, sizeof(ul));           
+  get_bloc(&ul, sizeof(ul));
   #ifdef __MOTOROLA_ENDIAN__
     invert_long((long*)&ul);
   #endif
@@ -578,7 +578,7 @@ MemBuf& MemBuf::operator>>(uint32 &ul)
 }
 MemBuf& MemBuf::operator>>(int64 &i64)
 {
-  get_bloc(&i64, sizeof(int64));           
+  get_bloc(&i64, sizeof(int64));
   #ifdef __MOTOROLA_ENDIAN__
     invert_int64(&i64);
   #endif
@@ -589,12 +589,12 @@ MemBuf& MemBuf::operator<<(int64 i64)
   #ifdef __MOTOROLA_ENDIAN__
     invert_int64(&i64);
   #endif
-  put_bloc(&i64, sizeof(i64)); 
+  put_bloc(&i64, sizeof(i64));
   return *this;
 }
 MemBuf& MemBuf::operator>>(uint64 &i64)
 {
-  get_bloc(&i64, sizeof(uint64));           
+  get_bloc(&i64, sizeof(uint64));
   #ifdef __MOTOROLA_ENDIAN__
     invert_int64(&i64);
   #endif
@@ -605,7 +605,7 @@ MemBuf& MemBuf::operator<<(uint64 ui64)
   #ifdef __MOTOROLA_ENDIAN__
     invert_int64(&ui64);
   #endif
-  put_bloc(&ui64, sizeof(ui64)); 
+  put_bloc(&ui64, sizeof(ui64));
   return *this;
 }
 
@@ -614,12 +614,12 @@ MemBuf& MemBuf::operator<<(float f)
   #ifdef __MOTOROLA_ENDIAN__
     invert_float(&f);
   #endif
-  put_bloc(&f, sizeof(f)); 
+  put_bloc(&f, sizeof(f));
   return *this;
 }
 MemBuf& MemBuf::operator>>(float &f)
 {
-  get_bloc(&f, sizeof(f));           
+  get_bloc(&f, sizeof(f));
   #ifdef __MOTOROLA_ENDIAN__
     invert_float(&f);
   #endif
@@ -631,12 +631,12 @@ MemBuf& MemBuf::operator<<(double d)
   #ifdef __MOTOROLA_ENDIAN__
     invert_double(&d);
   #endif
-  put_bloc(&d, sizeof(d)); 
+  put_bloc(&d, sizeof(d));
   return *this;
 }
 MemBuf& MemBuf::operator>>(double &d)
 {
-  get_bloc(&d, sizeof(d));           
+  get_bloc(&d, sizeof(d));
   #ifdef __MOTOROLA_ENDIAN__
     invert_double(&d);
   #endif

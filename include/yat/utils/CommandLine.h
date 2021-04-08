@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,21 +9,21 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2012  The Tango Community
+// Copyright (C) 2006-2021  The Tango Community
 //
 // Part of the code comes from the ACE Framework (i386 asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
 //
 // Contributors form the TANGO community:
-// See AUTHORS file 
+// See AUTHORS file
 //
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -31,10 +31,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -52,18 +52,18 @@
 #include <yat/utils/String.h>
 #include <yat/Exception.h>
 
-namespace yat 
+namespace yat
 {
 
 
 // ============================================================================
-//! \class CommandLine 
+//! \class CommandLine
 //! \brief A simple command line parser.
 //!
 //! This class provides a parser for a command line that contains options (i.e. "-opt val")
 //! and simple arguments (i.e. "arg1 arg2 ..."). The command line format is like:
 //! \verbatim  $my_app -a -b \<value_of_b\> -c \<value_of_c\> arg1 arg2...  \endverbatim
-//! 
+//!
 // ============================================================================
 class YAT_DECL CommandLine
 {
@@ -112,7 +112,7 @@ public:
   void add_opt(char cShortName, pcsz pszLongName, pcsz pszValue, pcsz pszDesc);
 
   //! \brief Defines a simple argument for the command line.
-  //! 
+  //!
   //! \param pszDesc Argument's description.
   //! \param bSingle If set to false, several arguments can follow.
   //! \param bMandatory If set to true, argument is mandatory.
@@ -143,9 +143,9 @@ public:
   //! Returns the option's value or nil string if not found.
   //! \param[in] strOpt The option's name to retrieve.
   std::string option_value(const std::string &strOpt) const;
-  
+
   //! \brief Gets the number of initialized arguments.
-  //! 
+  //!
   //! Returns the number of simple arguments initialized with the *read()* function.
   int arg_count() const;
 
@@ -158,10 +158,10 @@ public:
 private:
 
   typedef std::map<std::string, std::string> KeyValueMap;
-  
+
   //- Current options values
-  KeyValueMap m_dictOptValues; 
-  
+  KeyValueMap m_dictOptValues;
+
   //- Simples arguments (not options)
   std::vector<std::string> m_vecArgs;
 

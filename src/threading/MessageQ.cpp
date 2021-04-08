@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,7 +9,7 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
@@ -30,7 +30,7 @@
 // See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -376,7 +376,7 @@ void MessageQ::compute_next_periodic_period (double _requested_tmo_ms)
     this->mean_error_ = ((this->mean_error_ * this->n_period_) + error) / (this->n_period_ + 1);
     this->n_period_++;
   }
-  //- apply correction 
+  //- apply correction
   tmo_nsecs += 1000 * (this->period_offset_ - this->mean_error_ - error);
   //                         |                      |             +--- short term error (drift correction)
   //                         |                      +-- long term error (periodicity correction adjustement)

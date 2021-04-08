@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    An advanced yat example
  * \author   N. Leclercq - Synchrotron SOLEIL
  */
@@ -23,10 +23,10 @@
 // class: Object
 // ============================================================================
 class Object
-{   
+{
   //- make the yat::NewAllocator a friend of Object
   friend class yat::NewAllocator<Object>;
-  
+
 public:
   //- init the underlying memory cache
   static void init (size_t nb = 10, size_t bs = 1000)
@@ -35,21 +35,21 @@ public:
     std::cout << "Object::init::cache contains " << cache->length() << " objects" << std::endl;
     std::cout << "Object::init::cache contains " << cache->size() / (1024. * 1024.) << " Mb" << std::endl;
   }
-  
+
   //- overwrites the new operator
   inline static Object * instanciate ()
   {
-    //- std::cout << "Object::instanciate" << std::endl; 
+    //- std::cout << "Object::instanciate" << std::endl;
     return cache->malloc();
   }
-  
+
   //- overwrites the new operator
   inline static void release (Object * p)
   {
-    //- std::cout << "Object::release" << std::endl; 
+    //- std::cout << "Object::release" << std::endl;
     cache->free(p);
   }
-  
+
   //- release the underlying memory cache
   static void fini ()
   {
@@ -58,12 +58,12 @@ public:
     delete cache;
     cache = 0;
   }
- 
+
   //-------------------------------------------------
   // Instance Id
   //-------------------------------------------------
   const size_t inst_id;
-  
+
 private:
   Object ()
     : inst_id (++Object::inst_cnt)
@@ -75,18 +75,18 @@ private:
   {
     //- std::cout << "Object::dtor" << std::endl;
   }
-  
+
   //-------------------------------------------------
   // Add some bytes to the Object memory footprint
   //-------------------------------------------------
   unsigned char uc[512];
   double db[512];
-  
+
   //-------------------------------------------------
   // ObjectAllocator
   //-------------------------------------------------
   static yat::CachedAllocator<Object> * cache;
-  
+
   //-------------------------------------------------
   // Instances Counter
   //-------------------------------------------------

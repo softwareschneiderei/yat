@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -42,11 +42,11 @@
 
 #include <yat/CommonHeader.h>
 
-namespace yat 
+namespace yat
 {
 
 // ============================================================================
-//! \class CallbackContainer 
+//! \class CallbackContainer
 //! \brief Generic callback container class.
 //!
 //! This is the base class for generic callback management.
@@ -72,12 +72,12 @@ public:
 };
 
 // ============================================================================
-//! \class Callback 
+//! \class Callback
 //! \brief Generic callback class.
 //!
 //! This template class has a CallbackContainer member.
 // ============================================================================
-template <typename P> 
+template <typename P>
 class Callback
 {
 public:
@@ -115,15 +115,15 @@ public:
   //! \brief Executes operation defined in body.
   //! \param p Generic type \<P\> argument.
   //! \exception NULL_POINTER Thrown when the callback is null.
-  void operator() (P p) 
+  void operator() (P p)
   {
     if (this->container)
       (*this->container)(p);
     else
       THROW_YAT_ERROR("NULL_POINTER", "null/empty callback called", "Callback::operator()");
   }
-  
-  //! \brief Is the callback empty?  
+
+  //! \brief Is the callback empty?
   //!
   //! Returns true if the callback is null, false otherwise.
   bool is_empty () const
@@ -151,7 +151,7 @@ private:
 };
 
 // ============================================================================
-//! \class FunctionCallbackContainer 
+//! \class FunctionCallbackContainer
 //! \brief Generic callback class for a 'free' function.
 //!
 //! This template class provide an interface for a generic callback that uses a
@@ -161,17 +161,17 @@ private:
 //! The 'free' function is defined by:
 //! - a generic type \<P\> for the 'function argument type,
 //! - a generic type \<F\> for the function type.
-//! 
+//!
 //! \b USAGE:
 //! - %Callback definition:\n
-//! For the callback definition, use the YAT MACRO, which defines the three types of 
-//! callbacks derived from FunctionCallbackContainer, MemberCallbackContainer and Callback 
+//! For the callback definition, use the YAT MACRO, which defines the three types of
+//! callbacks derived from FunctionCallbackContainer, MemberCallbackContainer and Callback
 //! classes.\n
-//! This MACRO also defines *instanciate()* functions providing a way to connect the callback to 
+//! This MACRO also defines *instanciate()* functions providing a way to connect the callback to
 //! a 'free' function or a member function of an object.\n
 //! For instance:
 //! \verbatim YAT_DEFINE_CALLBACK(myCallbackType, myCallbackDataType &); \endverbatim
-//! The previous line defines the following callback prototype: 
+//! The previous line defines the following callback prototype:
 //! \verbatim myCallbackType CBk; \endverbatim
 //! that will refer to the following function prototype:
 //! \verbatim void myFunction(myCallbackDataType& param) \endverbatim
@@ -201,9 +201,9 @@ public:
 
   //! \brief Executes operation: calls the function.
   //! \param p Generic type \<P\> argument of the function.
-  void operator() (P p) const 
-  { 
-    if (function_) 
+  void operator() (P p) const
+  {
+    if (function_)
       function_(p);
   }
 
@@ -224,7 +224,7 @@ public:
   bool is_equal (const yat::CallbackContainer<P>* s) const
   {
     const FunctionCallbackContainer* fcc = dynamic_cast<const FunctionCallbackContainer*>(s);
-    
+
     return fcc ? this->_is_equal(fcc) : false;
   }
 
@@ -237,27 +237,27 @@ private:
 };
 
 // ============================================================================
-//! \class MemberCallbackContainer 
+//! \class MemberCallbackContainer
 //! \brief Generic callback class for 'member' functions.
 //!
 //! This template class provide a callback interface that uses a member function.
 //! Inherits from CallbackContainer class. \n
-//! 
+//!
 //! The class and member function are defined by:
 //! - a generic type \<P\> for the member function argument type,
 //! - a generic type \<C\> for the class type,
 //! - a generic type \<M\> for the member function type.\n
-//! 
+//!
 //! \b USAGE:
 //! - %Callback definition:\n
-//! For the callback definition, use the YAT MACRO, which defines the three types of 
-//! callbacks derived from FunctionCallbackContainer, MemberCallbackContainer and Callback 
-//! classes. \n 
-//! This MACRO also defines *instanciate()* functions providing a way to connect the callback to 
+//! For the callback definition, use the YAT MACRO, which defines the three types of
+//! callbacks derived from FunctionCallbackContainer, MemberCallbackContainer and Callback
+//! classes. \n
+//! This MACRO also defines *instanciate()* functions providing a way to connect the callback to
 //! a 'free' function or a member function of an object.\n
 //! For instance:
 //! \verbatim YAT_DEFINE_CALLBACK(myCallbackType, myCallbackDataType &); \endverbatim
-//! The previous line defines the following callback prototype: 
+//! The previous line defines the following callback prototype:
 //! \verbatim myCallbackType CBk; \endverbatim
 //! that will refer to the following function prototype:
 //! \verbatim void myFunction(myCallbackDataType& param) \endverbatim
@@ -292,14 +292,14 @@ public:
 
   //! \brief Executes operation: calls the function.
   //! \param p Generic type \<P\> argument of the class function.
-  void operator() (P p) const 
-  { 
-    if (member_) 
+  void operator() (P p) const
+  {
+    if (member_)
       (client_.*member_)(p);
   }
 
   //! \brief Comparison with another MemberCallbackContainer object.
-  //! 
+  //!
   //! Compares member functions.
   //! \param s The source object.
   bool _is_equal (const MemberCallbackContainer* s) const
@@ -388,7 +388,7 @@ private:
     { \
       return new Member_##CallbackClass##Container<Client, Member>(c, m); \
     } \
-  }; 
+  };
 
 } // namespace
 

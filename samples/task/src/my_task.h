@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    An example of yat::Task (and related classes) usage. .
  * \author   N. Leclercq, J. Malik - Synchrotron SOLEIL
  */
@@ -33,7 +33,7 @@
 #define kDUMMY_MSG_PRIORITY adtb::MAX_USER_PRIORITY
 
 // ============================================================================
-//  SharedBuffer: a thread safe shared data buffer 
+//  SharedBuffer: a thread safe shared data buffer
 // ============================================================================
 class SharedBuffer : public yat::Buffer<double>, public yat::SharedObject
 {
@@ -44,18 +44,18 @@ public:
     {
       //- noop ctor
     }
-   
+
   //- private dtor
   virtual ~SharedBuffer ()
-    { 
+    {
       static size_t cnt = 0;
-      std::cout << "SharedBuffer dtor called " << ++cnt << " times" << std::endl; 
+      std::cout << "SharedBuffer dtor called " << ++cnt << " times" << std::endl;
     }
-    
+
   //- returns a "shallow" copy of this shared object (avoids deep copy).
   //- increments the shared reference count by 1 (thread safe).
   SharedBuffer* duplicate ()
-    { 
+    {
       yat::SharedObject::duplicate();
       return this;
     }
@@ -68,14 +68,14 @@ class AutoSharedBuffer
 {
 public:
   //- ctor
-  AutoSharedBuffer (SharedBuffer& sdb) 
+  AutoSharedBuffer (SharedBuffer& sdb)
    : m_sdb(sdb)
     { m_sdb.lock(); }
-   
+
   //- dtor
   virtual ~AutoSharedBuffer ()
     { m_sdb.unlock(); }
-  
+
 private:
    SharedBuffer& m_sdb;
 };
@@ -106,7 +106,7 @@ private:
 #if defined (YAT_DEBUG)
   //- id of the last received msg
   yat::Message::MessageID last_msg_id;
-  //- num of lost msg 
+  //- num of lost msg
   unsigned long lost_msg_counter;
   //- num msg received in wrong order
   unsigned long wrong_order_msg_counter;

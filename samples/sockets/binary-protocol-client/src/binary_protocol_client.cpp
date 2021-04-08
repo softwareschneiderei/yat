@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    A yat::BitsStream example.
  * \author   N. Leclercq - Synchrotron SOLEIL
  */
@@ -19,7 +19,7 @@
 
 #define SERVER_PORT 5001
 
-const unsigned char cmds[] = 
+const unsigned char cmds[] =
 {
   0,
   1,
@@ -47,15 +47,15 @@ typedef char            CmdStatus;
 const char CMD_ERROR    = -1;
 const char CMD_NO_ERROR =  0;
 
-const CmdDataSize CMD_HEADER_SIZE = sizeof(CmdIdentifier) 
-                                  + sizeof(CmdDataSize) 
+const CmdDataSize CMD_HEADER_SIZE = sizeof(CmdIdentifier)
+                                  + sizeof(CmdDataSize)
                                   + sizeof(CmdDataLength);
 
-typedef struct 
+typedef struct
 {
   CmdIdentifier   id; //- cmd identifier
-  CmdStatus       st; //- cmd status: CMD_ERROR or CMD_NO_ERROR  
-  CmdDataSize     ds; //- reply size in bytes (could be the size or an error string in case <st> is NOT set to CMD_NO_ERROR) 
+  CmdStatus       st; //- cmd status: CMD_ERROR or CMD_NO_ERROR
+  CmdDataSize     ds; //- reply size in bytes (could be the size or an error string in case <st> is NOT set to CMD_NO_ERROR)
   CmdDataLength   dl; //- the number of elements <CmdData> - each element has a size of <ds>/<dl> bytes
   CmdData         db; //- reply data size in bytes (could be an error string in case <st> is NOT set to CMD_NO_ERROR)
 } CmdReply;
@@ -89,7 +89,7 @@ int main (int argc, char* argv[])
 
     size_t n = 2;
 
-    yat::uint32 dd_length = 65;  
+    yat::uint32 dd_length = 65;
     yat::Buffer<double> dd(dd_length);
     for (size_t i = 0; i < dd_length; i++)
       dd[i] = static_cast<double>(i);
@@ -100,25 +100,25 @@ int main (int argc, char* argv[])
     binary_out.force_length(binary_out.capacity());
 
     yat::Socket::Data binary_in(32 * 1024, true);
-   
+
     do
-    {      
+    {
       char * p = binary_out.base();
 
       size_t offset = 0;
-      
+
       memcpy(p + offset, &cmds[0], sizeof(CmdIdentifier));
-      
+
       offset += sizeof(CmdIdentifier);
-      
+
       memcpy(p + offset, &ds, sizeof(CmdDataSize));
-      
+
       offset += sizeof(CmdDataSize);
-        
+
       memcpy(p + offset, &dd_length, sizeof(CmdDataLength));
-      
+
       offset += sizeof(CmdDataLength);
-      
+
       memcpy(p + offset, dd.base(), ds);
 
       std::cout << "Sending " << binary_out.size() << " bytes to the server..." << std::endl;
@@ -128,29 +128,29 @@ int main (int argc, char* argv[])
       std::cout << "Waiting for reply from the server..." << std::endl;
 
       sock >> binary_in;
-      
+
       CmdReply reply;
       reply.id = *((CmdIdentifier*)(binary_in.base() + 0));
       reply.st = *((CmdStatus*)(binary_in.base() + 1));
       reply.ds = *((CmdDataSize*)(binary_in.base() + 2));
       reply.dl = *((CmdDataLength*)(binary_in.base() + 6));
       reply.db = (CmdData)(binary_in.base() + 10);
-      
-      std::cout << "reply for cmd-" 
+
+      std::cout << "reply for cmd-"
                <<  (unsigned int)reply.id
                << " is "
                << ( reply.st == CMD_ERROR ? "ERROR" : "NO-ERROR")
                << " + "
-               << reply.ds 
+               << reply.ds
                << " bytes of data representing "
-               << reply.dl 
+               << reply.dl
                << " elements of "
                << reply.ds / reply.dl
                << " bytes each"
                << std::endl;
 
       --n;
-    } 
+    }
     while (n);
 
     //- disconnect from peer
@@ -172,11 +172,11 @@ int main (int argc, char* argv[])
       std::cout << "Err-" << err << "::origin..." << se.errors[err].origin << std::endl;
       std::cout << "Err-" << err << "::code....." << se.errors[err].code << std::endl;
     }
-  } 
+  }
   catch (...)
   {
     std::cout << "Unknown exception caught" << std::endl;
   }
 
-	return 0;  
+	return 0;
 }

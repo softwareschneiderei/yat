@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -9,17 +9,17 @@
 // YAT LIBRARY
 //----------------------------------------------------------------------------
 //
-// Copyright (C) 2006-2016 The Tango Community
+// Copyright (C) 2006-2021 The Tango Community
 //
 // Part of the code comes from the ACE Framework (asm bytes swaping code)
 // see http://www.cs.wustl.edu/~schmidt/ACE.html for more about ACE
 //
 // The thread native implementation has been initially inspired by omniThread
-// - the threading support library that comes with omniORB. 
+// - the threading support library that comes with omniORB.
 // see http://omniorb.sourceforge.net/ for more about omniORB.
-// The YAT library is free software; you can redistribute it and/or modify it 
-// under the terms of the GNU General Public License as published by the Free 
-// Software Foundation; either version 2 of the License, or (at your option) 
+// The YAT library is free software; you can redistribute it and/or modify it
+// under the terms of the GNU General Public License as published by the Free
+// Software Foundation; either version 2 of the License, or (at your option)
 // any later version.
 //
 // The YAT library is distributed in the hope that it will be useful,
@@ -27,10 +27,10 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
 // Public License for more details.
 //
-// See COPYING file for license details 
+// See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -43,10 +43,10 @@
 #if ! defined (WIN32)
 #  include <sys/socket.h>
 # include <netinet/in.h>
-# include <arpa/inet.h> 
+# include <arpa/inet.h>
 # include <netdb.h>
 #elif defined (WIN32_LEAN_AND_MEAN)
-# include <winsock2.h>  
+# include <winsock2.h>
 #endif
 #include <yat/network/Address.h>
 
@@ -60,7 +60,7 @@ namespace yat {
 // Address::Address
 // ----------------------------------------------------------------------------
 Address::Address (const std::string& _host, size_t _port)
- : m_port (_port) 
+ : m_port (_port)
 {
   YAT_TRACE("Address::Address");
   this->ns_lookup(_host);
@@ -120,27 +120,27 @@ void Address::ns_lookup (const std::string& _host_ipaddr_or_name)
     //- store it into the local member
     this->m_ip_addr = _host_ipaddr_or_name;
     //- get associated host name
-    struct hostent * host = 
+    struct hostent * host =
         ::gethostbyaddr((char*)&ip_addr, sizeof(ip_addr), AF_INET);
     //- if host as a valid hostname then store it localy
-    if (host) 
+    if (host)
       this->m_host_name = host->h_name;
     else
       this->m_host_name = _host_ipaddr_or_name;
-  } 
+  }
   //- in case it's a host name
-  else 
+  else
   {
     //- store it into the local member
     this->m_host_name = _host_ipaddr_or_name;
     //- get associated ip address
     struct hostent * host = ::gethostbyname(_host_ipaddr_or_name.c_str());
     //- got a valid ip addr?
-    if (! host) 
+    if (! host)
     {
       yat::OSStream oss;
       oss << "could not resolve IP address for host "
-          << _host_ipaddr_or_name 
+          << _host_ipaddr_or_name
           << std::endl;
       THROW_YAT_ERROR("INVALID_HOST", oss.str().c_str(), "Address::ns_lookup");
     }

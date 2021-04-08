@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    An example of yat::Callback usage. .
  * \author   N. Leclercq, J. Malik - Synchrotron SOLEIL
  */
@@ -72,8 +72,8 @@ public:
   CallbackTargetDerived(std::string _name)
     : CallbackTarget(_name)
   {}
-  
-  //- override the virtual member function 
+
+  //- override the virtual member function
   virtual void what_s_your_name_VIRTUAL_MEMBER(std::string my_name)
   {
     std::cout << "hello "
@@ -105,8 +105,8 @@ void what_s_your_name_FUNCTION(std::string my_name)
  *   - 'MyCBObjectType::instantiate( function_ptr )' to create a callback
  *       associated to a function pointer taking a 'std::string' and returning void
  *       (can be either a C function or a static member function)
- *   - 'MyCBObjectType::instantiate( object_ref , member_of object )' to create 
- *       a callback associated to a member function of the class of object, which 
+ *   - 'MyCBObjectType::instantiate( object_ref , member_of object )' to create
+ *       a callback associated to a member function of the class of object, which
  *       will be called on the object_ref instance
  *       (can be a standard member or a virtual member)
  */
@@ -144,12 +144,12 @@ int main(int argc, char* argv[])
                               &CallbackTarget::what_s_your_name_MEMBER );
 
   //- create a callback object on a member function of the 'target2' object
-  MyCBObjectType callback2 = MyCBObjectType::instanciate( 
+  MyCBObjectType callback2 = MyCBObjectType::instanciate(
                               target2_ref,
                               &CallbackTarget::what_s_your_name_MEMBER );
 
   //- create a callback object on a static member function of the 'CallbackTarget' class
-  MyCBObjectType callback3 = MyCBObjectType::instanciate( 
+  MyCBObjectType callback3 = MyCBObjectType::instanciate(
                               &CallbackTarget::what_s_your_name_STATIC_MEMBER );
 
   //- create a callback object on a simple function
@@ -157,13 +157,13 @@ int main(int argc, char* argv[])
 
   //- create a callback object on the virtual member of the 'target1' object
   //- --> we will get the default implementation
-  MyCBObjectType callback5 = MyCBObjectType::instanciate( 
+  MyCBObjectType callback5 = MyCBObjectType::instanciate(
                               target1_ref,
                               &CallbackTarget::what_s_your_name_VIRTUAL_MEMBER );
 
   //- create a callback object on the virtual member of the 'target3' object
   //- --> we will get the implementation of the derived class
-  MyCBObjectType callback6 = MyCBObjectType::instanciate( 
+  MyCBObjectType callback6 = MyCBObjectType::instanciate(
                               target3_ref,
                               &CallbackTarget::what_s_your_name_VIRTUAL_MEMBER );
 

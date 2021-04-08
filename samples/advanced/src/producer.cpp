@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2015 Synchrotron SOLEIL
+// Copyright (c) 2004-2021 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
 // http://www.gnu.org/licenses/lgpl.html
 //----------------------------------------------------------------------------
 /*!
- * \file     
+ * \file
  * \brief    An advanced yat example
  * \author   N. Leclercq - Synchrotron SOLEIL
  */
@@ -14,6 +14,7 @@
 // ============================================================================
 // Dependencies
 // ============================================================================
+#include <yat/LogHelper.h>
 #include <iostream>
 #include "context.h"
 #include "producer.h"
@@ -42,7 +43,7 @@ void Producer::handle_message (yat::Message& _msg)
 	//- YAT_TRACE("Producer::handle_message");
 
   static size_t tt_no = 0;
-  
+
 	//- handle msg
   switch (_msg.type())
 	{
@@ -57,16 +58,16 @@ void Producer::handle_message (yat::Message& _msg)
                   << this
                   << "::init"
                   << std::endl;
-      } 
+      }
 		  break;
 		//- TASK_EXIT ----------------------
 		case yat::TASK_EXIT:
 		  {
         std::cout << "Producer::"
                   << this
-                  << "::exit::produced " 
+                  << "::exit::produced "
                   << tt_no
-                  << " objs" 
+                  << " objs"
                   << std::endl;
       }
 			break;
@@ -79,16 +80,16 @@ void Producer::handle_message (yat::Message& _msg)
         /*
         std::cout << "Producer::"
                   << this
-                  << "::handle_message::producing " 
-                  << no 
-                  << " objs" 
+                  << "::handle_message::producing "
+                  << no
+                  << " objs"
                   << std::endl;
         */
         for (size_t i = 0; i < no; i++)
           Context::instance().data.push_back( Object::instanciate() );
         //- inc tt_no
         tt_no += no;
-        //- tell the consumers how many new objects are available 
+        //- tell the consumers how many new objects are available
         //- std::cout << "Producer::handle_message::notifying the consumers" << std::endl;
         const size_t nc = Context::instance().consumers.size();
         yat::Message * m = new yat::Message(NEW_DATA_AVAILABLE_MSG);
