@@ -85,7 +85,14 @@ void Regex::compile()
   if( m_flags & yat::Regex::extended )
     cflags |= REG_EXTENDED;
   if( m_flags & yat::Regex::nosubs )
+  {
     cflags |= REG_NOSUB;
+    // check for '^' & '$'
+    if( m_pattern[0] != '^' )
+      m_pattern.insert(0, 1, '^');
+    if( m_pattern[m_pattern.size() - 1] != '$' )
+      m_pattern.append(1, '$');
+  }
   if( m_flags & yat::Regex::icase )
     cflags |= REG_ICASE;
   int err = ::regcomp(&m_regex, m_pattern.c_str(), cflags);
