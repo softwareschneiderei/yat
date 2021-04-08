@@ -1,8 +1,8 @@
 Main Author/Maintainer:
-Nicolas Leclercq - Synchrotron SOLEIL
+Nicolas Leclercq - Synchrotron SOLEIL (2004-2020), ESRF (2020-) - France
+Stephane Poirier - Synchrotron SOLEIL - France
 
 Contributors:
-Stephane Poirier - Synchrotron SOLEIL - France - Many classes (files, time, sharedptr, weakoptr, ...)
 Julien Malik - Synchrotron SOLEIL - France - Several classes (such as Callback for instance)
 Frederic Pica - Synchrotron SOLEIL - France - Autools support 
 Vincent Hardion - Synchrotron SOLEIL - France - Maven support
