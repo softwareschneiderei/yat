@@ -34,7 +34,7 @@
 // See COPYING file for license details
 //
 // Contact:
-//      Nicolas Leclercq
+//      Stephane Poirier
 //      Synchrotron SOLEIL
 //------------------------------------------------------------------------------
 /*!
@@ -55,49 +55,49 @@ namespace yat
 const std::string uri_syntax_error = "BAD_URI_SYNTAX";
 Mutex URI::s_regex_mtx;
 
-#define _PCT_ENCODED   R"(%[[:xdigit:]][[:xdigit:]])"
-#define _GEN_DELIMS    R"([]:/?@#[])"
-#define _SUB_DELIMS    R"([!$&'()*+,;=])"
-#define _UNRESERVED    R"([-.~_[:alnum:]])"
-#define _PCHAR         "(" _UNRESERVED "|" _PCT_ENCODED "|" _SUB_DELIMS "|:|@)"
-#define _SEGMENT       _PCHAR "*"
-#define _SEGMENT_NZ    _PCHAR "+"
-#define _SEGMENT_NZ_NC "(" _UNRESERVED "|" _PCT_ENCODED "|" _SUB_DELIMS "|@)+"
-#define _PATH_ABEMPTY  "((/" _SEGMENT ")*)"
-#define _PATH_ABSOLUTE "(/(" _SEGMENT_NZ "(/" _SEGMENT ")*)*)"
-#define _PATH_NOSCHEME "(" _SEGMENT_NZ_NC "(/" _SEGMENT ")*)"
-#define _PATH_ROOTLESS "(" _SEGMENT_NZ "(/" _SEGMENT ")*)"
-#define _PATH_EMPTY    _PCHAR "{0}"
-#define _PATH          "(" _PATH_ABEMPTY "|" _PATH_ABSOLUTE "|" _PATH_ROOTLESS "|" _PATH_EMPTY ")"
-#define _SCHEME        "([[:alpha:]][-+.[:alnum:]]*)"
-#define _QUERY         "((" _PCHAR R"(|/|\?)*))"
-#define _FRAGMENT      "((" _PCHAR R"(|/|\?)*))"
-#define _REG_NAME      "(" _UNRESERVED "|" _PCT_ENCODED "|" _SUB_DELIMS ")*"
-#define _USERINFO      "(" _UNRESERVED "|" _PCT_ENCODED "|" _GEN_DELIMS "|:)*"
-#define _DEC_OCTET     "([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])"
-#define _AUTHORITY     "(((" _USERINFO ")@)?" _HOST "(:" _PORT ")?)"
-#define _PORT          "([0-9]*)"
-#define _IPV4          _DEC_OCTET R"(\.)" _DEC_OCTET R"(\.)" _DEC_OCTET R"(\.)" _DEC_OCTET
-#define _H16           "[[:xdigit:]]{1,4}"
-#define _LS32          "(" _H16 ":" _H16 "|" _IPV4 ")"
-#define _IPV6_1                                     "(" _H16 ":){6}" _LS32
-#define _IPV6_2                                   "::(" _H16 ":){5}" _LS32
-#define _IPV6_3                        "(" _H16 ")?::(" _H16 ":){4}" _LS32
-#define _IPV6_4        "((" _H16 ":){0,1}" _H16 ")?::(" _H16 ":){3}" _LS32
-#define _IPV6_5        "((" _H16 ":){0,2}" _H16 ")?::(" _H16 ":){2}" _LS32
-#define _IPV6_6        "((" _H16 ":){0,3}" _H16 ")?::(" _H16 ":){1}" _LS32
-#define _IPV6_7        "((" _H16 ":){0,4}" _H16 ")?::" _LS32
-#define _IPV6_8        "((" _H16 ":){0,5}" _H16 ")?::" _H16
-#define _IPV6_9        "((" _H16 ":){0,6}" _H16 ")?::"
-#define _IPV6          "(" _IPV6_1 "|" _IPV6_2 "|" _IPV6_3 "|" _IPV6_4 "|" _IPV6_5 \
-                       "|" _IPV6_6 "|" _IPV6_7 "|" _IPV6_8 "|" _IPV6_9 ")"
-#define _IPVFUTURE     R"(([vV][[:xdigit:]]+\.()" _UNRESERVED "|" _SUB_DELIMS "|:))"
-#define _IP_LITERAL    R"((\[()" _IPV6 "|" _IPVFUTURE R"()\]))"
-#define _HOST          "(" _IP_LITERAL "|" _IPV4 "|" _REG_NAME ")"
-#define _HIER_PART     "((//" _AUTHORITY _PATH_ABEMPTY ")|" _PATH_ABSOLUTE \
-                       "|" _PATH_ROOTLESS "|" _PATH_EMPTY ")"
-#define _URI           _SCHEME ":" _HIER_PART R"((\?)" _QUERY ")?(#" _FRAGMENT ")?"
-
+const std::string _PCT_ENCODED   = R"(%[[:xdigit:]][[:xdigit:]])";
+const std::string _GEN_DELIMS    = R"([]:/?@#[])";
+const std::string _SUB_DELIMS    = R"([!$&'()*+,;=])";
+const std::string _UNRESERVED    = R"([-.~_[:alnum:]])";
+const std::string _PCHAR         = "(" + _UNRESERVED  + "|" + _PCT_ENCODED  + "|"  + _SUB_DELIMS  + "|:|@)";
+const std::string _SEGMENT       = _PCHAR + "*";
+const std::string _SEGMENT_NZ    = _PCHAR + "+";
+const std::string _SEGMENT_NZ_NC = "(" + _UNRESERVED + "|" + _PCT_ENCODED + "|" + _SUB_DELIMS + "|@)+";
+const std::string _PATH_ABEMPTY  = "((/" + _SEGMENT + ")*)";
+const std::string _PATH_ABSOLUTE = "(/(" + _SEGMENT_NZ + "(/" + _SEGMENT + ")*)*)";
+const std::string _PATH_NOSCHEME = "(" + _SEGMENT_NZ_NC + "(/" + _SEGMENT + ")*)";
+const std::string _PATH_ROOTLESS = "(" + _SEGMENT_NZ + "(/" + _SEGMENT + ")*)";
+const std::string _PATH_EMPTY    = _PCHAR + "{0}";
+const std::string _PATH          = "(" + _PATH_ABEMPTY + "|" + _PATH_ABSOLUTE + "|" + _PATH_ROOTLESS + "|" + _PATH_EMPTY + ")";
+const std::string _SCHEME        = "([[:alpha:]][-+.[:alnum:]]*)";
+const std::string _QUERY         = "((" + _PCHAR + R"(|/|\?)*))";
+const std::string _FRAGMENT      = "((" + _PCHAR + R"(|/|\?)*))";
+const std::string _REG_NAME      = "(" + _UNRESERVED + "|" + _PCT_ENCODED + "|" + _SUB_DELIMS + ")*";
+const std::string _USERINFO      = "(" + _UNRESERVED + "|" + _PCT_ENCODED + "|" + _GEN_DELIMS + "|:)*";
+const std::string _DEC_OCTET     = "([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])";
+const std::string _PORT          = "([0-9]*)";
+const std::string _IPV4          = _DEC_OCTET + R"(\.)" + _DEC_OCTET + R"(\.)" + _DEC_OCTET + R"(\.)" + _DEC_OCTET;
+const std::string _IPV4FORM      = R"([[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+)";
+const std::string _H16           = "[[:xdigit:]]{1,4}";
+const std::string _LS32          = "(" + _H16 + ":" + _H16 + "|" + _IPV4 + ")";
+const std::string _IPV6_1        =                                      "(" + _H16 + ":){6}" + _LS32;
+const std::string _IPV6_2        =                                    "::("  +_H16 + ":){5}" + _LS32;
+const std::string _IPV6_3        =                     "("  +_H16 + ")?::(" + _H16 + ":){4}" + _LS32;
+const std::string _IPV6_4        = "((" + _H16 + ":){0,1}" + _H16 + ")?::(" + _H16 + ":){3}" + _LS32;
+const std::string _IPV6_5        = "((" + _H16 + ":){0,2}" + _H16 + ")?::(" + _H16 + ":){2}" + _LS32;
+const std::string _IPV6_6        = "((" + _H16 + ":){0,3}" + _H16 + ")?::(" + _H16 + ":){1}" + _LS32;
+const std::string _IPV6_7        = "((" + _H16 + ":){0,4}" + _H16 + ")?::" + _LS32;
+const std::string _IPV6_8        = "((" + _H16 + ":){0,5}" + _H16 + ")?::" + _H16;
+const std::string _IPV6_9        = "((" + _H16 + ":){0,6}" + _H16 + ")?::";
+const std::string _IPV6          = "(" + _IPV6_1 + "|" + _IPV6_2 + "|" + _IPV6_3 + "|" + _IPV6_4 + "|" + _IPV6_5 \
+                                 + "|" + _IPV6_6 + "|" + _IPV6_7 + "|" + _IPV6_8 + "|" + _IPV6_9 + ")";
+const std::string _IPVFUTURE     = R"(([vV][[:xdigit:]]+\.()" + _UNRESERVED + "|" + _SUB_DELIMS + "|:))";
+const std::string _IP_LITERAL    = R"((\[()" + _IPV6 + "|" + _IPVFUTURE + R"()\]))";
+const std::string _HOST          = "(" + _IP_LITERAL + "|" + _IPV4 + "|" + _REG_NAME + ")";
+const std::string _AUTHORITY     = "(((" + _USERINFO + ")@)?" + _HOST + "(:" + _PORT + ")?)";
+const std::string _HIER_PART     = "((//" + _AUTHORITY + _PATH_ABEMPTY + ")|" + _PATH_ABSOLUTE \
+                                 + "|" + _PATH_ROOTLESS + "|" + _PATH_EMPTY + ")";
+const std::string  _URI          = _SCHEME + ":" + _HIER_PART + R"((\?)" + _QUERY + ")?(#" + _FRAGMENT + ")?";
 Regex URI::s_re_scheme(_SCHEME, Regex::extended | Regex::nosubs);
 Regex URI::s_re_userinfo(_USERINFO, Regex::extended | Regex::nosubs);
 Regex URI::s_re_path(_PATH, Regex::extended | Regex::nosubs);
@@ -107,6 +107,8 @@ Regex URI::s_re_query(_QUERY, Regex::extended | Regex::nosubs);
 Regex URI::s_re_fragment(_FRAGMENT, Regex::extended | Regex::nosubs);
 Regex URI::s_re_authority(_AUTHORITY, Regex::extended);
 Regex URI::s_re_full(_URI, Regex::extended);
+Regex URI::s_re_ipv4form(_IPV4FORM, Regex::extended | Regex::nosubs);
+Regex URI::s_re_ipv4(_IPV4, Regex::extended | Regex::nosubs);
 
 // just for the fun!
 yat::String URI::get_full_pattern() { return _URI; }
@@ -186,7 +188,7 @@ bool URI::check(URI::Part part, const std::string& value, bool throw_exception)
       return check_value(value, s_re_userinfo, "userinfo", throw_exception);
 
     case URI::HOST:
-      return check_value(value, s_re_host, "host", throw_exception);
+      return check_host(value, throw_exception);
 
     case URI::PORT:
       return check_value(value, s_re_port, "port", throw_exception);
@@ -261,6 +263,30 @@ bool URI::check_authority(const std::string& authority, URI::Fields* fields_ptr,
 }
 
 //----------------------------------------------------------------------------
+// URI::check_host
+//----------------------------------------------------------------------------
+bool URI::check_host(const std::string& host, bool throw_exception)
+{
+  Regex::Match m;
+  if( !re_match(s_re_host, host, &m) )
+  {
+    if( throw_exception )
+      throw Exception(uri_syntax_error,
+                      StringFormat("'{}' is not a valid host name!").format(host),
+                      "yat::URI::check_host");
+    YAT_WARNING << "Bad host name: '" << host << std::endl;
+    return false;
+  }
+
+  if( s_re_ipv4form.match(host) && !s_re_ipv4.match(host) )
+    THROW_YAT_ERROR(uri_syntax_error,
+                    StringFormat("'{}' is not a valid host name").format(host),
+                   "yat::URI::check_host");
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
 // URI::parse_ex
 //----------------------------------------------------------------------------
 void URI::parse(const std::string& uri)
@@ -272,8 +298,18 @@ void URI::parse(const std::string& uri)
   {
     THROW_YAT_ERROR(uri_syntax_error,
                     StringFormat("'{}' is not a valid uri").format(uri),
-                   "yat::URI::validate_parse");
+                   "yat::URI::parse");
   }
+
+  // The difference between ipv4 address and reg-name is ambiguous
+  // We considere a host name like [digit]+.[digit]+.[digit]+.[digit]+ should be
+  // a ipv4 address. If it's the case then check if it's a valid one
+  std::string host = m.str(8);
+
+  if( s_re_ipv4form.match(host) && !s_re_ipv4.match(host) )
+    THROW_YAT_ERROR(uri_syntax_error,
+                    StringFormat("'{}' is not a valid uri").format(uri),
+                   "yat::URI::parse");
 
   m_part[SCHEME]     = m.str(1);
   m_part[AUTHORITY]  = m.str(4);
@@ -385,6 +421,12 @@ void URI::set(URI::Part part, const std::string &v)
     m_part[URI::USERINFO] = fields.userinfo;
     m_part[URI::HOST] = fields.host;
     m_part[URI::PORT] = fields.port;
+  }
+  else if( URI::HOST == part )
+  {
+    URI::Fields fields;
+    check_host(val, true);
+    m_part[URI::HOST] = val;
   }
   else
   {
