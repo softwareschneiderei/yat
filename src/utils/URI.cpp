@@ -311,12 +311,18 @@ void URI::parse(const std::string& uri)
                     StringFormat("'{}' is not a valid uri").format(uri),
                    "yat::URI::parse");
 
+  if( !m.str(75).empty() )
+    m_part[PATH] = m.str(75);
+  else if( !m.str(78).empty() )
+    m_part[PATH] = m.str(78);
+  else if( !m.str(83).empty() )
+    m_part[PATH] = m.str(83);
+
   m_part[SCHEME]     = m.str(1);
   m_part[AUTHORITY]  = m.str(4);
   m_part[USERINFO]   = m.str(6);
   m_part[HOST]       = m.str(8);
   m_part[PORT]       = m.str(74);
-  m_part[PATH]       = m.str(75).empty() ? m.str(83) : m.str(75);
   m_part[QUERY]      = m.str(89);
   m_part[FRAGMENT]   = m.str(93);
 }
