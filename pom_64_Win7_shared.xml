@@ -10,7 +10,7 @@
 
   <groupId>fr.soleil.lib</groupId>
   <artifactId>YAT-${aol}-shared-${mode}</artifactId>
-  <version>1.18.1-SNAPSHOT</version>
+  <version>1.18.2</version>
 
   <packaging>nar</packaging>
   <name>YAT</name>

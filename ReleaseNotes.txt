@@ -1,5 +1,12 @@
 YAT history file
 
+1.18.2 (2021/04/09)
+===================
+
+Fixes
+    class URI
+        path part was not properly parsed if the uri does not define any authority
+
 1.18.1 (2021/04/08)
 ===================
 
