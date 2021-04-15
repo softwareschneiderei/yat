@@ -25,6 +25,7 @@ set (source_files
       utils/StringTemplate.cpp
       utils/StringTokenizer.cpp
       utils/URI.cpp
+      regex/Regex.cpp
       md5/md5.cpp
 )
 
