@@ -488,11 +488,16 @@ void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool 
   Time tmLastMod;
   mod_time(&tmLastMod);
 
+  // Compute temporary file name
+  uint64 h = yat::StringUtil::hash64(fDst.full_name());
+  FileName f_copy_to(fDst.path(), yat::Format(".temp{x}").format(h));
+
   // Opens destination file
-  int fdst = creat(PSZ(fDst.full_name()), st.st_mode);
+  int fdst = creat(PSZ(f_copy_to.full_name()), st.st_mode);
   if( fdst < 0 )
   {
     std::string strErr = StringFormat(ERR_OPEN_FILE).format(fDst.full_name());
+    close(fsrc);
     ThrowExceptionFromErrno(strErr, "FileName::copy");
   }
 
@@ -577,17 +582,21 @@ void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool 
     if( llSize > 0 )
     {
       // The copy was canceled
-      fDst.remove();
+      unlink(f_copy_to.full_name().c_str()); // ignore error
       return;
     }
 
     // Copy last modifitation date
-    fDst.set_mod_time(tmLastMod);
+    f_copy_to.set_mod_time(tmLastMod);
+
+    // rename to desired file name
+    f_copy_to.rename(fDst.full_name());
   }
   catch( yat::Exception &ex )
   {
     close(fsrc);
     close(fdst);
+    unlink(f_copy_to.full_name().c_str()); // ignore error
     throw ex;
   }
 
@@ -598,7 +607,6 @@ void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool 
     {
       fDst.chown(st.st_uid, st.st_gid);
     }
-
     catch( ... )
     {
       // Don't care, we did our best effort...

@@ -502,11 +502,18 @@ void FileName::priv_copy(const std::string& strDst, yat::String*, bool)
     // Take source name
     fDst.set(fDst.path(), name_ext());
 
-  if (!CopyFile(full_name().c_str(), fDst.full_name().c_str(), FALSE))
+  // Compute temporary file name
+  uint64 h = yat::StringUtil::hash64(fDst.full_name());
+  FileName f_copy_to(fDst.path(), yat::Format(".temp{x}").format(h));
+
+  if (!CopyFile(full_name().c_str(), f_copy_to.full_name().c_str(), FALSE))
   {
     std::string strErr = StringFormat(ERR_COPY_FAILED).format(full_name()).format(fDst.full_name()).format((long)GetLastError());
     throw Exception("FILE_ERROR", strErr, "FileName::copy");
   }
+
+  // rename to desired file name
+  f_copy_to.rename(fDst.full_name());
 }
 
 //-------------------------------------------------------------------
