@@ -38,55 +38,160 @@
  */
 
 
+#ifndef YAT_DEBUG_REGEX
+  #undef YAT_ENABLE_TRACE
+  #undef YAT_ENABLE_LOG
+#endif
+
+#include <algorithm>
+#include <yat/utils/Singleton.h>
+#include <yat/threading/Mutex.h>
 #include <yat/regex/Regex.h>
 #include <cctype>
+
+#if defined YAT_HAS_GNUREGEX
+  #include <regex.h>
+#else
+  #include <yat/regex/impl/gnuregex.h>
+#endif
+
 
 namespace yat
 {
 
+typedef ::regex_t CompiledRegex;
+typedef YAT_SHARED_PTR(::regex_t) CompiledRegexPtr;
+typedef YAT_WEAK_PTR(::regex_t) CompiledRegexWPtr;
+
+#if ! defined YAT_HAS_GNUREGEX
+  Mutex  Regex::s_mtx;
+#endif
+
+// ============================================================================
+// class RegexCache
+// Simple FIFO cache
+// ============================================================================
+class RegexCache : public Singleton<RegexCache>
+{
+public:
+  typedef std::map<h64_t, CompiledRegexPtr> re_map_t;
+  typedef std::pair<CompiledRegexWPtr, h64_t> re_pair_t;
+
+  //---------------------------------------------------------------------------
+  static std::pair<CompiledRegexWPtr, h64_t> get(const String& pattern, int cflags, h64_t h = 0)
+  {
+    YAT_TRACE_STATIC("RegexCache::get");
+    if( 0 == h )
+      h = yat::Format("{}{}").arg(pattern).arg(cflags).get().hash64();
+    YAT_LOG_STATIC("pattern: " << pattern);
+    YAT_LOG_STATIC("hash: " << h);
+    AutoMutex<> _lock(instance().m_mtx);
+    re_map_t::iterator it = instance().m_regex_map.find(h);
+    if( it != instance().m_regex_map.end() )
+    {
+      YAT_LOG_STATIC("Found in cache");
+      return std::make_pair(it->second, h);
+    }
+
+    while( instance().m_regex_map.size() >= instance().m_cache_size )
+    {
+      // Cache is full
+      YAT_LOG_STATIC("Cache is full");
+      h64_t h = instance().m_keys_list.back();
+      YAT_LOG_STATIC("Remove " << h_LRU);
+      ::regfree(instance().m_regex_map[h].get());
+      instance().m_regex_map.erase(h);
+      instance().m_keys_list.pop_back();
+    }
+
+    CompiledRegexPtr re_ptr(new CompiledRegex);
+    int rc = ::regcomp(re_ptr.get(), pattern.c_str(), cflags);
+    switch( rc )
+    {
+      case 0:
+        break;
+      case REG_BADBR:
+        throw yat::Exception("REGEX_ERROR", "Invalid use of back reference operator.", "yat::Regex::compile");
+      case REG_BADPAT:
+        throw yat::Exception("REGEX_ERROR", "Invalid use of pattern operators such as group or list.", "yat::Regex::compile");
+      case REG_BADRPT:
+        throw yat::Exception("REGEX_ERROR", "Invalid use of repetition operators such as using '*' as the first character.", "yat::Regex::compile");
+      case REG_EBRACE:
+        throw yat::Exception("REGEX_ERROR", "Un-matched brace interval operators.", "yat::Regex::compile");
+      case REG_EBRACK:
+        throw yat::Exception("REGEX_ERROR", "Un-matched bracket list operators.", "yat::Regex::compile");
+      case REG_ECOLLATE:
+        throw yat::Exception("REGEX_ERROR", "Invalid collating element.", "yat::Regex::compile");
+      case REG_ECTYPE:
+        throw yat::Exception("REGEX_ERROR", "Unknown character class name.", "yat::Regex::compile");
+      case REG_EEND:
+        throw yat::Exception("REGEX_ERROR", "Nonspecific error. This is not defined by POSIX.2.", "yat::Regex::compile");
+      case REG_EESCAPE:
+        throw yat::Exception("REGEX_ERROR", "Trailing backslash.", "yat::Regex::compile");
+      case REG_EPAREN:
+        throw yat::Exception("REGEX_ERROR", "Un-matched parenthesis group operators.", "yat::Regex::compile");
+      case REG_ERANGE:
+        throw yat::Exception("REGEX_ERROR", "Invalid use of the range operator; for example, the ending point of the range occurs prior to the starting point.", "yat::Regex::compile");
+      case REG_ESIZE:
+        throw yat::Exception("REGEX_ERROR", "Compiled pattern too big.", "yat::Regex::compile");
+      case REG_ESPACE:
+        throw yat::Exception("REGEX_ERROR", "The regex routines ran out of memory.", "yat::Regex::compile");
+      case REG_ESUBREG:
+        throw yat::Exception("REGEX_ERROR", "Invalid back reference to a subexpression.", "yat::Regex::compile");
+      default:
+        throw yat::Exception("REGEX_ERROR", "Unknown error.", "yat::Regex::compile");
+    }
+    instance().m_regex_map[h] = re_ptr;
+    instance().m_keys_list.push_front(h);
+    YAT_LOG_STATIC("Compiled pattern added. Cache size: " << instance().m_regex_map.size());
+    return std::make_pair(CompiledRegexWPtr(re_ptr), h);
+  }
+
+  //---------------------------------------------------------------------------
+  static void set_cache_size(std::size_t s)
+  {
+    AutoMutex<> _lock(instance().m_mtx);
+    if( s < 2)
+      instance().m_cache_size = 1;
+    else
+      instance().m_cache_size = s;
+    while( instance().m_regex_map.size() >= instance().m_cache_size )
+    {
+      h64_t h = instance().m_keys_list.back();
+      ::regfree(instance().m_regex_map[h].get());
+      instance().m_regex_map.erase(h);
+      instance().m_keys_list.pop_back();
+    }
+  }
+
+  //---------------------------------------------------------------------------
+  RegexCache() : Singleton<RegexCache>()
+  {
+    m_cache_size = 100;
+  }
+
+private:
+  std::list<h64_t> m_keys_list; // keys list for fifo implementation
+  std::size_t    m_cache_size;
+  re_map_t       m_regex_map;
+  Mutex          m_mtx;
+};
+
 // ============================================================================
 // class Regex
 // ============================================================================
-
+typedef GenericContainer<CompiledRegexWPtr> CompiledRegexWPtrContainer;
 //---------------------------------------------------------------------------
 // Regex::Regex(const yat::String&, yat::Regex::Flags)
 //---------------------------------------------------------------------------
 Regex::Regex(const yat::String& pattern, int flags)
-: m_pattern(pattern), m_flags(flags), m_compiled(false)
+: m_pattern(pattern), m_flags(flags), m_cflags(0), m_re_hash(0)
 {
-}
-
-//---------------------------------------------------------------------------
-// Regex::Regex(const Regex&)
-//---------------------------------------------------------------------------
-Regex::Regex(const Regex& src)
-: m_pattern(src.m_pattern), m_flags(src.m_flags), m_compiled(false)
-{
-}
-
-//---------------------------------------------------------------------------
-// Regex:::~Regex
-//---------------------------------------------------------------------------
-Regex::~Regex()
-{
-  if( m_compiled )
-    regfree(&m_regex);
-}
-
-//---------------------------------------------------------------------------
-// Regex::compile
-//---------------------------------------------------------------------------
-void Regex::compile()
-{
-  if( m_pattern.empty() )
-    throw yat::Exception("REGEX_ERROR", "Empty regex.", "yat::Regex::compile");
-
-  int cflags = 0;
   if( m_flags & yat::Regex::extended )
-    cflags |= REG_EXTENDED;
+    m_cflags |= REG_EXTENDED;
   if( m_flags & yat::Regex::nosubs )
   {
-    cflags |= REG_NOSUB;
+    m_cflags |= REG_NOSUB;
     // check for '^' & '$'
     if( m_pattern[0] != '^' )
       m_pattern.insert(0, 1, '^');
@@ -94,44 +199,23 @@ void Regex::compile()
       m_pattern.append(1, '$');
   }
   if( m_flags & yat::Regex::icase )
-    cflags |= REG_ICASE;
-  int err = ::regcomp(&m_regex, m_pattern.c_str(), cflags);
+    m_cflags |= REG_ICASE;
 
-  switch( err )
-  {
-    case 0:
-      return;
-    case REG_BADBR:
-      throw yat::Exception("REGEX_ERROR", "Invalid use of back reference operator.", "yat::Regex::compile");
-    case REG_BADPAT:
-      throw yat::Exception("REGEX_ERROR", "Invalid use of pattern operators such as group or list.", "yat::Regex::compile");
-    case REG_BADRPT:
-      throw yat::Exception("REGEX_ERROR", "Invalid use of repetition operators such as using '*' as the first character.", "yat::Regex::compile");
-    case REG_EBRACE:
-      throw yat::Exception("REGEX_ERROR", "Un-matched brace interval operators.", "yat::Regex::compile");
-    case REG_EBRACK:
-      throw yat::Exception("REGEX_ERROR", "Un-matched bracket list operators.", "yat::Regex::compile");
-    case REG_ECOLLATE:
-      throw yat::Exception("REGEX_ERROR", "Invalid collating element.", "yat::Regex::compile");
-    case REG_ECTYPE:
-      throw yat::Exception("REGEX_ERROR", "Unknown character class name.", "yat::Regex::compile");
-    case REG_EEND:
-      throw yat::Exception("REGEX_ERROR", "Nonspecific error. This is not defined by POSIX.2.", "yat::Regex::compile");
-    case REG_EESCAPE:
-      throw yat::Exception("REGEX_ERROR", "Trailing backslash.", "yat::Regex::compile");
-    case REG_EPAREN:
-      throw yat::Exception("REGEX_ERROR", "Un-matched parenthesis group operators.", "yat::Regex::compile");
-    case REG_ERANGE:
-      throw yat::Exception("REGEX_ERROR", "Invalid  use  of  the range operator; for example, the ending point of the range occurs prior to the starting point.", "yat::Regex::compile");
-    case REG_ESIZE:
-      throw yat::Exception("REGEX_ERROR", "Invalid  use  of  the range operator; for example, the ending point of the range occurs prior to the starting point.", "yat::Regex::compile");
-    case REG_ESPACE:
-      throw yat::Exception("REGEX_ERROR", "The regex routines ran out of memory.", "yat::Regex::compile");
-    case REG_ESUBREG:
-      throw yat::Exception("REGEX_ERROR", "Invalid back reference to a subexpression.", "yat::Regex::compile");
-    default:
-      throw yat::Exception("REGEX_ERROR", "Unknown error.", "yat::Regex::compile");
-  }
+  // Allocate a container to hold the requested weak ptr
+  m_data_uptr.reset(new CompiledRegexWPtrContainer);
+
+  // get the weak ptr on compiled pattern & pattern hash
+  RegexCache::re_pair_t wptr_hash = RegexCache::get(m_pattern, m_cflags);
+  CompiledRegexWPtrContainer* container_p = dynamic_cast<CompiledRegexWPtrContainer*>(m_data_uptr.get());
+  container_p->set(wptr_hash.first);
+  m_re_hash = wptr_hash.second;
+}
+
+//---------------------------------------------------------------------------
+// Regex::~Regex
+//---------------------------------------------------------------------------
+Regex::~Regex()
+{
 }
 
 //---------------------------------------------------------------------------
@@ -184,16 +268,26 @@ bool Regex::exec(const yat::String& str, yat::Regex::Match* match_p,
                  std::size_t start_pos, Regex::MatchFlags mflags,
                  std::size_t req_len)
 {
-  if( !m_compiled )
-    compile();
+#if ! defined YAT_HAS_GNUREGEX
+   // Original gnu regex code (used on Windows platform) is not threadsafe
+  AutoMutex<> _lock(s_mtx);
+#endif
+
+  CompiledRegexPtr re_ptr;
+  CompiledRegexWPtrContainer* container_p = dynamic_cast<CompiledRegexWPtrContainer*>(m_data_uptr.get());
+  re_ptr = (*container_p)->lock();
+  while( !re_ptr )
+  {
+    container_p->set(RegexCache::get(m_pattern, m_cflags, m_re_hash).first);
+    re_ptr = (*container_p)->lock();
+  }
 
   bool res = false;
-
   std::size_t nmatch = 0;
   regmatch_t* regmatch_p = NULL;
   if( !(m_flags & yat::Regex::nosubs) )
   {
-    nmatch = m_regex.re_nsub + 1;
+    nmatch = re_ptr->re_nsub + 1;
     regmatch_p = new regmatch_t[nmatch];
   }
 
@@ -203,7 +297,7 @@ bool Regex::exec(const yat::String& str, yat::Regex::Match* match_p,
   if( mflags & match_not_eol)
     eflags += REG_NOTEOL;
 
-  int rc = ::regexec(&m_regex, str.c_str() + start_pos, nmatch, regmatch_p, eflags);
+  int rc = ::regexec(re_ptr.get(), str.c_str() + start_pos, nmatch, regmatch_p, eflags);
   if( !rc )
   { // success match
     if( m_flags & yat::Regex::nosubs )
@@ -497,6 +591,17 @@ bool Regex::Match::iterator::operator!=(const Regex::Match::iterator& other) con
 bool Regex::Match::iterator::operator==(const Regex::Match::iterator& other) const
 {
   return (m_idx == other.m_idx && m_submatchs_p == other.m_submatchs_p);
+}
+
+//---------------------------------------------------------------------------
+// Regex::set_cache_size
+//---------------------------------------------------------------------------
+void Regex::set_cache_size(std::size_t s)
+{
+  if( s < 2 )
+    RegexCache::set_cache_size(1);
+  else
+    RegexCache::set_cache_size(s);
 }
 
 }
