@@ -127,14 +127,9 @@
 
 #include <vector>
 #include <yat/memory/SharedPtr.h>
+#include <yat/memory/UniquePtr.h>
 #include <yat/utils/String.h>
-
-#if defined YAT_HAS_GNUREGEX
-  #include <regex.h>
-#else
-  #include <yat/regex/impl/gnuregex.h>
-#endif
-
+#include <yat/any/GenericContainer.h>
 
 namespace yat
 {
@@ -262,7 +257,6 @@ public:
 
   //! c-tor
   Regex(const yat::String& regex, int flags = extended);
-  Regex(const Regex& src);
 
   //! d-tor
   ~Regex();
@@ -301,21 +295,27 @@ public:
   //! \return output string
   yat::String replace(const yat::String& input, const yat::String& replacement, MatchFlags mflags = match_default);
 
-  //! Compile the Regex, this is not required to manually call this method since
-  //! compiling is automatically performed when needed
-  void compile();
+  //! Set the regex cache size (1 or 0 means no cache)
+  //! \param s maximum number of items in cache
+  static void set_cache_size(std::size_t s);
 
 private:
   bool exec(const yat::String& str, Match* match_p, std::size_t start_pos,
             Regex::MatchFlags mflags, std::size_t req_len);
 
-  yat::String m_pattern;
-  int         m_flags;
-  bool        m_compiled;
-  ::regex_t   m_regex;
+  yat::String   m_pattern;
+  int           m_flags;
+  int           m_cflags;
+  h64_t         m_re_hash;
+  ContainerUPtr m_data_uptr; // This is to avoid dependency on regex impl
+
+#if ! defined YAT_HAS_GNUREGEX
+  static Mutex  s_mtx; // Original gnu regex code is not threadsafe
+#endif
 };
 
 typedef SharedPtr<Regex> RegexPtr;
+typedef UniquePtr<Regex> RegexUPtr;
 
 } // namespace
 
