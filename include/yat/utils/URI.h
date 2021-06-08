@@ -102,42 +102,42 @@ public:
   //! \brief URI components structure.
   struct Fields
   {
-    std::string scheme;
-    std::string userinfo;
-    std::string host;
-    std::string port;
-    std::string path;
-    std::string query;
-    std::string fragment;
+    yat::String scheme;
+    yat::String userinfo;
+    yat::String host;
+    yat::String port;
+    yat::String path;
+    yat::String query;
+    yat::String fragment;
   };
 
 private:
 
-  static Regex s_re_full;
-  static Regex s_re_scheme;
-  static Regex s_re_authority;
-  static Regex s_re_userinfo;
-  static Regex s_re_host;
-  static Regex s_re_port;
-  static Regex s_re_path;
-  static Regex s_re_query;
-  static Regex s_re_fragment;
-  static Regex s_re_ipv4form;
-  static Regex s_re_ipv4;
-  static Mutex s_regex_mtx;
-  std::map<Part, std::string> m_part;
+  RegexUPtr m_re_full_uptr;
+  RegexUPtr m_re_scheme_uptr;
+  RegexUPtr m_re_authority_uptr;
+  RegexUPtr m_re_userinfo_uptr;
+  RegexUPtr m_re_host_uptr;
+  RegexUPtr m_re_port_uptr;
+  RegexUPtr m_re_path_uptr;
+  RegexUPtr m_re_query_uptr;
+  RegexUPtr m_re_fragment_uptr;
+  RegexUPtr m_re_ipv4form_uptr;
+  RegexUPtr m_re_ipv4_uptr;
 
-  std::string value(Part part) const;
-  static void split_authority(const std::string& authority, std::string* userinfo_ptr,
+  std::map<Part, yat::String> m_part;
+
+  yat::String value(Part part) const;
+  void split_authority(const std::string& authority, std::string* userinfo_ptr,
                               std::string* host_ptr, std::string* port_ptr);
-  static bool check_authority(const std::string& authority, URI::Fields* fields_ptr,
+  bool check_authority(const std::string& authority, URI::Fields* fields_ptr,
                               bool throw_exception);
-  static bool check_host(const std::string& host, bool throw_exception);
+  bool check_host(const std::string& host, bool throw_exception);
 
   void parse(const std::string& URI);
-  static bool check_value(const std::string& value, Regex &re,
+  bool check_value(const std::string& value, Regex* re,
                           const std::string& error_desc, bool throw_exception);
-  static bool re_match(Regex& re, const yat::String& str, Regex::Match* m=NULL);
+  bool re_match(Regex* re, const yat::String& str, Regex::Match* m=NULL);
 
 public:
   //! \brief Constructor from URI.
@@ -155,18 +155,18 @@ public:
   URI(const URI::Fields& fields);
 
   //! \brief Default constructor.
-  URI() { }
+  URI();
 
   //! \brief Clear all parts
   void clear();
 
   //! \brief Gets the URI as a string.
-  std::string get() const;
+  yat::String get() const;
 
   //! \brief Gets a specific part of the URI as a string.
   //!
   //! \param part The URI part to retrieve.
-  std::string get(Part part) const;
+  yat::String get(Part part) const;
 
   //! \brief Sets a specific part of the URI.
   //!
@@ -192,17 +192,25 @@ public:
   //! \param value The value to check.
   //! \param throw_exception If set to true, throws an exception if an error occurs.
   //! \exception BAD_URI_SYNTAX Thrown if the value syntax is not correct.
-  static bool check(Part part, const std::string &value, bool throw_exception=false);
-
-  //! \brief percent encoding for any string that have to be part of an uri
-  static void pct_encode(std::string* to_encode, const std::string& reserved=URI_RESERVED);
-
-  //! \brief percent decoding for any string that have to be part of an uri
-  static void pct_decode(std::string* to_encode);
+  bool check(Part part, const std::string &value, bool throw_exception=false);
 
   //! \brief Just the the fun ;)
-  static yat::String get_full_pattern();
+  yat::String get_full_pattern();
+
+  //! \brief percent encoding for any string that have to be part of an uri
+  static void pct_encode(std::string& to_encode, const std::string& reserved=URI_RESERVED);
+
+  //! \brief percent decoding for any string that have to be part of an uri
+  static void pct_decode(std::string& to_decode);
+
+  //! \name deprecated
+  //@{
+  static void pct_encode(std::string* x, const std::string& y=URI_RESERVED) { pct_encode(*x, y); }
+  static void pct_decode(std::string* x) { pct_decode (*x); }
+  //@}
+
 };
+
 
 
 } // namespace

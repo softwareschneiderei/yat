@@ -53,8 +53,6 @@ namespace yat
 {
 
 const std::string uri_syntax_error = "BAD_URI_SYNTAX";
-Mutex URI::s_regex_mtx;
-
 const std::string _PCT_ENCODED   = R"(%[[:xdigit:]][[:xdigit:]])";
 const std::string _GEN_DELIMS    = R"([]:/?@#[])";
 const std::string _SUB_DELIMS    = R"([!$&'()*+,;=])";
@@ -98,17 +96,6 @@ const std::string _AUTHORITY     = "(((" + _USERINFO + ")@)?" + _HOST + "(:" + _
 const std::string _HIER_PART     = "((//" + _AUTHORITY + _PATH_ABEMPTY + ")|" + _PATH_ABSOLUTE \
                                  + "|" + _PATH_ROOTLESS + "|" + _PATH_EMPTY + ")";
 const std::string  _URI          = _SCHEME + ":" + _HIER_PART + R"((\?)" + _QUERY + ")?(#" + _FRAGMENT + ")?";
-Regex URI::s_re_scheme(_SCHEME, Regex::extended | Regex::nosubs);
-Regex URI::s_re_userinfo(_USERINFO, Regex::extended | Regex::nosubs);
-Regex URI::s_re_path(_PATH, Regex::extended | Regex::nosubs);
-Regex URI::s_re_host(_HOST, Regex::extended | Regex::nosubs);
-Regex URI::s_re_port(_PORT, Regex::extended | Regex::nosubs);
-Regex URI::s_re_query(_QUERY, Regex::extended | Regex::nosubs);
-Regex URI::s_re_fragment(_FRAGMENT, Regex::extended | Regex::nosubs);
-Regex URI::s_re_authority(_AUTHORITY, Regex::extended);
-Regex URI::s_re_full(_URI, Regex::extended);
-Regex URI::s_re_ipv4form(_IPV4FORM, Regex::extended | Regex::nosubs);
-Regex URI::s_re_ipv4(_IPV4, Regex::extended | Regex::nosubs);
 
 // just for the fun!
 yat::String URI::get_full_pattern() { return _URI; }
@@ -116,10 +103,16 @@ yat::String URI::get_full_pattern() { return _URI; }
 //----------------------------------------------------------------------------
 // URI::re_match
 //----------------------------------------------------------------------------
-bool URI::re_match(Regex& re, const String& str, Regex::Match* match_p)
+bool URI::re_match(Regex* re, const String& str, Regex::Match* match_p)
 {
-  AutoMutex<> _lock(s_regex_mtx);
-  return re.match(str, match_p);
+  return re->match(str, match_p);
+}
+
+//----------------------------------------------------------------------------
+// URI::URI
+//----------------------------------------------------------------------------
+URI::URI()
+{
 }
 
 //----------------------------------------------------------------------------
@@ -156,7 +149,7 @@ URI::URI(const URI::Fields& fields)
 //----------------------------------------------------------------------------
 // URI::check_value
 //----------------------------------------------------------------------------
-bool URI::check_value(const std::string& part, Regex &re,
+bool URI::check_value(const std::string& part, Regex* re,
                          const std::string& part_name, bool throw_exception)
 {
   if( !re_match(re, part) )
@@ -179,28 +172,58 @@ bool URI::check(URI::Part part, const std::string& value, bool throw_exception)
   switch ( part )
   {
     case URI::SCHEME:
-      return check_value(value, s_re_scheme, "scheme", throw_exception);
+    {
+      if( !m_re_scheme_uptr )
+        m_re_scheme_uptr.reset(new Regex(_SCHEME, Regex::extended | Regex::nosubs));
+      return check_value(value, m_re_scheme_uptr.get(), "scheme", throw_exception);
+    }
 
     case URI::AUTHORITY:
-      return check_value(value, s_re_authority, "authority", throw_exception);
+    {
+      if( !m_re_authority_uptr )
+        m_re_authority_uptr.reset(new Regex(_AUTHORITY, Regex::extended));
+      return check_value(value, m_re_authority_uptr.get(), "authority", throw_exception);
+    }
 
     case URI::USERINFO:
-      return check_value(value, s_re_userinfo, "userinfo", throw_exception);
+    {
+      if( !m_re_userinfo_uptr )
+        m_re_userinfo_uptr.reset(new Regex(_USERINFO, Regex::extended | Regex::nosubs));
+      return check_value(value, m_re_userinfo_uptr.get(), "userinfo", throw_exception);
+    }
 
     case URI::HOST:
+    {
       return check_host(value, throw_exception);
+    }
 
     case URI::PORT:
-      return check_value(value, s_re_port, "port", throw_exception);
+    {
+      if( !m_re_port_uptr )
+        m_re_port_uptr.reset(new Regex(_PORT, Regex::extended | Regex::nosubs));
+      return check_value(value, m_re_port_uptr.get(), "port", throw_exception);
+    }
 
     case URI::PATH:
-      return check_value(value, s_re_path, "path", throw_exception);
+    {
+      if( !m_re_path_uptr )
+        m_re_path_uptr.reset(new Regex(_PATH, Regex::extended | Regex::nosubs));
+      return check_value(value, m_re_path_uptr.get(), "path", throw_exception);
+    }
 
     case URI::QUERY:
-      return check_value(value, s_re_query, "query", throw_exception);
+    {
+      if( !m_re_query_uptr )
+        m_re_query_uptr.reset(new Regex(_QUERY, Regex::extended | Regex::nosubs));
+      return check_value(value, m_re_query_uptr.get(), "query", throw_exception);
+    }
 
     case URI::FRAGMENT:
-      return check_value(value, s_re_fragment, "fragment", throw_exception);
+    {
+      if( !m_re_fragment_uptr )
+        m_re_fragment_uptr.reset(new Regex(_FRAGMENT, Regex::extended | Regex::nosubs));
+      return check_value(value, m_re_fragment_uptr.get(), "fragment", throw_exception);
+    }
 
     default:
       throw Exception("ERROR", "invalid part specified", "yat::URI::check");
@@ -245,8 +268,11 @@ bool URI::check_authority(const std::string& authority, URI::Fields* fields_ptr,
 {
   if( !authority.empty() )
   {
+    if( !m_re_authority_uptr )
+      m_re_authority_uptr.reset(new Regex(_AUTHORITY, Regex::extended));
+
     Regex::Match m;
-    if( !re_match(s_re_authority, authority, &m) )
+    if( !re_match(m_re_authority_uptr.get(), authority, &m) )
     {
       if( throw_exception )
         throw Exception(uri_syntax_error,
@@ -267,8 +293,11 @@ bool URI::check_authority(const std::string& authority, URI::Fields* fields_ptr,
 //----------------------------------------------------------------------------
 bool URI::check_host(const std::string& host, bool throw_exception)
 {
+  if( !m_re_host_uptr )
+    m_re_host_uptr.reset(new Regex(_HOST, Regex::extended | Regex::nosubs));
+
   Regex::Match m;
-  if( !re_match(s_re_host, host, &m) )
+  if( !re_match(m_re_host_uptr.get(), host, &m) )
   {
     if( throw_exception )
       throw Exception(uri_syntax_error,
@@ -278,7 +307,12 @@ bool URI::check_host(const std::string& host, bool throw_exception)
     return false;
   }
 
-  if( s_re_ipv4form.match(host) && !s_re_ipv4.match(host) )
+  if( !m_re_ipv4form_uptr )
+    m_re_ipv4form_uptr.reset(new Regex(_IPV4FORM, Regex::extended | Regex::nosubs));
+  if( !m_re_ipv4_uptr )
+    m_re_ipv4_uptr.reset(new Regex(_IPV4, Regex::extended | Regex::nosubs));
+
+  if( m_re_ipv4form_uptr->match(host) && !m_re_ipv4_uptr->match(host) )
     THROW_YAT_ERROR(uri_syntax_error,
                     StringFormat("'{}' is not a valid host name").format(host),
                    "yat::URI::check_host");
@@ -291,10 +325,11 @@ bool URI::check_host(const std::string& host, bool throw_exception)
 //----------------------------------------------------------------------------
 void URI::parse(const std::string& uri)
 {
-  AutoMutex<> _lock(s_regex_mtx);
+  if( !m_re_full_uptr )
+    m_re_full_uptr.reset(new Regex(_URI, Regex::extended));
 
   Regex::Match m;
-  if( !s_re_full.match(uri, &m) )
+  if( !m_re_full_uptr->match(uri, &m) )
   {
     THROW_YAT_ERROR(uri_syntax_error,
                     StringFormat("'{}' is not a valid uri").format(uri),
@@ -306,7 +341,12 @@ void URI::parse(const std::string& uri)
   // a ipv4 address. If it's the case then check if it's a valid one
   std::string host = m.str(8);
 
-  if( s_re_ipv4form.match(host) && !s_re_ipv4.match(host) )
+  if( !m_re_ipv4form_uptr )
+    m_re_ipv4form_uptr.reset(new Regex(_IPV4FORM, Regex::extended | Regex::nosubs));
+  if( !m_re_ipv4_uptr )
+    m_re_ipv4_uptr.reset(new Regex(_IPV4, Regex::extended | Regex::nosubs));
+
+  if( m_re_ipv4form_uptr->match(host) && !m_re_ipv4_uptr->match(host) )
     THROW_YAT_ERROR(uri_syntax_error,
                     StringFormat("'{}' is not a valid uri").format(uri),
                    "yat::URI::parse");
@@ -349,27 +389,27 @@ void URI::clear()
 //----------------------------------------------------------------------------
 // URL::get
 //----------------------------------------------------------------------------
-std::string URI::get() const
+yat::String URI::get() const
 {
   std::ostringstream s;
 
-  std::string scheme = value(URI::SCHEME);
+  yat::String scheme = value(URI::SCHEME);
   if( !scheme.empty() )
     s << value(URI::SCHEME) << ':';
 
-  std::string authority = get(URI::AUTHORITY);
+  yat::String authority = get(URI::AUTHORITY);
   if( !authority.empty() )
     s << "//" << authority;
 
-  std::string path = get(URI::PATH);
+  yat::String path = get(URI::PATH);
   if( !path.empty() )
     s << path;
 
-  std::string query = get(URI::QUERY);
+  yat::String query = get(URI::QUERY);
   if( !query.empty() )
     s << '?' << query;
 
-  std::string fragment = get(URI::FRAGMENT);
+  yat::String fragment = get(URI::FRAGMENT);
   if( !fragment.empty() )
     s << '#' << fragment;
 
@@ -379,9 +419,9 @@ std::string URI::get() const
 //----------------------------------------------------------------------------
 // URI::value
 //----------------------------------------------------------------------------
-std::string URI::value(URI::Part part) const
+yat::String URI::value(URI::Part part) const
 {
-  std::map<Part, std::string>::const_iterator cit = m_part.find(part);
+  std::map<Part, yat::String>::const_iterator cit = m_part.find(part);
   if( cit != m_part.end() )
     return cit->second;
   return "";
@@ -390,9 +430,9 @@ std::string URI::value(URI::Part part) const
 //----------------------------------------------------------------------------
 // URI::get
 //----------------------------------------------------------------------------
-std::string URI::get(URI::Part part) const
+yat::String URI::get(URI::Part part) const
 {
-  std::string v;
+  yat::String v;
 
   if( URI::AUTHORITY == part )
   {
@@ -410,6 +450,7 @@ std::string URI::get(URI::Part part) const
   {
     v = value(part);
   }
+  pct_decode(v);
   return v;
 }
 
@@ -452,50 +493,50 @@ void URI::set(const std::string &value)
 //----------------------------------------------------------------------------
 // URI::pct_encode
 //----------------------------------------------------------------------------
-void URI::pct_encode(std::string* to_encode, const std::string& reserved)
+void URI::pct_encode(std::string& to_encode, const std::string& reserved)
 {
   std::ostringstream encoded;
-  for( std::size_t i = 0; i < (*to_encode).size(); ++i )
+  for( std::size_t i = 0; i < to_encode.size(); ++i )
   {
-    if( reserved.find((*to_encode)[i]) == std::string::npos )
-      encoded << (*to_encode)[i];
+    if( reserved.find(to_encode[i]) == std::string::npos )
+      encoded << to_encode[i];
     else
     {
       std::ostringstream oss;
-      oss << std::hex << std::uppercase << static_cast<int>((*to_encode)[i]);
+      oss << std::hex << std::uppercase << static_cast<int>(to_encode[i]);
       encoded << '%' << oss.str();
     }
   }
-  *to_encode = encoded.str();
+  to_encode = encoded.str();
 }
 
 //----------------------------------------------------------------------------
 // URI::pct_decode
 //----------------------------------------------------------------------------
- void URI::pct_decode(std::string* to_decode)
- {
-    std::ostringstream decoded;
-    std::size_t size = (*to_decode).size();
+void URI::pct_decode(std::string& to_decode)
+{
+  std::ostringstream decoded;
+  std::size_t size = to_decode.size();
 
-    for( std::size_t i = 0; i < size; ++i )
+  for( std::size_t i = 0; i < size; ++i )
+  {
+    if( '%' != to_decode[i] )
     {
-      if( '%' != (*to_decode)[i] )
-      {
-        decoded << (*to_decode)[i];
-      }
-      else
-      {
-        if( i > size - 2 )
-          throw yat::Exception("ERROR", "Bad URI string", "yat::URI::pct_decode");
-
-        int n;
-        std::istringstream( (*to_decode).substr(i+1, 2) ) >> std::hex >> n;
-        decoded << char(n);
-        i += 2;
-      }
+      decoded << to_decode[i];
     }
-    *to_decode = decoded.str();
- }
+    else
+    {
+      if( i > size - 3 )
+        throw yat::Exception("ERROR", "Bad URI string: failed to pct decode string", "yat::URI::pct_decode");
+
+      int n;
+      std::istringstream( to_decode.substr(i+1, 2) ) >> std::hex >> n;
+      decoded << char(n);
+      i += 2;
+    }
+  }
+  to_decode = decoded.str();
+}
 
 } //- namespace yat
 
