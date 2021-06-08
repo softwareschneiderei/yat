@@ -91,6 +91,8 @@ namespace yat
 
 typedef const char *   pcsz;
 typedef char *         psz;
+typedef uint64         h64_t;
+typedef uint32         h32_t;
 
 class String;
 
@@ -430,13 +432,13 @@ public:
   static void remove(std::string* str_p, pcsz pszCharSet);
 
   //! \brief Returns a 32 bits hash code.
-  static uint32 hash(const std::string& str);
+  static h32_t hash(const std::string& str);
 
   //! \brief Returns the hash code using the FNV-1a algorithm.
   //!
   //! Calculates a 64 bits hash code. See details of the algorithm
   //! on http://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function.
-  static uint64 hash64(const std::string& str);
+  static h64_t hash64(const std::string& str);
 
   //! \brief Converts string content to numeric type \<_T\>.
   //!
@@ -1181,6 +1183,9 @@ public:
   operator const yat::String&() const { return m_str; }
   operator yat::String&() { return m_str; }
 
+  //! Get string
+  String& get() { return m_str; }
+
   //! Apply format
   //!
   //! format spec is:\n
@@ -1241,12 +1246,18 @@ public:
   StringFormat& format(const std::string& v);
   StringFormat& format(const yat::String& v);
 
+  //! 'arg' is synonym of 'format'
+  template<class T> StringFormat& arg(const T& v) { return format(v); }
+
 private:
   yat::String m_str;
   std::size_t m_fmt_idx;
 
   void prepare_format(std::ostringstream& oss, char& type, yat::String& before, yat::String& after);
 };
+
+/// Perhaps a shorter class name should be better...
+typedef StringFormat Format;
 
 } // namespace
 

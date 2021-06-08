@@ -1068,7 +1068,7 @@ void StringUtil::remove(std::string* str_p, pcsz pszCharSet)
 //---------------------------------------------------------------------------
 // StringUtil::hash
 //---------------------------------------------------------------------------
-uint32 StringUtil::hash(const std::string& str)
+h32_t StringUtil::hash(const std::string& str)
 {
   // Very basic implementation !
   int64 modulo = (int64(2) << 31) - 1;
@@ -1077,16 +1077,16 @@ uint32 StringUtil::hash(const std::string& str)
   for( uint32 i = 0; i < length; i++ )
     hash64 = (31 * hash64 + str[i]) % modulo;
 
-  return (uint32)(hash64);
+  return (h32_t)(hash64);
 }
 
 //---------------------------------------------------------------------------
 // StringUtil::hash64
 //---------------------------------------------------------------------------
-uint64 StringUtil::hash64(const std::string& str)
+h64_t StringUtil::hash64(const std::string& str)
 {
   // Implementation of the FNV-1a algorithm (http://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function)
-  uint64 hash64 = uint64(14695981039346656037ULL);
+  h64_t hash64 = uint64(14695981039346656037ULL);
   uint32 length = str.size();
   for( uint32 i = 0; i < length; i++ )
     hash64 = (hash64 ^ str[i]) * uint64(1099511628211ULL);
