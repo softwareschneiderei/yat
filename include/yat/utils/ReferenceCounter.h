@@ -313,7 +313,10 @@ public:
       m_count = cnt.m_count;
       m_count->add_ref();
     }
+    else
+      m_count = 0;
     cnt.m_count->unlock();
+
   }
 
   //! \brief copy constructor.
@@ -329,15 +332,18 @@ public:
   void release ()
   {
     PTR_DBG("SharedCounter::release()");
-    const std::pair<C, C> counters = m_count->dec_ref();
-    if( 0 == counters.first ) // use_count
+    if( m_count )
     {
-      // No more reference to the counter object, we can destroy it
-      m_count->dispose();
-      if( 0 == counters.second ) // weak_count
-        // No more weak ref, we can destroy the counter
-        delete m_count;
-      m_count = 0;
+      const std::pair<C, C> counters = m_count->dec_ref();
+      if( 0 == counters.first ) // use_count
+      {
+        // No more reference to the counter object, we can destroy it
+        m_count->dispose();
+        if( 0 == counters.second ) // weak_count
+          // No more weak ref, we can destroy the counter
+          delete m_count;
+        m_count = 0;
+      }
     }
   }
 
@@ -357,7 +363,8 @@ public:
     {
       release();
       m_count = s.m_count;
-      m_count->add_ref();
+      if( m_count )
+        m_count->add_ref();
     }
     return *this;
   }
