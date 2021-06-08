@@ -42,6 +42,7 @@
 
 #include <typeinfo>
 #include <yat/CommonHeader.h>
+#include <yat/memory/UniquePtr.h>
 
 namespace yat
 {
@@ -94,10 +95,10 @@ public:
   //! \param _data The source data.
   //! \param _transfer_ownership If set to true, ownership of source data is transfered
   //! to *this*.
-  GenericContainer (T* _data, bool _transfer_ownership = true)
+  GenericContainer(T* _data, bool _transfer_ownership = true)
     : ptr_(0), own_(false)
   {
-    this->set_content(_data, _transfer_ownership);
+    set(_data, _transfer_ownership);
   }
 
   //! \brief Constructor with parameters.
@@ -107,12 +108,12 @@ public:
   GenericContainer (const T& _data)
     : ptr_(0), own_(false)
   {
-    this->set_content(_data);
+    set(_data);
   }
 
   //! \brief Copy constructor.
   //! \param _src The source container.
-  GenericContainer (const GenericContainer<T>& _src)
+  GenericContainer(const GenericContainer<T>& _src)
     : ptr_(0), own_(false)
   {
     *this = _src;
@@ -121,9 +122,10 @@ public:
   //! \brief Destructor.
   //!
   //! Deletes data if the ownership flag is set to true.
-  virtual ~GenericContainer ()
+  virtual ~GenericContainer()
   {
-    if (own_) delete ptr_;
+    if( own_ )
+      delete ptr_;
   }
 
   //! \brief Operator=.
@@ -131,19 +133,19 @@ public:
   //! Changes content and makes a copy of the source content.
   //! \param _src The source container.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  const GenericContainer& operator= (const GenericContainer<T>& _src)
+  const GenericContainer& operator=(const GenericContainer<T>& _src)
   {
-    if (&_src == this)
+    if( &_src == this )
       return *this;
-    if (! ptr_ || ! own_)
+    if( ! ptr_ || ! own_ )
     {
       try
       {
         ptr_ = new (std::nothrow) T(_src.content());
-        if (! ptr_)
+        if( !ptr_ )
           throw std::bad_alloc();
       }
-      catch (const std::bad_alloc&)
+      catch(const std::bad_alloc&)
       {
         ptr_ = 0;
         own_ = false;
@@ -165,7 +167,7 @@ public:
   //! Changes content and makes a copy of the source data.
   //! \param _src The source data.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  const GenericContainer& operator= (T& _src)
+  const GenericContainer& operator=(T& _src)
   {
     return this->operator=(static_cast<const T&>(_src));
   }
@@ -175,9 +177,9 @@ public:
   //! Changes content and makes a copy of the source data.
   //! \param _src The const source data.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  const GenericContainer& operator= (const T& _src)
+  const GenericContainer& operator=(const T& _src)
   {
-    if (! ptr_ || ! own_)
+    if(! ptr_ || ! own_ )
     {
       try
       {
@@ -185,7 +187,7 @@ public:
         if (! ptr_)
           throw std::bad_alloc();
       }
-      catch (const std::bad_alloc&)
+      catch(const std::bad_alloc&)
       {
         ptr_ = 0;
         own_ = false;
@@ -206,7 +208,7 @@ public:
   //!
   //! Changes content but does NOT get ownership of the data.
   //! \param _data The source data.
-  const GenericContainer& operator= (T* _data)
+  const GenericContainer& operator=(T* _data)
   {
     if (_data == ptr_)
       return *this;
@@ -223,7 +225,7 @@ public:
   //! \param _data The source data.
   //! \param _transfer_ownership If set to true, ownership of source data is transfered
   //! to *this*.
-  void set_content (T* _data, bool _transfer_ownership)
+  void set(T* _data, bool _transfer_ownership)
   {
     *this = _data;
     own_ = _transfer_ownership;
@@ -231,14 +233,14 @@ public:
 
   //! \brief Sets the content of the container (makes a copy).
   //! \param _data The const source data.
-  void set_content (const T& _data)
+  void set(const T& _data)
   {
     *this = _data;
   }
 
   //! \brief Sets the content of the container (makes a copy).
   //! \param _data The source data.
-  void set_content (T& _data)
+  void set(T& _data)
   {
     *this = _data;
     own_ = true;
@@ -247,7 +249,7 @@ public:
   //! \brief Returns content of the container.
   //!
   //! Does NOT transfer data ownership to the caller.
-  T * operator-> ()
+  T* operator-> ()
   {
     return ptr_;
   }
@@ -257,7 +259,7 @@ public:
   //! Optionally transfers data ownership to the caller.
   //! \param transfer_ownership If set to true, ownership of content is transfered
   //! to the caller.
-  T * get_content (bool transfer_ownership)
+  T * get(bool transfer_ownership)
   {
     if (transfer_ownership)
       own_ = false;
@@ -267,7 +269,7 @@ public:
   //! \brief Returns content of the container.
   //! \exception RUNTIME_ERROR Thrown if could not extract data from GenericContainer
   //! [empty].
-  T & get_content ()
+  T& get()
   {
     if (! ptr_)
     {
@@ -293,6 +295,15 @@ public:
   {
     return ptr_ ? false : true;
   }
+
+  //! \name Deprecated
+  //@{
+    void set_content (T* _data, bool b) { set(_data, b); }
+    void set_content (const T& _data) { set(_data); }
+    void set_content (T& _data) { set(_data); }
+    T* get_content(bool b) { return get(b); }
+    T& get_content() { return get(); }
+  //@}
 
 private:
   //- Actual container content.
@@ -363,6 +374,8 @@ T & any_cast (Container & c)
   }
   return *t;
 }
+
+typedef YAT_UNIQUE_PTR(Container) ContainerUPtr;
 
 } // namespace yat
 
