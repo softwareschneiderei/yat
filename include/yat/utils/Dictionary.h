@@ -84,13 +84,13 @@ public:
   void clear() { m_map.clear(); }
   void erase(iterator it) { m_map.erase(it); }
   void erase(iterator first, iterator last) { m_map.erase(first, last); }
-  std::size_t erase( const std::string& key) { return m_map.erase( key ); }
-  std::size_t count( const std::string& key) { return m_map.count( key ); }
-  iterator find( const std::string& key) { return m_map.find( key ); }
-  const_iterator find( const std::string& key) const { return m_map.find( key ); }
-  std::pair<iterator,bool> insert( const value_type& value ) { return m_map.insert(value); }
-  Dictionary<T>( const std::map<std::string, T>& other ): m_map(other) {}
-  Dictionary<T>( const Dictionary<T>& other ): m_map(other.m_map) {}
+  std::size_t erase(const std::string& key) { return m_map.erase( key ); }
+  std::size_t count(const std::string& key) { return m_map.count( key ); }
+  iterator find(const std::string& key) { return m_map.find( key ); }
+  const_iterator find(const std::string& key) const { return m_map.find( key ); }
+  std::pair<iterator,bool> insert(const value_type& value) { return m_map.insert(value); }
+  Dictionary<T>(const std::map<std::string, T>& other): m_map(other) {}
+  Dictionary<T>(const Dictionary<T>& other): m_map(other.m_map) {}
   Dictionary<T>() {}
   //@}
 
