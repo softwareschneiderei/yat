@@ -255,8 +255,14 @@ public:
 
   typedef SharedPtr<Match> MatchPtr;
 
-  //! c-tor
+  //! default c-tor
   Regex(const yat::String& regex, int flags = extended);
+
+  //! copy c-tor
+  Regex(const Regex& src);
+
+  //! operator=
+  Regex& operator=(const Regex& src);
 
   //! d-tor
   ~Regex();
@@ -302,6 +308,8 @@ public:
 private:
   bool exec(const yat::String& str, Match* match_p, std::size_t start_pos,
             Regex::MatchFlags mflags, std::size_t req_len);
+
+  void priv_init();
 
   yat::String   m_pattern;
   int           m_flags;

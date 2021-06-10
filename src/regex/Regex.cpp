@@ -201,6 +201,35 @@ Regex::Regex(const yat::String& pattern, int flags)
   if( m_flags & yat::Regex::icase )
     m_cflags |= REG_ICASE;
 
+  priv_init();
+}
+
+//---------------------------------------------------------------------------
+// Regex::Regex(const Regex& src)
+//---------------------------------------------------------------------------
+Regex::Regex(const Regex& src) : m_pattern(src.m_pattern), m_flags(src.m_flags),
+                                 m_cflags(src.m_cflags)
+{
+  priv_init();
+}
+
+//---------------------------------------------------------------------------
+// Regex::opetator=
+//---------------------------------------------------------------------------
+Regex& Regex::operator=(const Regex& src)
+{
+  m_pattern = src.m_pattern;
+  m_flags = src.m_flags;
+  m_cflags = src.m_cflags;
+  priv_init();
+  return *this;
+}
+
+//---------------------------------------------------------------------------
+// Regex::priv_init
+//---------------------------------------------------------------------------
+void Regex::priv_init()
+{
   // Allocate a container to hold the requested weak ptr
   m_data_uptr.reset(new CompiledRegexWPtrContainer);
 
