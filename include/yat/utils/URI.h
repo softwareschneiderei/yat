@@ -157,6 +157,12 @@ public:
   //! \brief Default constructor.
   URI();
 
+  //! \brief Copy constructor.
+  URI(const URI& src);
+
+  //! \brief operator=
+  URI& operator=(const URI& src);
+
   //! \brief Clear all parts
   void clear();
 
