@@ -312,105 +312,70 @@ public:
 };
 
 // =============================================================================
-//! \deprecated Log functions
-//@{
+//! Log functions
 // =============================================================================
-
-//! \brief Logs a result message.
-//! \param pszType %Message type.
-//! \param pszFormat %Message format (printf like).
-//! \param ... %Message text.
-YAT_DECL void log_result(pcsz pszType, pcsz pszFormat, ...);
-
-//! \brief Logs a verbose message.
-//! \param pszType %Message type.
-//! \param pszFormat %Message format (printf like).
-//! \param ... %Message text.
-YAT_DECL void log_verbose(pcsz pszType, pcsz pszFormat, ...);
-
-//! \brief Logs an information message.
-//! \param pszType %Message type.
-//! \param pszFormat %Message format (printf like).
-//! \param ... %Message text.
-YAT_DECL void log_info(pcsz pszType, pcsz pszFormat, ...);
-
-//! \brief Logs a notice message.
-//! \param pszType %Message type.
-//! \param pszFormat %Message format (printf like).
-//! \param ... %Message text.
-YAT_DECL void log_notice(pcsz pszType, pcsz pszFormat, ...);
-
-//! \brief Logs a warning message.
-//! \param pszType %Message type.
-//! \param pszFormat %Message format (printf like).
-//! \param ... %Message text.
-YAT_DECL void log_warning(pcsz pszType, pcsz pszFormat, ...);
-
-//! \brief Logs an error message.
-//! \param pszType %Message type.
-//! \param pszFormat %Message format (printf like).
-//! \param ... %Message text.
-YAT_DECL void log_error(pcsz pszType, pcsz pszFormat, ...);
-
-//! \brief Logs a critical message.
-//! \param pszType %Message type.
-//! \param pszFormat %Message format (printf like).
-//! \param ... %Message text.
-YAT_DECL void log_critical(pcsz pszType, pcsz pszFormat, ...);
-
-//! \brief Logs an alert message.
-//! \param pszType %Message type.
-//! \param pszFormat %Message format (printf like).
-//! \param ... %Message text.
-YAT_DECL void log_alert(pcsz pszType, pcsz pszFormat, ...);
-
-//! \brief Logs an emergency message.
-//! \param pszType %Message type.
-//! \param pszFormat %Message format (printf like).
-//! \param ... %Message text.
-YAT_DECL void log_emergency(pcsz pszType, pcsz pszFormat, ...);
+//@{
 
 //! \brief Logs a result message.
 //! \param msg Message
-YAT_DECL void log_result(const std::string& msg);
+YAT_DECL void result(const std::string& msg);
 
 //! \brief Logs a verbose message.
 //! \param msg Message
-YAT_DECL void log_verbose(const std::string& msg);
+YAT_DECL void verbose(const std::string& msg);
 
 //! \brief Logs an information message.
 //! \param msg Message
-YAT_DECL void log_info(const std::string& msg);
+YAT_DECL void info(const std::string& msg);
 
 //! \brief Logs a notice message.
 //! \param msg Message
-YAT_DECL void log_notice(const std::string& msg);
+YAT_DECL void notice(const std::string& msg);
 
 //! \brief Logs a warning message.
 //! \param msg Message
-YAT_DECL void log_warning(const std::string& msg);
+YAT_DECL void warning(const std::string& msg);
 
 //! \brief Logs an error message.
-//! \param pszType %Message type.
-//! \param pszFormat %Message format (printf like).
-//! \param ... %Message text.
-YAT_DECL void log_error(const std::string& msg);
+//! \param msg Message
+YAT_DECL void error(const std::string& msg);
 
 //! \brief Logs a critical message.
-//! \param pszType %Message type.
-//! \param pszFormat %Message format (printf like).
-//! \param ... %Message text.
-YAT_DECL void log_critical(const std::string& msg);
+//! \param msg Message
+YAT_DECL void critical(const std::string& msg);
 
 //! \brief Logs an alert message.
 //! \param msg Message
-YAT_DECL void log_alert(const std::string& msg);
+YAT_DECL void alert(const std::string& msg);
 
 //! \brief Logs an emergency message.
 //! \param msg Message
-YAT_DECL void log_emergency(const std::string& msg);
+YAT_DECL void emergency(const std::string& msg);
 
 //@} Log functions
+
+// =============================================================================
+//! \deprecated Log functions
+//@{
+YAT_DECL void log_result(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_verbose(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_info(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_notice(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_warning(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_error(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_critical(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_alert(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_emergency(pcsz pszType, pcsz pszFormat, ...);
+YAT_DECL void log_result(const std::string& msg);
+YAT_DECL void log_verbose(const std::string& msg);
+YAT_DECL void log_info(const std::string& msg);
+YAT_DECL void log_notice(const std::string& msg);
+YAT_DECL void log_warning(const std::string& msg);
+YAT_DECL void log_error(const std::string& msg);
+YAT_DECL void log_critical(const std::string& msg);
+YAT_DECL void log_alert(const std::string& msg);
+YAT_DECL void log_emergency(const std::string& msg);
+//@} Deprecated Log functions
 
 } // namespace
 
