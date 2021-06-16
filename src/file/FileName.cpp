@@ -96,7 +96,8 @@ void FileName::set(const std::string& strPath, const std::string& strName, const
 //----------------------------------------------------------------------------
 void FileName::set_path(const std::string& strPath)
 {
-  set(strPath, "");
+  if( !is_null() )
+    set(strPath, "");
 }
 
 //----------------------------------------------------------------------------
@@ -104,7 +105,8 @@ void FileName::set_path(const std::string& strPath)
 //----------------------------------------------------------------------------
 void FileName::join(const std::string& fragment)
 {
-  set(path() + fragment, name_ext());
+  if( !is_null() )
+    set(path() + fragment, name_ext());
 }
 
 //----------------------------------------------------------------------------
@@ -112,7 +114,7 @@ void FileName::join(const std::string& fragment)
 //----------------------------------------------------------------------------
 bool FileName::is_path_name() const
 {
-  if( StringUtil::end_with( m_strFile, SEP_PATH ) )
+  if( StringUtil::end_with( m_strFile, SEP_PATH ) || is_null() )
     return true;
   return false;
 }
@@ -122,6 +124,9 @@ bool FileName::is_path_name() const
 //----------------------------------------------------------------------------
 std::string FileName::path() const
 {
+  if( is_null() )
+    return null_path;
+
   std::string strPath;
 
   // Backward search for first separator
@@ -138,10 +143,13 @@ std::string FileName::path() const
 //----------------------------------------------------------------------------
 yat::StringVector FileName::splitted_path() const
 {
-  yat::String s = path();
-  s = s.substr(0, s.size()-1);
   yat::StringVector components;
-  s.split('/', &components);
+  if( !is_null() )
+  {
+    yat::String s = path();
+    s = s.substr(0, s.size()-1);
+    s.split('/', &components);
+  }
   return components;
 }
 
@@ -150,6 +158,12 @@ yat::StringVector FileName::splitted_path() const
 //----------------------------------------------------------------------------
 std::string FileName::name() const
 {
+  if( is_null() )
+    return null_file_name;
+
+  if( !is_valid() )
+    return "";
+
   std::string strName;
 
   // Backward search for first separator
@@ -173,8 +187,13 @@ std::string FileName::name() const
 //----------------------------------------------------------------------------
 std::string FileName::dir_name() const
 {
-  std::string strName;
+  if( is_null() )
+    return null_dir_name;
 
+  if( !is_valid() )
+    return "";
+
+  std::string strName;
   // Backward search for last separator
   std::string::size_type iLastSepPos = m_strFile.find_last_of(SEP_PATH);
   if ( std::string::npos == iLastSepPos )
@@ -193,6 +212,12 @@ std::string FileName::dir_name() const
 //----------------------------------------------------------------------------
 std::string FileName::name_ext() const
 {
+  if( is_null() )
+    return null_file_name;
+
+  if( !is_valid() )
+    return "";
+
   std::string strFileName = name();
   if( ext().size() > 0 )
     strFileName += '.' + ext();
@@ -204,6 +229,9 @@ std::string FileName::name_ext() const
 //----------------------------------------------------------------------------
 std::string FileName::ext() const
 {
+  if( !is_valid() )
+    return "";
+
   std::string strExt;
 
   // Search backward for extension separator
@@ -222,7 +250,7 @@ std::string FileName::ext() const
 //----------------------------------------------------------------------------
 void FileName::remove() throw( Exception )
 {
-  if( !m_strFile.empty() )
+  if( is_valid() )
   {
     if( unlink(full_name().c_str()) )
     {
@@ -240,7 +268,7 @@ void FileName::rmdir(bool bRecursive, bool bContentOnly) throw( Exception )
   if( !is_path_name() )
     throw BadPathException(StringFormat(ERR_DELETE_DIRECTORY).format(full_name()), "FileName::rmdir");
 
-  if( !m_strFile.empty() )
+  if( is_valid() )
   {
     if( !bRecursive )
     {
@@ -281,15 +309,16 @@ void FileName::rmdir(bool bRecursive, bool bContentOnly) throw( Exception )
 //----------------------------------------------------------------------------
 void FileName::rename(const std::string& strNewName) throw( Exception )
 {
-  if( !m_strFile.empty() )
+  if( is_valid() )
+  {
     if( ::rename(m_strFile.c_str(), strNewName.c_str()) )
     {
       std::string strErr = StringFormat(ERR_CANNOT_RENAME_FILE).format(m_strFile);
       ThrowExceptionFromErrno(strErr, "FileName::rename");
     }
-
-  // Change internal name
-  set(strNewName);
+    // Change internal name
+    set(strNewName);
+  }
 }
 
 //-------------------------------------------------------------------
@@ -301,6 +330,11 @@ void FileName::dir_copy(const std::string& strDest, bool bCreateDir, mode_t mode
 
   // Create destination path
   fnDst.set(strDest);
+
+  if( fnDst.is_null() )
+    // copying in /dev/null has no effect
+    return;
+
   fnDst.mkdir(modeDir, uid, gid);
 
   if( bCreateDir )
@@ -331,6 +365,10 @@ void FileName::dir_copy(const std::string& strDest, bool bCreateDir, mode_t mode
 //-------------------------------------------------------------------
 void FileName::recursive_chmod(mode_t modeFile, mode_t modeDir, bool bCurrentLevel) throw( Exception )
 {
+  if( is_null() )
+    // changing file mod has no effect on /dev/null
+    return;
+
   if( !path_exist() )
   { // File doesn't exists
     std::string strErr = StringFormat(ERR_DIR_NOT_FOUND).format(full_name());
@@ -358,6 +396,10 @@ void FileName::recursive_chmod(mode_t modeFile, mode_t modeDir, bool bCurrentLev
 //-------------------------------------------------------------------
 void FileName::recursive_chmod_file(mode_t mode) throw( Exception )
 {
+  if( is_null() )
+    // changing file mod has no effect on /dev/null
+    return;
+
   if( !path_exist() )
   { // File doesn't exists
     std::string strErr = StringFormat(ERR_DIR_NOT_FOUND).format(full_name());
@@ -381,6 +423,10 @@ void FileName::recursive_chmod_file(mode_t mode) throw( Exception )
 //-------------------------------------------------------------------
 void FileName::recursive_chmod_dir(mode_t mode) throw( Exception )
 {
+  if( is_null() )
+    // changing file mod has no effect on /dev/null
+    return;
+
   if( !path_exist() )
   { // File doesn't exists
     std::string strErr = StringFormat(ERR_DIR_NOT_FOUND).format(full_name());
@@ -401,6 +447,10 @@ void FileName::recursive_chmod_dir(mode_t mode) throw( Exception )
 //-------------------------------------------------------------------
 void FileName::recursive_chown(uid_t uid, gid_t gid) throw( Exception )
 {
+  if( is_null() )
+    // changing file owner has no effect on /dev/null
+    return;
+
   if( !path_exist() )
   { // File doesn't exists
     std::string strErr = StringFormat(ERR_DIR_NOT_FOUND).format(full_name());
@@ -427,6 +477,9 @@ void FileName::recursive_chown(uid_t uid, gid_t gid) throw( Exception )
 //-------------------------------------------------------------------
 bool FileName::is_empty_dir() const
 {
+  if( is_null() )
+    return true;
+
   FileEnum dirEnum(full_name(), FileEnum::ENUM_DIR );
   FileEnum fileEnum(full_name(), FileEnum::ENUM_FILE);
 
@@ -653,23 +706,26 @@ void File::load(yat::String *pString) throw(Exception)
 //-------------------------------------------------------------------
 void File::save(const std::string& strContent) throw(Exception)
 {
-  // Open destination file
-  FILE *fi = fopen(full_name().c_str(), "wb");
-  if( NULL == fi )
+  if( !is_null() )
   {
-    std::string strErr = StringFormat(ERR_OPEN_FILE).format(full_name());
-    throw Exception("FILE_ERROR", strErr, "File::save");
-  }
+    // Open destination file
+    FILE *fi = fopen(full_name().c_str(), "wb");
+    if( NULL == fi )
+    {
+      std::string strErr = StringFormat(ERR_OPEN_FILE).format(full_name());
+      throw Exception("FILE_ERROR", strErr, "File::save");
+    }
 
-  // Write text content
-  int iRc = fputs(strContent.c_str(), fi);
-  if( EOF == iRc )
-  {
-    std::string strErr = StringFormat(ERR_WRITING_FILE).format(full_name());
+    // Write text content
+    int iRc = fputs(strContent.c_str(), fi);
+    if( EOF == iRc )
+    {
+      std::string strErr = StringFormat(ERR_WRITING_FILE).format(full_name());
+      fclose(fi);
+      throw Exception("FILE_ERROR", strErr, "File::save");
+    }
     fclose(fi);
-    throw Exception("FILE_ERROR", strErr, "File::save");
   }
-  fclose(fi);
 }
 
 //-------------------------------------------------------------------
@@ -677,23 +733,26 @@ void File::save(const std::string& strContent) throw(Exception)
 //-------------------------------------------------------------------
 void File::append(const std::string& content)
 {
-  // Open destination file
-  FILE *fi = fopen(full_name().c_str(), "a");
-  if( NULL == fi )
+  if( !is_null() )
   {
-    std::string strErr = StringFormat(ERR_OPEN_FILE).format(full_name());
-    throw Exception("FILE_ERROR", strErr, "File::append");
-  }
+    // Open destination file
+    FILE *fi = fopen(full_name().c_str(), "a");
+    if( NULL == fi )
+    {
+      std::string strErr = StringFormat(ERR_OPEN_FILE).format(full_name());
+      throw Exception("FILE_ERROR", strErr, "File::append");
+    }
 
-  // Write text content
-  int iRc = fputs(content.c_str(), fi);
-  if( EOF == iRc )
-  {
-    std::string strErr = StringFormat(ERR_WRITING_FILE).format(full_name());
+    // Write text content
+    int iRc = fputs(content.c_str(), fi);
+    if( EOF == iRc )
+    {
+      std::string strErr = StringFormat(ERR_WRITING_FILE).format(full_name());
+      fclose(fi);
+      throw Exception("FILE_ERROR", strErr, "File::append");
+    }
     fclose(fi);
-    throw Exception("FILE_ERROR", strErr, "File::append");
   }
-  fclose(fi);
 }
 
 //===========================================================================

@@ -80,6 +80,9 @@ mode_t FileName::access_from_string(const std::string& strAccess)
 //-------------------------------------------------------------------
 bool FileName::path_exist() const
 {
+  if( is_null() )
+    return true;
+
   pcsz pszPath = PSZ(full_name());
   if( strchr(pszPath, '*') || strchr(pszPath, '?') )
     // there are wildcard. this is not a valid path
@@ -115,6 +118,9 @@ bool FileName::path_exist() const
 //-------------------------------------------------------------------
 bool FileName::file_exist() const
 {
+  if( is_null() )
+    return true;
+
   pcsz pcszfull_name = full_name().c_str();
 
   struct stat st;
@@ -128,6 +134,9 @@ bool FileName::file_exist() const
 //-------------------------------------------------------------------
 bool FileName::file_access() const
 {
+  if( is_null() )
+    return true;
+
   return !access(PSZ(full_name()), F_OK);
 }
 
@@ -146,6 +155,14 @@ void FileName::set_full_name(pcsz pszFileName)
 
   // Convert separators
   convert_separators(&strFileName);
+
+  if( strFileName == null_path ||
+      strFileName == null_file_name ||
+      yat::String(strFileName).match("/dev/null/*") )
+  {
+    m_strFile = null_path;
+    return;
+  }
 
   if (IsSepPath(strFileName[0u]))
   {
@@ -167,6 +184,9 @@ void FileName::set_full_name(pcsz pszFileName)
 //-------------------------------------------------------------------
 std::string FileName::rel_name(const char* pszPath) const
 {
+  if( is_null() )
+    return "";
+
   FileName fnRef(pszPath);
 
   // Search for first separator. If not => return full name
@@ -244,6 +264,10 @@ void FileName::convert_separators(std::string *pstr)
 void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const
   throw( Exception )
 {
+  if( is_null() )
+    // cannot create the null file
+    return;
+
   std::string str = path();
   if( str.empty() )
     return;
@@ -319,6 +343,10 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const
 //----------------------------------------------------------------------------
 bool FileName::link_exist() const throw( Exception )
 {
+  if( is_null() )
+    // The null file is not a link
+    return false;
+
   struct stat st;
   std::string strFullName = full_name();
   if( is_path_name() )
@@ -343,6 +371,9 @@ bool FileName::link_exist() const throw( Exception )
 //----------------------------------------------------------------------------
 void FileName::make_sym_link(const std::string& strTarget, uid_t uid, gid_t gid) const throw( Exception )
 {
+  if( is_null() )
+    return;
+
   int iRc = symlink(PSZ(strTarget), PSZ(full_name()));
   if( iRc )
   {
@@ -366,6 +397,9 @@ void FileName::make_sym_link(const std::string& strTarget, uid_t uid, gid_t gid)
 //----------------------------------------------------------------------------
 uint32 FileName::size() const throw( Exception )
 {
+  if( is_null() )
+    return 0;
+
   struct stat sStat;
   if( stat(PSZ(full_name()), &sStat) == -1 )
   {
@@ -380,6 +414,9 @@ uint32 FileName::size() const throw( Exception )
 //----------------------------------------------------------------------------
 uint64 FileName::size64() const throw( Exception )
 {
+  if( is_null() )
+    return 0;
+
   struct stat64 sStat;
   if( stat64(PSZ(full_name()), &sStat) == -1 )
   {
@@ -394,6 +431,12 @@ uint64 FileName::size64() const throw( Exception )
 //----------------------------------------------------------------------------
 void FileName::mod_time(Time *pTm, bool bLocalTime, bool stat_link) const throw( Exception )
 {
+  if( is_null() )
+  {
+    pTm->set_long_unix(0);
+    return;
+  }
+
   struct stat sStat;
   int rc = 0;
   if( stat_link )
@@ -421,6 +464,9 @@ void FileName::mod_time(Time *pTm, bool bLocalTime, bool stat_link) const throw(
 //----------------------------------------------------------------------------
 void FileName::set_mod_time(const Time& tm) const throw( Exception )
 {
+  if( is_null() )
+    return;
+
   struct utimbuf sTm;
   struct stat sStat;
 
@@ -451,6 +497,18 @@ void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool 
   }
 
   FileName fDst(strDst);
+  if( fDst.is_null() )
+  {
+    if( m_progress_target_p )
+    {
+      int64 llTotalSize = size64();
+      m_progress_target_p->on_start(name_ext(), llTotalSize);
+      m_progress_target_p->on_progress(name_ext(), llTotalSize, llTotalSize, 0);
+      m_progress_target_p->on_complete(name_ext(), llTotalSize, 0);
+    }
+    return;
+  }
+
   if( fDst.is_path_name() )
     // Take source name
     fDst.set(fDst.path(), name_ext());
@@ -626,18 +684,19 @@ void FileName::move(const std::string& strDest) throw( Exception )
   }
 
   FileName fDst(strDest);
-  if( fDst.is_path_name() )
+  if( !fDst.is_null() && fDst.is_path_name() )
     // Take source name
     fDst.set(fDst.path(), name_ext());
 
   // Remove destination
-  if( fDst.file_exist() )
+  if( !fDst.is_null() && fDst.file_exist() )
     fDst.remove();
 
   // Check filesystem id, if it's the same, we can try to rename file
   fsid_t idSrc = file_system_id();
   fsid_t idDst = fDst.file_system_id();
-  if( idSrc.__val[0] == idDst.__val[0] && idSrc.__val[1] == idDst.__val[1] )
+  if( !is_null() && !fDst.is_null() &&
+      idSrc.__val[0] == idDst.__val[0] && idSrc.__val[1] == idDst.__val[1] )
   {
     try
     {
@@ -684,6 +743,13 @@ FileName::FSType FileName::file_system_type() const throw( Exception )
 fsid_t FileName::file_system_id() const throw( Exception )
 {
   struct statfs buf;
+
+  if( is_null() )
+  {
+    ::memset(&buf, 0, sizeof(struct statfs));
+    return buf.f_fsid;
+  }
+
   int iRc = statfs(PSZ(path()), &buf);
   if( iRc )
   {
@@ -698,7 +764,13 @@ fsid_t FileName::file_system_id() const throw( Exception )
 //-------------------------------------------------------------------
 FileName::FSStat FileName::file_system_statistics() const
 {
+  if( is_null() )
+  {
+    return FSStat();
+  }
+
   struct statvfs buf;
+
   int iRc = statvfs(PSZ(path()), &buf);
   if( iRc )
   {
@@ -721,6 +793,12 @@ FileName::FSStat FileName::file_system_statistics() const
 //-------------------------------------------------------------------
 void FileName::info( Info* info_p, bool follow_link ) const
 {
+  if( is_null() )
+  {
+    info_p->clear();
+    return;
+  }
+
   struct stat64 st;
   int rc = 0;
 
@@ -759,6 +837,9 @@ void FileName::info( Info* info_p, bool follow_link ) const
 //-------------------------------------------------------------------
 void FileName::chmod(mode_t mode) throw( Exception )
 {
+  if( is_null() )
+    return;
+
   int iRc = ::chmod(PSZ(full_name()), mode);
   if( iRc )
   {
@@ -772,6 +853,9 @@ void FileName::chmod(mode_t mode) throw( Exception )
 //-------------------------------------------------------------------
 void FileName::chown(uid_t uid, gid_t gid) throw( Exception )
 {
+  if( is_null() )
+    return;
+
   int iRc = ::chown(PSZ(full_name()), uid, gid);
   if( iRc )
   {
@@ -828,6 +912,9 @@ void FileName::set_copy_bloc_size(size_t size)
 //-------------------------------------------------------------------
 yat::String FileName::md5sum() const
 {
+  if( is_null() )
+    return "";
+
   int64 llTotalSize = size64();
   int64 llSize = llTotalSize;
   ssize_t lReaded = 0, lToRead = 0;
@@ -972,54 +1059,57 @@ TempFileName::TempFileName()
 //-------------------------------------------------------------------
 bool LockFile::priv_lock( int lock_cmd )
 {
-  int rc = -1;
-  struct flock fl;
-  memset (&fl, 0, sizeof(fl));
-
-  switch( m_type )
+  if( !m_file_name.is_null() )
   {
-    case READ:
+    int rc = -1;
+    struct flock fl;
+    memset (&fl, 0, sizeof(fl));
+
+    switch( m_type )
     {
-      m_fd = open( m_file_name.full_name().c_str(), O_RDONLY );
-      if( m_fd < 0 )
+      case READ:
       {
-        std::string strErr = StringFormat(ERR_OPEN_FILE).format(m_file_name.full_name());
-        FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::priv_lock");
+        m_fd = open( m_file_name.full_name().c_str(), O_RDONLY );
+        if( m_fd < 0 )
+        {
+          std::string strErr = StringFormat(ERR_OPEN_FILE).format(m_file_name.full_name());
+          FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::priv_lock");
+        }
+        fl.l_type = F_RDLCK;
+        rc = fcntl( m_fd, lock_cmd, &fl );
       }
-      fl.l_type = F_RDLCK;
-      rc = fcntl( m_fd, lock_cmd, &fl );
-    }
-    break;
+      break;
 
-    case WRITE:
+      case WRITE:
+      {
+        m_fd = open( m_file_name.full_name().c_str(), O_WRONLY );
+        if( m_fd < 0 )
+        {
+          std::string strErr = StringFormat(ERR_OPEN_FILE).format(m_file_name.full_name());
+          FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::priv_lock");
+        }
+        fl.l_type = F_WRLCK;
+        rc = fcntl( m_fd, lock_cmd, &fl );
+      }
+      break;
+
+      default:
+        throw Exception("BAD_ARGUMENT", "Unknown lock type", "FileName::priv_lock");
+    }
+
+    if( rc < 0 && (EACCES == errno || EAGAIN == errno) )
     {
-      m_fd = open( m_file_name.full_name().c_str(), O_WRONLY );
-      if( m_fd < 0 )
-      {
-        std::string strErr = StringFormat(ERR_OPEN_FILE).format(m_file_name.full_name());
-        FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::priv_lock");
-      }
-      fl.l_type = F_WRLCK;
-      rc = fcntl( m_fd, lock_cmd, &fl );
+      // Already locked
+      return false;
     }
-    break;
+    else if( rc < 0 )
+    {
+      std::string strErr = StringFormat("Locking file {} failed").format(m_file_name.full_name());
+      FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::priv_lock");
+    }
 
-    default:
-      throw Exception("BAD_ARGUMENT", "Unknown lock type", "FileName::priv_lock");
+    m_lock_cmd = lock_cmd;
   }
-
-  if( rc < 0 && (EACCES == errno || EAGAIN == errno) )
-  {
-    // Already locked
-    return false;
-  }
-  else if( rc < 0 )
-  {
-    std::string strErr = StringFormat("Locking file {} failed").format(m_file_name.full_name());
-    FileName::ThrowExceptionFromErrno(PSZ(strErr), "LockFile::priv_lock");
-  }
-
-  m_lock_cmd = lock_cmd;
   return true;
 }
 

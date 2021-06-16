@@ -71,6 +71,9 @@ mode_t FileName::access_from_string(const std::string& strAccess)
 //-------------------------------------------------------------------
 bool FileName::path_exist() const
 {
+  if( is_null() )
+    return true;
+
   pcsz pszPath = full_name().c_str();
   if( strchr(pszPath, '*') || strchr(pszPath, '?') )
     // there are wildcard. this is not a valid path
@@ -111,6 +114,9 @@ bool FileName::path_exist() const
 //-------------------------------------------------------------------
 bool FileName::file_exist() const
 {
+  if( is_null() )
+    return true;
+
   pcsz pcszfull_name = full_name().c_str();
   WIN32_FIND_DATA find;
   HANDLE h = FindFirstFile(pcszfull_name, &find);
@@ -143,6 +149,15 @@ void FileName::set_full_name(pcsz pszFileName)
 
   // Convert separators
   convert_separators(&strFileName);
+
+  if( strFileName == null_path ||
+      strFileName == null_file_name ||
+      yat::String(strFileName).match("*\\nul") ||
+      yat::String(strFileName).match("*\\nul\\*") )
+  {
+    m_strFile = null_path;
+    return;
+  }
 
   m_strFile = strFileName;
 
@@ -201,6 +216,9 @@ void FileName::set_full_name(pcsz pszFileName)
 //-------------------------------------------------------------------
 std::string FileName::rel_name(const char* pszPath) const
 {
+  if( is_null() )
+    return "";
+
   FileName fnRef(pszPath);
 
   // On windows check if both paths are on the same disk
@@ -288,6 +306,10 @@ void FileName::convert_separators(std::string *pstr)
 //----------------------------------------------------------------------------
 void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const throw( Exception )
 {
+  if( is_null() )
+    // cannot create the null file
+    return;
+
   std::string str = path();
   if( str.empty() )
     return;
@@ -390,6 +412,9 @@ void FileName::make_sym_link(const std::string& strTarget, uid_t uid, gid_t gid)
 //----------------------------------------------------------------------------
 uint32 FileName::size() const throw( Exception )
 {
+  if( is_null() )
+    return 0;
+
   WIN32_FIND_DATA find;
   HANDLE h = FindFirstFile(m_strFile.c_str(), &find);
   if( h == INVALID_HANDLE_VALUE )
@@ -406,6 +431,9 @@ uint32 FileName::size() const throw( Exception )
 //----------------------------------------------------------------------------
 uint64 FileName::size64() const throw( Exception )
 {
+  if( is_null() )
+    return 0;
+
   WIN32_FIND_DATA find;
   HANDLE h = FindFirstFile(m_strFile.c_str(), &find);
   if( h == INVALID_HANDLE_VALUE )
@@ -422,6 +450,12 @@ uint64 FileName::size64() const throw( Exception )
 //----------------------------------------------------------------------------
 void FileName::mod_time(Time *pTm, bool bLocalTime, bool) const throw( Exception )
 {
+  if( is_null() )
+  {
+    pTm->set_long_unix(0);
+    return;
+  }
+
   HANDLE hFile = CreateFile(full_name().c_str(), GENERIC_READ, FILE_SHARE_READ,
                            NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
   if( hFile == INVALID_HANDLE_VALUE )
@@ -445,6 +479,9 @@ void FileName::mod_time(Time *pTm, bool bLocalTime, bool) const throw( Exception
 //----------------------------------------------------------------------------
 void FileName::set_mod_time(const Time& tm) const throw( Exception )
 {
+  if( is_null() )
+    return;
+
   DateFields sTm;
   tm.get(&sTm);
   SYSTEMTIME sysTime;
@@ -498,6 +535,18 @@ void FileName::priv_copy(const std::string& strDst, yat::String*, bool)
   }
 
   FileName fDst(strDst);
+  if( fDst.is_null() )
+  {
+    if( m_progress_target_p )
+    {
+      int64 llTotalSize = size64();
+      m_progress_target_p->on_start(name_ext(), llTotalSize);
+      m_progress_target_p->on_progress(name_ext(), llTotalSize, llTotalSize, 0);
+      m_progress_target_p->on_complete(name_ext(), llTotalSize, 0);
+    }
+    return;
+  }
+
   if( fDst.is_path_name() )
     // Take source name
     fDst.set(fDst.path(), name_ext());
@@ -528,12 +577,12 @@ void FileName::move(const std::string& strDest) throw( Exception )
   }
 
   FileName fDst(strDest);
-  if( fDst.is_path_name() )
+  if( !fDst.is_null() && fDst.is_path_name() )
     // Take source name
     fDst.set(fDst.path(), name_ext());
 
   // Remove destination
-  if( fDst.file_exist() )
+  if( !fDst.is_null() && fDst.file_exist() )
     fDst.remove();
 
   copy(fDst.full_name(), true);
@@ -575,6 +624,12 @@ FileName::FSStat FileName::file_system_statistics() const
 //-------------------------------------------------------------------
 void FileName::info( Info* info_p, bool ) const
 {
+  if( is_null() )
+  {
+    info_p->clear();
+    return;
+  }
+
   struct _stat64 st;
   int rc = _stat64(full_name().c_str(), &st );
   if( rc )

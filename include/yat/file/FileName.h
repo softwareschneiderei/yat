@@ -94,8 +94,14 @@ namespace yat
 #define SEP_PATHUNIX    '/'
 #ifdef YAT_WIN32
   #define SEP_PATH      SEP_PATHDOS
+  const std::string     null_path = "c:\\nul";
+  const std::string     null_file_name = "nul";
+  const std::string     null_dir_name = "nul";
 #else
   #define SEP_PATH      SEP_PATHUNIX
+  const std::string     null_path = "/dev/null";
+  const std::string     null_file_name = "null";
+  const std::string     null_dir_name = "null";
 #endif
 #define SEP_EXT         '.'
 #define SEP_DSK         ':'
@@ -103,7 +109,6 @@ namespace yat
 #ifndef _MAX_PATH
   #define _MAX_PATH 1024
 #endif
-
 
 //! %File error message
 const String ERR_CANNOT_CREATE_FOLDER     = "Cannot create directory '{}'";
@@ -535,6 +540,14 @@ public:
   //!
   //! Returns true if the filename is set, false otherwise.
   bool is_empty() const { return m_strFile.empty(); }
+
+  //! \brief Tests if filename is null.
+  //!
+  //! Returns true if the filename is set to null, false otherwise.
+  bool is_null() const { return m_strFile == null_path; }
+
+  //! \brief Tests if filename is properly defined to a valid one.
+  bool is_valid() const { return !is_empty() && !is_null(); }
 
   //! \brief join path fragment with current path
   //!
