@@ -409,7 +409,7 @@ void DefaultLogHandler::log(ELogLevel eLevel, pcsz pszType, const std::string& s
       strLevel = "INFO";
       break;
     case LOG_VERBOSE:
-      strLevel = "DEBUG";
+      strLevel = "VERBOSE";
       break;
     case LOG_RESULT:
       strLevel = "RESULT";
@@ -418,7 +418,11 @@ void DefaultLogHandler::log(ELogLevel eLevel, pcsz pszType, const std::string& s
     default:
       break;
   }
-  std::clog << strLogDate << ' ' << strLevel << " [" << pszType << "]:" << strMsg << '\n';
+
+  if( pszType )
+    std::clog << strLogDate << ' ' << strLevel << " [" << pszType << "]:" << strMsg << '\n';
+  else
+    std::clog << strLogDate << " [" << strLevel << "] " << strMsg << '\n';
 };
 
 //=============================================================================
@@ -495,5 +499,15 @@ void log_error(const std::string& msg)     { LogManager::log(LOG_ERROR, "err", m
 void log_critical(const std::string& msg)  { LogManager::log(LOG_CRITICAL, "crt", msg); }
 void log_alert(const std::string& msg)     { LogManager::log(LOG_ALERT, "alt", msg); }
 void log_emergency(const std::string& msg) { LogManager::log(LOG_EMERGENCY, "emg", msg); }
+
+void result(const std::string& msg)    { LogManager::log(LOG_RESULT, "", msg); }
+void verbose(const std::string& msg)   { LogManager::log(LOG_VERBOSE, "", msg); }
+void info(const std::string& msg)      { LogManager::log(LOG_INFO, "", msg); }
+void notice(const std::string& msg)    { LogManager::log(LOG_NOTICE, "", msg); }
+void warning(const std::string& msg)   { LogManager::log(LOG_WARNING, "", msg); }
+void error(const std::string& msg)     { LogManager::log(LOG_ERROR, "", msg); }
+void critical(const std::string& msg)  { LogManager::log(LOG_CRITICAL, "", msg); }
+void alert(const std::string& msg)     { LogManager::log(LOG_ALERT, "", msg); }
+void emergency(const std::string& msg) { LogManager::log(LOG_EMERGENCY, "", msg); }
 
 } // namespace
