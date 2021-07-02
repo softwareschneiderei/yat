@@ -68,7 +68,7 @@
 #define PSZ(s) (s).c_str()
 
 #if defined YAT_LINUX || defined YAT_WIN32 && _MSC_VER > 1200
-  // Variadic macro supported starting in C99
+  //! @deprecated
   #define PSZ_FMT(...) yat::StringUtil::str_format(__VA_ARGS__).c_str()
   #define YAT_STR_FMT(...) yat::StringUtil::str_format(__VA_ARGS__)
 #endif
@@ -1139,43 +1139,44 @@ YAT_DECL std::ostream& operator<<(std::ostream& os, const String& s);
 YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 
 // ============================================================================
-//! \class StringFormat
-//! \brief Format string using printf-like format spec
+//! \class Format
+//! \brief Format string using a format specification close to the
+//! format-spec defined in Python (https://docs.python.org/3/library/string.html#formatspec)
 //! \par Usage:
 //! \code{.cpp}
-//! std::cout << yat::StringFormat("ga: {}, bu: {}, zo: {}, meu: {}").format("pomper").format(true).format(12).format(3.14) << std::endl;
-//! std::cout << yat::StringFormat("shadock={<10}").format("gabu") << std::endl;
-//! std::cout << yat::StringFormat("shadock={>10}").format("zomeu") << std::endl;
-//! std::cout << yat::StringFormat("ga {b} zo {s}").format(true).format("meu") << std::endl;
-//! std::cout << yat::StringFormat("pct {.1%}").format(0.2) << std::endl;
-//! std::cout << yat::StringFormat("bu {B}").format(h) << std::endl;
-//! std::cout << yat::StringFormat("bu {*>#8x}").format(12) << std::endl;
-//! std::cout << yat::StringFormat("bu {X}").format(12) << std::endl;
-//! std::cout << yat::StringFormat("ga {12} {8.4} {*<+30} {!>15g} {8.7E} {>12.2f}").format(5).format(65*3.47).format(42).format(42).format(4.245684451).format(42) << std::endl;
+//! std::cout << yat::Format("ga: {}, bu: {}, zo: {}, meu: {}").arg("pomper").arg(true).arg(12).arg(3.14) << std::endl;
+//! std::cout << yat::Format("shadock={<10}").arg("gabu") << std::endl;
+//! std::cout << yat::Format("shadock={>10}").arg("zomeu") << std::endl;
+//! std::cout << yat::Format("ga {b} zo {s}").arg(true).arg("meu") << std::endl;
+//! std::cout << yat::Format("pct {.1%}").arg(0.2) << std::endl;
+//! std::cout << yat::Format("bu {B}").arg(h) << std::endl;
+//! std::cout << yat::Format("bu {*>#8x}").arg(12) << std::endl;
+//! std::cout << yat::Format("bu {X}").arg(12) << std::endl;
+//! std::cout << yat::Format("ga {12} {8.4} {*<+30} {!>15g} {8.7E} {>12.2f}").arg(5).arg(65*3.47).arg(42).arg(42).arg(4.245684451).arg(42) << std::endl;
 //! \endcode
 // ============================================================================
-class StringFormat
+class Format
 {
 public:
   //! \brief Default constructor.
-  StringFormat() {}
+  Format() {}
 
   //! \brief Constructor from a char pointer.
   //! \param psz Char pointer.
-  StringFormat(const char *psz) : m_str(psz), m_fmt_idx(0) {}
+  Format(const char *psz) : m_str(psz), m_fmt_idx(0) {}
 
   //! \brief Constructor from char buffer.
   //! \param psz Char pointer.
   //! \param size %Buffer size.
-  StringFormat(const char *psz, int size) : m_str(psz, size), m_fmt_idx(0) {}
+  Format(const char *psz, int size) : m_str(psz, size), m_fmt_idx(0) {}
 
   //! \brief Copy Constructor.
   //! \param str The source string.
-  StringFormat(const String &str) : m_str(str), m_fmt_idx(0) {}
+  Format(const String &str) : m_str(str), m_fmt_idx(0) {}
 
   //! \brief Constructor from std::string.
   //! \param str The string.
-  StringFormat(const std::string &str) : m_str(str), m_fmt_idx(0) {}
+  Format(const std::string &str) : m_str(str), m_fmt_idx(0) {}
 
   //! Explicit conversion
   operator const std::string&() const { return m_str.str(); }
@@ -1216,7 +1217,7 @@ public:
   //! 'g' General format. For a given precision p >= 1, this rounds the number to p significant digits and then formats the result in either fixed-point format or in scientific notation, depending on its magnitude.\n
   //! 'G' General format. Same as 'g' except switches to 'E' if the number gets too large. The representations of infinity and NaN are uppercased, too.\n
   //! '%%' Percentage. Multiplies the number by 100 and displays in fixed ('f') format, followed by a percent sign.\n
-  template<class T> StringFormat& format(const T& v)
+  template<class T> Format& arg(const T& v)
   {
     std::ostringstream oss;
     char type = 0;
@@ -1241,13 +1242,13 @@ public:
     return *this;
   }
 
-  StringFormat& format(const bool& v);
-  StringFormat& format(const char *v);
-  StringFormat& format(const std::string& v);
-  StringFormat& format(const yat::String& v);
+  Format& arg(const bool& v);
+  Format& arg(const char *v);
+  Format& arg(const std::string& v);
+  Format& arg(const yat::String& v);
 
-  //! 'arg' is synonym of 'format'
-  template<class T> StringFormat& arg(const T& v) { return format(v); }
+  //! @deprecated
+  template<class T> Format& format(const T& v) { return arg(v); }
 
 private:
   yat::String m_str;
@@ -1256,8 +1257,8 @@ private:
   void prepare_format(std::ostringstream& oss, char& type, yat::String& before, yat::String& after);
 };
 
-/// Perhaps a shorter class name should be better...
-typedef StringFormat Format;
+//! @deprecated original class name
+typedef Format StringFormat;
 
 } // namespace
 
