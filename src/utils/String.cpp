@@ -1100,19 +1100,19 @@ h64_t StringUtil::hash64(const std::string& str)
 const String String::nil = "";
 
 //---------------------------------------------------------------------------
-// StringFormat::prepare_format
+// Format::prepare_format
 //---------------------------------------------------------------------------
-void StringFormat::prepare_format(std::ostringstream& oss, char& type, yat::String& before, yat::String& after)
+void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& before, yat::String& after)
 {
   std::size_t start_pos = m_str.find('{', m_fmt_idx);
   if( std::string::npos == start_pos )
-    throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::StringFormat::format");
+    throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::Format::arg");
 
   if( (start_pos > 0 && m_str[start_pos-1] != '\\') || 0 == start_pos )
   {
     std::size_t end_pos = m_str.find('}', start_pos);
     if( std::string::npos == end_pos )
-      throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::StringFormat::format");
+      throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::Format::arg");
 
     std::string fmt = m_str.substr(start_pos + 1, end_pos - start_pos - 1);
     before = m_str.substr(0, start_pos);
@@ -1126,7 +1126,7 @@ void StringFormat::prepare_format(std::ostringstream& oss, char& type, yat::Stri
     // search for align characters
     std::size_t align_pos = fmt.find_first_of("<>");
     if( align_pos > 1 && align_pos != std::string::npos )
-      throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::StringFormat::format");
+      throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::Format::arg");
     if( align_pos != std::string::npos )
     {
       switch( fmt[align_pos] )
@@ -1222,22 +1222,22 @@ void StringFormat::prepare_format(std::ostringstream& oss, char& type, yat::Stri
   m_str = oss.str(); \
   return *this; \
 
-StringFormat& StringFormat::format(const char *v)
+Format& Format::arg(const char *v)
 {
  __STRING_TYPES_FORMAT(v)
 }
 
-StringFormat& StringFormat::format(const std::string& v)
+Format& Format::arg(const std::string& v)
 {
  __STRING_TYPES_FORMAT(v)
 }
 
-StringFormat& StringFormat::format(const yat::String& v)
+Format& Format::arg(const yat::String& v)
 {
  __STRING_TYPES_FORMAT(v)
 }
 
-StringFormat& StringFormat::format(const bool& v)
+Format& Format::arg(const bool& v)
 {
   std::ostringstream oss;
   char type = 'b';
@@ -1335,8 +1335,6 @@ std::ostream& operator<<(std::ostream& os, const String& s)
 std::istream& operator>>(std::istream& is, const String& s)
 { return operator>>(is, s.str()); }
 
-#if defined YAT_DEPRECATED // All deprecated methods
-
 std::string StringUtil::str_format(pcsz pszFormat, ...)
 {
   static char buf[BUF_LEN];
@@ -1386,5 +1384,5 @@ int StringUtil::printf(std::string* str_p, pcsz pszFormat, ...)
   (*str_p) = buf;
   return (*str_p).size();
 }
-#endif
+
 } // namespace
