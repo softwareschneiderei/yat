@@ -1,5 +1,25 @@
 YAT history file
 
+1.18.3 (2021/07/07)
+===================
+
+Fixes
+    class Regex
+        Compiled regex was never properly discarded, oups !
+
+Additions
+    class FileName
+        Added support for the null file ('/dev/null' on Linux, '<any_path>\nul' on Windows)
+        The null file is used for writing data into nil, it therefore always exist but its size
+        is 0 forever.
+
+Changes
+    StringFormat
+        class StringFormat renamed to Format (but original name is still available)
+        'format' method in StringFormat is renamed as 'arg' (but original name is still available)
+
+    Switch YAT_DEPRECATED removed
+
 1.18.2 (2021/04/09)
 ===================
 
