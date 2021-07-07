@@ -5,17 +5,17 @@
   <parent>
     <artifactId>super-pom-C-CPP</artifactId>
     <groupId>fr.soleil</groupId>
-    <version>RELEASE</version>
+	<version>RELEASE</version>
   </parent>
-
+  
   <groupId>fr.soleil.lib</groupId>
   <artifactId>YAT-${aol}-shared-${mode}</artifactId>
-  <version>1.18.2</version>
-
+  <version>1.18.3</version>
+  
   <packaging>nar</packaging>
   <name>YAT</name>
   <description>Yet Another Toolkit Library</description>
-
+  
   <developers>
     <developer>
       <id>leclercq</id>
@@ -47,15 +47,15 @@
       <plugin>
         <groupId>org.freehep</groupId>
         <artifactId>freehep-nar-plugin</artifactId>
-		    <version>2.0-alpha-17-SOLEIL</version>
+		<version>2.0-alpha-17-SOLEIL</version>
         <configuration>
           <cpp>
             <sourceDirectory>src</sourceDirectory>
             <includePaths>
               <includePath>include</includePath>
             </includePaths>
-
-		      	<defines>
+			
+			<defines>
               <define>YAT_PROJECT_VERSION=${project.version}</define>
               <define>YAT_PROJECT_NAME=${project.name}</define>
             </defines>
@@ -65,13 +65,19 @@
 					<type>shared</type>
 				</library>
 			</libraries>
-
+		  
           <specificConfigurations>
             <specificConfiguration>
               <id>YAT win32</id>
               <activation>
                 <os>Windows</os>
               </activation>
+               <c>
+                <sourceDirectory>src</sourceDirectory>
+                <includePaths>
+                  <includePath>include</includePath>
+                </includePaths>
+              </c>
               <cpp>
                 <excludes>
                   <exclude>**/*Unix*.cpp</exclude>
@@ -96,7 +102,7 @@
                   <define>YAT_DLL</define>
                   <define>YAT_BUILD</define>
                   <define>_HAS_CPP0X=0</define>
-
+				  
                   <define>_WIN32</define>
                   <define>WIN32</define>
                   <define>WIN64</define>
@@ -112,12 +118,12 @@
                     <name>shell32</name>
                     <type>shared</type>
                   </sysLib>
-
+				  
                   <sysLib>
                     <name>ws2_32</name>
                     <type>shared</type>
                   </sysLib>
-
+				  
                 </sysLibs>
               </linker>
             </specificConfiguration>
