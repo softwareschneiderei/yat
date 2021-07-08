@@ -44,6 +44,7 @@
 // DEPENDENCIES
 // ============================================================================
 #include <string>
+#include <sstream>
 #include <vector>
 #include <yat/CommonHeader.h>
 
@@ -97,7 +98,10 @@ do                                                                         \
 
 #define __YAT_CATCH_STD__ \
     catch( std::exception& e ) \
-    { _the_yat_exception_.push_error("ERROR", Format("Standard system error occured: {}").arg(e.what()), "stdlib"); } \
+    { \
+      std::ostringstream oss; \
+      oss << "Standard system error occured: " << e.what(); \
+      _the_yat_exception_.push_error("ERROR", oss.str().c_str(), "stdlib"); } \
 
 #define __YAT_CATCH_OTHER__ \
     catch( ... ) \
