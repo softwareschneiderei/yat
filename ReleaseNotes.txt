@@ -1,5 +1,11 @@
 YAT history file
 
+1.18.4 (2021/07/08)
+===================
+
+Fixes
+    Invalid use of yat::Format in macro YAT_TRY in Exception.h
+
 1.18.3 (2021/07/07)
 ===================
 
