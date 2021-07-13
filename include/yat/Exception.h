@@ -130,7 +130,7 @@ do                                                                         \
 #define __YAT_CATCH_STD_WITH_MSG__( reason, msg, org ) \
     catch( std::exception& e ) \
     { \
-      _the_yat_exception_.push_error("ERROR", Format("Standard system error occured: {}").arg(e.what()), "stdlib"); \
+      _the_yat_exception_.push_error("ERROR", yat::Format("Standard system error occured: {}").arg(e.what()), "stdlib"); \
       _the_yat_exception_.push_error(reason, msg, org); \
     }
 
