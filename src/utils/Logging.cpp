@@ -49,6 +49,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdio.h>
+#include <iomanip>
 
 namespace yat
 {
@@ -380,10 +381,18 @@ void DefaultLogHandler::log(ELogLevel eLevel, pcsz pszType, const std::string& s
 {
   // Formatting message
   DateFields df;
-  CurrentTime().get(&df);
-  std::string strLogDate = Format("{4d}-{02d}-{02d},{02d}:{02d}:{06.3f}")
-                                  .arg(df.year).arg(df.month).arg(df.day)
-                                  .arg(df.hour).arg(df.min).arg(df.sec);
+  Time::get_current_local(&df);
+
+  std::ostringstream oss;
+  oss << int(df.year) << '-'
+      << std::setfill('0') << std::setw(2) << int(df.month) << '-'
+      << std::setfill('0') << std::setw(2) << int(df.day) << ","
+      << std::setfill('0') << std::setw(2) << int(df.hour) << ':'
+      << std::setfill('0') << std::setw(2) << int(df.min) << ':';
+  std::ios_base::fmtflags ff = oss.flags();
+  ff |= std::ios::fixed;
+  oss.setf(ff);
+  oss << std::setfill('0') << std::setw(6) << std::setprecision(3) << df.sec;
 
   std::string strLevel;
   switch( eLevel )
@@ -419,19 +428,19 @@ void DefaultLogHandler::log(ELogLevel eLevel, pcsz pszType, const std::string& s
       break;
   }
 
-  if( pszType )
+  if( strlen(pszType) > 0 )
   {
     if( !strLevel.empty() )
-      std::clog << strLogDate << ' ' << strLevel << " [" << pszType << "]:" << strMsg << '\n';
+      std::clog << oss.str() << ' ' << strLevel << " [" << pszType << "]:" << strMsg << '\n';
     else
-      std::clog << strLogDate << " [" << pszType << "]:" << strMsg << '\n';
+      std::clog << oss.str() << " [" << pszType << "]:" << strMsg << '\n';
   }
   else
   {
     if( !strLevel.empty() )
-      std::clog << strLogDate << " [" << strLevel << "] " << strMsg << '\n';
+      std::clog << oss.str() << " [" << strLevel << "] " << strMsg << '\n';
     else
-      std::clog << strLogDate << strMsg << '\n';
+      std::clog << oss.str() << ' ' << strMsg << '\n';
 
   }
 };
