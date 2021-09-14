@@ -387,17 +387,30 @@ void Time::set_tz(const std::string& tz)
 //----------------------------------------------------------------------------
 int Time::time_zone_bias() const
 {
+  if( -1 == m_tz_bias )
+    m_tz_bias = sys_time_zone_bias();
+
+  return m_tz_bias;
+}
+
+//----------------------------------------------------------------------------
+// Time::sys_time_zone_bias
+//----------------------------------------------------------------------------
+int Time::sys_time_zone_bias()
+{
   static int s_tz_bias = -1;
   if( -1 == s_tz_bias )
   {
+#ifdef WIN32
     s_tz_bias = (int(double(yat::CurrentTime().raw_value() -
                             yat::CurrentUTime().raw_value()) / MICROSEC_PER_SEC + 0.5)) / 60;
+#else
+    tzset();
+    s_tz_bias = (int)(-timezone / 60 + (daylight ? 60 : 0));
+#endif
   }
 
-  if( -1 == m_tz_bias )
-    m_tz_bias = s_tz_bias;
-
-  return m_tz_bias;
+  return s_tz_bias;
 }
 
 //----------------------------------------------------------------------------
@@ -470,6 +483,100 @@ pcsz Time::day_name(uint8 day, bool long_name)
   }
 
   return "";
+}
+
+//----------------------------------------------------------------------------
+// Time::get_current_local
+//----------------------------------------------------------------------------
+void Time::get_current_local(DateFields* df_p)
+{
+  #ifdef WIN32
+
+    SYSTEMTIME sysTm;
+    GetLocalTime(&sysTm);
+    df_p->year = sysTm.wYear;
+    df_p->month =(uint8) sysTm.wMonth;
+    df_p->day = (uint8)sysTm.wDay;
+    df_p->day_of_week = (uint8)sysTm.wDayOfWeek;
+    df_p->day_of_year = 0;
+    df_p->week_of_year = 0;
+    df_p->hour = (uint8)sysTm.wHour;
+    df_p->min = (uint8)sysTm.wMinute;
+    df_p->sec = (double)sysTm.wSecond + ((double)sysTm.wMilliseconds)/1000.0;
+
+  #else
+
+    long lTm, lMs;
+    struct timeval tv;
+    struct timezone tzp;
+    gettimeofday(&tv, &tzp);
+    lTm = tv.tv_sec;
+    lMs = tv.tv_usec;
+
+    // Convert from 'time_t' format to 'struct tm' format
+    struct tm tmCurrent;
+    localtime_r(&lTm, &tmCurrent);
+    df_p->year = tmCurrent.tm_year+1900;
+    df_p->month =(uint8) tmCurrent.tm_mon + 1;
+    df_p->day = (uint8)tmCurrent.tm_mday;
+    df_p->hour = (uint8)tmCurrent.tm_hour;
+    df_p->min = (uint8)tmCurrent.tm_min;
+    df_p->sec = (double)tmCurrent.tm_sec + (lMs/1000000.);
+    df_p->day_of_year = (uint16)tmCurrent.tm_yday;
+    df_p->day_of_week = (uint8)tmCurrent.tm_wday;
+    df_p->week_of_year = 0;
+
+  #endif
+
+    df_p->tz_bias = sys_time_zone_bias();
+    df_p->local_time = true;
+}
+
+//----------------------------------------------------------------------------
+// Time::get_current_utc
+//----------------------------------------------------------------------------
+void Time::get_current_utc(DateFields* df_p)
+{
+  #ifdef WIN32
+
+    SYSTEMTIME sysTm;
+    GetSystemTime(&sysTm);
+    df_p->year = sysTm.wYear;
+    df_p->month =(uint8) sysTm.wMonth;
+    df_p->day = (uint8)sysTm.wDay;
+    df_p->day_of_week = (uint8)sysTm.wDayOfWeek;
+    df_p->day_of_year = 0;
+    df_p->week_of_year = 0;
+    df_p->hour = (uint8)sysTm.wHour;
+    df_p->min = (uint8)sysTm.wMinute;
+    df_p->sec = (double)sysTm.wSecond + ((double)sysTm.wMilliseconds)/1000.0;
+
+  #else
+
+    long lTm, lMs;
+    struct timeval tv;
+    struct timezone tzp;
+    gettimeofday(&tv, &tzp);
+    lTm = tv.tv_sec;
+    lMs = tv.tv_usec;
+
+    // Convert from 'time_t' format to 'struct tm' format
+    struct tm tmCurrent;
+    gmtime_r(&lTm, &tmCurrent);
+    df_p->year = tmCurrent.tm_year+1900;
+    df_p->month =(uint8) tmCurrent.tm_mon + 1;
+    df_p->day = (uint8)tmCurrent.tm_mday;
+    df_p->hour = (uint8)tmCurrent.tm_hour;
+    df_p->min = (uint8)tmCurrent.tm_min;
+    df_p->sec = (double)tmCurrent.tm_sec + (lMs/1000000.);
+    df_p->day_of_year = (uint16)tmCurrent.tm_yday;
+    df_p->day_of_week = (uint8)tmCurrent.tm_wday;
+    df_p->week_of_year = 0;
+
+  #endif
+
+    df_p->tz_bias = sys_time_zone_bias();
+    df_p->local_time = true;
 }
 
 //----------------------------------------------------------------------------
@@ -624,6 +731,7 @@ void Time::get(DateFields *pDF) const
     pDF->week_of_year++;
 
   pDF->tz_bias = time_zone_bias();
+  pDF->local_time = local_time();
 }
 
 //----------------------------------------------------------------------------
@@ -1019,13 +1127,13 @@ yat::String Time::to_string_utc(const std::string& format, unsigned short precis
 //----------------------------------------------------------------------------
 // internal utility function
 //----------------------------------------------------------------------------
-std::string _iso8601_bias(const Time &tm)
+std::string _iso8601_bias(const DateFields& df)
 {
-  if( tm.utc() )
+  if( !df.local_time )
     return "Z";
 
   std::string fmt;
-  int bias = tm.time_zone_bias();
+  int bias = df.tz_bias;
   if( bias < 0 )
     fmt = "-{02d}{02d}";
   else
@@ -1042,12 +1150,19 @@ std::string _iso8601_bias(const Time &tm)
 //----------------------------------------------------------------------------
 yat::String Time::to_string(const std::string& format, unsigned short precision) const
 {
-  bool get_identifier = false;
-  bool add_Z_if_utc = false;
-  std::ostringstream oss;
   DateFields df;
   get(&df);
+  return to_string(df, format, precision);
+}
 
+//----------------------------------------------------------------------------
+// Time::to_string
+//----------------------------------------------------------------------------
+yat::String Time::to_string(const DateFields& df, const std::string& format, unsigned short precision)
+{
+  std::ostringstream oss;
+  bool get_identifier = false;
+  bool add_Z_if_utc = false;
 
   for( std::size_t i_f = 0; i_f < format.size(); ++i_f )
   {
@@ -1095,7 +1210,7 @@ yat::String Time::to_string(const std::string& format, unsigned short precision)
           oss.width(2); oss.fill('0'); oss << int(df.min);
           break;
         case 's':
-          oss << long_unix();
+          oss << unix_time();
           break;
         case 'S':
           if( 0 == precision )
@@ -1131,7 +1246,7 @@ yat::String Time::to_string(const std::string& format, unsigned short precision)
           oss.width(4); oss.fill('0'); oss << df.year;
           break;
         case 'Z':
-          oss << _iso8601_bias(*this);
+          oss << _iso8601_bias(df);
           add_Z_if_utc = false;
           break;
         default:
@@ -1146,7 +1261,7 @@ yat::String Time::to_string(const std::string& format, unsigned short precision)
       oss << format[i_f];
   }
 
-  if( add_Z_if_utc && utc() )
+  if( add_Z_if_utc && !df.local_time )
     oss << 'Z';
 
   return yat::String(oss.str());

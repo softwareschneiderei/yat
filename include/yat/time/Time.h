@@ -362,7 +362,7 @@ public:
   //! \exception BAD_ARGS Thrown if date is not correct.
   void set(const DateFields& sTm);
 
-  //! \brief Initializes the time from explicit values.
+  //! \brief Initializes universal time (UT) from explicit values.
   //!
   //! \param iYear Year from -4712 to ?
   //! \param uiMonth Month in range [1, 12].
@@ -378,6 +378,7 @@ public:
            uint8 uiHour=0, uint8 uiMin=0, double dSec=0);
 
   //! \brief Initializes the universal time from explicit values.
+  //! This method has the same effect as the method 'set'
   void set_utc(int16 iYear, uint8 uiMonth, uint8 uiDay,
            uint8 uiHour=0, uint8 uiMin=0, double dSec=0);
 
@@ -496,31 +497,8 @@ public:
   //!          %Y 	Year 	2012
   void from_string(const std::string& date_time, const std::string& format);
 
-  //! \brief Format date according to the given format
-  //! \param format The format
-  //! \param precision modify the format field '%S' specification to
-  //!        the requested precision: 0 (second) to 6 (microseconds)
-  //
-  //! Supported format specifications are
-  //!          %a 	Abbreviated weekday name 	          Sun
-  //!          %A 	Full weekday name 	                Sunday
-  //!          %b 	Abbreviated month name 	            Mar
-  //!          %h 	Abbreviated month name 	            Mar
-  //!          %B 	Full month name 	                  March
-  //!          %d 	Day of the month (01-31) 	          19
-  //!          %H 	Hour in 24h format (00-23) 	        14
-  //!          %j 	Day of the year (001-366) 	        231
-  //!          %m 	Month as a decimal number (01-12) 	08
-  //!          %M 	Minute (00-59) 	55
-  //!          %R 	Equivalent to %H:%M
-  //!          %s 	The number of seconds since the Epoch, that is, since 1970-01-01 00:00:00 UTC
-  //!          %S 	Second (00-60) 	                    02
-  //!          %t 	A tab character
-  //!          %u 	The day of the week as a decimal, range 1 to 7, Monday being 1
-  //!          %U 	The week number of the current year as a decimal number, range 00 to 53
-  //!          %w 	The day of the week as a decimal, range 0 to 6, Sunday being 0
-  //!          %y 	Year, last two digits (00-99) 	    01
-  //!          %Y 	Year                                2012
+  //! Format date/time according to the given format
+  //! \see to_string(const DateFields& df, const std::string& format, unsigned short precision=0)
   yat::String to_string(const std::string& format, unsigned short precision=0) const;
 
   //! Format convert to local if necessary & format date according to the given format
@@ -608,6 +586,38 @@ public:
   //! \name Static methods
   //@{
 
+  //! \brief Format date according to the given format
+  //! \param format The format
+  //! \param precision modify the format field '%S' specification to
+  //!        the requested precision: 0 (second) to 6 (microseconds)
+  //!        one can also use yat::Time::millisec for millisecond precision and
+  //!        yat::Time::microsec for microsecond precision
+  //!
+  //! Supported format specifications are
+  //!          %a   Abbreviated weekday name            Sun
+  //!          %A   Full weekday name                   Sunday
+  //!          %b   Abbreviated month name              Mar
+  //!          %h   Abbreviated month name              Mar
+  //!          %B   Full month name                     March
+  //!          %d   Day of the month (01-31)            19
+  //!          %H   Hour in 24h format (00-23)          14
+  //!          %j   Day of the year (001-366)           231
+  //!          %m   Month as a decimal number (01-12)   08
+  //!          %M   Minute (00-59)  55
+  //!          %R   Equivalent to %H:%M
+  //!          %s   The number of seconds since the Epoch, that is, since 1970-01-01 00:00:00 UTC
+  //!          %S   Second (00-60)                      02
+  //!          %t   A tab character
+  //!          %u   The day of the week as a decimal, range 1 to 7, Monday being 1
+  //!          %U   The week number of the current year as a decimal number, range 00 to 53
+  //!          %w   The day of the week as a decimal, range 0 to 6, Sunday being 0
+  //!          %y   Year, last two digits (00-99)       01
+  //!          %Y   Year                                2012
+  static yat::String to_string(const DateFields& df, const std::string& format, unsigned short precision=0);
+
+  //! \brief Time zone bias returned by the operating system in minutes
+  static int sys_time_zone_bias();
+
   //! \brief Number of days for a given month.
   //! \param iMonth Month number.
   //! \param iYear Year value.
@@ -639,6 +649,16 @@ public:
   //!
   //! \param month_name
   static uint8 get_month_from_name(const std::string& month_name);
+
+  //! \brief get current date time fields without Time object
+  //!
+  //! Be aware that using those methods the following fields are not set:
+  //! - week_of_year & day_of_year on Windows plateform
+  //! - week_of_year on Linux plateform
+  //!
+  //! \param df_p DateFields struct
+  static void get_current_local(DateFields* df_p);
+  static void get_current_utc(DateFields* df_p);
 
   //@} Static methods
 
@@ -724,6 +744,30 @@ public:
   //! \brief Constructor.
   //!
   CurrentUTime();
+};
+
+// ============================================================================
+//! \class LocalTime
+//! \brief Time class initialized with local time flag set
+//!
+//! Inherits from Time class.
+// ============================================================================
+class YAT_DECL LocalTime : public Time
+{
+public:
+  //! \brief Constructor.
+  //!
+  LocalTime();
+
+  //! \brief Constructor from time fields.
+  //!
+  //! \param iYear Year from -4712 to ?
+  //! \param uiMonth Month in range [1, 12].
+  //! \param uiDay Day in range [1, 31].
+  //! \param uiHour Hour in range [0, 23].
+  //! \param uiMin Minute in range [0, 59].
+  //! \param dSec Seconds in range [0, 59] with microsecond precision.
+  LocalTime(int16 iYear, uint8 uiMonth, uint8 uiDay, uint8 uiHour=0, uint8 uiMin=0, double dSec=0);
 };
 
 //- Create synonym for convenience.
