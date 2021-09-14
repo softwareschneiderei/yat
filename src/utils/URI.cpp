@@ -293,7 +293,7 @@ bool URI::check_authority(const std::string& authority, URI::Fields* fields_ptr,
     {
       if( throw_exception )
         throw Exception(uri_syntax_error,
-                        StringFormat("'{}' is not a valid authority!").format(authority),
+                        Format("'{}' is not a valid authority!").arg(authority),
                         "yat::URI::check_authority");
       return false;
     }
@@ -318,7 +318,7 @@ bool URI::check_host(const std::string& host, bool throw_exception)
   {
     if( throw_exception )
       throw Exception(uri_syntax_error,
-                      StringFormat("'{}' is not a valid host name!").format(host),
+                      Format("'{}' is not a valid host name!").arg(host),
                       "yat::URI::check_host");
     YAT_WARNING << "Bad host name: '" << host << std::endl;
     return false;
@@ -331,7 +331,7 @@ bool URI::check_host(const std::string& host, bool throw_exception)
 
   if( m_re_ipv4form_uptr->match(host) && !m_re_ipv4_uptr->match(host) )
     THROW_YAT_ERROR(uri_syntax_error,
-                    StringFormat("'{}' is not a valid host name").format(host),
+                    Format("'{}' is not a valid host name").arg(host),
                    "yat::URI::check_host");
 
   return true;
@@ -349,7 +349,7 @@ void URI::parse(const std::string& uri)
   if( !m_re_full_uptr->match(uri, &m) )
   {
     THROW_YAT_ERROR(uri_syntax_error,
-                    StringFormat("'{}' is not a valid uri").format(uri),
+                    Format("'{}' is not a valid uri").arg(uri),
                    "yat::URI::parse");
   }
 
@@ -365,9 +365,10 @@ void URI::parse(const std::string& uri)
 
   if( m_re_ipv4form_uptr->match(host) && !m_re_ipv4_uptr->match(host) )
     THROW_YAT_ERROR(uri_syntax_error,
-                    StringFormat("'{}' is not a valid uri").format(uri),
+                    Format("'{}' is not a valid uri").arg(uri),
                    "yat::URI::parse");
 
+  // Depending on the context there are 3 possible places for the correct path part
   if( !m.str(75).empty() )
     m_part[PATH] = m.str(75);
   else if( !m.str(78).empty() )
@@ -544,7 +545,8 @@ void URI::pct_decode(std::string& to_decode)
     else
     {
       if( i > size - 3 )
-        throw yat::Exception("ERROR", "Bad URI string: failed to pct decode string", "yat::URI::pct_decode");
+        throw Exception("ERROR", "Bad URI string: failed to pct decode string",
+                        "yat::URI::pct_decode");
 
       int n;
       std::istringstream( to_decode.substr(i+1, 2) ) >> std::hex >> n;
