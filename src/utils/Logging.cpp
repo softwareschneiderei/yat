@@ -379,10 +379,11 @@ std::ostream& LogManager::emergency_stream()
 void DefaultLogHandler::log(ELogLevel eLevel, pcsz pszType, const std::string& strMsg)
 {
   // Formatting message
-  CurrentTime dtCur;
-  std::string strLogDate = yat::StringUtil::str_format("%4d-%02d-%02d,%02d:%02d:%06.3f",
-                                        dtCur.year(), dtCur.month(), dtCur.day(),
-                                        dtCur.hour(), dtCur.minute(), dtCur.second());
+  DateFields df;
+  CurrentTime().get(&df);
+  std::string strLogDate = Format("{4d}-{02d}-{02d},{02d}:{02d}:{06.3f}")
+                                  .arg(df.year).arg(df.month).arg(df.day)
+                                  .arg(df.hour).arg(df.min).arg(df.sec);
 
   std::string strLevel;
   switch( eLevel )
@@ -414,15 +415,25 @@ void DefaultLogHandler::log(ELogLevel eLevel, pcsz pszType, const std::string& s
     case LOG_RESULT:
       strLevel = "RESULT";
       break;
-    case LOG_LEVEL_COUNT:
     default:
       break;
   }
 
   if( pszType )
-    std::clog << strLogDate << ' ' << strLevel << " [" << pszType << "]:" << strMsg << '\n';
+  {
+    if( !strLevel.empty() )
+      std::clog << strLogDate << ' ' << strLevel << " [" << pszType << "]:" << strMsg << '\n';
+    else
+      std::clog << strLogDate << " [" << pszType << "]:" << strMsg << '\n';
+  }
   else
-    std::clog << strLogDate << " [" << strLevel << "] " << strMsg << '\n';
+  {
+    if( !strLevel.empty() )
+      std::clog << strLogDate << " [" << strLevel << "] " << strMsg << '\n';
+    else
+      std::clog << strLogDate << strMsg << '\n';
+
+  }
 };
 
 //=============================================================================
@@ -500,14 +511,19 @@ void log_critical(const std::string& msg)  { LogManager::log(LOG_CRITICAL, "crt"
 void log_alert(const std::string& msg)     { LogManager::log(LOG_ALERT, "alt", msg); }
 void log_emergency(const std::string& msg) { LogManager::log(LOG_EMERGENCY, "emg", msg); }
 
-void result(const std::string& msg)    { LogManager::log(LOG_RESULT, "", msg); }
-void verbose(const std::string& msg)   { LogManager::log(LOG_VERBOSE, "", msg); }
-void info(const std::string& msg)      { LogManager::log(LOG_INFO, "", msg); }
-void notice(const std::string& msg)    { LogManager::log(LOG_NOTICE, "", msg); }
-void warning(const std::string& msg)   { LogManager::log(LOG_WARNING, "", msg); }
-void error(const std::string& msg)     { LogManager::log(LOG_ERROR, "", msg); }
-void critical(const std::string& msg)  { LogManager::log(LOG_CRITICAL, "", msg); }
-void alert(const std::string& msg)     { LogManager::log(LOG_ALERT, "", msg); }
-void emergency(const std::string& msg) { LogManager::log(LOG_EMERGENCY, "", msg); }
+//=============================================================================
+// Log functions to be used for formatted log
+//=============================================================================
+
+LogFormat verbose(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_VERBOSE); }
+LogFormat result(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_RESULT); }
+LogFormat notice(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_NOTICE); }
+LogFormat info(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_INFO); }
+LogFormat warning(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_WARNING); }
+LogFormat error(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_ERROR); }
+LogFormat alert(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_ALERT); }
+LogFormat critical(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_CRITICAL); }
+LogFormat emergency(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_EMERGENCY); }
+LogFormat log(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_NOLEVEL); }
 
 } // namespace

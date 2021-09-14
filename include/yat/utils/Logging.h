@@ -73,6 +73,8 @@ enum ELogLevel
   LOG_ALERT,
   //! The system will shutdown now because of an unrecoverable failure.
   LOG_EMERGENCY,
+  //! No level specified
+  LOG_NOLEVEL,
   //! Not a log level, just the total number of levels.
   LOG_LEVEL_COUNT
 };
@@ -316,41 +318,104 @@ public:
 // =============================================================================
 //@{
 
-//! \brief Logs a result message.
-//! \param msg Message
-YAT_DECL void result(const std::string& msg);
+//! \brief log a verbose message with format
+//! \verbatim
+//! yat::verbose("A message with an argument value: {}.").arg(value);
+//! yat::verbose("A simple message");
+//! \endverbatim
+class YAT_DECL LogFormat verbose(const std::string& msg_fmt);
+//! \brief log a notice message with format
+class YAT_DECL LogFormat notice(const std::string& msg_fmt);
+//! \brief log a result message with format
+class YAT_DECL LogFormat result(const std::string& msg_fmt);
+//! \brief log a info message with format
+class YAT_DECL LogFormat info(const std::string& msg_fmt);
+//! \brief log a warning message with format
+class YAT_DECL LogFormat warning(const std::string& msg_fmt);
+//! \brief log a error message with format
+class YAT_DECL LogFormat error(const std::string& msg_fmt);
+//! \brief log a alert message with format
+class YAT_DECL LogFormat alert(const std::string& msg_fmt);
+//! \brief log a emergency message with format
+class YAT_DECL LogFormat emergency(const std::string& msg_fmt);
+//! \brief log a critical message with format
+class YAT_DECL LogFormat critical(const std::string& msg_fmt);
+//! \brief log a generic message with format
+class YAT_DECL LogFormat log(const std::string& msg_fmt);
 
-//! \brief Logs a verbose message.
-//! \param msg Message
-YAT_DECL void verbose(const std::string& msg);
+// Internal class used to log formatted messages
+// This object can't be manually allocated nor copied
+class YAT_DECL LogFormat : public Format
+{
+// methods allowed to construct a LogFormat object
+friend LogFormat verbose(const std::string& msg_fmt);
+friend LogFormat notice(const std::string& msg_fmt);
+friend LogFormat result(const std::string& msg_fmt);
+friend LogFormat info(const std::string& msg_fmt);
+friend LogFormat warning(const std::string& msg_fmt);
+friend LogFormat error(const std::string& msg_fmt);
+friend LogFormat alert(const std::string& msg_fmt);
+friend LogFormat emergency(const std::string& msg_fmt);
+friend LogFormat critical(const std::string& msg_fmt);
+friend LogFormat log(const std::string& msg_fmt);
 
-//! \brief Logs an information message.
-//! \param msg Message
-YAT_DECL void info(const std::string& msg);
+public:
+  template<typename T> LogFormat& arg(T v)
+  {
+    try { Format::arg(v); }
+    catch(...) {}
+    return *this;
+  }
 
-//! \brief Logs a notice message.
-//! \param msg Message
-YAT_DECL void notice(const std::string& msg);
+  ~LogFormat()
+  {
+    switch( level_ )
+    {
+      case LOG_VERBOSE:
+        LogManager::log(LOG_VERBOSE, "", get());
+        break;
+      case LOG_NOTICE:
+        LogManager::log(LOG_NOTICE, "", get());
+        break;
+      case LOG_RESULT:
+        LogManager::log(LOG_RESULT, "", get());
+        break;
+      case LOG_INFO:
+        LogManager::log(LOG_INFO, "", get());
+        break;
+      case LOG_WARNING:
+        LogManager::log(LOG_WARNING, "", get());
+        break;
+      case LOG_ERROR:
+        LogManager::log(LOG_ERROR, "", get());
+        break;
+      case LOG_CRITICAL:
+        LogManager::log(LOG_CRITICAL, "", get());
+        break;
+      case LOG_ALERT:
+        LogManager::log(LOG_ALERT, "", get());
+        break;
+      case LOG_EMERGENCY:
+        LogManager::log(LOG_EMERGENCY, "", get());
+        break;
+      case LOG_NOLEVEL:
+        LogManager::log(LOG_NOLEVEL, "", get());
+        break;
+      default:
+        break;
+    }
+  }
 
-//! \brief Logs a warning message.
-//! \param msg Message
-YAT_DECL void warning(const std::string& msg);
+private:
+  LogFormat(const std::string& s, ELogLevel l): yat::Format(s),
+   level_(l) {  }
 
-//! \brief Logs an error message.
-//! \param msg Message
-YAT_DECL void error(const std::string& msg);
+  // unused & unusable
+  LogFormat& operator=(const LogFormat&) { return *this;}
+  LogFormat(const LogFormat&) : yat::Format() {}
 
-//! \brief Logs a critical message.
-//! \param msg Message
-YAT_DECL void critical(const std::string& msg);
-
-//! \brief Logs an alert message.
-//! \param msg Message
-YAT_DECL void alert(const std::string& msg);
-
-//! \brief Logs an emergency message.
-//! \param msg Message
-YAT_DECL void emergency(const std::string& msg);
+  ELogLevel level_;
+};
 
 //@} Log functions
 
