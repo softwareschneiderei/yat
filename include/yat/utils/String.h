@@ -175,7 +175,12 @@ public:
   //! \param[out] pstrToken %std::string object receiving the extracted token.
   //! \param apply_escape Take care of '\' before c to escape it
   static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken,
-                                       bool apply_escape = false);
+                                       char escape_char);
+  static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken);
+
+  //! \deprecated
+  static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken,
+                                       bool apply_escape);
 
   //! \brief Looks for a token, from right to left.
   //!
@@ -185,7 +190,12 @@ public:
   //! \param[out] pstrToken Extracted token.
   //! \param apply_escape Take care of '\' before c to escape it
   static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken,
-                                             bool apply_escape = false);
+                                             char escape_char);
+  static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken);
+
+  //! \deprecated
+  static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken,
+                                             bool apply_escape);
 
   //! \brief Looks for enclosed token, from left to right.
   //!
@@ -196,7 +206,13 @@ public:
   //! \param[out] pstrToken Extracted token.
   //! \param apply_escape Take care of '\' before cLeft/cRight to escape them
   static ExtractTokenRes extract_token(std::string* str_p, char cLeft, char cRight,
-                                       std::string *pstrToken, bool apply_escape = false);
+                                       std::string *pstrToken, char escape_char);
+  static ExtractTokenRes extract_token(std::string* str_p, char cLeft, char cRight,
+                                       std::string *pstrToken);
+
+  //! \deprecated
+  static ExtractTokenRes extract_token(std::string* str_p, char cLeft, char cRight,
+                                       std::string *pstrToken, bool apply_escape);
 
   //! \brief Looks for enclosed token, from right to left.
   //!
@@ -207,7 +223,13 @@ public:
   //! \param[out] pstrToken Extracted token.
   //! \param apply_escape Take care of '\' before cLeft/cRight to escape them
   static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight,
-                                             std::string *pstrToken, bool apply_escape = false);
+                                             std::string *pstrToken, char escape_char);
+  static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight,
+                                             std::string *pstrToken);
+
+  //! \deprecated
+  static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight,
+                                             std::string *pstrToken, bool apply_escape);
 
   //@}
 
@@ -1190,13 +1212,13 @@ public:
   //! Apply format
   //!
   //! format spec is:\n
-  //! [[fill]align][sign][#][width][.precision][type] \n
+  //! [[fill]align][sign][#][0][width][.precision][type] \n
   //! fill        ::=  any character\n
   //! align       ::=  "<" | ">"\n
   //! sign        ::=  "+" | "-"\n
   //! width       ::=  integer\n
   //! precision   ::=  integer\n
-  //! type        ::=  "b" | "B" | "e" | "E" | "f" | "F" | "g" | "G" | "o" | "s" | "x" | "X" | "%"\n
+  //! type        ::=  "b" | "d" | "B" | "e" | "E" | "f" | "F" | "g" | "G" | "o" | "s" | "x" | "X" | "%"\n
   //! \par align:
   //! '<' Forces the field to be left-aligned within the available space (this is the default for most objects).\n
   //! '>' Forces the field to be right-aligned within the available space (this is the default for numbers).
@@ -1205,8 +1227,11 @@ public:
   //! '-' indicates that a sign should be used only for negative numbers (this is the default behavior).
   //! \par '#' character
   //! only valid for integers, and only for binary, octal, or hexadecimal output. If present, it specifies that the output will be prefixed by '0b', '0o', or '0x', respectively.
+  //! \par '0' character
+  //! For numeric types, a zero preceding the width field forces the padding, using '0', to be placed after sign or base (if any) but before the digits. This is used for printing fields in the form ‘+000000120’ or '0x00ff'
   //! \par type
   //! 's' String format. This is the default type for strings and may be omitted.\n
+  //! 'd' Decimal format. Outputs the number in base 10.\n
   //! 'B' Binary format. Outputs the number in base 2.\n
   //! 'o' Octal format. Outputs the number in base 8.\n
   //! 'x' Hex format. Outputs the number in base 16, using lower- case letters for the digits above 9.\n
@@ -1243,6 +1268,8 @@ public:
   }
 
   Format& arg(const bool& v);
+  Format& arg(const unsigned char& v);
+  Format& arg(const char& v);
   Format& arg(const char *v);
   Format& arg(const std::string& v);
   Format& arg(const yat::String& v);

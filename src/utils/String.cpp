@@ -105,7 +105,7 @@ const std::string StringUtil::empty = "";
 //---------------------------------------------------------------------------
 StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c,
                                                       std::string *pstrToken,
-                                                      bool apply_escape)
+                                                      char escape_char)
 {
   // Cannot extract a substring a put it in the same string !
   if( str_p == pstrToken )
@@ -121,7 +121,7 @@ StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c
   }
 
   int iPos = str_p->find(c, 0);
-  while( apply_escape && iPos > 0 && '\\' == (*str_p)[iPos-1] )
+  while( escape_char != '\0' && iPos > 0 && escape_char == (*str_p)[iPos-1] )
   {
     iPos = str_p->find(c, iPos + 1);
   }
@@ -142,9 +142,9 @@ StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c
     str_p->erase(0, iPos+1);
   }
 
-  while( apply_escape )
+  while( escape_char != '\0' )
   {
-    std::size_t esc = pstrToken->find('\\');
+    std::size_t esc = pstrToken->find(escape_char);
 
     if( esc != std::string::npos && esc < pstrToken->length() - 1 &&
         (*pstrToken)[esc+1] == c )
@@ -156,6 +156,21 @@ StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c
   }
 
   return ret_val;
+}
+
+//---------------------------------------------------------------------------
+// deprecated
+//---------------------------------------------------------------------------
+StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c,
+                                                      std::string *pstrToken)
+{
+  return extract_token(str_p, c, pstrToken, '\0');
+}
+StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c,
+                                                      std::string *pstrToken,
+                                                      bool apply_escape)
+{
+  return extract_token(str_p, c, pstrToken, apply_escape ? '\\' : '\0');
 }
 
 //---------------------------------------------------------------------------
@@ -205,7 +220,7 @@ void StringUtil::split(const std::string& str, char c, std::string *pstrLeft,
 //---------------------------------------------------------------------------
 StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, char c,
                                                             std::string *pstrToken,
-                                                            bool apply_escape)
+                                                            char escape_char)
 {
   // Cannot extract a substring a put it in the same string !
   if( str_p == pstrToken )
@@ -222,7 +237,7 @@ StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, 
 
   // Search for separator
   int iPos = str_p->rfind(c, str_p->length() - 1);
-  while( apply_escape && iPos > 0 && '\\' == (*str_p)[iPos-1] )
+  while( escape_char != '\0' && iPos > 0 && escape_char == (*str_p)[iPos-1] )
   {
     iPos = str_p->rfind(c, iPos - 1);
   }
@@ -243,9 +258,9 @@ StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, 
     str_p->erase(iPos);
   }
 
-  while( apply_escape )
+  while( escape_char != '\0' )
   {
-    std::size_t esc = pstrToken->find('\\');
+    std::size_t esc = pstrToken->find(escape_char);
 
     if( esc != std::string::npos && esc < pstrToken->length() - 1 &&
         (*pstrToken)[esc+1] == c )
@@ -260,11 +275,26 @@ StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, 
 }
 
 //---------------------------------------------------------------------------
+// deprecated
+//---------------------------------------------------------------------------
+StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, char c,
+                                                            std::string *pstrToken,
+                                                            bool apply_escape)
+{
+  return extract_token_right(str_p, c, pstrToken, apply_escape ? '\\' : '\0');
+}
+StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, char c,
+                                                            std::string *pstrToken)
+{
+  return extract_token_right(str_p, c, pstrToken, '\0');
+}
+
+//---------------------------------------------------------------------------
 // StringUtil::extract_token
 //---------------------------------------------------------------------------
 StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char cLeft,
                                                       char cRight, std::string *pstrToken,
-                                                      bool apply_escape)
+                                                      char escape_char)
 {
   // Cannot extract a substring a put it in the same string !
   if( str_p == pstrToken )
@@ -281,11 +311,11 @@ StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c
 
   // Search for enclosing characters
   int iLeftPos = str_p->find(cLeft);
-  while( iLeftPos > 0 && '\\' == (*str_p)[iLeftPos-1] )
+  while( iLeftPos > 0 && escape_char == (*str_p)[iLeftPos-1] )
     iLeftPos = str_p->find(cLeft, iLeftPos + 1);
 
   int iRightPos = str_p->find(cRight, iLeftPos + 1);
-  while( iRightPos > 0 && '\\' == (*str_p)[iRightPos-1] )
+  while( iRightPos > 0 && escape_char == (*str_p)[iRightPos-1] )
     iRightPos = str_p->find(cRight, iRightPos + 1);
 
   if( iLeftPos < 0 || iRightPos < 0 || iRightPos < iLeftPos )
@@ -298,17 +328,17 @@ StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c
   // Enclosing characters found
   *pstrToken = str_p->substr(iLeftPos + 1, iRightPos - iLeftPos - 1);
 
-  while( apply_escape )
+  while( escape_char != '\0' )
   {
     bool b = false;
     std::size_t esc;
-    esc = pstrToken->find('\\');
+    esc = pstrToken->find(escape_char);
     if( pstrToken->find(cLeft) == esc + 1 )
     {
         b = true;
         pstrToken->erase(esc, 1);
     }
-    esc = pstrToken->find('\\');
+    esc = pstrToken->find(escape_char);
     if( pstrToken->find(cRight) == esc + 1 )
     {
         b = true;
@@ -324,11 +354,26 @@ StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char c
 }
 
 //---------------------------------------------------------------------------
+// deprecated
+//---------------------------------------------------------------------------
+StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char cLeft,
+                                                      char cRight, std::string *pstrToken,
+                                                      bool apply_escape)
+{
+  return extract_token(str_p, cLeft, cRight, pstrToken, apply_escape ? '\\' : '\0');
+}
+StringUtil::ExtractTokenRes StringUtil::extract_token(std::string* str_p, char cLeft,
+                                                      char cRight, std::string *pstrToken)
+{
+  return extract_token(str_p, cLeft, cRight, pstrToken, '\0');
+}
+
+//---------------------------------------------------------------------------
 // StringUtil::extract_token_right
 //---------------------------------------------------------------------------
 StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, char cLeft,
                                                             char cRight, std::string *pstrToken,
-                                                            bool apply_escape)
+                                                            char escape_char)
 {
   // Cannot extract a substring a put it in the same string !
   if( str_p == pstrToken )
@@ -345,11 +390,11 @@ StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, 
 
   // Search for enclosing characters
   int iRightPos = str_p->rfind(cRight);
-  while( apply_escape && iRightPos > 0 && '\\' == (*str_p)[iRightPos-1] )
+  while( escape_char != '\0' && iRightPos > 0 && escape_char == (*str_p)[iRightPos-1] )
     iRightPos = str_p->rfind(cRight, iRightPos - 1);
 
   int iLeftPos = iRightPos > 0 ? (int)str_p->rfind(cLeft, iRightPos - 1) : -1;
-  while( apply_escape && iLeftPos > 0 && '\\' == (*str_p)[iLeftPos-1] )
+  while( escape_char != '\0' && iLeftPos > 0 && escape_char == (*str_p)[iLeftPos-1] )
     iLeftPos = str_p->rfind(cLeft, iLeftPos - 1);
 
   if( iLeftPos < 0 || iRightPos < 0 || iRightPos < iLeftPos )
@@ -362,17 +407,17 @@ StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, 
   // Enclosing characters found
   *pstrToken = str_p->substr(iLeftPos+1, iRightPos - iLeftPos - 1);
 
-  while( apply_escape )
+  while( escape_char != '\0' )
   {
     bool b = false;
     std::size_t esc;
-    esc = pstrToken->find('\\');
+    esc = pstrToken->find(escape_char);
     if( pstrToken->find(cLeft) == esc + 1 )
     {
         b = true;
         pstrToken->erase(esc, 1);
     }
-    esc = pstrToken->find('\\');
+    esc = pstrToken->find(escape_char);
     if( pstrToken->find(cRight) == esc + 1 )
     {
         b = true;
@@ -385,6 +430,21 @@ StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, 
 
   str_p->erase(iLeftPos);
   return SEP_FOUND;
+}
+
+//---------------------------------------------------------------------------
+// deprecated
+//---------------------------------------------------------------------------
+StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, char cLeft,
+                                                            char cRight, std::string *pstrToken,
+                                                            bool apply_escape)
+{
+  return extract_token_right(str_p, cLeft, cRight, pstrToken, apply_escape ? '\\' : '\0');
+}
+StringUtil::ExtractTokenRes StringUtil::extract_token_right(std::string* str_p, char cLeft,
+                                                            char cRight, std::string *pstrToken)
+{
+  return extract_token_right(str_p, cLeft, cRight, pstrToken, '\0');
 }
 
 //---------------------------------------------------------------------------
@@ -1106,27 +1166,27 @@ void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& be
 {
   std::size_t start_pos = m_str.find('{', m_fmt_idx);
   if( std::string::npos == start_pos )
-    throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::Format::arg");
+    throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::Format::prepare_format");
 
   if( (start_pos > 0 && m_str[start_pos-1] != '\\') || 0 == start_pos )
   {
     std::size_t end_pos = m_str.find('}', start_pos);
     if( std::string::npos == end_pos )
-      throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::Format::arg");
+      throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::Format::prepare_format");
 
     std::string fmt = m_str.substr(start_pos + 1, end_pos - start_pos - 1);
     before = m_str.substr(0, start_pos);
     after = m_str.substr(end_pos + 1);
     m_fmt_idx = end_pos;
     bool show_sign = false;
-    bool align_right = false, align_left = false, align_sign = false;
+    bool align_right = false, align_left = false, align_sign = false, zero_padding = false;
     bool show_base = false;
     char fill = 0;
     std::size_t search_start = 0;
     // search for align characters
     std::size_t align_pos = fmt.find_first_of("<>");
     if( align_pos > 1 && align_pos != std::string::npos )
-      throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::Format::arg");
+      throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::Format::prepare_format");
     if( align_pos != std::string::npos )
     {
       switch( fmt[align_pos] )
@@ -1167,9 +1227,13 @@ void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& be
     if( decimal_point_pos != std::string::npos )
       precision_pos = decimal_point_pos + 1;
 
-    std::size_t width_pos = fmt.find_first_of("0123456789", search_start);
-    if( width_pos ==  precision_pos )
+    std::size_t width_pos = fmt.find_first_of("123456789", search_start);
+    if( width_pos == precision_pos )
       width_pos = std::string::npos;
+
+    std::size_t zero_pad_pos = fmt.find('0', search_start);
+    if( zero_pad_pos == width_pos - 1 )
+      zero_padding = true;
 
     std::size_t type_pos = std::string::npos;
     if( fmt.size() > 0 && (std::isalpha(fmt[fmt.size() - 1]) || fmt[fmt.size() - 1] == '%') )
@@ -1199,6 +1263,14 @@ void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& be
     if( 'e' == type || 'E' == type )                ff |= std::ios::scientific;
     if( 'E' == type || 'X' == type || 'G' == type ) ff |= std::ios::uppercase;
     if( 'b' == type ) ff |= std::ios::boolalpha;
+    if( zero_padding && ('x' == type || 'X' == type ||
+                         'o' == type || 'd' == type ||
+                         'f' == type || 'F' == type ||
+                         'g' == type || 'G' == type ||
+                         'e' == type || 'E' == type ) )
+      { ff |= std::ios::internal;
+        fill = '0';
+      }
 
     oss << before;
     oss.setf(ff);
@@ -1220,7 +1292,7 @@ void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& be
   m_fmt_idx = oss.str().size(); \
   oss << after; \
   m_str = oss.str(); \
-  return *this; \
+  return *this;
 
 Format& Format::arg(const char *v)
 {
@@ -1235,6 +1307,30 @@ Format& Format::arg(const std::string& v)
 Format& Format::arg(const yat::String& v)
 {
  __STRING_TYPES_FORMAT(v)
+}
+
+#define __CHAR_TYPES_FORMAT(v) \
+  std::ostringstream oss; \
+  char type = 0; \
+  yat::String before, after; \
+  prepare_format(oss, type, before, after); \
+  if( 'd' == type || 'o' == type || 'X' == type || 'x' == type ) \
+    oss << int(v); \
+  else \
+    oss << v; \
+  m_fmt_idx = oss.str().size(); \
+  oss << after; \
+  m_str = oss.str(); \
+  return *this;
+
+Format& Format::arg(const char& v)
+{
+  __CHAR_TYPES_FORMAT(v)
+}
+
+Format& Format::arg(const unsigned char& v)
+{
+  __CHAR_TYPES_FORMAT(v)
 }
 
 Format& Format::arg(const bool& v)
