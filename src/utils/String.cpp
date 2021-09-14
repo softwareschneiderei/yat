@@ -1314,7 +1314,12 @@ Format& Format::arg(const yat::String& v)
   char type = 0; \
   yat::String before, after; \
   prepare_format(oss, type, before, after); \
-  if( 'd' == type || 'o' == type || 'X' == type || 'x' == type ) \
+  if( 'B' == type ) \
+  { \
+    std::bitset<8> bs(v); \
+    oss << bs; \
+  } \
+  else if( 'd' == type || 'o' == type || 'X' == type || 'x' == type ) \
     oss << int(v); \
   else \
     oss << v; \
