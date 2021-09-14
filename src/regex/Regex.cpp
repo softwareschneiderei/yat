@@ -357,6 +357,8 @@ bool Regex::exec(const yat::String& str, yat::Regex::Match* match_p,
   }
   if( regmatch_p )
     delete [] regmatch_p;
+  if( match_p )
+    match_p->m_ready = true;
   return res;
 }
 
@@ -471,7 +473,7 @@ const Regex::SubMatch& Regex::Match::operator[](std::size_t i) const
 {
   if( i < m_submatchs.size() )
     return m_submatchs[i];
-  throw yat::Exception("REGEX_ERROR", "Submatch index out of bounds.", "yat::Regex::Result::operator[]");
+  throw yat::Exception("REGEX_ERROR", "Submatch index out of bounds.", "yat::Regex::Match::operator[]");
 }
 
 //---------------------------------------------------------------------------
@@ -481,7 +483,7 @@ const Regex::SubMatch& Regex::Match::first() const
 {
   if( 0 < m_submatchs.size() )
     return m_submatchs[0];
-  throw yat::Exception("REGEX_ERROR", "No match found.", "yat::Regex::Result::str");
+  throw yat::Exception("REGEX_ERROR", "No match found.", "yat::Regex::Match::str");
 }
 
 //---------------------------------------------------------------------------
@@ -491,7 +493,7 @@ const Regex::SubMatch& Regex::Match::last() const
 {
   if( 0 < m_submatchs.size() )
     return m_submatchs[m_submatchs.size() - 1];
-  throw yat::Exception("REGEX_ERROR", "No match found.", "yat::Regex::Result::str");
+  throw yat::Exception("REGEX_ERROR", "No match found.", "yat::Regex::Match::str");
 }
 
 //---------------------------------------------------------------------------
@@ -523,7 +525,7 @@ yat::String Regex::Match::str(std::size_t i) const
 {
   if( i < m_submatchs.size() )
     return m_submatchs[i].str();
-  throw yat::Exception("REGEX_ERROR", "submatch index out of bounds.", "yat::Regex::Result::str");
+  throw yat::Exception("REGEX_ERROR", "submatch index out of bounds.", "yat::Regex::Match::str");
 }
 
 //---------------------------------------------------------------------------
@@ -533,7 +535,7 @@ std::size_t Regex::Match::position(std::size_t i) const
 {
   if( i < m_submatchs.size() )
     return m_submatchs[i].position();
-  throw yat::Exception("REGEX_ERROR", "Submatch index out of bounds.", "yat::Regex::Result::position");
+  throw yat::Exception("REGEX_ERROR", "Submatch index out of bounds.", "yat::Regex::Match::position");
 }
 
 //---------------------------------------------------------------------------
@@ -543,7 +545,7 @@ std::size_t Regex::Match::length(std::size_t i) const
 {
   if( i < m_submatchs.size() )
     return m_submatchs[i].length();
-  throw yat::Exception("REGEX_ERROR", "Submatch index out of bounds.", "yat::Regex::Result::length");
+  throw yat::Exception("REGEX_ERROR", "Submatch index out of bounds.", "yat::Regex::Match::length");
 }
 
 //---------------------------------------------------------------------------
@@ -553,7 +555,7 @@ yat::String Regex::Match::prefix() const
 {
   if( 0 < m_submatchs.size() )
     return m_string.substr(0, m_submatchs[0].position());
-  throw yat::Exception("REGEX_ERROR", "No match found.", "yat::Regex::Result::prefix");
+  throw yat::Exception("REGEX_ERROR", "No match found.", "yat::Regex::Match::prefix");
 }
 
 //---------------------------------------------------------------------------
@@ -563,7 +565,7 @@ yat::String Regex::Match::suffix() const
 {
   if( 0 < m_submatchs.size() )
     return m_string.substr(m_submatchs[0].position() + m_submatchs[0].length());
-  throw yat::Exception("REGEX_ERROR", "No match found.", "yat::Regex::Result::prefix");
+  throw yat::Exception("REGEX_ERROR", "No match found.", "yat::Regex::Match::prefix");
 }
 
 //---------------------------------------------------------------------------

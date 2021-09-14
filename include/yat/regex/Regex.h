@@ -212,6 +212,9 @@ public:
       const std::vector<SubMatch>* m_submatchs_p;
     };
 
+    //! c-tor
+    Match() : m_ready(false) {}
+
     //! returns sub match
     const SubMatch& operator[](std::size_t i) const;
 
@@ -248,9 +251,13 @@ public:
     //! checks whether the match was successful
     bool empty() const { return m_submatchs.size() ? false : true; }
 
+    //! if true then the match object can be analyzed
+    bool ready() const { return m_ready; }
+
   private:
     std::vector<SubMatch> m_submatchs;
     yat::String           m_string;
+    bool                  m_ready;
   };
 
   typedef SharedPtr<Match> MatchPtr;
@@ -279,7 +286,6 @@ public:
 
   //! Check if whole string match the regex and return a match object
   //! \param str string to match
-  //! \param match_p result object, may be null ptr if one not interested on sub-matchs
   //! \param mflags match flags
   //! \return sharedptr on a match result object
   MatchPtr match2(const yat::String& str, MatchFlags mflags = match_default);
