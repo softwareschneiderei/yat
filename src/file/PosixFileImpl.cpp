@@ -355,14 +355,6 @@ bool FileName::link_exist() const throw( Exception )
   if( !iRc && S_ISLNK(st.st_mode) )
     return true;
 
-/* Probably stupid... no file => no link!
-  else if( iRc )
-  {
-    std::string strErr = StringUtil::str_format(ERR_TEST_LINK, PSZ(full_name()));
-    ThrowExceptionFromErrno(PSZ(strErr), "FileName::link_exist");
-  }
-*/
-
   return false;
 }
 
