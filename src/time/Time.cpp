@@ -387,11 +387,15 @@ void Time::set_tz(const std::string& tz)
 //----------------------------------------------------------------------------
 int Time::time_zone_bias() const
 {
-  if( -1 == m_tz_bias )
+  static int s_tz_bias = -1;
+  if( -1 == s_tz_bias )
   {
-    m_tz_bias = (int(double(yat::CurrentTime().raw_value() -
+    s_tz_bias = (int(double(yat::CurrentTime().raw_value() -
                             yat::CurrentUTime().raw_value()) / MICROSEC_PER_SEC + 0.5)) / 60;
   }
+
+  if( -1 == m_tz_bias )
+    m_tz_bias = s_tz_bias;
 
   return m_tz_bias;
 }
@@ -1023,14 +1027,14 @@ std::string _iso8601_bias(const Time &tm)
   std::string fmt;
   int bias = tm.time_zone_bias();
   if( bias < 0 )
-    fmt = "-%02d%02d";
+    fmt = "-{02d}{02d}";
   else
-    fmt = "+%02d%02d";
+    fmt = "+{02d}{02d}";
 
   int h = abs(bias) / 60;
   int m = abs(bias) - (60 * h);
 
-  return StringUtil::str_format(PSZ(fmt), h, m);
+  return Format(fmt).arg(h).arg(m);
 }
 
 //----------------------------------------------------------------------------
@@ -1039,9 +1043,11 @@ std::string _iso8601_bias(const Time &tm)
 yat::String Time::to_string(const std::string& format, unsigned short precision) const
 {
   bool get_identifier = false;
+  bool add_Z_if_utc = false;
   std::ostringstream oss;
   DateFields df;
   get(&df);
+
 
   for( std::size_t i_f = 0; i_f < format.size(); ++i_f )
   {
@@ -1073,6 +1079,7 @@ yat::String Time::to_string(const std::string& format, unsigned short precision)
           break;
         case 'H':
           oss.width(2); oss.fill('0'); oss << int(df.hour);
+          add_Z_if_utc = true;
           break;
         case 'j':
           oss.width(3); oss.fill('0'); oss << df.day_of_year;
@@ -1125,6 +1132,7 @@ yat::String Time::to_string(const std::string& format, unsigned short precision)
           break;
         case 'Z':
           oss << _iso8601_bias(*this);
+          add_Z_if_utc = false;
           break;
         default:
           throw yat::Exception("BAD_FORMAT",
@@ -1137,6 +1145,9 @@ yat::String Time::to_string(const std::string& format, unsigned short precision)
     else
       oss << format[i_f];
   }
+
+  if( add_Z_if_utc && utc() )
+    oss << 'Z';
 
   return yat::String(oss.str());
 }
@@ -1388,6 +1399,26 @@ CurrentTime::CurrentTime(bool bUT) : Time()
 //----------------------------------------------------------------------------
 CurrentUTime::CurrentUTime() : CurrentTime(true)
 {
+}
+
+//===========================================================================
+// LocalTime
+//===========================================================================
+//----------------------------------------------------------------------------
+// LocalTime::LocalTime
+//----------------------------------------------------------------------------
+LocalTime::LocalTime() : Time()
+{
+  set_local(0,0,0);
+}
+
+//----------------------------------------------------------------------------
+// LocalTime::LocalTime
+//----------------------------------------------------------------------------
+LocalTime::LocalTime(int16 iYear, uint8 uiMonth, uint8 uiDay, uint8 uiHour, uint8 uiMin, double dSec)
+: Time()
+{
+  set_local(iYear, uiMonth, uiDay, uiHour, uiMin, dSec);
 }
 
 //===========================================================================
