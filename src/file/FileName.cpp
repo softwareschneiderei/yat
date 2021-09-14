@@ -631,7 +631,7 @@ std::string TempFileName::GenerateRandomName()
     // Initialize random sequence
     s_lLastNumber = CurrentTime().long_unix();
 
-  return StringFormat("temp{x}").format(s_lLastNumber++);
+  return Format("temp{x}").arg(s_lLastNumber++);
 }
 
 //-------------------------------------------------------------------

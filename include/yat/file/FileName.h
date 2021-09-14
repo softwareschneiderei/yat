@@ -846,9 +846,9 @@ public:
 
 // ============================================================================
 //! \class File
-//! \brief Temporary file class.
+//! \brief File class.
 //!
-//! This class provides basic file manipulation functions for a temporary file.
+//! This class provides basic file manipulation functions for a file.
 //! Inherits from FileName class.
 // ============================================================================
 class YAT_DECL File: public FileName
