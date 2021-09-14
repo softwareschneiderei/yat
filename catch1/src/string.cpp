@@ -4,7 +4,6 @@
 TEST_CASE("basics", "[String]")
 {
   REQUIRE(yat::String("toto").is_equal("toto"));
-
 }
 
 TEST_CASE("split_std::string_1", "[String]")
@@ -15,11 +14,11 @@ TEST_CASE("split_std::string_1", "[String]")
   yat::StringUtil::split(strTestPhraseToSplit, '_', &vResultStdValues);
 
   REQUIRE(5 == vResultStdValues.size());
-  REQUIRE(vResultStdValues[0] == " This");
-  REQUIRE(vResultStdValues[1] == "is");
-  REQUIRE(vResultStdValues[2] == "a");
-  REQUIRE(vResultStdValues[3] == "split");
-  REQUIRE(vResultStdValues[4] == "test,obviously.  ");
+  CHECK(vResultStdValues[0] == " This");
+  CHECK(vResultStdValues[1] == "is");
+  CHECK(vResultStdValues[2] == "a");
+  CHECK(vResultStdValues[3] == "split");
+  CHECK(vResultStdValues[4] == "test,obviously.  ");
 }
 
 TEST_CASE("split_std::string_2", "[String]")
@@ -32,13 +31,13 @@ TEST_CASE("split_std::string_2", "[String]")
   yat::StringUtil::split(strTestPhraseToSplit, '_', &vResultStdValues, false);
 
   REQUIRE(7 == vResultStdValues.size());
-  REQUIRE(vResultStdValues[0] == "Test line not to be cleared");
-  REQUIRE(vResultStdValues[1] == "Second Test line not to be cleared");
-  REQUIRE(vResultStdValues[0+2] == " This");
-  REQUIRE(vResultStdValues[1+2] == "is");
-  REQUIRE(vResultStdValues[2+2] == "a");
-  REQUIRE(vResultStdValues[3+2] == "split");
-  REQUIRE(vResultStdValues[4+2] == "test,obviously.  ");
+  CHECK(vResultStdValues[0] == "Test line not to be cleared");
+  CHECK(vResultStdValues[1] == "Second Test line not to be cleared");
+  CHECK(vResultStdValues[0+2] == " This");
+  CHECK(vResultStdValues[1+2] == "is");
+  CHECK(vResultStdValues[2+2] == "a");
+  CHECK(vResultStdValues[3+2] == "split");
+  CHECK(vResultStdValues[4+2] == "test,obviously.  ");
 }
 
 TEST_CASE("split_yat::String_1", "[String]")
@@ -49,11 +48,11 @@ TEST_CASE("split_yat::String_1", "[String]")
   strTestPhraseToSplit.split('_', &vResultStdValues);
 
   REQUIRE(5 == vResultStdValues.size());
-  REQUIRE(vResultStdValues[0] == " This");
-  REQUIRE(vResultStdValues[1] == "is");
-  REQUIRE(vResultStdValues[2] == "a");
-  REQUIRE(vResultStdValues[3] == "split");
-  REQUIRE(vResultStdValues[4] == "test,obviously.  ");
+  CHECK(vResultStdValues[0] == " This");
+  CHECK(vResultStdValues[1] == "is");
+  CHECK(vResultStdValues[2] == "a");
+  CHECK(vResultStdValues[3] == "split");
+  CHECK(vResultStdValues[4] == "test,obviously.  ");
 }
 
 TEST_CASE("split_yat::String_2", "[String]")
@@ -65,13 +64,13 @@ TEST_CASE("split_yat::String_2", "[String]")
   strTestPhraseToSplit.split('_', &vResultStdValues, false);
 
   REQUIRE(7 == vResultStdValues.size());
-  REQUIRE(vResultStdValues[0] == "Test line not to be cleared");
-  REQUIRE(vResultStdValues[1] == "Second Test line not to be cleared");
-  REQUIRE(vResultStdValues[0+2] == " This");
-  REQUIRE(vResultStdValues[1+2] == "is");
-  REQUIRE(vResultStdValues[2+2] == "a");
-  REQUIRE(vResultStdValues[3+2] == "split");
-  REQUIRE(vResultStdValues[4+2] == "test,obviously.  ");
+  CHECK(vResultStdValues[0] == "Test line not to be cleared");
+  CHECK(vResultStdValues[1] == "Second Test line not to be cleared");
+  CHECK(vResultStdValues[0+2] == " This");
+  CHECK(vResultStdValues[1+2] == "is");
+  CHECK(vResultStdValues[2+2] == "a");
+  CHECK(vResultStdValues[3+2] == "split");
+  CHECK(vResultStdValues[4+2] == "test,obviously.  ");
 }
 
 TEST_CASE("split_std::string_3", "[String]")
@@ -114,8 +113,8 @@ TEST_CASE("split_yat::String_5", "[String]")
 
   to_split.split(',', &left, &right);
 
-  REQUIRE(left.is_equal("left"));
-  REQUIRE(right.is_equal(""));
+  CHECK(left.is_equal("left"));
+  CHECK(right.is_equal(""));
 }
 
 TEST_CASE("split_yat::String_6", "[String]")
@@ -125,8 +124,8 @@ TEST_CASE("split_yat::String_6", "[String]")
 
   to_split.split(',', &left, &right);
 
-  REQUIRE(left.is_equal(""));
-  REQUIRE(right.is_equal(""));
+  CHECK(left.is_equal(""));
+  CHECK(right.is_equal(""));
 }
 
 TEST_CASE("split_yat::String_7", "[String]")
@@ -136,8 +135,8 @@ TEST_CASE("split_yat::String_7", "[String]")
 
   to_split.split(',', &left, &right);
 
-  REQUIRE(left.is_equal(""));
-  REQUIRE(right.is_equal(""));
+  CHECK(left.is_equal(""));
+  CHECK(right.is_equal(""));
 }
 
 TEST_CASE("split_yat::String_8", "[String]")
@@ -148,8 +147,8 @@ TEST_CASE("split_yat::String_8", "[String]")
   to_split.split(',', &left, &right);
   INFO("left: " << left);
   INFO("right: " << right);
-  REQUIRE(left.is_equal("a,b"));
-  REQUIRE(right.is_equal("c"));
+  CHECK(left.is_equal("a\\,b"));
+  CHECK(right.is_equal("c"));
 }
 
 TEST_CASE("split_yat::String_9", "[String]")
@@ -160,8 +159,8 @@ TEST_CASE("split_yat::String_9", "[String]")
   to_split.split(',', &left, &right);
   INFO("left: " << left);
   INFO("right: " << right);
-  REQUIRE(left.is_equal("a"));
-  REQUIRE(right.is_equal("b,c"));
+  CHECK(left.is_equal("a"));
+  CHECK(right.is_equal("b,c"));
 }
 
 TEST_CASE("extract_left_1", "[String]")
@@ -170,16 +169,16 @@ TEST_CASE("extract_left_1", "[String]")
   yat::String from("1,2,3");
 
   from.extract_token(',', &to);
-  REQUIRE(to.is_equal("1"));
-  REQUIRE(from.is_equal("2,3"));
+  CHECK(to.is_equal("1"));
+  CHECK(from.is_equal("2,3"));
 
   from.extract_token(',', &to);
-  REQUIRE(to.is_equal("2"));
-  REQUIRE(from.is_equal("3"));
+  CHECK(to.is_equal("2"));
+  CHECK(from.is_equal("3"));
 
   from.extract_token(',', &to);
-  REQUIRE(to.is_equal("3"));
-  REQUIRE(from.is_equal(""));
+  CHECK(to.is_equal("3"));
+  CHECK(from.is_equal(""));
 }
 
 TEST_CASE("extract_right_1", "[String]")
@@ -188,92 +187,119 @@ TEST_CASE("extract_right_1", "[String]")
   yat::String from("1,2,3");
 
   from.extract_token_right(',', &to);
-  REQUIRE(from.is_equal("1,2"));
-  REQUIRE(to.is_equal("3"));
+  CHECK(from.is_equal("1,2"));
+  CHECK(to.is_equal("3"));
 
   from.extract_token_right(',', &to);
-  REQUIRE(from.is_equal("1"));
-  REQUIRE(to.is_equal("2"));
+  CHECK(from.is_equal("1"));
+  CHECK(to.is_equal("2"));
 
   from.extract_token_right(',', &to);
-  REQUIRE(from.is_equal(""));
-  REQUIRE(to.is_equal("1"));
+  CHECK(from.is_equal(""));
+  CHECK(to.is_equal("1"));
+}
+
+TEST_CASE("extract_left_esc", "[String]")
+{
+  yat::String left;
+  yat::String from("1\\,2,3");
+
+  from.extract_token(',', &left, '\\');
+  CHECK(left.is_equal("1,2"));
+  CHECK(from.is_equal("3"));
+}
+
+TEST_CASE("extract_right_esc", "[String]")
+{
+  yat::String right;
+  yat::String from("1,2\\,3");
+
+  from.extract_token_right(',', &right, '\\');
+  CHECK(right.is_equal("2,3"));
+  CHECK(from.is_equal("1"));
 }
 
 TEST_CASE("format_str", "[String]")
 {
-  yat::String res = yat::StringFormat("a string: {}").format("hello!");
-  REQUIRE(res.is_equal("a string: hello!"));
+  yat::String res = yat::Format("a string: {}").arg("hello!");
+  CHECK(res.is_equal("a string: hello!"));
 }
 
 TEST_CASE("format_float", "[String]")
 {
-  yat::String res = yat::StringFormat("a number: {4.1e}").format(12.0);
+  yat::String res = yat::Format("a number: {4.1e}").arg(12.0);
   INFO("result is " << res);
-  REQUIRE(res.is_equal("a number: 1.2e+01"));
+  CHECK(res.is_equal("a number: 1.2e+01"));
 }
 
 TEST_CASE("format_bool", "[String]")
 {
-  yat::String res = yat::StringFormat("a boolean: {b}").format(true);
+  yat::String res = yat::Format("a boolean: {b}").arg(true);
   INFO("result is " << res);
-  REQUIRE(res.is_equal("a boolean: true"));
+  CHECK(res.is_equal("a boolean: true"));
 }
 
 TEST_CASE("format_binary", "[String]")
 {
-  yat::String res = yat::StringFormat("a binary value: {B}").format((yat::uint8)42);
+  yat::String res = yat::Format("a binary value: {B}").arg((yat::uint8)42);
   INFO("result is " << res);
-  REQUIRE(res.is_equal("a binary value: 00101010"));
+  CHECK(res.is_equal("a binary value: 00101010"));
 }
 
 TEST_CASE("format_hex", "[String]")
 {
-  yat::String res = yat::StringFormat("a hex: {x}").format(255);
+  yat::String res = yat::Format("a hex: {x}").arg(255);
   INFO("result is " << res);
-  REQUIRE(res.is_equal("a hex: ff"));
+  CHECK(res.is_equal("a hex: ff"));
 }
 
 TEST_CASE("format_octal", "[String]")
 {
-  yat::String res = yat::StringFormat("an octal number: {o}").format(255);
+  yat::String res = yat::Format("an octal number: {o}").arg(255);
   INFO("result is " << res);
-  REQUIRE(res.is_equal("an octal number: 377"));
+  CHECK(res.is_equal("an octal number: 377"));
 }
 
 TEST_CASE("format_all", "[String]")
 {
-  yat::String res = yat::StringFormat("a string: {}; a float number: {4.1e}; an octal number: {o}; a boolean: {b}; a hex: {x}")
-                    .format("hello!").format(12.0).format(255).format(true).format(255);
+  yat::String res = yat::Format("a string: {}; a float number: {4.1e}; an octal number: {o}; a boolean: {b}; a hex: {x}")
+                    .arg("hello!").arg(12.0).arg(255).arg(true).arg(255);
   INFO("result is " << res);
-  REQUIRE(res.is_equal("a string: hello!; a float number: 1.2e+01; an octal number: 377; a boolean: true; a hex: ff"));
+  CHECK(res.is_equal("a string: hello!; a float number: 1.2e+01; an octal number: 377; a boolean: true; a hex: ff"));
 }
 
 TEST_CASE("format_field_size", "[String]")
 {
-  yat::String res = yat::StringFormat("fixed field size format: [{20s}]").format("hello!");
+  yat::String res = yat::Format("fixed field size arg: [{20s}]").arg("hello!");
   INFO("result is " << res);
-  REQUIRE(res.is_equal("fixed field size format: [              hello!]"));
+  CHECK(res.is_equal("fixed field size arg: [              hello!]"));
 }
 
-TEST_CASE("format_field_size_fill", "[String]")
+TEST_CASE("format_right_field_size_fill", "[String]")
 {
-  yat::String res = yat::StringFormat("fixed field size format: [{_20s}]").format("hello!");
+  yat::String res = yat::Format("fixed field size arg: [{_>20s}]").arg("hello!");
   INFO("result is " << res);
-  REQUIRE(res.is_equal("fixed field size format: [______________hello!]"));
+  CHECK(res.is_equal("fixed field size arg: [______________hello!]"));
+}
+
+TEST_CASE("format_left_field_size_fill", "[String]")
+{
+  yat::String res = yat::Format("fixed field size arg: [{_<20s}]").arg("hello!");
+  INFO("result is " << res);
+  CHECK(res.is_equal("fixed field size arg: [hello!______________]"));
 }
 
 TEST_CASE("format_left_field_size", "[String]")
 {
-  yat::String res = yat::StringFormat("left format: [{<20s}]").format("hello!");
+  yat::String res = yat::Format("left arg: [{<20s}]").arg("hello!");
   INFO("result is " << res);
-  REQUIRE(res.is_equal("left format: [hello!              ]"));
+  CHECK(res.is_equal("left arg: [hello!              ]"));
 }
 
 TEST_CASE("format_right_field_size", "[String]")
 {
-  yat::String res = yat::StringFormat("right format: [{>20s}]").format("hello!");
+  yat::String res = yat::Format("right arg: [{>20s}]").arg("hello!");
   INFO("result is " << res);
-  REQUIRE(res.is_equal("right format: [              hello!]"));
+  CHECK(res.is_equal("right arg: [              hello!]"));
 }
 
