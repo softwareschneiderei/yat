@@ -253,6 +253,9 @@ bool StringTemplate::substitute(String *pstrTemplate)
 //----------------------------------------------------------------------------
 bool StringTemplate::value(std::string *pstrVar)
 {
+  // Usually the default value in a variables list like:
+  // $(ga|bu|zo|'meu')
+  // -> return 'meu' of none of ga, bu or zo replacement variable are set
   if( yat::StringUtil::start_with(*pstrVar, "'") &&
       yat::StringUtil::end_with(*pstrVar, "'") )
   {
