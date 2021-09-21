@@ -19,11 +19,9 @@
 #include <yat/Exception.h>
 #include <yat/regex/Regex.h>
 
-typedef yat::StringFormat _strf;
-
 typedef enum ShowOpt
 {
-  none = 0, prefix = 1, suffix = 2, empty = 4, var = 8, sub = 16
+  none = 0, details = 1, empty = 2, var = 4, sub = 8
 } ShowOpt;
 
 yat::String substitute(const yat::CfgFile::Parameters& kvg,
@@ -71,17 +69,21 @@ void extract_submatches(const yat::Regex::Match& m, int opt)
 {
   if( m.size() > 1 )
     std::cout << m.size() - 1 << " Submatches:\n";
-  if( opt & prefix )
-    std::cout << "  Prefix: '" << m.prefix() << "'\n";
+  if( opt & details )
+  {
+    std::cout << "  Position: '" << m.position() << "'\n";
+    std::cout << "  Length: '" << m.length() << "'\n";
+    std::cout << "  Prefix  : '" << m.prefix() << "'\n";
+  }
 
   for (size_t j = 1; j < m.size(); ++j)
   {
     if( !m.str(j).empty() || (m.str(j).empty() && (opt & empty)) )
-      std::cout << _strf("{%3d}: '{}'\n").format(j).format(m.str(j));
+      std::cout << yat::Format("{%3d}: '{}'\n").arg(j).arg(m.str(j));
   }
 
-  if( opt & suffix )
-    std::cout << "  Suffix: '" << m.suffix() << "'\n";
+  if( opt & details )
+    std::cout << "  Suffix  : '" << m.suffix() << "'\n";
   std::cout << '-' << std::endl;
 }
 
@@ -90,7 +92,8 @@ void match(yat::RegexPtr re_ptr, const yat::String& str, int opt)
 {
   yat::Regex::Match m;
   bool is_match = re_ptr->match(str, &m);
-  std::cout << _strf("'{}' match -> {}").format(str).format(is_match) << std::endl;
+  std::cout << yat::Format("'{}' match -> {}").arg(str).arg(is_match)
+            << std::endl;
 
    // show contents of marked subexpressions within each match
   if( is_match && (opt & sub) )
@@ -103,7 +106,7 @@ void match(yat::RegexPtr re_ptr, const yat::String& str, int opt)
 void search(yat::RegexPtr re_ptr, const yat::String& str, int opt)
 {
   yat::Regex::Match m;
-  std::cout << _strf("Search matches in '{}': ").format(str) << std::endl;
+  std::cout << yat::Format("Search matches in '{}': ").arg(str) << std::endl;
   while( re_ptr->search(str, &m) )
   {
     std::cout << "Match found: '" << m.str() << "'" << std::endl;
@@ -122,8 +125,7 @@ int main(int argc, char* argv[])
   yat::String def_cfg_file("regex_tester.cfg");
 
   cl.add_opt('c', "cfg-file", "regex file", "Configuration file");
-  cl.add_opt('p', "show-prefix", "", "Show prefix");
-  cl.add_opt('s', "show-suffix", "", "Show suffix");
+  cl.add_opt('d', "show-match-details", "", "Show match details");
   cl.add_opt('v', "show-variables", "", "Show variables");
   cl.add_opt('m', "show-submatches", "", "Show sub-matches");
   cl.add_opt('e', "show-empty-submatch", "", "Show empty submatch");
@@ -141,10 +143,8 @@ int main(int argc, char* argv[])
       if( cl.is_option("cfg-file") )
         file_name = cl.option_value("cfg-file");
 
-      if( cl.is_option("show-prefix") )
-        opt |= prefix;
-      if( cl.is_option("show-suffix") )
-        opt |= suffix;
+      if( cl.is_option("show-match-details") )
+        opt |= details;
       if( cl.is_option("show-empty-submatch") )
         opt |= empty;
       if( cl.is_option("show-submatches") )
