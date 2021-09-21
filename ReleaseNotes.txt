@@ -1,5 +1,37 @@
 YAT history file
 
+1.18.6 (2021/09/21)
+===================
+
+Additions:
+    class Regex::Match
+        new method: void ready()
+    -> see <yat/regex/Regex.h>
+
+    Logging
+        - log functions: debug, info, notice, result, warning, error, fatal, critical, emergency, log
+          now accept formatted messages (using an underlying yat::Format object)
+
+    class String
+        New methods 
+        static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken, char escape_char);
+        static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken);
+        static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken, char escape_char);
+        static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken);
+
+        The following methods are now marked as deprecated:
+        static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken, bool apply_escape);
+        static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken, bool apply_escape);
+    -> see <yat/utils/String.h>
+    
+    class Time
+        new methods:
+        static String to_string(const DateFields& df, const std::string& format, unsigned short precision=0);
+        static int sys_time_zone_bias();
+        static void get_current_local(DateFields* df_p);
+        static void get_current_uts(DateFields* df_p);
+    -> see <yat/time/Time.h>
+
 1.18.5 (2021/07/13)
 ===================
 
@@ -29,6 +61,10 @@ Changes
     StringFormat
         class StringFormat renamed to Format (but original name is still available)
         'format' method in StringFormat is renamed as 'arg' (but original name is still available)
+
+    Logging
+        - log functions log_verbose, log_info, log_error,... become verbose, info, error,.... 
+          The old ones are marked as deprecated
 
     Switch YAT_DEPRECATED removed
 
