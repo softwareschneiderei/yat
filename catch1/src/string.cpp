@@ -229,7 +229,11 @@ TEST_CASE("format_float", "[String]")
 {
   yat::String res = yat::Format("a number: {4.1e}").arg(12.0);
   INFO("result is " << res);
+  #ifdef YAT_WIN32
+  CHECK(res.is_equal("a number: 1.2e+001"));
+  #else
   CHECK(res.is_equal("a number: 1.2e+01"));
+  #endif
 }
 
 TEST_CASE("format_bool", "[String]")
@@ -265,7 +269,11 @@ TEST_CASE("format_all", "[String]")
   yat::String res = yat::Format("a string: {}; a float number: {4.1e}; an octal number: {o}; a boolean: {b}; a hex: {x}")
                     .arg("hello!").arg(12.0).arg(255).arg(true).arg(255);
   INFO("result is " << res);
+  #ifdef YAT_WIN32
+  CHECK(res.is_equal("a string: hello!; a float number: 1.2e+001; an octal number: 377; a boolean: true; a hex: ff"));
+  #else
   CHECK(res.is_equal("a string: hello!; a float number: 1.2e+01; an octal number: 377; a boolean: true; a hex: ff"));
+  #endif
 }
 
 TEST_CASE("format_field_size", "[String]")
