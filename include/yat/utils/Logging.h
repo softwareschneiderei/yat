@@ -340,8 +340,8 @@ class YAT_DECL LogFormat alert(const std::string& msg_fmt);
 class YAT_DECL LogFormat emergency(const std::string& msg_fmt);
 //! \brief log a critical message with format
 class YAT_DECL LogFormat critical(const std::string& msg_fmt);
-//! \brief log a generic message with format
-class YAT_DECL LogFormat log(const std::string& msg_fmt);
+//! \brief log a generic level-less message with format
+class YAT_DECL LogFormat message(const std::string& msg_fmt);
 
 // Internal class used to log formatted messages
 // This object can't be manually allocated nor copied
@@ -357,7 +357,7 @@ friend LogFormat error(const std::string& msg_fmt);
 friend LogFormat alert(const std::string& msg_fmt);
 friend LogFormat emergency(const std::string& msg_fmt);
 friend LogFormat critical(const std::string& msg_fmt);
-friend LogFormat log(const std::string& msg_fmt);
+friend LogFormat message(const std::string& msg_fmt);
 
 public:
   template<typename T> LogFormat& arg(T v)

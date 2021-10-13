@@ -533,6 +533,6 @@ LogFormat error(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_ERRO
 LogFormat alert(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_ALERT); }
 LogFormat critical(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_CRITICAL); }
 LogFormat emergency(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_EMERGENCY); }
-LogFormat log(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_NOLEVEL); }
+LogFormat message(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_NOLEVEL); }
 
 } // namespace
