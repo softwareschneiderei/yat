@@ -73,19 +73,22 @@ public:
 //! \class StringTemplate
 //! \brief %String template processor.
 //!
-//! A StringTemplate object is a string that contains items which will be replaced by
-//! their real value. The substitution function only looks for "$(xxx)" patterns
-//! For instance: in the string 'date is \$\(date\)', '\$\(date\)' will be replaced
+//! A StringTemplate object is a string that contains items which will be replaced
+//! by their real value. The substitution function looks for "$(xxx)" and
+//! "$xxx" patterns.
+//! For instance: in the string 'date is \$date', '\$date' will be replaced
 //! by the current date when processed. \n
-//! The substitution will be realized by each symbol interpreter added in the template
-//! processor.
+//! The substitution will be realized by each symbol interpreter added in the
+//! template processor.
+//! The escape sequence is "$$":
+//! Processing the input template "$$ga bu" will return "$ga bu".
 //! One can use more advanced substitutions:
 //! \$\(var|def_var\) will remplace 'var' by its value if 'var' is defined. If not,
 //! it will replace by the value of 'def_var' value.
-//! \$\(var|'def_value'\) If 'var' is not defined it will remplace by 'def_value' string
+//! \$\(var|'def_value'\) If 'var' is not defined it will remplaced by 'def_value'.
 //! \remark .
-//! \$\(uc:var\) will remplace 'var' by its value in converted in uppercase
-//! \$\(lc:var\) will remplace 'var' by its value in converted in lowercase
+//! \$\(uc:var\) will remplace 'var' by its value converted in uppercase
+//! \$\(lc:var\) will remplace 'var' by its value converted in lowercase
 // ============================================================================
 class YAT_DECL StringTemplate
 {
@@ -102,53 +105,56 @@ public:
   };
 
 private:
-  std::list<ISymbolInterpreter *> m_lstInterpreter;
-  NotFoundReplacement       m_eNotFoundReplacement;
+  std::list<ISymbolInterpreter *> m_interpreters;
+  NotFoundReplacement             m_not_found_replacement;
 
-  bool PrivProcess(std::string *pstrTemplate, bool bRecurse, std::set<std::string> &setEvaluatedSymbols);
-  bool PrivProcessVar(std::string *pstrVar, bool bRecurse, bool bDeepEvaluation, std::set<std::string> &setEvaluatedSymbols);
+  bool PrivProcess(std::string* template_p, bool recurse, std::set<std::string>& evaluated_variables);
+  bool PrivProcessVar(std::string* var_p, bool recurse, bool deep_evaluation, std::set<std::string>& evaluated_variables);
+  bool substitute_impl(std::string* template_p, std::vector<std::string>* not_found_p, bool old_impl);
+  bool value_impl(std::string* variable_p, const std::string& pattern);
+
 
 public:
   //! \brief Constructor.
   //! \param eNotFoundReplacement %Template not found strategy.
-  StringTemplate(NotFoundReplacement eNotFoundReplacement = SYMBOL_NAME) : m_eNotFoundReplacement(eNotFoundReplacement) {}
+  StringTemplate(NotFoundReplacement not_found_replacement = SYMBOL_NAME) : m_not_found_replacement(not_found_replacement) {}
 
   //! \brief Adds a symbol interpreter.
   //! \param pInterpreter Symbol interpreter.
-  void add_symbol_interpreter(ISymbolInterpreter *pInterpreter);
+  void add_symbol_interpreter(ISymbolInterpreter* interpreter_p);
 
   //! \brief Removes a symbol interpreter.
   //! \param pInterpreter Symbol interpreter.
-  void remove_symbol_interpreter(ISymbolInterpreter *pInterpreter);
+  void remove_symbol_interpreter(ISymbolInterpreter* interpreter_p);
 
-  //! \brief Replaces a symbol by its real value.
+  //! \brief Replaces a variable by its real value.
   //!
   //! Returns true if evaluation is done, false otherwise.
   //! \param[in,out] pstrSymbol Symbol to evaluate, will contain the result.
-  bool value(std::string *symbol);
+  bool value(std::string* variable_p);
 
   //! \brief Processes a template string.
   //!
   //! Evaluates the whole string. Every single template substitution is
   //! done by symbol interpreters.
-  //! Returns true if evaluation is done, false otherwise.
-  //! \param[in,out] pstrTemplate %String to evaluate, will contain the result.
-  bool substitute(std::string *pstrTemplate);
+  //! Returns true if evaluation is fully done, false otherwise.
+  //! \param[in,out] template_p %String to evaluate, will contain the result.
+  bool substitute(std::string* template_p);
 
-  //! \brief Processes a template string. alternative version
+  //! \brief Processes a template string. New implementation.
   //!
   //! Evaluates the whole string. Every single template substitution is
   //! done by symbol interpreters.
   //! Returns true if at least one variable to evaluate was found, false otherwise.
-  //! \param[in,out] pstrTemplate %String to evaluate, will contain the result.
+  //! \param[in,out] template_p %String to evaluate, will contain the result.
   //! \param[out] not_found_p list (not cleared) of variables that can't be evaluated
-  bool substitute_ex(std::string *pstrTemplate, std::vector<std::string>* not_found_p);
+  bool substitute_ex(std::string* template_p, std::vector<std::string>* not_found_p=NULL);
 
   //! \deprecated
-  bool value(String *pstrSymbol);
+  bool value(String* pstrSymbol);
 
   //! \deprecated
-  bool substitute(String *pstrTemplate);
+  bool substitute(String* template_p);
 };
 
 // ============================================================================
@@ -165,7 +171,7 @@ public:
   //!
   //! Returns true if template has been evaluated, false otherwise.
   //! \param[in,out] pstrVar Variable to evaluate, will contain the result.
-  virtual bool value(std::string *pstrVar);
+  virtual bool value(std::string* pstrVar);
 };
 
 } // namespace
