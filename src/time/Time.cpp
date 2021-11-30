@@ -184,7 +184,7 @@ void JJToDate(long lJJ, int16 *piYear, uint8 *puiMonth, uint8 *puiDay)
   int iJulianYear = (int)(lJJ / 365.25);
   iYear =  iJulianYear + REF_YEAR;
   int iDeltaDays;
-  // Retreive le julian day for first day of this year
+  // Retreive the julian day for first day of this year
   long lJJBegYear = calc_julian_date(iYear, 1, 1, &iDeltaDays);
 
   // Position in respect to the reform
@@ -398,19 +398,13 @@ int Time::time_zone_bias() const
 //----------------------------------------------------------------------------
 int Time::sys_time_zone_bias()
 {
-  static int s_tz_bias = -1;
-  if( -1 == s_tz_bias )
-  {
 #ifdef WIN32
-    s_tz_bias = (int(double(yat::CurrentTime().raw_value() -
-                            yat::CurrentUTime().raw_value()) / MICROSEC_PER_SEC + 0.5)) / 60;
+    TIME_ZONE_INFORMATION tzi;
+    GetTimeZoneInformation(&tzi);
+    return -tzi.Bias;
 #else
-    tzset();
-    s_tz_bias = (int)(-timezone / 60 + (daylight ? 60 : 0));
+     return yat::CurrentTime().time_zone_bias();
 #endif
-  }
-
-  return s_tz_bias;
 }
 
 //----------------------------------------------------------------------------
@@ -512,7 +506,6 @@ void Time::get_current_local(DateFields* df_p)
     gettimeofday(&tv, &tzp);
     lTm = tv.tv_sec;
     lMs = tv.tv_usec;
-
     // Convert from 'time_t' format to 'struct tm' format
     struct tm tmCurrent;
     localtime_r(&lTm, &tmCurrent);
@@ -599,6 +592,8 @@ Time& Time::set_current(bool utc)
         (double)sysTm.wSecond + ((double)sysTm.wMilliseconds)/1000.0);
     }
 
+    m_tz_bias = sys_time_zone_bias();
+
   #else
     long lTm, lMs;
     struct timeval tv;
@@ -611,17 +606,23 @@ Time& Time::set_current(bool utc)
     struct tm tmCurrent;
     if( utc )
     {
-      gmtime_r(&lTm, &tmCurrent);
-      set_utc(tmCurrent.tm_year+1900, tmCurrent.tm_mon+1, tmCurrent.tm_mday, tmCurrent.tm_hour,
+      // Don't use gmtime_r in order to get access to the timezone bias
+      localtime_r(&lTm, &tmCurrent);
+      set_local(tmCurrent.tm_year+1900, tmCurrent.tm_mon+1, tmCurrent.tm_mday, tmCurrent.tm_hour,
           tmCurrent.tm_min, (double)tmCurrent.tm_sec + (lMs/1000000.));
+      m_tz_bias = tmCurrent.tm_gmtoff / 60;
+      // convert to utc, according to the tz bias
+      to_utc();
     }
     else
     {
       localtime_r(&lTm, &tmCurrent);
       set_local(tmCurrent.tm_year+1900, tmCurrent.tm_mon+1, tmCurrent.tm_mday, tmCurrent.tm_hour,
           tmCurrent.tm_min, (double)tmCurrent.tm_sec + (lMs/1000000.));
+      m_tz_bias = tmCurrent.tm_gmtoff / 60;
     }
   #endif
+
   return *this;
 }
 
