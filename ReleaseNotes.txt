@@ -1,5 +1,16 @@
 YAT history file
 
+1.18.7 (2021/12/01)
+===================
+
+Fixes:
+    class Time
+        Timezone bias was not properly read from the system
+
+Changes:
+    StringTemplate now accept to substition string with "$var" when the variable
+    name is not followed by an alphanumeric character
+
 1.18.6 (2021/09/21)
 ===================
 
@@ -13,7 +24,7 @@ Additions:
           now accept formatted messages (using an underlying yat::Format object)
 
     class String
-        New methods 
+        New methods
         static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken, char escape_char);
         static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken);
         static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken, char escape_char);
@@ -23,7 +34,7 @@ Additions:
         static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken, bool apply_escape);
         static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken, bool apply_escape);
     -> see <yat/utils/String.h>
-    
+
     class Time
         new methods:
         static String to_string(const DateFields& df, const std::string& format, unsigned short precision=0);
@@ -63,7 +74,7 @@ Changes
         'format' method in StringFormat is renamed as 'arg' (but original name is still available)
 
     Logging
-        - log functions log_verbose, log_info, log_error,... become verbose, info, error,.... 
+        - log functions log_verbose, log_info, log_error,... become verbose, info, error,....
           The old ones are marked as deprecated
 
     Switch YAT_DEPRECATED removed
