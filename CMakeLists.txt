@@ -16,7 +16,7 @@ else()
 endif()
 
 if (UNIX)
-    add_definitions(-O2 -g -gstabs+ -std=c++0x -Wall -Wno-unused-variable -D_FILE_OFFSET_BITS=64 -DYAT_PROJECT_VERSION=1.18.7 -DYAT_PROJECT_NAME=YAT)
+    add_definitions(-O2 -g -gstabs+ -std=c++0x -Wall -Wno-unused-variable -D_FILE_OFFSET_BITS=64 -DYAT_PROJECT_VERSION=${VERSION} -DYAT_PROJECT_NAME=YAT)
     set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-z,defs")
 endif()
 
