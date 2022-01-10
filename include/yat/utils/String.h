@@ -112,9 +112,6 @@ public:
   //! \brief Empty string - useful when need a const string &.
   static const std::string empty;
 
-  //! \deprecated
-  static std::string str_format(pcsz pszFormat, ...);
-
   //! \brief Compares std::strings (i.e. operator==).
   //!
   //! Returns true if std::strings are equal, false otherwise.
@@ -178,10 +175,6 @@ public:
                                        char escape_char);
   static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken);
 
-  //! \deprecated
-  static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken,
-                                       bool apply_escape);
-
   //! \brief Looks for a token, from right to left.
   //!
   //! Returns the extraction status.\n
@@ -192,10 +185,6 @@ public:
   static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken,
                                              char escape_char);
   static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken);
-
-  //! \deprecated
-  static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken,
-                                             bool apply_escape);
 
   //! \brief Looks for enclosed token, from left to right.
   //!
@@ -210,10 +199,6 @@ public:
   static ExtractTokenRes extract_token(std::string* str_p, char cLeft, char cRight,
                                        std::string *pstrToken);
 
-  //! \deprecated
-  static ExtractTokenRes extract_token(std::string* str_p, char cLeft, char cRight,
-                                       std::string *pstrToken, bool apply_escape);
-
   //! \brief Looks for enclosed token, from right to left.
   //!
   //! Returns the extraction status.\n
@@ -226,10 +211,6 @@ public:
                                              std::string *pstrToken, char escape_char);
   static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight,
                                              std::string *pstrToken);
-
-  //! \deprecated
-  static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight,
-                                             std::string *pstrToken, bool apply_escape);
 
   //@}
 
@@ -298,9 +279,6 @@ public:
 
   //! \brief Removes white spaces at beginning of all strings in collection.
   static void trim_left(std::vector<yat::String>* vec_p);
-
-  //! \deprecated
-  static int printf(std::string* str_p, pcsz pszFormat, ...);
 
   //! \brief Splits the std::string.
   //!
@@ -552,8 +530,18 @@ public:
     return oss.str();
   }
 
-  //! \name Deprecated
+  //! \name Deprecated methods
   //@{
+  static std::string str_format(pcsz pszFormat, ...);
+  static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken,
+                                       bool apply_escape);
+  static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken,
+                                             bool apply_escape);
+  static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight,
+                                             std::string *pstrToken, bool apply_escape);
+  static ExtractTokenRes extract_token(std::string* str_p, char cLeft, char cRight,
+                                       std::string *pstrToken, bool apply_escape);
+  static int printf(std::string* str_p, pcsz pszFormat, ...);
   static bool start_with(const std::string& str, char c)
   { return starts_with(str, c); }
   static bool start_with(const std::string& s, pcsz p, bool b=false)
@@ -795,9 +783,6 @@ public:
   String(const std::string &str) : m_str(str) {}
   //@}
 
-  //! \deprecated
-  static String str_format(pcsz format, ...);
-
   //! \brief Compares strings (i.e. operator==).
   //!
   //! Returns true if strings are equal, false otherwise.
@@ -977,9 +962,6 @@ public:
   String& trim_right()
   { StringUtil::trim_right(&m_str); return *this; }
 
-  //! \deprecated
-  int printf(pcsz format, ...);
-
   //! \brief Splits the string.
   //!
   //! The string is split in tokens separated with the specified separator.
@@ -1106,8 +1088,10 @@ public:
   //@}
 #endif
 
-  //! \name Deprecated
+  //! \name Deprecated methods
   //@{
+  static String str_format(pcsz format, ...);
+  int printf(pcsz format, ...);
   bool start_with(char c) const { return starts_with(c); }
   bool start_with(pcsz p, bool b=false) const { return starts_with(p, b); }
   bool end_with(char c) const { return ends_with(c); }
