@@ -86,12 +86,12 @@
 //!   - yat::Singleton
 //!   - yat::String
 //!   - yat::StringDictionary
-//!   - yat::StringFormat
+//!   - yat::Format
 //!   - yat::StringTemplate
 //!   - yat::StringTokenizer
 //!   - yat::URI
 //!   - yat::picojson
-//!   - yat::md5:md5_t
+//!   - yat::md5::md5_t
 //!   - yat::XString
 // ============================================================================
 
