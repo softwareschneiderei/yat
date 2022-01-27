@@ -10,7 +10,7 @@
 
   <groupId>fr.soleil.lib</groupId>
   <artifactId>YAT-amd64-Linux-gcc-${library}-${mode}</artifactId>
-  <version>1.18.2</version>
+  <version>1.18.7</version>
 
   <packaging>nar</packaging>
   <name>YAT</name>
