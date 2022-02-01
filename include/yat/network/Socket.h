@@ -103,7 +103,7 @@ public:
     SOCK_OPT_REUSE_ADDRESS,
     //! Size of receive buffer (in bytes).
     SOCK_OPT_IBUFFER_SIZE,
-    //! Time out period for receive operations (in seconds).
+    //! Time out period for receive operations (in milliseconds).
     SOCK_OPT_ITIMEOUT,
     //! Size of send buffer (in bytes).
     SOCK_OPT_OBUFFER_SIZE,
