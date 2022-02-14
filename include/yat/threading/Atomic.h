@@ -62,7 +62,7 @@
 //! \endverbatim
 // ============================================================================
 template<typename T>
-class YAT_DECL Atomic
+class Atomic
 {
 public:
   //! c-tor
