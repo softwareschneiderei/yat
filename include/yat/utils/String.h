@@ -1226,7 +1226,7 @@ public:
   //! 'g' General format. For a given precision p >= 1, this rounds the number to p significant digits and then formats the result in either fixed-point format or in scientific notation, depending on its magnitude.\n
   //! 'G' General format. Same as 'g' except switches to 'E' if the number gets too large. The representations of infinity and NaN are uppercased, too.\n
   //! '%%' Percentage. Multiplies the number by 100 and displays in fixed ('f') format, followed by a percent sign.\n
-  template<class T> Format& arg(const T& v)
+  template<typename T> Format& arg(const T& v)
   {
     std::ostringstream oss;
     char type = 0;
@@ -1251,12 +1251,31 @@ public:
     return *this;
   }
 
+  //! Specializations of arg() method
+  //!
   Format& arg(const bool& v);
   Format& arg(const unsigned char& v);
   Format& arg(const char& v);
   Format& arg(const char *v);
   Format& arg(const std::string& v);
   Format& arg(const yat::String& v);
+
+  //! Apply format for any pointers type
+  //!
+  template<typename T> Format& argp(const T* p)
+  {
+    std::ostringstream oss;
+    char type = 'p';
+    yat::String before, after;
+    prepare_format(oss, type, before, after);
+
+    oss << reinterpret_cast<uintptr>(p);
+
+    m_fmt_idx = oss.str().size();
+    oss << after;
+    m_str = oss.str();
+    return *this;
+  }
 
   //! @deprecated
   template<class T> Format& format(const T& v) { return arg(v); }
