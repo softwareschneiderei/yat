@@ -1,5 +1,15 @@
 YAT history file
 
+1.18.8 (2022/02/14)
+===================
+
+Additions:
+    class Atomic<T>
+        Fully inspired by std::atomic. This class is aimed to offer the same
+        functionnlity as std::atomic. 1st implementation is non-lock free,
+        using Mutex.
+    -> see <yat/threading/Atomic.h>
+
 1.18.7 (2021/12/01)
 ===================
 
