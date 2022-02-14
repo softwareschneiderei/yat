@@ -5,7 +5,7 @@
   <parent>
     <artifactId>super-pom-C-CPP</artifactId>
     <groupId>fr.soleil</groupId>
-	<version>RELEASE</version>
+	<version>21.2.5-64</version>
   </parent>
 
   <groupId>fr.soleil.lib</groupId>
