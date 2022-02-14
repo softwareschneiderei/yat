@@ -7,15 +7,15 @@
     <groupId>fr.soleil</groupId>
 	<version>RELEASE</version>
   </parent>
-  
+
   <groupId>fr.soleil.lib</groupId>
   <artifactId>YAT-${aol}-shared-${mode}</artifactId>
-  <version>1.18.3</version>
-  
+  <version>1.18.8</version>
+
   <packaging>nar</packaging>
   <name>YAT</name>
   <description>Yet Another Toolkit Library</description>
-  
+
   <developers>
     <developer>
       <id>leclercq</id>
@@ -54,7 +54,7 @@
             <includePaths>
               <includePath>include</includePath>
             </includePaths>
-			
+
 			<defines>
               <define>YAT_PROJECT_VERSION=${project.version}</define>
               <define>YAT_PROJECT_NAME=${project.name}</define>
@@ -65,7 +65,7 @@
 					<type>shared</type>
 				</library>
 			</libraries>
-		  
+
           <specificConfigurations>
             <specificConfiguration>
               <id>YAT win32</id>
@@ -102,7 +102,7 @@
                   <define>YAT_DLL</define>
                   <define>YAT_BUILD</define>
                   <define>_HAS_CPP0X=0</define>
-				  
+
                   <define>_WIN32</define>
                   <define>WIN32</define>
                   <define>WIN64</define>
@@ -118,12 +118,12 @@
                     <name>shell32</name>
                     <type>shared</type>
                   </sysLib>
-				  
+
                   <sysLib>
                     <name>ws2_32</name>
                     <type>shared</type>
                   </sysLib>
-				  
+
                 </sysLibs>
               </linker>
             </specificConfiguration>
