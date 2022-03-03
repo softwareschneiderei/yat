@@ -315,7 +315,7 @@ inline bool operator<(UniquePtr<T, D> const & a, UniquePtr<Y, D> const & b)
  return a.less_than(b);
 }
 
-//! \brief Operator== on SharedPtr type, i.e. is \<a\> point to the same object as \<b\> ?
+//! \brief Operator== on UniquePtr type, i.e. is \<a\> point to the same object as \<b\> ?
 //! \param a Left shared pointer.
 //! \param b Right shared pointer.
 template <typename T, typename U, typename D, typename E>
