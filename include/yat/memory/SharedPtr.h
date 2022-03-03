@@ -154,7 +154,6 @@ public:
 
   //! \brief Copy constructor from other data type \<Y\>.
   //! \param s The source pointer.
-  //! \exception BAD_CAST Thrown if type \<Y\> is not compatible with type \<T\>.
   template<typename Y>
   SharedPtr (const SharedPtr<Y,L> & s): m_ref_count(s.m_ref_count)
   {
@@ -183,7 +182,7 @@ public:
   //! \param s Weak pointer with type \<Y,L\> parameter.
   //! \exception BAD_CAST Thrown if type \<Y\> is not compatible with type \<T\>.
   template<typename Y>
-  SharedPtr(const WeakPtr<Y,L>& s)
+  SharedPtr(const WeakPtr<Y,L>& s) : m_ref_count((T*)0)
   {
     PTR_DBG("SharedPtr::SharedPtr(const WeakPtr<Y,L>&) - use_count: " << use_count());
     if( s.m_ref_count.use_count() == 0 )
@@ -192,7 +191,7 @@ public:
     }
     else
     {
-      copy_cast_data(s.m_data);
+      cast_copy_data(s.m_data);
       m_ref_count = s.m_ref_count;
     }
     PTR_DBG("Use_count: " << use_count());
