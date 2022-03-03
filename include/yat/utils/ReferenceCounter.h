@@ -316,7 +316,6 @@ public:
     else
       m_count = 0;
     cnt.m_count->unlock();
-
   }
 
   //! \brief copy constructor.
@@ -366,6 +365,24 @@ public:
       if( m_count )
         m_count->add_ref();
     }
+    return *this;
+  }
+
+  //! \brief operator=.
+  //! \param cnt The source counter.
+  ThisType& operator= (const WeakCounter<C,L>& cnt)
+  {
+    PTR_DBG("SharedCounter::operator=(const ThisType&)");
+    release();
+    cnt.m_count->lock();
+    if( cnt.m_count->use_count() > 0 )
+    {
+      m_count = cnt.m_count;
+      m_count->add_ref();
+    }
+    else
+      m_count = 0;
+    cnt.m_count->unlock();
     return *this;
   }
 
