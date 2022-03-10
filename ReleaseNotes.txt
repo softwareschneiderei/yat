@@ -1,5 +1,20 @@
 YAT history file
 
+main
+====
+
+Fixes:
+    class FileName
+        mod_time(): wrong conversion local <-> utc
+
+    SharedPtr/WeakPtr
+        a type conversion between pointers to base and derived class was not compiling
+
+Changes:
+    class FileName
+        file_access() now take an optional argument defing the access type to check
+    -> see <yat/file/FileName.h>
+
 1.18.8 (2022/02/14)
 ===================
 
