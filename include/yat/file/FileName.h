@@ -158,10 +158,11 @@ const String ERR_BAD_DEST_PATH            = "Bad destination path '{}'";
 const String ERR_TEST_LINK                = "Cannot check entry '{}'";
 //! %File error message
 const String ERR_SECTION_NOT_FOUND        = "Section '{}' not found";
+//! %File error message
+const String ERR_INVALID_ACCESS_VALUE     = "Invalid access value: {}";
 
 //! Begining of cygwin absolute file names
 const char FILE_CYGDRIVE[] = "\\cygdrive\\";
-
 
 //=============================================================================
 // Free function
@@ -354,6 +355,12 @@ protected:
 #endif
 
 public:
+
+  //! File access capabilities
+  static const int F_EXIST = 0;
+  static const int F_EXEC = 1;
+  static const int F_WRITE = 2;
+  static const int F_READ = 4;
 
   //! \brief %File system types
   enum FSType
@@ -566,7 +573,7 @@ public:
   //! \brief Tests if file is accessible.
   //!
   //! Returns true if file is accessible, false otherwise.
-  bool file_access() const;
+  bool file_access(int mode = F_EXIST) const;
 
   //! \brief Tests if filename is a empty directory.
   //!
@@ -683,10 +690,10 @@ public:
   void rmdir(bool bRecursive=false, bool bContentOnly=false)
     throw(Exception);
 
-  //! \brief Copies a directory and its whole content inside the destination directory.
+  //! \brief Copies a directory and its whole content inside the (already existing) destination directory.
   //! \param strDest Destination directory.
-  //! \param bCreateDir If set to false, the destination directory must already exists. If set
-  //! to true, the destination directory is created.
+  //! \param bCreateDir If set to true, the source directory is copied into destination directory. If set
+  //! to false, only the content of the source directory is copied into the destination.
   //! \param modeDir Directory permissions in a UNIX like format (ie "rwxrwxrwx").
   //! \param uid User identifier.
   //! \param gid Group identifier.

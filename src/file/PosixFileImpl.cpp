@@ -132,12 +132,18 @@ bool FileName::file_exist() const
 //-------------------------------------------------------------------
 // FileName::file_access
 //-------------------------------------------------------------------
-bool FileName::file_access() const
+bool FileName::file_access(int mode) const
 {
+  if( mode < 0 || mode > (F_EXIST | F_EXEC | F_READ | F_WRITE) )
+  {
+    throw yat::Exception("BAD_ARG", yat::Format(ERR_INVALID_ACCESS_VALUE).arg(mode),
+                         "FileName::file_access");
+  }
+
   if( is_null() )
     return true;
 
-  return !access(PSZ(full_name()), F_OK);
+  return !access(PSZ(full_name()), mode);
 }
 
 //----------------------------------------------------------------------------
@@ -443,9 +449,8 @@ void FileName::mod_time(Time *pTm, bool bLocalTime, bool stat_link) const throw(
 
   if( bLocalTime )
   {
-    struct tm tmLocal;
-    localtime_r(&sStat.st_mtime, &tmLocal);
-    pTm->set_long_unix(mktime(&tmLocal) + tmLocal.tm_gmtoff);
+    pTm->set_long_unix(sStat.st_mtime);
+    pTm->to_local();
   }
   else
     pTm->set_long_unix(sStat.st_mtime);
@@ -831,6 +836,13 @@ void FileName::chmod(mode_t mode) throw( Exception )
 {
   if( is_null() )
     return;
+
+  if( mode > 07777 )
+  {
+    throw yat::Exception("BAD_ARG",
+                         Format(ERR_CHMOD_FAILED).arg(full_name()).arg(mode),
+                         "FileName::chmod");
+  }
 
   int iRc = ::chmod(PSZ(full_name()), mode);
   if( iRc )

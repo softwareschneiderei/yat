@@ -49,6 +49,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <io.h>
 
 namespace yat
 {
@@ -129,9 +130,19 @@ bool FileName::file_exist() const
 //-------------------------------------------------------------------
 // FileName::file_access
 //-------------------------------------------------------------------
-bool FileName::file_access() const
+bool FileName::file_access(int mode) const
 {
-  return this->file_exist();
+  if( mode < 0 || mode > (F_EXIST | F_EXEC | F_READ | F_WRITE) )
+  {
+    throw yat::Exception("BAD_ARG", yat::Format(ERR_INVALID_ACCESS_VALUE).arg(mode),
+                         "FileName::file_access");
+  }
+
+  if( is_null() )
+    return true;
+
+  mode &= ~(F_EXEC); // no exec flag on windows
+  return !_access(full_name().c_str(), mode);
 }
 
 //----------------------------------------------------------------------------
@@ -469,9 +480,11 @@ void FileName::mod_time(Time *pTm, bool bLocalTime, bool) const throw( Exception
   CloseHandle(hFile);
   SYSTEMTIME sysTime;
   FileTimeToSystemTime(&fileTime, &sysTime);
-  pTm->set(sysTime.wYear, (uint8)sysTime.wMonth, (uint8)sysTime.wDay,
+  pTm->set_local(sysTime.wYear, (uint8)sysTime.wMonth, (uint8)sysTime.wDay,
            (uint8)sysTime.wHour, (uint8)sysTime.wMinute,
            (double)sysTime.wSecond + sysTime.wMilliseconds/1000.);
+  if( !bLocalTime )
+    pTm->to_utc();
 }
 
 //----------------------------------------------------------------------------

@@ -64,9 +64,16 @@ void FileName::set(const std::string& strFullName)
 {
   set_full_name(strFullName.c_str());
 
-  if( path_exist() && !is_path_name() )
-    // Add missing path separator
-    m_strFile += SEP_PATH;
+  try
+  {
+    if( path_exist() && !is_path_name() )
+      // Add missing path separator
+      m_strFile += SEP_PATH;
+  }
+  catch(const yat::PermissionException&)
+  {
+    // Do nothing
+  }
 }
 
 void FileName::set(const std::string& _strPath, const std::string& _strName)
