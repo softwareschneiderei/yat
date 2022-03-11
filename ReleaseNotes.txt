@@ -6,6 +6,10 @@ main
 Fixes:
     class FileName
         mod_time(): wrong conversion local <-> utc
+        recursive_chown() : this method was not functional
+
+    class FileEnum
+        calling close() caused the process to crash (sigabrt)
 
     SharedPtr/WeakPtr
         a type conversion between pointers to base and derived class was not compiling
