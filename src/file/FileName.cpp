@@ -461,13 +461,13 @@ void FileName::recursive_chown(uid_t uid, gid_t gid) throw( Exception )
   if( !path_exist() )
   { // File doesn't exists
     std::string strErr = Format(ERR_DIR_NOT_FOUND).arg(full_name());
-    throw FileNotFoundException(strErr, "FileName::recursive_chmod");
+    throw FileNotFoundException(strErr, "FileName::recursive_chown");
   }
 
   // Recursively change rights on sub-directories
   FileEnum dirEnum(full_name(), FileEnum::ENUM_DIR);
   while( dirEnum.find() )
-    dirEnum.recursive_chmod(uid, gid);
+    dirEnum.recursive_chown(uid, gid);
 
   // Change mode on files
   FileEnum fileEnum(full_name(), FileEnum::ENUM_FILE);
