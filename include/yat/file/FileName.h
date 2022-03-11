@@ -839,9 +839,6 @@ public:
   fsid_t file_system_id() const
     throw(Exception);
 
-  //! \brief Try to create a r-lock
-  void try_r_lock(bool async) const;
-
   //! Sets the bloc size (in bytes) for file copy operations.
   //! \param size Bloc size in bytes.
   static void set_copy_bloc_size(size_t size);
