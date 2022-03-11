@@ -1013,6 +1013,12 @@ bool FileEnum::find() throw(BadPathException, FileNotFoundException, Exception)
 {
   struct dirent *dirEntry;
   std::string str;
+
+  if( !m_dirDir )
+    throw yat::Exception("ERROR",
+                         "Invalid handle. Call 'init' before calling 'find'!",
+                         "FileEnum::find");
+
   while( (dirEntry = readdir(m_dirDir)) != NULL )
   {
     str = dirEntry->d_name;
@@ -1040,6 +1046,7 @@ void FileEnum::close()
 {
   if(m_dirDir)
     closedir(m_dirDir);
+  m_dirDir = 0;
 }
 
 //===========================================================================
