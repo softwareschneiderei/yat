@@ -787,12 +787,12 @@ bool FileEnum::find() throw(BadPathException, FileNotFoundException, Exception)
 //-------------------------------------------------------------------
 void FileEnum::close()
 {
-   if( m_hFind != INVALID_HANDLE_VALUE )
-   {
-     FindClose((HANDLE)m_hFind);
-     m_hFind = INVALID_HANDLE_VALUE;
-   }
-   m_bFirst = true;
+  if( m_hFind != INVALID_HANDLE_VALUE )
+  {
+    FindClose((HANDLE)m_hFind);
+    m_hFind = INVALID_HANDLE_VALUE;
+  }
+  m_bFirst = true;
 }
 
 //-------------------------------------------------------------------
