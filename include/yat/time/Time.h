@@ -489,32 +489,16 @@ public:
   //!          %A 	Full weekday name (ex: Sunday)
   //!          %b 	Abbreviated month name (ex: Mar)
   //!          %B 	Full month name (ex: March)
-  //!          %C   The century number (year/100) as a 2-digit integer.
   //!          %d 	Day of the month (01-31)
-  //!          %e   Like %d, the day of the month as a decimal number, but
-  //!               a leading zero is replaced by a space.
   //!          %h   Equivalent to %b.
   //!          %H 	Hour in 24h format (00-23)
   //!          %j 	Day of the year (001-366)
   //!          %m 	Month as a decimal number (01-12)
   //!          %M 	Minute (00-59)
-  //!          %R   The time in 24-hour notation (%H:%M). (SU) For a version
-  //!               including the seconds, see %T below.
   //!          %S 	Second (00-60)
   //!          %<n> Expected seconds precision in number of digits after dot (0-6)
-  //!          %s   The number of seconds since the Epoch, that is,
-  //!               since 1970-01-01 00:00:00 UTC.
-  //!          %T   The time in 24-hour notation (%H:%M:%S)
-  //!          %u 	The day of the week as a decimal, range 1 to 7, Monday being 1.
-  //!               See also %w.
-  //!          %U   The week number of the current year as a decimal number,
-  //!               range 00 to 53, starting with the first  Sunday as the first
-  //!               day of week 01.
-  //!          %w   The day of the week as a decimal, range 0 to 6, Sunday being 0.
-  //!               See also %u
   //!          %y   Year, last two digits (00-99)
   //!          %Y 	Year
-  //!          %%   A literal '%' character.
   void from_string(const std::string& date_time, const std::string& format);
 
   //! Format date/time according to the given format
@@ -619,20 +603,25 @@ public:
   //!          %b   Abbreviated month name              Mar
   //!          %h   Abbreviated month name              Mar
   //!          %B   Full month name                     March
+  //!          %C   The century number (year/100) as a 2-digit integer.
   //!          %d   Day of the month (01-31)            19
+  //!          %e   Like %d, the day of the month as a decimal number, but
+  //!               a leading zero is replaced by a space.
   //!          %H   Hour in 24h format (00-23)          14
   //!          %j   Day of the year (001-366)           231
   //!          %m   Month as a decimal number (01-12)   08
-  //!          %M   Minute (00-59)  55
+  //!          %M   Minute (00-59)                      55
   //!          %R   Equivalent to %H:%M
   //!          %s   The number of seconds since the Epoch, that is, since 1970-01-01 00:00:00 UTC
   //!          %S   Second (00-60)                      02
   //!          %t   A tab character
+  //!          %T   The time in 24-hour notation (%H:%M:%S)
   //!          %u   The day of the week as a decimal, range 1 to 7, Monday being 1
   //!          %U   The week number of the current year as a decimal number, range 00 to 53
   //!          %w   The day of the week as a decimal, range 0 to 6, Sunday being 0
   //!          %y   Year, last two digits (00-99)       01
   //!          %Y   Year                                2012
+  //!          %%   A literal '%' character.
   static yat::String to_string(const DateFields& df, const std::string& format, unsigned short precision=0);
 
   //! \brief Time zone bias returned by the operating system in minutes
