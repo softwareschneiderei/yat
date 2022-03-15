@@ -1190,15 +1190,21 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
         case 'B':
           oss << s_pszMonthEn[df.month - 1];
           break;
+        case 'C':
+          oss << int(df.year / 100);
+          break;
         case 'd':
           oss.width(2); oss.fill('0'); oss << int(df.day);
+          break;
+        case 'e':
+          oss.width(2); oss.fill(' '); oss << int(df.day);
           break;
         case 'H':
           oss.width(2); oss.fill('0'); oss << int(df.hour);
           add_Z_if_utc = true;
           break;
         case 'j':
-          oss.width(3); oss.fill('0'); oss << df.day_of_year;
+          oss.width(3); oss.fill('0'); oss << int(df.day_of_year);
           break;
         case 'm':
           oss.width(2); oss.fill('0'); oss << int(df.month);
@@ -1228,10 +1234,10 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
           oss.width(2); oss.fill('0'); oss << int(df.sec);
           break;
         case 'u':
-          oss << df.day_of_week;
+          oss << int(df.day_of_week);
           break;
         case 'U':
-          oss.width(2); oss.fill('0'); oss << df.week_of_year;
+          oss.width(2); oss.fill('0'); oss << int(df.week_of_year);
           break;
         case 'w':
          {
@@ -1249,6 +1255,9 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
         case 'Z':
           oss << _iso8601_bias(df);
           add_Z_if_utc = false;
+          break;
+        case '%':
+          oss << '%';
           break;
         default:
           throw yat::Exception("BAD_FORMAT",
@@ -1383,25 +1392,25 @@ void Time::from_string(const std::string& date_time, const std::string& format)
         switch( format[i_f] )
         {
           case 'y':
-            set_year(v + 2000);
+            set_year(static_cast<yat::int16>(v + 2000));
             break;
           case 'Y':
-            set_year(v);
+            set_year(static_cast<yat::int16>(v));
             break;
           case 'm':
-            set_month(v);
+            set_month(static_cast<yat::int8>(v));
             break;
           case 'd':
-            set_day(v);
+            set_day(static_cast<yat::int8>(v));
             break;
           case 'j':
-            set_day_of_year(v, year());
+            set_day_of_year(static_cast<yat::int16>(v), year());
             break;
           case 'H':
-            set_hour(v);
+            set_hour(static_cast<yat::int8>(v));
             break;
           case 'M':
-            set_minute(v);
+            set_minute(static_cast<yat::int8>(v));
             break;
           case 'S':
             set_second(v);
