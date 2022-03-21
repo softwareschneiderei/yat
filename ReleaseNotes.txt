@@ -11,8 +11,14 @@ Fixes:
     class FileEnum
         calling close() caused the process to crash (sigabrt)
 
-    SharedPtr/WeakPtr
+    classes SharedPtr/WeakPtr
         a type conversion between pointers to base and derived class was not compiling
+
+    class Semaphore
+        fixed timed_wait method that was not functionnal on linux
+
+    class Time
+        fixed to_string formats
 
 Changes:
     class FileName
