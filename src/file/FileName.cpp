@@ -93,9 +93,12 @@ void FileName::set(const std::string& _strPath, const std::string& _strName)
   set(strFullName);
 }
 
-void FileName::set(const std::string& strPath, const std::string& strName, const std::string& strExt)
+void FileName::set(const std::string& path, const std::string& name, const std::string& ext)
 {
-  set(strPath, strName + "." + strExt);
+  if( !ext.empty() )
+    set(path, name + "." + ext);
+  else
+    set(path, name);
 }
 
 //----------------------------------------------------------------------------
