@@ -79,13 +79,13 @@ const char DATE_BAD_ARGS[]        = "Cannot Setting Date object";
 // Month names.
 static yat::pcsz s_pszMonthEnAbbr[] =
 {
-  "jan", "feb", "mar", "apr", "may", "jun",
-  "jul", "aug", "sep", "oct", "nov", "dec"
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 static pcsz s_pszMonthEn[] =
 {
-  "january", "february", "march", "april", "may", "june", "july",
-  "august", "september", "october", "november", "december"
+  "January", "February", "March", "April", "May", "June", "July",
+  "August", "September", "October", "November", "December"
 };
 
 static pcsz s_pszDayEnAbbr[] =
@@ -1163,7 +1163,6 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
 {
   std::ostringstream oss;
   bool get_identifier = false;
-  bool add_Z_if_utc = false;
 
   for( std::size_t i_f = 0; i_f < format.size(); ++i_f )
   {
@@ -1201,7 +1200,6 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
           break;
         case 'H':
           oss.width(2); oss.fill('0'); oss << int(df.hour);
-          add_Z_if_utc = true;
           break;
         case 'j':
           oss.width(3); oss.fill('0'); oss << int(df.day_of_year);
@@ -1217,7 +1215,11 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
           oss.width(2); oss.fill('0'); oss << int(df.min);
           break;
         case 's':
-          oss << unix_time();
+          {
+            Time t;
+            t.set(df);
+            oss << t.long_unix();
+          }
           break;
         case 'S':
           if( 0 == precision )
@@ -1229,8 +1231,8 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
           oss << '\t';
           break;
         case 'T':
-          oss.width(2); oss.fill('0'); oss << df.hour << ':';
-          oss.width(2); oss.fill('0'); oss << df.min << ':';
+          oss.width(2); oss.fill('0'); oss << int(df.hour) << ':';
+          oss.width(2); oss.fill('0'); oss << int(df.min) << ':';
           oss.width(2); oss.fill('0'); oss << int(df.sec);
           break;
         case 'u':
@@ -1253,8 +1255,10 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
           oss.width(4); oss.fill('0'); oss << df.year;
           break;
         case 'Z':
-          oss << _iso8601_bias(df);
-          add_Z_if_utc = false;
+          if( df.local_time )
+            oss << _iso8601_bias(df);
+          else
+            oss << 'Z';
           break;
         case '%':
           oss << '%';
@@ -1270,9 +1274,6 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
     else
       oss << format[i_f];
   }
-
-  if( add_Z_if_utc && !df.local_time )
-    oss << 'Z';
 
   return yat::String(oss.str());
 }
