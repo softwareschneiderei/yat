@@ -833,8 +833,16 @@ public:
 */
 public:
   Duration() : m_microsecs(0) { }
-  Duration(yat::int64 microsecs) : m_microsecs(microsecs) { }
-  Duration(double seconds) : m_microsecs( yat::int64(seconds * MICROSEC_PER_SEC) ) { }
+
+  //! c-tor
+  //! \param microsecs duration in microseconds
+  //! a negative value will be converted to positive one
+  Duration(yat::int64 microsecs) : m_microsecs(abs(microsecs)) { }
+
+  //! c-tor
+  //! \param double duration in seconds with microseconds precision
+  //! a negative value will be converted to positive one
+  Duration(double seconds) : m_microsecs( yat::int64(fabs(seconds) * MICROSEC_PER_SEC) ) { }
 
   /// Distance between t1 and t2, always positive
   Duration(const yat::Time& t1, const yat::Time& t2);
