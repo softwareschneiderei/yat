@@ -73,7 +73,7 @@ public:
   //! \param clear If set to "true", clears the associated memory block(i.e. sets each
   //! byte to 0), does nothing ortherwise.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  Buffer(size_t capacity = 0, bool clear = false);
+  Buffer(std::size_t capacity = 0, bool clear = false);
 
   //! \brief Memory copy constructor.
   //!
@@ -81,7 +81,7 @@ public:
   //! \param length The number of elements of type \<T\> to be copied into the buffer.
   //! \param base Address of the memory block to copy into the buffer.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  Buffer(size_t length, const T *base);
+  Buffer(std::size_t length, const T *base);
 
   //! \brief Copy constructor.
   //!
@@ -126,24 +126,24 @@ public:
   //!
   //! Returns a reference to the ith element of the buffer. No bound error checking.
   //! \param i Index of the element to return.
-  T& operator[](size_t i);
+  T& operator[](std::size_t i);
 
   //! \brief Returns a const reference to the ith element.
   //!
   //! Returns a const reference to the ith element of the bueffer. No bound error checking.
   //! \param i Index of the element to return.
-  const T& operator[](size_t i) const;
+  const T& operator[](std::size_t i) const;
 
   //! \brief Returns the size of each element in bytes.
   //!
   //! Returns sizeof(\<T\>).
-  size_t elem_size() const;
+  std::size_t elem_size() const;
 
   //! \brief Returns the number of bytes currently stored into the buffer.
-  size_t size() const;
+  std::size_t size() const;
 
   //! \brief Returns the number of elements currently stored into the buffer.
-  size_t length() const;
+  std::size_t length() const;
 
   //! \brief Append an element at buffer end, increase length by one
   //! Throw an exception if length is already at max capacity
@@ -156,17 +156,17 @@ public:
   //!
   //! \param num_elements Number of elements of type T to be copied.
   //! \param offset Offset in number of elements from the buffer base address.
-  void memcpy(const void *src, size_t num_elements, size_t offset = 0);
+  void memcpy(const void *src, std::size_t num_elements, std::size_t offset = 0);
 
   //! \brief Artificially changes the buffer length.
   //!
   //! \param new_length New number of elements.
   //! \remark If new_length is greater than buffer capacity, then buffer
   //! length is set to buffer capacity.
-  void force_length(size_t new_length);
+  void force_length(std::size_t new_length);
 
   //! \brief Returns the buffer capacity(i.e. max num of elements that can be stored into the buffer).
-  size_t capacity() const;
+  std::size_t capacity() const;
 
   //! \brief Sets the buffer capacity to specified value.
   //!
@@ -174,7 +174,7 @@ public:
   //! \param keep_content If set to true, the current buffer content is maintained
   //!(might be truncated if new capacity < current buffer capacity).
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  virtual void capacity(size_t new_capacity, bool keep_content = false);
+  virtual void capacity(std::size_t new_capacity, bool keep_content = false);
 
   //! \brief Returns true is the buffer is empty, false otherwise.
   bool empty() const;
@@ -187,7 +187,7 @@ public:
   //!
   //! \param base The buffer base address
   //! \param length The buffer length(i.e. num of elements of type T)
-  void detach_data(T*& base, size_t& length);
+  void detach_data(T*& base, std::size_t& length);
 
 protected:
 
@@ -195,10 +195,10 @@ protected:
   T * base_;
 
   //! \brief Maximum number of element of type \<T\>.
-  size_t capacity_;
+  std::size_t capacity_;
 
   //! \brief Current number of element of type \<T\>.
-  size_t length_;
+  std::size_t length_;
 };
 
 // ============================================================================
@@ -219,7 +219,7 @@ public:
   //! \param width Width of the image in pixels.
   //! \param height Height of the image in pixels.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  ImageBuffer(size_t width = 0, size_t height = 0);
+  ImageBuffer(std::size_t width = 0, std::size_t height = 0);
 
   //! \brief Memory copy Constructor.
   //!
@@ -228,7 +228,7 @@ public:
   //! \param height Height of the image in pixels.
   //! \param base Address of the block to copy.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  ImageBuffer(size_t width, size_t height, const T *base);
+  ImageBuffer(std::size_t width, std::size_t height, const T *base);
 
   //! \brief Copy Constructor.
   //!
@@ -242,22 +242,22 @@ public:
   //! \param height Height of the image in pixels.
   //! \param buf Buffer to copy data from.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  ImageBuffer(size_t width, size_t height, const yat::Buffer<T>& buf);
+  ImageBuffer(std::size_t width, std::size_t height, const yat::Buffer<T>& buf);
 
   //! \brief Destructor.
   virtual ~ImageBuffer();
 
   //! \brief Image width accessor.
-  size_t width() const;
+  std::size_t width() const;
 
   //! \brief Image height accessor.
-  size_t height() const;
+  std::size_t height() const;
 
   //! \brief Setter for the dimensions of the image(set the length at width * height).
-  void set_dimensions(size_t width, size_t height);
+  void set_dimensions(std::size_t width, std::size_t height);
 
   //! \brief Changes the dimensions of the array and preserve data.
-  void resize(size_t new_width, size_t new_height);
+  void resize(std::size_t new_width, std::size_t new_height);
 
   //! \brief Operator=.
   //!
@@ -278,10 +278,10 @@ public:
 
 protected:
   //! \brief Image width.
-  size_t width_;
+  std::size_t width_;
 
   //! \brief Image height.
-  size_t height_;
+  std::size_t height_;
 };
 
 // ============================================================================
@@ -303,7 +303,7 @@ protected:
   //! \param  capacity Maximum number of elements of type \<T\>
   //! that can be stored into the buffer.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  SharedBuffer(size_t capacity = 0);
+  SharedBuffer(std::size_t capacity = 0);
 
   //! \brief Memory copy constructor.
   //!
@@ -311,7 +311,7 @@ protected:
   //! \param length Number of elements of type \<T\> to be copied into the buffer.
   //! \param base Address of the block to copy.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  SharedBuffer(size_t length, const T *base);
+  SharedBuffer(std::size_t length, const T *base);
 
   //! \brief Copy constructor.
   //!
@@ -358,7 +358,7 @@ public:
   //! \param capacity Maximum number of elements of type \<T\>
   //! that can be stored into the buffer.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  CircularBuffer(size_t capacity);
+  CircularBuffer(std::size_t capacity);
 
   //! \brief Destructor.
   //!
@@ -399,7 +399,7 @@ public:
   //!
   //! \param capacity New maximum number of elements of type \<T\> stored in the buffer.
   //! \exception OUT_OF_MEMORY Thrown if memory allocation fails.
-  virtual void capacity(size_t capacity);
+  virtual void capacity(std::size_t capacity);
 
 private:
   //- Locling stategy.

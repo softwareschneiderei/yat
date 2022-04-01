@@ -49,7 +49,7 @@ namespace yat
 // Buffer::Buffer
 // ============================================================================
 template <typename T>
-Buffer<T>::Buffer (size_t _capacity, bool _clear)
+Buffer<T>::Buffer (std::size_t _capacity, bool _clear)
  : base_(0), capacity_(0), length_(0)
 {
   //- allocate the buffer
@@ -64,7 +64,7 @@ Buffer<T>::Buffer (size_t _capacity, bool _clear)
 // Buffer::Buffer
 // ============================================================================
 template <typename T>
-Buffer<T>::Buffer (size_t _length, const T* _base)
+Buffer<T>::Buffer (std::size_t _length, const T* _base)
  : base_(0), capacity_(0), length_(0)
 {
   //- allocate the buffer
@@ -102,7 +102,7 @@ Buffer<T>::~Buffer()
 // Buffer::detach_buffer
 // ============================================================================
 template <typename T>
-void Buffer<T>::detach_data (T*& base, size_t& length)
+void Buffer<T>::detach_data (T*& base, std::size_t& length)
 {
   //- shrink buffer
   this->capacity(this->length_, true);
@@ -121,7 +121,7 @@ void Buffer<T>::detach_data (T*& base, size_t& length)
 // Buffer::capacity
 // ============================================================================
 template <typename T>
-void Buffer<T>::capacity (size_t _new_capacity, bool _keep_content)
+void Buffer<T>::capacity (std::size_t _new_capacity, bool _keep_content)
 {
   //- special case: do (almost) nothing
   if (this->capacity_ == _new_capacity)
