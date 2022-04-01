@@ -848,7 +848,7 @@ public:
   Duration(const yat::Time& t1, const yat::Time& t2);
 
   /// Set value
-  void total_micros(yat::int64 microsecs) { m_microsecs = microsecs; }
+  void total_micros(yat::int64 microsecs) { m_microsecs = abs(microsecs); }
 
   /// Get total value
   int64 total_micros() const { return m_microsecs; }
