@@ -59,20 +59,16 @@ namespace yat {
 //! When a Barrier is created, it is initialized with a thread count N. The
 //! first N-1 calls to \link wait wait \endlink will all cause their threads
 //! to be blocked. The Nth call to \link wait wait \endlink will allow all
-//! of the waiting threads to be woken up. The Nth call will also "reset"
-//! the barrier such that, if an additional N+1th call is made to \link wait
-//! wait \endlink, it will be as though this were the first call to \link wait
-//! wait \endlink. \n
-//! In other words, the N+1th to 2N-1th calls to \link wait wait
-//! \endlink will cause their threads to be blocked, and the 2Nth call to \link
-//! wait wait\endlink will allow all of the waiting threads, including the 2Nth
-//! thread, to be woken up and reset the Barrier. This functionality allows the
-//! same set of N threads to re-use a Barrier object to synchronize their
-//! activity at multiple points during their execution.
+//! of the waiting threads to be woken up. A barrier object is not reusable.
+//! The Nth call will also mark the barrier object as "expired".
+//! The N+1th call to \link wait wait\endlink will throw an exception.
 //!
 //! \remarks
 //! While its destructor is virtual, this class is not supposed to be derived.\n
 //! Be sure to clearly understand the internal behaviour before trying to do so.
+//!
+//! A Barrier object is also not supposed to be destroyed before all wait() calls
+//! have returned. Is that case the behavior is undefined.
 // ============================================================================
 class YAT_DECL Barrier
 {
