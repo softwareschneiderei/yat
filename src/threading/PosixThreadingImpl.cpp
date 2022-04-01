@@ -53,6 +53,7 @@
 #include <yat/threading/Condition.h>
 #include <yat/threading/Semaphore.h>
 #include <yat/threading/Thread.h>
+#include <yat/utils/String.h>
 
 #if !defined (YAT_INLINE_IMPL)
 # include <yat/threading/impl/PosixMutexImpl.i>
@@ -152,7 +153,7 @@ MutexState Mutex::timed_try_lock (unsigned long tmo_msecs)
 // ****************************************************************************
 // YAT SEMAPHORE IMPL
 // ****************************************************************************
-#define SEMAPHORE_MAX_COUNT 0x7fffffff
+#define SEMAPHORE_MAX_COUNT ((unsigned int)(-1) >> 1)
 
 // ----------------------------------------------------------------------------
 // Semaphore::Semaphore
@@ -160,6 +161,14 @@ MutexState Mutex::timed_try_lock (unsigned long tmo_msecs)
 Semaphore::Semaphore (unsigned int _initial_value)
   : m_mux () , m_cond (m_mux), m_value (_initial_value)
 {
+  if( _initial_value > SEMAPHORE_MAX_COUNT )
+  {
+    throw Exception("BAD_VALUE",
+            yat::Format("initial_value ({}) too high for Semaphore object."
+                        " max: {}").arg(_initial_value)
+                                   .arg(SEMAPHORE_MAX_COUNT),
+                        "Semaphore::Semaphore");
+  }
   YAT_TRACE("Semaphore::Semaphore");
 }
 
