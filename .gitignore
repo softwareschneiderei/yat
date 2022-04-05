@@ -2,3 +2,10 @@
 /yat.sublime-project
 /yat.sublime-workspace
 /target/
+
+samples/memory/sharedptr/target
+samples/semaphore/target
+samples/string/target
+samples/file/target
+samples/time/target
+samples/task/target
