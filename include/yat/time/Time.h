@@ -837,7 +837,7 @@ public:
   //! c-tor
   //! \param microsecs duration in microseconds
   //! a negative value will be converted to positive one
-  Duration(yat::int64 microsecs) : m_microsecs(abs(microsecs)) { }
+  Duration(yat::int64 microsecs) : m_microsecs(llabs(microsecs)) { }
 
   //! c-tor
   //! \param double duration in seconds with microseconds precision
@@ -848,7 +848,7 @@ public:
   Duration(const yat::Time& t1, const yat::Time& t2);
 
   /// Set value
-  void total_micros(yat::int64 microsecs) { m_microsecs = abs(microsecs); }
+  void total_micros(yat::int64 microsecs) { m_microsecs = llabs(microsecs); }
 
   /// Get total value
   int64 total_micros() const { return m_microsecs; }
