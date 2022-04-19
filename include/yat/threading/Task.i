@@ -90,8 +90,12 @@ YAT_INLINE bool Task::timeout_msg_enabled () const
 // ============================================================================
 // Task::set_timeout_msg_period
 // ============================================================================
-YAT_INLINE void Task::set_timeout_msg_period (size_t _tmo)
+YAT_INLINE void Task::set_timeout_msg_period (std::size_t _tmo)
 {
+  if( _tmo > ((std::size_t)(-1) >> 1) )
+    THROW_YAT_ERROR("BAD_ARG",
+                    "timeout msg period too high (may be a negative value is passed)",
+                    "Task::set_timeout_msg_period");
   this->timeout_msg_period_ms_ = _tmo;
 }
 
@@ -142,6 +146,10 @@ YAT_INLINE bool Task::periodic_msg_enabled () const
 // ============================================================================
 YAT_INLINE void Task::set_periodic_msg_period (double _tmo)
 {
+  if( _tmo < 0 )
+    THROW_YAT_ERROR("BAD_ARG",
+                    "periodic msg period can't be negative",
+                    "Task::set_periodic_msg_period");
   this->periodic_msg_period_ms_ = _tmo;
 }
 
