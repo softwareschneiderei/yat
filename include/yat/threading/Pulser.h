@@ -178,7 +178,7 @@ public:
     //! Pulser's period in msecs. Defaults to 1000 (i.e. one 1Hz).
     double period_in_msecs;
     //! Number of pulses to generate (0 means infinite). Defaults to 0.
-    size_t num_pulses;
+    std::size_t num_pulses;
     //! Pulsed callback. No default value!
     PulserCallback callback;
     //! User data (will be passed callback). Defaults to NULL.
