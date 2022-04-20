@@ -14,6 +14,7 @@
 #include <iostream>
 #include <limits>
 
+#include "yat/utils/Logging.h"
 #include "yat/threading/Pulser.h"
 
 //-----------------------------------------------------------------------------
@@ -50,11 +51,21 @@ int main (int, char**)
    cfg.user_data = 0;
 
    yat::Pulser p(cfg);
+   std::cout << p.get_num_pulses() << std::endl;
+   std::cout << p.get_period() << std::endl;
    p.start();
 
-   yat::Thread::sleep(30000);
+   do
+   {
+      yat::Thread::sleep(100);
+   }
+   while( p.is_running() );
 
    std::cout << "done!" << std::endl;
+  }
+  catch (const yat::Exception& e)
+  {
+    YAT_LOG_EXCEPTION(e);
   }
   catch (...)
   {
