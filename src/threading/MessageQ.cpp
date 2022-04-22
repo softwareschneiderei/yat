@@ -820,7 +820,7 @@ size_t MessageQ::clear_pending_messages (size_t msg_type)
   //- num of msgs removed from msgQ
   size_t cnt = 0;
   //- parse...
-  for (; it != end; ++it, ++cit)
+  for( ; it != end; ++it )
   {
     if ( (*it)->type() == msg_type )
     {
@@ -828,9 +828,11 @@ size_t MessageQ::clear_pending_messages (size_t msg_type)
                              ? 1
                              : (*it)->size_in_bytes();
       (*it)->release();
-      copy.erase(cit);
+      cit = copy.erase(cit);
       cnt++;
     }
+    else
+       ++cit;
   }
 
   //- copy back to msgq

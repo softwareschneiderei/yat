@@ -119,9 +119,11 @@ namespace yat
   #if defined (_WIN64) || defined (WIN64)
     typedef int int32;
     typedef unsigned int uint32;
+    typedef unsigned __int64 uintptr;
   #else
     typedef long int32;
     typedef unsigned long uint32;
+    typedef unsigned long uintptr;
   #endif
 
   typedef __int64 int64;

@@ -16,15 +16,15 @@
 #include <yat/Exception.h>
 #include <yat/regex/Regex.h>
 
-typedef yat::StringFormat _strf;
+typedef yat::Format _strf;
 
 //-----------------------------------------------------------------------------
 void match_pattern(const yat::String& in, const yat::String& pattern)
 {
   yat::Regex re(pattern);
-  yat::StringFormat sfmt("'{}' is an exact match of '{}': {}");
-  sfmt.format(in).format(re.pattern());
-  std::cout << sfmt.format(re.match(in, NULL)) << std::endl;
+  yat::Format sfmt("'{}' is an exact match of '{}': {}");
+  sfmt.arg(in).arg(re.pattern());
+  std::cout << sfmt.arg(re.match(in, NULL)) << std::endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -64,7 +64,7 @@ void extract_submatches(const yat::String& in, const yat::String& pattern)
 
   // perform a simple match
   std::cout << _strf("Is '{}' contains pattern '{}': {}")
-                    .format(in).format(pattern).format(re.search(in)) << std::endl;
+                    .arg(in).arg(pattern).arg(re.search(in)) << std::endl;
 
    // show contents of marked subexpressions within each match
   yat::Regex::Match m;
@@ -98,7 +98,7 @@ void replace_test(const yat::String& in, const yat::String& from,
   yat::Regex re(from);
   yat::String out = re.replace(in, to, mflags);
   std::cout << _strf("Input string: {}. Search for: {}. Replace by: {}. Output: {}")
-               .format(in).format(from).format(to).format(out) << std::endl;
+               .arg(in).arg(from).arg(to).arg(out) << std::endl;
 }
 
 //-----------------------------------------------------------------------------

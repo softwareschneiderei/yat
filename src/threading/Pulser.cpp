@@ -199,6 +199,17 @@ Pulser::Pulser (const Pulser::Config& cfg)
 {
   YAT_TRACE("Pulser::Pulser");
 
+  //- check configuration
+  if( cfg_.period_in_msecs <= 0 )
+    THROW_YAT_ERROR("BAD_ARG",
+                    "pulser period can't be zero or negative",
+                    "Pulser::Pulser");
+
+  if( cfg_.num_pulses > ((std::size_t)(-1) >> 1) )
+    THROW_YAT_ERROR("BAD_ARG",
+                    "pulses number too high (may be a negative value is passed)",
+                    "Pulser::Pulser");
+
   this->impl_ = new PulserCoreImpl(this->cfg_);
   this->impl_->go();
 }
@@ -278,7 +289,7 @@ double Pulser::get_period () const
 {
   YAT_TRACE("Pulser::get_period");
 
-  return this->impl_ ? this->impl_->get_periodic_msg_period() : 0;
+  return is_running() ? this->impl_->get_periodic_msg_period() : cfg_.period_in_msecs;
 }
 
 // ============================================================================
@@ -299,7 +310,7 @@ size_t Pulser::get_num_pulses () const
 {
   YAT_TRACE("Pulser::get_num_pulses");
 
-  return this->impl_ ? this->impl_->get_num_pulses() : 0;
+  return is_running() ? this->impl_->get_num_pulses() : cfg_.num_pulses;
 }
 
 // ============================================================================
@@ -356,7 +367,8 @@ bool Pulser::is_done () const
   if ( this->impl_ )
     return this->impl_->is_done();
 
-  return true;
+  // code never reached!
+  return false;
 }
 
 // ============================================================================
@@ -369,7 +381,8 @@ bool Pulser::is_running () const
   if ( this->impl_ )
     return this->impl_->is_running();
 
-  return true;
+  // code never reached!
+  return false;
 }
 
 } // namespace

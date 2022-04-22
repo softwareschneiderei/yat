@@ -1254,7 +1254,7 @@ void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& be
       precision = StringUtil::to_num<std::size_t>(fmt.substr(precision_pos, type_pos - precision_pos));
 
     std::ios_base::fmtflags ff = oss.flags();
-    if( show_base )  ff |= std::ios::showbase;
+    if( show_base || 'p' == type )  ff |= std::ios::showbase;
     if( show_sign)   ff |= std::ios::showpos;
     if( align_right) ff |= std::ios::right;
     if( align_left)  ff |= std::ios::left;
@@ -1275,7 +1275,7 @@ void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& be
     oss << before;
     oss.setf(ff);
 
-    if( 'x' == type || 'X' == type ) oss << std::hex;
+    if( 'x' == type || 'X' == type || 'p' == type ) oss << std::hex;
     if( 'o' == type )                oss << std::oct;
     if( fill )                       oss << std::setfill(fill);
     if( width > 0 )                  oss << std::setw(width);

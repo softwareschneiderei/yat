@@ -125,9 +125,7 @@ namespace yat
 // ======================================================================
 Task::Task ()
   : msg_q_ (kDEFAULT_LO_WATER_MARK, kDEFAULT_HI_WATER_MARK),
-    timeout_msg_enabled_ (false),
     timeout_msg_period_ms_ (0),
-    periodic_msg_enabled_(false),
     periodic_msg_period_ms_ (0),
     precise_periodic_timing_enabled_(false),
     user_data_ (0),
@@ -147,9 +145,7 @@ Task::Task ()
 // ======================================================================
 Task::Task (const Task::Config& cfg)
   : msg_q_ (cfg.lo_wm, cfg.hi_wm, cfg.throw_on_post_tmo),
-    timeout_msg_enabled_ (cfg.enable_timeout_msg),
     timeout_msg_period_ms_ (cfg.timeout_msg_period_ms),
-    periodic_msg_enabled_(cfg.enable_periodic_msg),
     periodic_msg_period_ms_ (cfg.periodic_msg_period_ms),
     precise_periodic_timing_enabled_ (cfg.enable_precise_periodic_timing),
     user_data_ (cfg.user_data),
@@ -157,6 +153,9 @@ Task::Task (const Task::Config& cfg)
     received_init_msg_(false)
 {
   YAT_TRACE("Task::Task");
+
+  msg_q_.enable_timeout_msg_ = cfg.enable_timeout_msg;
+  msg_q_.enable_periodic_msg_ = cfg.enable_periodic_msg;
 
 #if defined (YAT_DEBUG)
   this->next_msg_counter = 0;

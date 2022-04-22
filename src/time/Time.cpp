@@ -79,13 +79,13 @@ const char DATE_BAD_ARGS[]        = "Cannot Setting Date object";
 // Month names.
 static yat::pcsz s_pszMonthEnAbbr[] =
 {
-  "jan", "feb", "mar", "apr", "may", "jun",
-  "jul", "aug", "sep", "oct", "nov", "dec"
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 static pcsz s_pszMonthEn[] =
 {
-  "january", "february", "march", "april", "may", "june", "july",
-  "august", "september", "october", "november", "december"
+  "January", "February", "March", "April", "May", "June", "July",
+  "August", "September", "October", "November", "December"
 };
 
 static pcsz s_pszDayEnAbbr[] =
@@ -184,7 +184,7 @@ void JJToDate(long lJJ, int16 *piYear, uint8 *puiMonth, uint8 *puiDay)
   int iJulianYear = (int)(lJJ / 365.25);
   iYear =  iJulianYear + REF_YEAR;
   int iDeltaDays;
-  // Retreive le julian day for first day of this year
+  // Retreive the julian day for first day of this year
   long lJJBegYear = calc_julian_date(iYear, 1, 1, &iDeltaDays);
 
   // Position in respect to the reform
@@ -398,19 +398,13 @@ int Time::time_zone_bias() const
 //----------------------------------------------------------------------------
 int Time::sys_time_zone_bias()
 {
-  static int s_tz_bias = -1;
-  if( -1 == s_tz_bias )
-  {
 #ifdef WIN32
-    s_tz_bias = (int(double(yat::CurrentTime().raw_value() -
-                            yat::CurrentUTime().raw_value()) / MICROSEC_PER_SEC + 0.5)) / 60;
+    TIME_ZONE_INFORMATION tzi;
+    GetTimeZoneInformation(&tzi);
+    return -tzi.Bias;
 #else
-    tzset();
-    s_tz_bias = (int)(-timezone / 60 + (daylight ? 60 : 0));
+     return yat::CurrentTime().time_zone_bias();
 #endif
-  }
-
-  return s_tz_bias;
 }
 
 //----------------------------------------------------------------------------
@@ -512,7 +506,6 @@ void Time::get_current_local(DateFields* df_p)
     gettimeofday(&tv, &tzp);
     lTm = tv.tv_sec;
     lMs = tv.tv_usec;
-
     // Convert from 'time_t' format to 'struct tm' format
     struct tm tmCurrent;
     localtime_r(&lTm, &tmCurrent);
@@ -599,6 +592,8 @@ Time& Time::set_current(bool utc)
         (double)sysTm.wSecond + ((double)sysTm.wMilliseconds)/1000.0);
     }
 
+    m_tz_bias = sys_time_zone_bias();
+
   #else
     long lTm, lMs;
     struct timeval tv;
@@ -611,17 +606,23 @@ Time& Time::set_current(bool utc)
     struct tm tmCurrent;
     if( utc )
     {
-      gmtime_r(&lTm, &tmCurrent);
-      set_utc(tmCurrent.tm_year+1900, tmCurrent.tm_mon+1, tmCurrent.tm_mday, tmCurrent.tm_hour,
+      // Don't use gmtime_r in order to get access to the timezone bias
+      localtime_r(&lTm, &tmCurrent);
+      set_local(tmCurrent.tm_year+1900, tmCurrent.tm_mon+1, tmCurrent.tm_mday, tmCurrent.tm_hour,
           tmCurrent.tm_min, (double)tmCurrent.tm_sec + (lMs/1000000.));
+      m_tz_bias = tmCurrent.tm_gmtoff / 60;
+      // convert to utc, according to the tz bias
+      to_utc();
     }
     else
     {
       localtime_r(&lTm, &tmCurrent);
       set_local(tmCurrent.tm_year+1900, tmCurrent.tm_mon+1, tmCurrent.tm_mday, tmCurrent.tm_hour,
           tmCurrent.tm_min, (double)tmCurrent.tm_sec + (lMs/1000000.));
+      m_tz_bias = tmCurrent.tm_gmtoff / 60;
     }
   #endif
+
   return *this;
 }
 
@@ -1162,7 +1163,6 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
 {
   std::ostringstream oss;
   bool get_identifier = false;
-  bool add_Z_if_utc = false;
 
   for( std::size_t i_f = 0; i_f < format.size(); ++i_f )
   {
@@ -1189,15 +1189,20 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
         case 'B':
           oss << s_pszMonthEn[df.month - 1];
           break;
+        case 'C':
+          oss << int(df.year / 100);
+          break;
         case 'd':
           oss.width(2); oss.fill('0'); oss << int(df.day);
           break;
+        case 'e':
+          oss.width(2); oss.fill(' '); oss << int(df.day);
+          break;
         case 'H':
           oss.width(2); oss.fill('0'); oss << int(df.hour);
-          add_Z_if_utc = true;
           break;
         case 'j':
-          oss.width(3); oss.fill('0'); oss << df.day_of_year;
+          oss.width(3); oss.fill('0'); oss << int(df.day_of_year);
           break;
         case 'm':
           oss.width(2); oss.fill('0'); oss << int(df.month);
@@ -1210,7 +1215,11 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
           oss.width(2); oss.fill('0'); oss << int(df.min);
           break;
         case 's':
-          oss << unix_time();
+          {
+            Time t;
+            t.set(df);
+            oss << t.long_unix();
+          }
           break;
         case 'S':
           if( 0 == precision )
@@ -1222,15 +1231,15 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
           oss << '\t';
           break;
         case 'T':
-          oss.width(2); oss.fill('0'); oss << df.hour << ':';
-          oss.width(2); oss.fill('0'); oss << df.min << ':';
+          oss.width(2); oss.fill('0'); oss << int(df.hour) << ':';
+          oss.width(2); oss.fill('0'); oss << int(df.min) << ':';
           oss.width(2); oss.fill('0'); oss << int(df.sec);
           break;
         case 'u':
-          oss << df.day_of_week;
+          oss << int(df.day_of_week);
           break;
         case 'U':
-          oss.width(2); oss.fill('0'); oss << df.week_of_year;
+          oss.width(2); oss.fill('0'); oss << int(df.week_of_year);
           break;
         case 'w':
          {
@@ -1246,8 +1255,13 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
           oss.width(4); oss.fill('0'); oss << df.year;
           break;
         case 'Z':
-          oss << _iso8601_bias(df);
-          add_Z_if_utc = false;
+          if( df.local_time )
+            oss << _iso8601_bias(df);
+          else
+            oss << 'Z';
+          break;
+        case '%':
+          oss << '%';
           break;
         default:
           throw yat::Exception("BAD_FORMAT",
@@ -1260,9 +1274,6 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
     else
       oss << format[i_f];
   }
-
-  if( add_Z_if_utc && !df.local_time )
-    oss << 'Z';
 
   return yat::String(oss.str());
 }
@@ -1382,25 +1393,25 @@ void Time::from_string(const std::string& date_time, const std::string& format)
         switch( format[i_f] )
         {
           case 'y':
-            set_year(v + 2000);
+            set_year(static_cast<yat::int16>(v + 2000));
             break;
           case 'Y':
-            set_year(v);
+            set_year(static_cast<yat::int16>(v));
             break;
           case 'm':
-            set_month(v);
+            set_month(static_cast<yat::int8>(v));
             break;
           case 'd':
-            set_day(v);
+            set_day(static_cast<yat::int8>(v));
             break;
           case 'j':
-            set_day_of_year(v, year());
+            set_day_of_year(static_cast<yat::int16>(v), year());
             break;
           case 'H':
-            set_hour(v);
+            set_hour(static_cast<yat::int8>(v));
             break;
           case 'M':
-            set_minute(v);
+            set_minute(static_cast<yat::int8>(v));
             break;
           case 'S':
             set_second(v);

@@ -363,14 +363,8 @@ private:
   //- the associated messageQ
   MessageQ msg_q_;
 
-  //- timeout msg control flag
-  bool timeout_msg_enabled_;
-
   //- timeout msg period
   size_t timeout_msg_period_ms_;
-
-  //- periodic msg control flag
-  bool periodic_msg_enabled_;
 
   //- periodic msg period
   double periodic_msg_period_ms_;

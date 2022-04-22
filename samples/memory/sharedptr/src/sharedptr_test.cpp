@@ -98,6 +98,12 @@ int main(int argc, char* argv[])
   MyObjectPtr tmp;
   MyObjectWPtr wfoo(foo);
 
+  MyDerivedObjectPtr bu(new MyDerivedObject("bu-sp"));
+  MyDerivedObjectWPtr wbu (bu);
+  MyObjectPtr guzo(wbu);
+
+  DUMP(guzo);
+
   {
     yat::AutoMutex<MyObjectPtr> _lock(foo);
   }

@@ -64,9 +64,16 @@ void FileName::set(const std::string& strFullName)
 {
   set_full_name(strFullName.c_str());
 
-  if( path_exist() && !is_path_name() )
-    // Add missing path separator
-    m_strFile += SEP_PATH;
+  try
+  {
+    if( path_exist() && !is_path_name() )
+      // Add missing path separator
+      m_strFile += SEP_PATH;
+  }
+  catch(const yat::PermissionException&)
+  {
+    // Do nothing
+  }
 }
 
 void FileName::set(const std::string& _strPath, const std::string& _strName)
@@ -86,9 +93,12 @@ void FileName::set(const std::string& _strPath, const std::string& _strName)
   set(strFullName);
 }
 
-void FileName::set(const std::string& strPath, const std::string& strName, const std::string& strExt)
+void FileName::set(const std::string& path, const std::string& name, const std::string& ext)
 {
-  set(strPath, strName + "." + strExt);
+  if( !ext.empty() )
+    set(path, name + "." + ext);
+  else
+    set(path, name);
 }
 
 //----------------------------------------------------------------------------
@@ -254,7 +264,7 @@ void FileName::remove() throw( Exception )
   {
     if( unlink(full_name().c_str()) )
     {
-      std::string strErr = StringFormat(ERR_CANNOT_REMOVE_FILE).format(full_name());
+      std::string strErr = Format(ERR_CANNOT_REMOVE_FILE).arg(full_name());
       ThrowExceptionFromErrno(strErr, "FileName::remove");
     }
   }
@@ -266,7 +276,7 @@ void FileName::remove() throw( Exception )
 void FileName::rmdir(bool bRecursive, bool bContentOnly) throw( Exception )
 {
   if( !is_path_name() )
-    throw BadPathException(StringFormat(ERR_DELETE_DIRECTORY).format(full_name()), "FileName::rmdir");
+    throw BadPathException(Format(ERR_DELETE_DIRECTORY).arg(full_name()), "FileName::rmdir");
 
   if( is_valid() )
   {
@@ -280,7 +290,7 @@ void FileName::rmdir(bool bRecursive, bool bContentOnly) throw( Exception )
       {
         if( ::rmdir(full_name().c_str()) )
         {
-          std::string strErr = StringFormat(ERR_CANNOT_REMOVE_FILE).format(full_name());
+          std::string strErr = Format(ERR_CANNOT_REMOVE_FILE).arg(full_name());
           ThrowExceptionFromErrno(strErr, "FileName::rmdir");
         }
       }
@@ -313,7 +323,7 @@ void FileName::rename(const std::string& strNewName) throw( Exception )
   {
     if( ::rename(m_strFile.c_str(), strNewName.c_str()) )
     {
-      std::string strErr = StringFormat(ERR_CANNOT_RENAME_FILE).format(m_strFile);
+      std::string strErr = Format(ERR_CANNOT_RENAME_FILE).arg(m_strFile);
       ThrowExceptionFromErrno(strErr, "FileName::rename");
     }
     // Change internal name
@@ -345,7 +355,7 @@ void FileName::dir_copy(const std::string& strDest, bool bCreateDir, mode_t mode
   }
 
   if( !fnDst.is_path_name() )
-    throw BadPathException(StringFormat(ERR_BAD_DEST_PATH).format(fnDst.full_name()),
+    throw BadPathException(Format(ERR_BAD_DEST_PATH).arg(fnDst.full_name()),
                            "FileName::dir_copy");
 
   // Recursively copying sub-directories
@@ -371,7 +381,7 @@ void FileName::recursive_chmod(mode_t modeFile, mode_t modeDir, bool bCurrentLev
 
   if( !path_exist() )
   { // File doesn't exists
-    std::string strErr = StringFormat(ERR_DIR_NOT_FOUND).format(full_name());
+    std::string strErr = Format(ERR_DIR_NOT_FOUND).arg(full_name());
     throw FileNotFoundException(strErr, "FileName::recursive_chmod");
   }
 
@@ -402,7 +412,7 @@ void FileName::recursive_chmod_file(mode_t mode) throw( Exception )
 
   if( !path_exist() )
   { // File doesn't exists
-    std::string strErr = StringFormat(ERR_DIR_NOT_FOUND).format(full_name());
+    std::string strErr = Format(ERR_DIR_NOT_FOUND).arg(full_name());
     throw FileNotFoundException(strErr, "FileName::recursive_chmod_file");
   }
 
@@ -429,7 +439,7 @@ void FileName::recursive_chmod_dir(mode_t mode) throw( Exception )
 
   if( !path_exist() )
   { // File doesn't exists
-    std::string strErr = StringFormat(ERR_DIR_NOT_FOUND).format(full_name());
+    std::string strErr = Format(ERR_DIR_NOT_FOUND).arg(full_name());
     throw FileNotFoundException(strErr, "FileName::recursive_chmod_dir");
   }
 
@@ -453,14 +463,14 @@ void FileName::recursive_chown(uid_t uid, gid_t gid) throw( Exception )
 
   if( !path_exist() )
   { // File doesn't exists
-    std::string strErr = StringFormat(ERR_DIR_NOT_FOUND).format(full_name());
-    throw FileNotFoundException(strErr, "FileName::recursive_chmod");
+    std::string strErr = Format(ERR_DIR_NOT_FOUND).arg(full_name());
+    throw FileNotFoundException(strErr, "FileName::recursive_chown");
   }
 
   // Recursively change rights on sub-directories
   FileEnum dirEnum(full_name(), FileEnum::ENUM_DIR);
   while( dirEnum.find() )
-    dirEnum.recursive_chmod(uid, gid);
+    dirEnum.recursive_chown(uid, gid);
 
   // Change mode on files
   FileEnum fileEnum(full_name(), FileEnum::ENUM_FILE);
@@ -655,7 +665,7 @@ void File::load(MemBuf *pBuf) throw(Exception)
   FILE *fi = fopen(full_name().c_str(), "rb");
   if( NULL == fi )
   {
-    std::string strErr = StringFormat(ERR_OPEN_FILE).format(full_name());
+    std::string strErr = Format(ERR_OPEN_FILE).arg(full_name());
     throw Exception("FILE_ERROR", strErr, "File::Load");
   }
 
@@ -671,7 +681,7 @@ void File::load(MemBuf *pBuf) throw(Exception)
 
     if( ferror(fi) || 0 == lReaded )
     {
-      std::string strErr = StringFormat(ERR_READING_FILE).format(full_name());
+      std::string strErr = Format(ERR_READING_FILE).arg(full_name());
       fclose(fi);
       throw Exception("FILE_ERROR", strErr, "File::load");
     }
@@ -712,7 +722,7 @@ void File::save(const std::string& strContent) throw(Exception)
     FILE *fi = fopen(full_name().c_str(), "wb");
     if( NULL == fi )
     {
-      std::string strErr = StringFormat(ERR_OPEN_FILE).format(full_name());
+      std::string strErr = Format(ERR_OPEN_FILE).arg(full_name());
       throw Exception("FILE_ERROR", strErr, "File::save");
     }
 
@@ -720,7 +730,7 @@ void File::save(const std::string& strContent) throw(Exception)
     int iRc = fputs(strContent.c_str(), fi);
     if( EOF == iRc )
     {
-      std::string strErr = StringFormat(ERR_WRITING_FILE).format(full_name());
+      std::string strErr = Format(ERR_WRITING_FILE).arg(full_name());
       fclose(fi);
       throw Exception("FILE_ERROR", strErr, "File::save");
     }
@@ -739,7 +749,7 @@ void File::append(const std::string& content)
     FILE *fi = fopen(full_name().c_str(), "a");
     if( NULL == fi )
     {
-      std::string strErr = StringFormat(ERR_OPEN_FILE).format(full_name());
+      std::string strErr = Format(ERR_OPEN_FILE).arg(full_name());
       throw Exception("FILE_ERROR", strErr, "File::append");
     }
 
@@ -747,7 +757,7 @@ void File::append(const std::string& content)
     int iRc = fputs(content.c_str(), fi);
     if( EOF == iRc )
     {
-      std::string strErr = StringFormat(ERR_WRITING_FILE).format(full_name());
+      std::string strErr = Format(ERR_WRITING_FILE).arg(full_name());
       fclose(fi);
       throw Exception("FILE_ERROR", strErr, "File::append");
     }
@@ -970,7 +980,7 @@ const CfgFile::ObjectCollection& CfgFile::get_objects(const std::string& object_
     return cit->second;
 
   throw Exception( "NO_DATA",
-                        StringFormat("No such objects: {}").format(object_type),
+                        Format("No such objects: {}").arg(object_type),
                         "CfgFile::get_objects(const std::string& object_type)" );
 }
 
@@ -992,7 +1002,7 @@ const CfgFile::Parameters& CfgFile::get_unique_object(const std::string& object_
     return cit->second[0];
 
   throw Exception( "NO_DATA",
-                        StringFormat("No such object: {}").format(object_name),
+                        Format("No such object: {}").arg(object_name),
                         "CfgFile::get_unique_object" );
 }
 
@@ -1015,7 +1025,7 @@ std::string CfgFile::get_param_value(const std::string& param, bool throw_except
   if( cit == m_dictSection[m_strSection].m_dictParameters.end() )
   {
     if( throw_exception )
-      throw yat::Exception("NO_DATA", StringFormat("Parameter {} not found").format(param), "CfgFile::get_param_value");
+      throw yat::Exception("NO_DATA", Format("Parameter {} not found").arg(param), "CfgFile::get_param_value");
     return StringUtil::empty;
   }
 
@@ -1042,7 +1052,7 @@ bool CfgFile::set_section(const std::string& strSection, bool bThrowException) c
   if( it != m_dictSection.end() )
     m_strSection = strSection;
   else if( bThrowException )
-      throw Exception("NO_DATA", StringFormat(ERR_SECTION_NOT_FOUND).format(strSection), "CfgFile::SetSection");
+      throw Exception("NO_DATA", Format(ERR_SECTION_NOT_FOUND).arg(strSection), "CfgFile::SetSection");
   else
     return false;
   return true;

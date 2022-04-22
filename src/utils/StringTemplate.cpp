@@ -53,23 +53,23 @@ namespace yat
 //----------------------------------------------------------------------------
 // StringTemplate::add_symbol_interpreter
 //----------------------------------------------------------------------------
-void StringTemplate::add_symbol_interpreter(ISymbolInterpreter *pInterpreter)
+void StringTemplate::add_symbol_interpreter(ISymbolInterpreter* interpreter_p)
 {
-  m_lstInterpreter.push_back(pInterpreter);
+  m_interpreters.push_back(interpreter_p);
 }
 
 //----------------------------------------------------------------------------
 // StringTemplate::remove_symbol_interpreter
 //----------------------------------------------------------------------------
-void StringTemplate::remove_symbol_interpreter(ISymbolInterpreter *pInterpreter)
+void StringTemplate::remove_symbol_interpreter(ISymbolInterpreter* interpreter_p)
 {
-  std::list<ISymbolInterpreter *>::iterator itInterpreter = m_lstInterpreter.begin();
+  std::list<ISymbolInterpreter *>::iterator itInterpreter = m_interpreters.begin();
 
-  while( m_lstInterpreter.end() != itInterpreter )
+  while( m_interpreters.end() != itInterpreter )
   {
-    if( *itInterpreter == pInterpreter )
+    if( *itInterpreter == interpreter_p )
     {
-      m_lstInterpreter.erase(itInterpreter);
+      m_interpreters.erase(itInterpreter);
       break;
     }
     itInterpreter++;
@@ -79,224 +79,206 @@ void StringTemplate::remove_symbol_interpreter(ISymbolInterpreter *pInterpreter)
 //----------------------------------------------------------------------------
 // StringTemplate::substitute
 //----------------------------------------------------------------------------
-bool StringTemplate::substitute(std::string *pstrTemplate)
+bool StringTemplate::substitute(std::string* template_p)
 {
-  std::string strEval, strTmp;
-  std::string strTmpl = *pstrTemplate;
-  std::string strVar, strValue;
-  bool return_value = true;
-
-  while( strTmpl.size() > 0 )
-  {
-    // Search for a variable
-    std::string::size_type uiFirstPos = strTmpl.find("$(");
-    if( std::string::npos != uiFirstPos )
-    {
-      // Search for matching ')'. Take care of nested variables
-      std::string::size_type uiMatchPos = strTmpl.find_first_of(')', uiFirstPos + 2);
-
-      if( std::string::npos != uiMatchPos )
-      {
-        // complete result string
-        strEval += strTmpl.substr(0, uiFirstPos);
-
-        // Delete up to '$(' characters
-        strTmpl.erase(0, uiFirstPos + 2);
-
-        // Extract variable content
-        strVar = strTmpl.substr(0, uiMatchPos - uiFirstPos - 2);
-        // Delete up to matching end parenthesis
-        strTmpl.erase(0, uiMatchPos - uiFirstPos - 1);
-
-        bool to_lower = false, to_upper = false;
-        if( yat::StringUtil::match(strVar, "uc:*") )
-        {
-          to_upper = true;
-          strVar = strVar.substr(3);
-        }
-        if( yat::StringUtil::match(strVar, "lc:*") )
-        {
-          to_lower = true;
-          strVar = strVar.substr(3);
-        }
-
-        std::string var_before = strVar;
-        // Variable evaluation
-        bool rc = value(&strVar);
-        if( return_value )
-          return_value = rc;
-
-        if( to_upper )
-          yat::StringUtil::to_upper(&strVar);
-        if( to_lower )
-          yat::StringUtil::to_lower(&strVar);
-
-        strEval += strVar;
-      }
-      else
-      {
-        // Missing close bracket
-        // Copying up to the end of template string
-        strEval += strTmpl;
-        strTmpl.erase();
-      }
-    }
-    else
-    {
-      // Copying up to the end of template string
-      strEval += strTmpl;
-      strTmpl.erase();
-    }
-  }
-
-  (*pstrTemplate) = strEval;
-  return return_value;
+  return substitute_impl(template_p, NULL, true);
 }
 
 //----------------------------------------------------------------------------
 // StringTemplate::substitute_ex
 //----------------------------------------------------------------------------
-bool StringTemplate::substitute_ex(std::string *pstrTemplate, std::vector<std::string> *not_found_p)
+bool StringTemplate::substitute_ex(std::string* template_p, std::vector<std::string> *not_found_p)
 {
-  std::string strEval, strTmp;
-  std::string strTmpl = *pstrTemplate;
-  std::string strVar, strValue;
+  return substitute_impl(template_p, not_found_p, false);
+}
+
+//----------------------------------------------------------------------------
+// StringTemplate::substitute_impl
+//----------------------------------------------------------------------------
+bool StringTemplate::substitute_impl(std::string* template_p, std::vector<std::string>* not_found_p, bool old_impl)
+{
+  std::string result, var, pattern, template_in = *template_p;
   bool return_value = false;
 
-  if( !not_found_p )
-  {
-    THROW_YAT_ERROR("ERROR", "Bad argument: 'not_found_p' must not be null!",
-                    "StringTemplate::substitute_ex");
-  }
+  if( old_impl )
+    //- in the old implementation return false if one variable failed to be substitued
+    return_value = true;
 
-  while( strTmpl.size() > 0 )
+  while( template_in.size() > 0 )
   {
-    // Search for a variable
-    std::string::size_type uiFirstPos = strTmpl.find("$(");
-    if( std::string::npos != uiFirstPos )
+    //- search for next variable marker
+    std::string::size_type marker_pos = template_in.find('$');
+    std::string::size_type end_mark, end_pos = std::string::npos;
+    std::string::size_type var_pos = std::string::npos;
+
+    if( marker_pos < template_in.size()-1 && template_in[marker_pos+1] == '(' )
     {
-      // Search for matching ')'. Take care of nested variables
-      std::string::size_type uiMatchPos = strTmpl.find_first_of(')', uiFirstPos + 2);
-
-      if( std::string::npos != uiMatchPos )
-      {
-        // complete result string
-        strEval += strTmpl.substr(0, uiFirstPos);
-
-        // Delete up to '$(' characters
-        strTmpl.erase(0, uiFirstPos + 2);
-
-        // Extract variable content
-        strVar = strTmpl.substr(0, uiMatchPos - uiFirstPos - 2);
-        // Delete up to matching end parenthesis
-        strTmpl.erase(0, uiMatchPos - uiFirstPos - 1);
-
-        bool to_lower = false, to_upper = false;
-        if( yat::StringUtil::match(strVar, "uc:*") )
-        {
-          to_upper = true;
-          strVar = strVar.substr(3);
-        }
-        if( yat::StringUtil::match(strVar, "lc:*") )
-        {
-          to_lower = true;
-          strVar = strVar.substr(3);
-        }
-
-        std::string var_before = strVar;
-        // Variable evaluation
-        bool rc = value(&strVar);
-        return_value = true;
-
-        if( !rc )
-          not_found_p->push_back(var_before);
+      //- found pattern '$(var)'
+      var_pos = marker_pos + 2;
+      end_pos = template_in.find(')', var_pos);
+      if( std::string::npos == end_pos )
+      { //- ')' is missing
+        if( !old_impl )
+          throw yat::Exception("ERROR", "Missing end parenthesis in string template", "yat::StringTemplate::substitution_impl");
         else
         {
-          if( to_upper )
-            yat::StringUtil::to_upper(&strVar);
-          if( to_lower )
-            yat::StringUtil::to_lower(&strVar);
+          result += template_in;
+          break;
         }
+      }
+      end_mark = end_pos + 1;
+    }
+    else if( marker_pos < template_in.size()-1 && template_in[marker_pos+1] == '$' )
+    {
+      //- escaped '$' => complete result string with characters before 1st '$'
+      result += template_in.substr(0, marker_pos + 1);
+      //- and remove characters from the inpout template up to the 2nd '$'
+      template_in.erase(0, marker_pos + 2);
+      continue;
+    }
+    else if( std::string::npos != marker_pos )
+    {
+      // found pattern '$var'
+      var_pos = marker_pos + 1;
+      end_pos = template_in.find_first_not_of("azertyuiopqsdfghjklmwxcvbnAZERTYUIOPQSDFGHJKLMWXCVBN0123456789_", var_pos);
+      if( std::string::npos == end_pos )
+        end_pos = template_in.size();
+      end_mark = end_pos;
+    }
 
-        strEval += strVar;
-      }
-      else
+    if( std::string::npos != marker_pos )
+    {
+      //- complete result string
+      result += template_in.substr(0, marker_pos);
+
+      //- memorize pattern
+      pattern = template_in.substr(marker_pos, end_mark - marker_pos);
+
+      //- delete from input template up to '$' character
+      template_in.erase(0, var_pos);
+
+      //- extract variable name or content
+      var = template_in.substr(0, end_pos - var_pos);
+
+      //- delete up to the end of variable pattern
+      template_in.erase(0, end_pos - marker_pos - 1);
+
+      //- special modifiers, for pattern like '$(uc:var_name)'
+      bool to_lower = false, to_upper = false;
+      if( yat::StringUtil::starts_with(var, "uc:") )
       {
-        // Missing close bracket
-        // Copying up to the end of template string
-        strEval += strTmpl;
-        strTmpl.erase();
+        to_upper = true;
+        var = var.substr(3);
       }
+      if( yat::StringUtil::starts_with(var, "lc:") )
+      {
+        to_lower = true;
+        var = var.substr(3);
+      }
+
+      //- memorize variable name
+      std::string var_before = var;
+
+      //- variable evaluation
+      bool rc = value_impl(&var, pattern);
+      if( old_impl )
+      {
+        if( return_value )
+          //- if a variable is not found then return false
+          return_value = rc;
+      }
+      else if( rc )
+      {
+        //- at least one variable is substitued
+        return_value = true;
+      }
+
+      if( !rc && not_found_p )
+      {
+        //- substitution has failed
+        not_found_p->push_back(var_before);
+      }
+      else if( rc )
+      { //- apply modifiers
+        if( to_upper )
+          yat::StringUtil::to_upper(&var);
+        else if( to_lower )
+          yat::StringUtil::to_lower(&var);
+      }
+
+      result += var;
     }
     else
     {
-      // Copying up to the end of template string
-      strEval += strTmpl;
-      strTmpl.erase();
+      //- copying up to the end of template_in string
+      result += template_in;
+      template_in.erase();
     }
   }
 
-  (*pstrTemplate) = strEval;
+  //- substitute input pattern with final result
+  (*template_p) = result;
   return return_value;
 }
 
 //----------------------------------------------------------------------------
 // StringTemplate::substitute
 //----------------------------------------------------------------------------
-bool StringTemplate::substitute(String *pstrTemplate)
+bool StringTemplate::substitute(String* template_p)
 {
-  return substitute( (std::string*)pstrTemplate );
+  return substitute( (std::string*)template_p );
 }
 
 //----------------------------------------------------------------------------
-// StringTemplate::value
+// StringTemplate::value_impl
 //----------------------------------------------------------------------------
-bool StringTemplate::value(std::string *pstrVar)
+bool StringTemplate::value_impl(std::string* var_p, const std::string& pattern)
 {
   // Usually the default value in a variables list like:
   // $(ga|bu|zo|'meu')
-  // -> return 'meu' of none of ga, bu or zo replacement variable are set
-  if( yat::StringUtil::start_with(*pstrVar, "'") &&
-      yat::StringUtil::end_with(*pstrVar, "'") )
+  // -> return 'meu' if none of ga, bu or zo replacement variable are set
+  if( yat::StringUtil::start_with(*var_p, "'") &&
+      yat::StringUtil::end_with(*var_p, "'") )
   {
-    if( pstrVar->size() > 2 )
-      *pstrVar = pstrVar->substr(1, pstrVar->size() - 2);
+    if( var_p->size() > 2 )
+      *var_p = var_p->substr(1, var_p->size() - 2);
     else
-      pstrVar->clear();
+      var_p->clear();
     return true;
   }
 
   std::string alt;
-  std::size_t alt_pos = pstrVar->find('|');
+  std::size_t alt_pos = var_p->find('|');
   if( alt_pos != std::string::npos )
   {
-    alt = pstrVar->substr(alt_pos + 1);
-    *pstrVar = pstrVar->substr(0, alt_pos);
+    alt = var_p->substr(alt_pos + 1);
+    *var_p = var_p->substr(0, alt_pos);
   }
-  std::list<ISymbolInterpreter *>::iterator itInterpreter = m_lstInterpreter.begin();
+  std::list<ISymbolInterpreter *>::iterator itInterpreter = m_interpreters.begin();
 
-  while( m_lstInterpreter.end() != itInterpreter )
+  while( m_interpreters.end() != itInterpreter )
   {
-    if( (*itInterpreter)->value(pstrVar) )
+    if( (*itInterpreter)->value(var_p) )
         return true;
     itInterpreter++;
   }
 
   if( !alt.empty() )
   {
-    *pstrVar = alt;
-    return value(pstrVar);
+    *var_p = alt;
+    //- an alternative is available
+    return value_impl(var_p, pattern);
   }
 
-  switch( m_eNotFoundReplacement )
+  switch( m_not_found_replacement )
   {
     case EMPTY_STRING:
-      *pstrVar = "";
+      *var_p = "";
       break;
     case SYMBOL_NAME:
       break;
     case UNCHANGE_STRING:
-      *pstrVar = std::string("$(") + *pstrVar + ')';
+      *var_p = pattern;
       break;
   }
   return false;
@@ -305,9 +287,17 @@ bool StringTemplate::value(std::string *pstrVar)
 //----------------------------------------------------------------------------
 // StringTemplate::value
 //----------------------------------------------------------------------------
-bool StringTemplate::value(String *pstrVar)
+bool StringTemplate::value(std::string* var_p)
 {
-  return value( (std::string*)pstrVar );
+  return value_impl(var_p, "");
+}
+
+//----------------------------------------------------------------------------
+// StringTemplate::value
+//----------------------------------------------------------------------------
+bool StringTemplate::value(String* var_p)
+{
+  return value_impl((std::string*)var_p, "");
 }
 
 //=============================================================================
@@ -316,9 +306,9 @@ bool StringTemplate::value(String *pstrVar)
 //----------------------------------------------------------------------------
 // EnvVariableInterpreter::value
 //----------------------------------------------------------------------------
-bool EnvVariableInterpreter::value(std::string *pstrVar)
+bool EnvVariableInterpreter::value(std::string* var_p)
 {
-  return SysUtils::get_env(*pstrVar, pstrVar);
+  return SysUtils::get_env(*var_p, var_p);
 }
 
 } // namespace

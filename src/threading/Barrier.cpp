@@ -39,6 +39,7 @@
 // ============================================================================
 // DEPENDENCIES
 // ============================================================================
+#include <yat/utils/String.h>
 #include <yat/threading/Barrier.h>
 
 #if !defined (YAT_INLINE_IMPL)
@@ -46,17 +47,28 @@
 #endif // YAT_INLINE_IMPL
 
 
-namespace yat {
+namespace yat
+{
 
+#define YAT_BARRIER_MAX_COUNT ((std::size_t)(-1) >> 1)
 // ----------------------------------------------------------------------------
 // Barrier::Barrier
 // ----------------------------------------------------------------------------
-Barrier::Barrier (size_t _count)
+Barrier::Barrier (std::size_t _count)
  : m_thread_count (_count),
    m_condition (m_mutex),
    m_waiters_count (0)
 {
   YAT_TRACE("Barrier::Barrier");
+
+  if( _count > YAT_BARRIER_MAX_COUNT )
+  {
+    throw Exception("BAD_VALUE",
+            yat::Format("count value ({}) too high for Barrier object."
+                        " max: {}").arg(_count)
+                                   .arg(YAT_BARRIER_MAX_COUNT),
+                        "Semaphore::Semaphore");
+  }
 
   YAT_LOG("Barrier::Barrier:: " << m_thread_count << " threads involved");
 }

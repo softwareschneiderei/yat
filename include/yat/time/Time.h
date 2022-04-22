@@ -190,6 +190,9 @@ struct YAT_DECL DateFields
   //! Time zone bias in minutes
   int tz_bias;
 
+  //! c-tor
+  DateFields() { clear(); }
+
   //! \brief Clears all fields.
   void clear();
 
@@ -482,19 +485,20 @@ public:
   //!
   //! \param format date-time format
   //!        ex: %Y-%M-%DT%h:%m:%s.%ms for a ISO8601 string
-  //!          %a 	Abbreviated weekday name 	Sun
-  //!          %A 	Full weekday name 	Sunday
-  //!          %b 	Abbreviated month name 	Mar
-  //!          %B 	Full month name 	March
-  //!          %d 	Day of the month (01-31) 	19
-  //!          %H 	Hour in 24h format (00-23) 	14
-  //!          %j 	Day of the year (001-366) 	231
-  //!          %m 	Month as a decimal number (01-12) 	08
-  //!          %M 	Minute (00-59) 	55
-  //!          %S 	Second (00-60) 	02
+  //!          %a 	Abbreviated weekday name (ex: Sun)
+  //!          %A 	Full weekday name (ex: Sunday)
+  //!          %b 	Abbreviated month name (ex: Mar)
+  //!          %B 	Full month name (ex: March)
+  //!          %d 	Day of the month (01-31)
+  //!          %h   Equivalent to %b.
+  //!          %H 	Hour in 24h format (00-23)
+  //!          %j 	Day of the year (001-366)
+  //!          %m 	Month as a decimal number (01-12)
+  //!          %M 	Minute (00-59)
+  //!          %S 	Second (00-60)
   //!          %<n> Expected seconds precision in number of digits after dot (0-6)
-  //!          %y 	Year, last two digits (00-99) 	01
-  //!          %Y 	Year 	2012
+  //!          %y   Year, last two digits (00-99)
+  //!          %Y 	Year
   void from_string(const std::string& date_time, const std::string& format);
 
   //! Format date/time according to the given format
@@ -599,20 +603,25 @@ public:
   //!          %b   Abbreviated month name              Mar
   //!          %h   Abbreviated month name              Mar
   //!          %B   Full month name                     March
+  //!          %C   The century number (year/100) as a 2-digit integer.
   //!          %d   Day of the month (01-31)            19
+  //!          %e   Like %d, the day of the month as a decimal number, but
+  //!               a leading zero is replaced by a space.
   //!          %H   Hour in 24h format (00-23)          14
   //!          %j   Day of the year (001-366)           231
   //!          %m   Month as a decimal number (01-12)   08
-  //!          %M   Minute (00-59)  55
+  //!          %M   Minute (00-59)                      55
   //!          %R   Equivalent to %H:%M
   //!          %s   The number of seconds since the Epoch, that is, since 1970-01-01 00:00:00 UTC
   //!          %S   Second (00-60)                      02
   //!          %t   A tab character
+  //!          %T   The time in 24-hour notation (%H:%M:%S)
   //!          %u   The day of the week as a decimal, range 1 to 7, Monday being 1
   //!          %U   The week number of the current year as a decimal number, range 00 to 53
   //!          %w   The day of the week as a decimal, range 0 to 6, Sunday being 0
   //!          %y   Year, last two digits (00-99)       01
   //!          %Y   Year                                2012
+  //!          %%   A literal '%' character.
   static yat::String to_string(const DateFields& df, const std::string& format, unsigned short precision=0);
 
   //! \brief Time zone bias returned by the operating system in minutes
@@ -824,14 +833,22 @@ public:
 */
 public:
   Duration() : m_microsecs(0) { }
-  Duration(yat::int64 microsecs) : m_microsecs(microsecs) { }
-  Duration(double seconds) : m_microsecs( yat::int64(seconds * MICROSEC_PER_SEC) ) { }
+
+  //! c-tor
+  //! \param microsecs duration in microseconds
+  //! a negative value will be converted to positive one
+  Duration(yat::int64 microsecs) : m_microsecs(llabs(microsecs)) { }
+
+  //! c-tor
+  //! \param double duration in seconds with microseconds precision
+  //! a negative value will be converted to positive one
+  Duration(double seconds) : m_microsecs( yat::int64(fabs(seconds) * MICROSEC_PER_SEC) ) { }
 
   /// Distance between t1 and t2, always positive
   Duration(const yat::Time& t1, const yat::Time& t2);
 
   /// Set value
-  void total_micros(yat::int64 microsecs) { m_microsecs = microsecs; }
+  void total_micros(yat::int64 microsecs) { m_microsecs = llabs(microsecs); }
 
   /// Get total value
   int64 total_micros() const { return m_microsecs; }

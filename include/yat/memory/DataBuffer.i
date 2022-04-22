@@ -46,7 +46,7 @@ YAT_INLINE void Buffer<T>::clear ()
 // Buffer::elem_size
 // ============================================================================
 template <typename T>
-YAT_INLINE size_t Buffer<T>::elem_size () const
+YAT_INLINE std::size_t Buffer<T>::elem_size () const
 {
   return sizeof(T);
 }
@@ -55,7 +55,7 @@ YAT_INLINE size_t Buffer<T>::elem_size () const
 // Buffer::length
 // ============================================================================
 template <typename T>
-YAT_INLINE size_t Buffer<T>::length () const
+YAT_INLINE std::size_t Buffer<T>::length () const
 {
   return this->length_;
 }
@@ -64,7 +64,7 @@ YAT_INLINE size_t Buffer<T>::length () const
 // Buffer::force_length
 // ============================================================================
 template <typename T>
-YAT_INLINE void Buffer<T>::force_length (size_t _new_length)
+YAT_INLINE void Buffer<T>::force_length (std::size_t _new_length)
 {
   if (_new_length > this->capacity_)
     this->length_ = this->capacity_;
@@ -93,7 +93,7 @@ YAT_INLINE void Buffer<T>::append (const T& _val)
 // Buffer::capacity
 // ============================================================================
 template <typename T>
-YAT_INLINE size_t Buffer<T>::capacity () const
+YAT_INLINE std::size_t Buffer<T>::capacity () const
 {
   return this->capacity_;
 }
@@ -120,7 +120,7 @@ YAT_INLINE T * Buffer<T>::base () const
 // Buffer::operator[]
 // ============================================================================
 template <typename T>
-YAT_INLINE T& Buffer<T>::operator[] (size_t _indx)
+YAT_INLINE T& Buffer<T>::operator[] (std::size_t _indx)
 {
   /* !! no bound error check !!*/
   return this->base_[_indx];
@@ -130,7 +130,7 @@ YAT_INLINE T& Buffer<T>::operator[] (size_t _indx)
 // Buffer::operator[] const
 // ============================================================================
 template <typename T>
-YAT_INLINE const T& Buffer<T>::operator[] (size_t _indx) const
+YAT_INLINE const T& Buffer<T>::operator[] (std::size_t _indx) const
 {
   /* !! no bound error check !!*/
   return this->base_[_indx];
@@ -140,7 +140,7 @@ YAT_INLINE const T& Buffer<T>::operator[] (size_t _indx) const
 // Buffer::size
 // ============================================================================
 template <typename T>
-YAT_INLINE size_t Buffer<T>::size () const
+YAT_INLINE std::size_t Buffer<T>::size () const
 {
   return this->length_ * sizeof(T);
 }
@@ -195,7 +195,7 @@ YAT_INLINE Buffer<T>& Buffer<T>::operator= (const T* _src)
 template <typename T>
 YAT_INLINE Buffer<T>& Buffer<T>::operator= (const T& _val)
 {
-  for (size_t i = 0; i < this->capacity_; i++)
+  for (std::size_t i = 0; i < this->capacity_; i++)
      *(this->base_ + i) = _val;
 
   this->length_ = this->capacity_;
@@ -207,7 +207,7 @@ YAT_INLINE Buffer<T>& Buffer<T>::operator= (const T& _val)
 // ImageBuffer::width
 // ======================================================================
 template <typename T>
-YAT_INLINE size_t ImageBuffer<T>::width () const
+YAT_INLINE std::size_t ImageBuffer<T>::width () const
 {
   return this->width_;
 }
@@ -215,7 +215,7 @@ YAT_INLINE size_t ImageBuffer<T>::width () const
 // ======================================================================
 // ImageBuffer::height
 // ======================================================================
-template <typename T> YAT_INLINE size_t ImageBuffer<T>::height () const
+template <typename T> YAT_INLINE std::size_t ImageBuffer<T>::height () const
 {
   return this->height_;
 }
@@ -224,7 +224,7 @@ template <typename T> YAT_INLINE size_t ImageBuffer<T>::height () const
 // ImageBuffer::set_dimensions
 // ======================================================================
 template <typename T>
-YAT_INLINE void ImageBuffer<T>::set_dimensions (size_t _width, size_t _height)
+YAT_INLINE void ImageBuffer<T>::set_dimensions (std::size_t _width, std::size_t _height)
 {
   this->capacity(_width * _height);
   this->force_length(_width * _height);

@@ -45,9 +45,9 @@ YAT_INLINE void Semaphore::wait ()
 // ----------------------------------------------------------------------------
 YAT_INLINE bool Semaphore::timed_wait (unsigned long _tmo_msecs)
 {
-  bool r = false;
+  bool r = true;
   this->m_mux.lock();
-  while (! this->m_value)
+  if (! this->m_value)
   {
     r = this->m_cond.timed_wait(_tmo_msecs);
   }

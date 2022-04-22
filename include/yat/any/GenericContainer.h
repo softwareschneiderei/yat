@@ -141,7 +141,7 @@ public:
     {
       try
       {
-        ptr_ = new (std::nothrow) T(_src.content());
+        ptr_ = new (std::nothrow) T(_src.get());
         if( !ptr_ )
           throw std::bad_alloc();
       }
@@ -156,7 +156,7 @@ public:
     }
     else
     {
-      *ptr_ = _src.content();
+      *ptr_ = _src.get();
     }
     own_ = true;
     return *this;

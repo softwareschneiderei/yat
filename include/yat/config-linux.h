@@ -82,6 +82,11 @@ namespace yat
   typedef uint32_t uint32;
   typedef int64_t  int64;
   typedef uint64_t uint64;
+#if __WORDSIZE == 64
+  typedef uint64_t uintptr;
+#else
+  typedef uint32_t uintptr;
+#endif
 }
 
 /**
