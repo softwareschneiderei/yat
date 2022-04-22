@@ -1,10 +1,15 @@
 YAT history file
 
-main
-====
+1.18.9 (2022/04/22)
+===================
 
 Fixes:
+    class Barrier
+        Documentation was wrong: a barrier object is not re-usable
+    -> see <yat/threading/Barrier.h>
+
     class FileName
+        set(path, name, ext) wrong behavior when ext was empty
         mod_time(): wrong conversion local <-> utc
         recursive_chown() : this method was not functional
 
@@ -19,6 +24,9 @@ Fixes:
 
     class Time
         fixed to_string formats
+
+    class Duration
+        any negative value passed in c-tor is automatically converted to positive one
 
 Changes:
     class FileName
