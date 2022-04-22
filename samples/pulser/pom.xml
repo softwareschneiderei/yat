@@ -27,8 +27,8 @@
                             <option>-Wno-unused-parameter</option>
                             <option>-Wno-unused-variable</option>
                         </options-->
-                    </cpp>  
-                </configuration>  
+                    </cpp>
+                </configuration>
            </plugin>
        </plugins>
    </build>
@@ -41,7 +41,6 @@
        <dependency>
            <groupId>fr.soleil.lib</groupId>
            <artifactId>YAT-${aol}-${library}-${mode}</artifactId>
-           <version>1.9.2</version>
        </dependency>
    </dependencies>
    <developers>
