@@ -1178,6 +1178,65 @@ void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& be
     before = m_str.substr(0, start_pos);
     after = m_str.substr(end_pos + 1);
     m_fmt_idx = end_pos;
+
+    oss << before;
+
+    if( fmt.empty() )
+    { // no format specified
+      return;
+    }
+
+    std::ios_base::fmtflags ff = oss.flags();
+
+    if( fmt.size() == 1 )
+    {
+      // type only
+      switch( fmt[0] )
+      {
+        case 'p':
+          ff |= std::ios::showbase;
+          oss.setf(ff);
+          oss << std::hex;
+          break;
+
+        case 'X':
+          ff |= std::ios::uppercase;
+          oss.setf(ff);
+        case 'x':
+          oss << std::hex;
+          break;
+
+        case 'o':
+          oss << std::oct;
+          break;
+
+        case 'b':
+          ff |= std::ios::boolalpha;
+          oss.setf(ff);
+          break;
+
+        case 'f':
+        case 'F':
+        case '%':
+          ff |= std::ios::fixed;
+          oss.setf(ff);
+          break;
+
+        case 'E':
+          ff |= std::ios::uppercase;
+        case 'e':
+          ff |= std::ios::scientific;
+          oss.setf(ff);
+          break;
+
+        case 'G':
+          ff |= std::ios::uppercase;
+          oss.setf(ff);
+          break;
+      }
+      return;
+    }
+
     bool show_sign = false;
     bool align_right = false, align_left = false, align_sign = false, zero_padding = false;
     bool show_base = false;
@@ -1253,7 +1312,6 @@ void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& be
     if( precision_pos != std::string::npos )
       precision = StringUtil::to_num<std::size_t>(fmt.substr(precision_pos, type_pos - precision_pos));
 
-    std::ios_base::fmtflags ff = oss.flags();
     if( show_base || 'p' == type )  ff |= std::ios::showbase;
     if( show_sign)   ff |= std::ios::showpos;
     if( align_right) ff |= std::ios::right;
@@ -1272,7 +1330,6 @@ void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& be
         fill = '0';
       }
 
-    oss << before;
     oss.setf(ff);
 
     if( 'x' == type || 'X' == type || 'p' == type ) oss << std::hex;
