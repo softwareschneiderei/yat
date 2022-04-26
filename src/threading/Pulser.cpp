@@ -278,6 +278,8 @@ void Pulser::set_period (double p_msecs)
 {
   YAT_TRACE("Pulser::set_period");
 
+  cfg_.period_in_msecs = p_msecs;
+
   if ( this->impl_ )
     this->impl_->set_periodic_msg_period(p_msecs);
 }
@@ -298,6 +300,8 @@ double Pulser::get_period () const
 void Pulser::set_num_pulses (size_t num_pulses)
 {
   YAT_TRACE("Pulser::set_num_pulses");
+
+  cfg_.num_pulses = num_pulses;
 
   if ( this->impl_ )
     this->impl_->set_num_pulses(num_pulses);
