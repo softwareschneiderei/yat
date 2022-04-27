@@ -289,7 +289,7 @@ bool StringTemplate::value_impl(std::string* var_p, const std::string& pattern)
 //----------------------------------------------------------------------------
 bool StringTemplate::value(std::string* var_p)
 {
-  return value_impl(var_p, "");
+  return value_impl(var_p, std::string(*var_p));
 }
 
 //----------------------------------------------------------------------------
@@ -297,7 +297,7 @@ bool StringTemplate::value(std::string* var_p)
 //----------------------------------------------------------------------------
 bool StringTemplate::value(String* var_p)
 {
-  return value_impl((std::string*)var_p, "");
+  return value_impl((std::string*)var_p, std::string(*var_p));
 }
 
 //=============================================================================
