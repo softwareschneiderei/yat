@@ -1160,6 +1160,56 @@ h64_t StringUtil::hash64(const std::string& str)
 const String String::nil = "";
 
 //---------------------------------------------------------------------------
+// Format::prepare_type
+//---------------------------------------------------------------------------
+inline void Format::prepare_type(std::ostringstream& oss, std::ios_base::fmtflags& ff, const char& type)
+{
+  switch( type )
+  {
+    case 'p':
+      ff |= std::ios::showbase;
+      oss.setf(ff);
+      oss << std::hex;
+      break;
+
+    case 'X':
+      ff |= std::ios::uppercase;
+      oss.setf(ff);
+    case 'x':
+      oss << std::hex;
+      break;
+
+    case 'o':
+      oss << std::oct;
+      break;
+
+    case 'b':
+      ff |= std::ios::boolalpha;
+      oss.setf(ff);
+      break;
+
+    case 'f':
+    case 'F':
+    case '%':
+      ff |= std::ios::fixed;
+      oss.setf(ff);
+      break;
+
+    case 'E':
+      ff |= std::ios::uppercase;
+    case 'e':
+      ff |= std::ios::scientific;
+      oss.setf(ff);
+      break;
+
+    case 'G':
+      ff |= std::ios::uppercase;
+      oss.setf(ff);
+      break;
+  }
+}
+
+//---------------------------------------------------------------------------
 // Format::prepare_format
 //---------------------------------------------------------------------------
 void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& before, yat::String& after)
@@ -1191,49 +1241,8 @@ void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& be
     if( fmt.size() == 1 )
     {
       // type only
-      switch( fmt[0] )
-      {
-        case 'p':
-          ff |= std::ios::showbase;
-          oss.setf(ff);
-          oss << std::hex;
-          break;
-
-        case 'X':
-          ff |= std::ios::uppercase;
-          oss.setf(ff);
-        case 'x':
-          oss << std::hex;
-          break;
-
-        case 'o':
-          oss << std::oct;
-          break;
-
-        case 'b':
-          ff |= std::ios::boolalpha;
-          oss.setf(ff);
-          break;
-
-        case 'f':
-        case 'F':
-        case '%':
-          ff |= std::ios::fixed;
-          oss.setf(ff);
-          break;
-
-        case 'E':
-          ff |= std::ios::uppercase;
-        case 'e':
-          ff |= std::ios::scientific;
-          oss.setf(ff);
-          break;
-
-        case 'G':
-          ff |= std::ios::uppercase;
-          oss.setf(ff);
-          break;
-      }
+      type = fmt[0];
+      prepare_type(oss, ff, type);
       return;
     }
 
@@ -1317,10 +1326,9 @@ void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& be
     if( align_right) ff |= std::ios::right;
     if( align_left)  ff |= std::ios::left;
     if( align_sign)  ff |= std::ios::left;
-    if( 'f' == type || 'F' == type || '%' == type)  ff |= std::ios::fixed;
-    if( 'e' == type || 'E' == type )                ff |= std::ios::scientific;
-    if( 'E' == type || 'X' == type || 'G' == type ) ff |= std::ios::uppercase;
-    if( 'b' == type ) ff |= std::ios::boolalpha;
+
+    prepare_type(oss, ff, type);
+
     if( zero_padding && ('x' == type || 'X' == type ||
                          'o' == type || 'd' == type ||
                          'f' == type || 'F' == type ||
