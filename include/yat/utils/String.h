@@ -1225,6 +1225,7 @@ public:
   //! 'f' Fixed-point notation. Displays the number as a fixed-point number. The default precision is 6.\n
   //! 'g' General format. For a given precision p >= 1, this rounds the number to p significant digits and then formats the result in either fixed-point format or in scientific notation, depending on its magnitude.\n
   //! 'G' General format. Same as 'g' except switches to 'E' if the number gets too large. The representations of infinity and NaN are uppercased, too.\n
+  //! 'p' special type to be used only to output pointer value (ex: yat::Format('{p}').arg(PTR2INT(my_pointer)) )
   //! '%%' Percentage. Multiplies the number by 100 and displays in fixed ('f') format, followed by a percent sign.\n
   template<typename T> Format& arg(const T& v)
   {
@@ -1285,6 +1286,7 @@ private:
   std::size_t m_fmt_idx;
 
   void prepare_format(std::ostringstream& oss, char& type, yat::String& before, yat::String& after);
+  void prepare_type(std::ostringstream& oss, std::ios_base::fmtflags& ff, const char& type);
 };
 
 //! @deprecated original class name
