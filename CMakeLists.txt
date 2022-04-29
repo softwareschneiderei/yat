@@ -19,8 +19,20 @@ endif()
 
 add_subdirectory (src)
 
+set(prefix ${CMAKE_INSTALL_PREFIX})
+
 if (UNIX AND EXISTS ${CMAKE_SOURCE_DIR}/yat.pc.in)
-    configure_file("${CMAKE_SOURCE_DIR}/yat.pc.in"
-    "${CMAKE_BINARY_DIR}/yat.pc" @ONLY IMMEDIATE)
-    install(FILES ${CMAKE_BINARY_DIR}/yat.pc DESTINATION lib/pkgconfig)
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/yat.pc.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/yat.pc" @ONLY IMMEDIATE)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/yat.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 endif()
+
+set(CPACK_PACKAGE_VERSION ${VERSION})
+set(CPACK_PACKAGE_CONTACT "Mihael Koep <mihael.koep@softwareschneiderei.de>")
+set(CPACK_GENERATOR DEB)
+set(CPACK_DEBIAN_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+set(CPACK_DEBIAN_PACKAGE_RELEASE 1)
+
+include(CPack)
+
