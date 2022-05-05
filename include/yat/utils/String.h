@@ -1149,6 +1149,7 @@ YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 //! \class Format
 //! \brief Format string using a format specification close to the
 //! format-spec defined in Python (https://docs.python.org/3/library/string.html#formatspec)
+//! use '{{' or '}}' to escape '{' or '}'
 //! \par Usage:
 //! \code{.cpp}
 //! std::cout << yat::Format("ga: {}, bu: {}, zo: {}, meu: {}").arg("pomper").arg(true).arg(12).arg(3.14) << std::endl;
@@ -1352,7 +1353,7 @@ private:
   CompiledFormatPtr m_compiled_fmt_ptr;
   mutable yat::String m_str;
   mutable std::size_t m_fmt_idx;
-  mutable std::size_t m_max_fmt_idx;
+  std::size_t m_max_fmt_idx;
 
   ItemFormat* parse_format(const yat::String& fmt);
   void parse();
