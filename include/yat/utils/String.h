@@ -45,6 +45,7 @@
 #include <cctype>
 #include <yat/CommonHeader.h>
 #include <yat/utils/NonCopyable.h>
+#include <yat/memory/SharedPtr.h>
 #include <yat/Exception.h>
 
 // STL headers
@@ -1169,29 +1170,41 @@ public:
 
   //! \brief Constructor from a char pointer.
   //! \param psz Char pointer.
-  Format(const char *psz) : m_str(psz), m_fmt_idx(0) {}
+  Format(const char *psz) : m_str(psz), m_fmt_idx(0), m_max_fmt_idx(-1)
+  {
+    parse();
+  }
 
   //! \brief Constructor from char buffer.
   //! \param psz Char pointer.
   //! \param size %Buffer size.
-  Format(const char *psz, int size) : m_str(psz, size), m_fmt_idx(0) {}
+  Format(const char *psz, int size) : m_str(psz, size), m_fmt_idx(0), m_max_fmt_idx(-1)
+  {
+    parse();
+  }
 
   //! \brief Copy Constructor.
   //! \param str The source string.
-  Format(const String &str) : m_str(str), m_fmt_idx(0) {}
+  Format(const String &str) : m_str(str), m_fmt_idx(0), m_max_fmt_idx(-1)
+  {
+    parse();
+  }
 
   //! \brief Constructor from std::string.
   //! \param str The string.
-  Format(const std::string &str) : m_str(str), m_fmt_idx(0) {}
+  Format(const std::string &str) : m_str(str), m_fmt_idx(0), m_max_fmt_idx(-1)
+  {
+    parse();
+  }
 
   //! Explicit conversion
-  operator const std::string&() const { return m_str.str(); }
-  operator std::string&() { return m_str; }
-  operator const yat::String&() const { return m_str; }
-  operator yat::String&() { return m_str; }
+  operator const std::string&() const { return get().str(); }
+  operator std::string&() { return get(); }
+  operator const yat::String&() const { return get(); }
+  operator yat::String&() { return get(); }
 
-  //! Get string
-  String& get() { return m_str; }
+  //! Get final string
+  String& get() const;
 
   //! Apply format
   //!
@@ -1229,26 +1242,22 @@ public:
   //! '%%' Percentage. Multiplies the number by 100 and displays in fixed ('f') format, followed by a percent sign.\n
   template<typename T> Format& arg(const T& v)
   {
-    std::ostringstream oss;
     char type = 0;
-    yat::String before, after;
-    prepare_format(oss, type, before, after);
+    std::ostringstream *target_p = 0;
+    prepare_format(type, &target_p);
 
     if( 'B' == type )
     {
       std::bitset<8 * sizeof(T)> bs(v);
-      oss << bs;
+      (*target_p) << bs;
     }
     else if( '%' == type )
     {
-      oss << 100 * v << '%';
+      (*target_p) << 100 * v << '%';
     }
     else
-      oss << v;
+      (*target_p) << v;
 
-    m_fmt_idx = oss.str().size();
-    oss << after;
-    m_str = oss.str();
     return *this;
   }
 
@@ -1265,16 +1274,10 @@ public:
   //!
   template<typename T> Format& argp(const T* p)
   {
-    std::ostringstream oss;
     char type = 'p';
-    yat::String before, after;
-    prepare_format(oss, type, before, after);
-
-    oss << reinterpret_cast<uintptr>(p);
-
-    m_fmt_idx = oss.str().size();
-    oss << after;
-    m_str = oss.str();
+    std::ostringstream *target_p = 0;
+    prepare_format(type, &target_p);
+    (*target_p) << reinterpret_cast<uintptr>(p);
     return *this;
   }
 
@@ -1282,10 +1285,78 @@ public:
   template<class T> Format& format(const T& v) { return arg(v); }
 
 private:
-  yat::String m_str;
-  std::size_t m_fmt_idx;
 
-  void prepare_format(std::ostringstream& oss, char& type, yat::String& before, yat::String& after);
+  enum ItemType { format_item_fmt, format_item_str };
+
+  class ItemBase
+  {
+  public:
+    virtual ItemType item_type() = 0;
+    virtual ~ItemBase() {}
+    std::ostringstream oss;
+  };
+  typedef SharedPtr<ItemBase> ItemPtr;
+  typedef std::vector<ItemPtr> Items;
+  typedef std::vector<std::size_t> ItemFmtIdx;
+
+  class ItemString : public ItemBase
+  {
+  public:
+    ItemType item_type() { return format_item_str; }
+  };
+
+  class ItemFormat : public ItemBase
+  {
+  public:
+    ItemType item_type() { return format_item_fmt; }
+    bool empty_fmt;
+    bool type_only_fmt;
+    bool show_sign;
+    bool align_sign;
+    bool align_right;
+    bool align_left;
+    bool show_base;
+    bool zero_padding;
+    char type;
+    char fill;
+    std::size_t precision;
+    std::size_t width;
+    yat::String fmt_spec;
+
+    ItemFormat() : empty_fmt(true), type_only_fmt(false), show_sign(false),
+                   align_sign(false), align_right(false), align_left(false),
+                   show_base(false), zero_padding(false), type('s'), fill(0),
+                   precision(0), width(0)
+                   {}
+  };
+
+  struct CompiledFormat
+  {
+    Items items;
+    ItemFmtIdx items_fmt_idx;
+  };
+  typedef SharedPtr<CompiledFormat> CompiledFormatPtr;
+
+  class Cache
+  {
+  public:
+    static bool get(const yat::String& fmt, CompiledFormatPtr& entry_ptr);
+
+  private:
+    static Cache& instance();
+    std::map<h64_t, CompiledFormatPtr> m_cache;
+    Mutex m_mtx;
+  };
+
+private:
+  CompiledFormatPtr m_compiled_fmt_ptr;
+  mutable yat::String m_str;
+  mutable std::size_t m_fmt_idx;
+  mutable std::size_t m_max_fmt_idx;
+
+  ItemFormat* parse_format(const yat::String& fmt);
+  void parse();
+  void prepare_format(char& type, std::ostringstream** pp_str);
   void prepare_type(std::ostringstream& oss, std::ios_base::fmtflags& ff, const char& type);
 };
 
