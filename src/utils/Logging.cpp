@@ -230,13 +230,13 @@ void LogManager::init(int iMinLevel, const std::string &_strFilter)
 //----------------------------------------------------------------------------
 // LogManager::log
 //----------------------------------------------------------------------------
-void LogManager::log(ELogLevel eLevel, pcsz pszType, const std::string& strMsg)
+void LogManager::log(ELogLevel eLevel, pcsz pszType, const std::string& strMsg, std::ostream* os_p)
 {
   // Get a reference to the singleton
   LogManager &o = *Instance();
 
   // Minimum level message to display (except for LOG_RESULT type messages)
-  if( int(eLevel) < o.m_iMinLevel && eLevel != LOG_RESULT )
+  if( int(eLevel) < o.m_iMinLevel && eLevel != LOG_RESULT && !os_p)
     // Do nothing
     return;
 
@@ -247,8 +247,11 @@ void LogManager::log(ELogLevel eLevel, pcsz pszType, const std::string& strMsg)
     return;
 
   // Notify log tarteg
-  if( current_log_target() )
+  if( current_log_target() && !os_p )
     current_log_target()->log(eLevel, pszType, strMsg);
+
+  if( os_p )
+    (*os_p) << strMsg << std::endl;
 }
 
 //----------------------------------------------------------------------------
@@ -533,6 +536,9 @@ LogFormat error(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_ERRO
 LogFormat alert(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_ALERT); }
 LogFormat critical(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_CRITICAL); }
 LogFormat emergency(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_EMERGENCY); }
-LogFormat message(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_NOLEVEL); }
+
+LogFormat cout(const std::string& msg_fmt) { return LogFormat(msg_fmt, &std::cout); }
+LogFormat clog(const std::string& msg_fmt) { return LogFormat(msg_fmt, &std::clog); }
+LogFormat cerr(const std::string& msg_fmt) { return LogFormat(msg_fmt, &std::cerr); }
 
 } // namespace
