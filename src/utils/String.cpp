@@ -1471,7 +1471,7 @@ void Format::parse()
       if( start_str < m_str.size() )
       {
         ItemString* p = new ItemString;
-        std::string str = m_str.substr(start_str, end_str - start_str);
+        std::string str = m_str.substr(start_str);
         rep_double_char(str, '{');
         rep_double_char(str, '}');
         p->oss << str;
