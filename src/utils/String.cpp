@@ -1452,10 +1452,9 @@ void Format::parse()
       if( start_str != end_str )
       {
         ItemString* p = new ItemString;
-        std::string str = m_str.substr(start_str, end_str - start_str);
-        rep_double_char(str, '{');
-        rep_double_char(str, '}');
-        p->oss << str;
+        p->str = m_str.substr(start_str, end_str - start_str);
+        rep_double_char(p->str, '{');
+        rep_double_char(p->str, '}');
         m_compiled_fmt_ptr->items.push_back(ItemPtr(p));
       }
       start_str = end_pos + 1;
@@ -1471,10 +1470,9 @@ void Format::parse()
       if( start_str < m_str.size() )
       {
         ItemString* p = new ItemString;
-        std::string str = m_str.substr(start_str);
-        rep_double_char(str, '{');
-        rep_double_char(str, '}');
-        p->oss << str;
+        p->str = m_str.substr(start_str);
+        rep_double_char(p->str, '{');
+        rep_double_char(p->str, '}');
         m_compiled_fmt_ptr->items.push_back(ItemPtr(p));
       }
       break;
@@ -1544,27 +1542,12 @@ void Format::prepare_format(char& type, std::ostringstream** pp_str)
   std::ostringstream *target_p = 0; \
   prepare_format(type, &target_p); \
   (*target_p) << v; \
-  return *this;
-
-Format& Format::arg(const char *v)
-{
- __STRING_TYPES_FORMAT_EX(v)
-}
-
-Format& Format::arg(const std::string& v)
-{
- __STRING_TYPES_FORMAT_EX(v)
-}
-
-Format& Format::arg(const yat::String& v)
-{
- __STRING_TYPES_FORMAT_EX(v)
-}
+  return *this
 
 #define __CHAR_TYPES_FORMAT_EX(v) \
   char type = 0; \
   std::ostringstream *target_p = 0; \
-  prepare_format(/*oss, */type, &target_p); \
+  prepare_format(type, &target_p); \
    if( 'B' == type ) \
   { \
     std::bitset<8> bs(v); \
@@ -1574,18 +1557,31 @@ Format& Format::arg(const yat::String& v)
     (*target_p) << int(v); \
   else \
     (*target_p) << v; \
-  return *this;
+  return *this
 
+//---------------------------------------------------------------------------
+// Format::arg
+//---------------------------------------------------------------------------
+Format& Format::arg(const char *v)
+{
+ __STRING_TYPES_FORMAT_EX(v);
+}
+Format& Format::arg(const std::string& v)
+{
+ __STRING_TYPES_FORMAT_EX(v);
+}
+Format& Format::arg(const yat::String& v)
+{
+ __STRING_TYPES_FORMAT_EX(v);
+}
 Format& Format::arg(const char& v)
 {
-  __CHAR_TYPES_FORMAT_EX(v)
+  __CHAR_TYPES_FORMAT_EX(v);
 }
-
 Format& Format::arg(const unsigned char& v)
 {
-  __CHAR_TYPES_FORMAT_EX(v)
+  __CHAR_TYPES_FORMAT_EX(v);
 }
-
 Format& Format::arg(const bool& v)
 {
   char type = 'b';
@@ -1595,6 +1591,9 @@ Format& Format::arg(const bool& v)
   return *this;
 }
 
+//---------------------------------------------------------------------------
+// Format::get
+//---------------------------------------------------------------------------
 String& Format::get() const
 {
   if( m_fmt_idx != std::string::npos )
@@ -1602,16 +1601,22 @@ String& Format::get() const
     m_str.clear();
     for( std::size_t i = 0; i < m_compiled_fmt_ptr->items.size(); ++i )
     {
-      if( i > m_max_fmt_idx && m_compiled_fmt_ptr->items[i]->item_type() == format_item_fmt )
-        // unused format => write format spec on output string
-        m_str.append(dynamic_cast<ItemFormat*>(m_compiled_fmt_ptr->items[i].get())->fmt_spec);
-      else
-        // used format
-        m_str.append(m_compiled_fmt_ptr->items[i]->oss.str());
-
-      if( format_item_fmt == m_compiled_fmt_ptr->items[i]->item_type() )
+      if( m_compiled_fmt_ptr->items[i]->item_type() == format_item_fmt )
+      {
+        ItemFormat* item_p = dynamic_cast<ItemFormat*>(m_compiled_fmt_ptr->items[i].get());
+        if( i > m_max_fmt_idx )
+          // unused format => write format spec on output string
+          m_str.append(item_p->fmt_spec);
+        else
+          // used format
+          m_str.append(item_p->oss.str());
         // reset string value
-        m_compiled_fmt_ptr->items[i]->oss.str("");
+        item_p->oss.str("");
+      }
+      else // format_item_str
+      {
+        m_str.append(dynamic_cast<ItemString*>(m_compiled_fmt_ptr->items[i].get())->str);
+      }
     }
     m_fmt_idx = std::string::npos;
   }

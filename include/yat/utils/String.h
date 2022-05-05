@@ -1294,7 +1294,6 @@ private:
   public:
     virtual ItemType item_type() = 0;
     virtual ~ItemBase() {}
-    std::ostringstream oss;
   };
   typedef SharedPtr<ItemBase> ItemPtr;
   typedef std::vector<ItemPtr> Items;
@@ -1304,6 +1303,7 @@ private:
   {
   public:
     ItemType item_type() { return format_item_str; }
+    std::string str;
   };
 
   class ItemFormat : public ItemBase
@@ -1323,6 +1323,7 @@ private:
     std::size_t precision;
     std::size_t width;
     yat::String fmt_spec;
+    std::ostringstream oss;
 
     ItemFormat() : empty_fmt(true), type_only_fmt(false), show_sign(false),
                    align_sign(false), align_right(false), align_left(false),
