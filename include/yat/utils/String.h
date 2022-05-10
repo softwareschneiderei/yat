@@ -1167,11 +1167,12 @@ class Format
 {
 public:
   //! \brief Default constructor.
-  Format() {}
+  Format() : m_null_fmt(NULL) {}
 
   //! \brief Constructor from a char pointer.
   //! \param psz Char pointer.
-  Format(const char *psz) : m_str(psz), m_fmt_idx(0), m_max_fmt_idx(-1)
+  Format(const char *psz) : m_str(psz), m_arg_index(0), m_item_by_arg_idx(0),
+                            m_null_fmt(NULL)
   {
     parse();
   }
@@ -1179,21 +1180,23 @@ public:
   //! \brief Constructor from char buffer.
   //! \param psz Char pointer.
   //! \param size %Buffer size.
-  Format(const char *psz, int size) : m_str(psz, size), m_fmt_idx(0), m_max_fmt_idx(-1)
+  Format(const char *psz, int size) : m_str(psz, size),
+                                      m_arg_index(0), m_item_by_arg_idx(0), m_null_fmt(NULL)
   {
     parse();
   }
 
   //! \brief Copy Constructor.
   //! \param str The source string.
-  Format(const String &str) : m_str(str), m_fmt_idx(0), m_max_fmt_idx(-1)
+  Format(const String &str) : m_str(str), m_arg_index(0), m_item_by_arg_idx(0), m_null_fmt(NULL)
   {
     parse();
   }
 
   //! \brief Constructor from std::string.
   //! \param str The string.
-  Format(const std::string &str) : m_str(str), m_fmt_idx(0), m_max_fmt_idx(-1)
+  Format(const std::string &str) : m_str(str), m_arg_index(0),
+                                   m_item_by_arg_idx(0), m_null_fmt(NULL)
   {
     parse();
   }
@@ -1243,22 +1246,25 @@ public:
   //! '%%' Percentage. Multiplies the number by 100 and displays in fixed ('f') format, followed by a percent sign.\n
   template<typename T> Format& arg(const T& v)
   {
-    char type = 0;
-    std::ostringstream *target_p = 0;
-    prepare_format(type, &target_p);
-
-    if( 'B' == type )
+    ItemFormat *item_p = 0;
+    while( get_next_format(&item_p) )
     {
-      std::bitset<8 * sizeof(T)> bs(v);
-      (*target_p) << bs;
-    }
-    else if( '%' == type )
-    {
-      (*target_p) << 100 * v << '%';
-    }
-    else
-      (*target_p) << v;
+      char type = 0;
+      prepare_format(type, item_p);
 
+      if( 'B' == type )
+      {
+        std::bitset<8 * sizeof(T)> bs(v);
+        m_oss << bs;
+      }
+      else if( '%' == type )
+      {
+        m_oss << 100 * v << '%';
+      }
+      else
+        m_oss << v;
+      m_replacements[PTR2INT(item_p)] = m_oss.str();
+    }
     return *this;
   }
 
@@ -1275,10 +1281,14 @@ public:
   //!
   template<typename T> Format& argp(const T* p)
   {
-    char type = 'p';
-    std::ostringstream *target_p = 0;
-    prepare_format(type, &target_p);
-    (*target_p) << reinterpret_cast<uintptr>(p);
+    ItemFormat *item_p = 0;
+    while( get_next_format(&item_p) )
+    {
+      char type = 'p';
+      prepare_format(type, item_p);
+      m_oss << reinterpret_cast<uintptr>(p);
+      m_replacements[PTR2INT(item_p)] = m_oss.str();
+    }
     return *this;
   }
 
@@ -1297,7 +1307,8 @@ private:
   };
   typedef SharedPtr<ItemBase> ItemPtr;
   typedef std::vector<ItemPtr> Items;
-  typedef std::vector<std::size_t> ItemFmtIdx;
+  typedef std::map<std::size_t, Items> MapArgItems;
+  typedef std::map<uintptr, std::string> ReplacementMap;
 
   class ItemString : public ItemBase
   {
@@ -1322,20 +1333,22 @@ private:
     char fill;
     std::size_t precision;
     std::size_t width;
+    int arg_index;
     yat::String fmt_spec;
-    std::ostringstream oss;
 
     ItemFormat() : empty_fmt(true), type_only_fmt(false), show_sign(false),
                    align_sign(false), align_right(false), align_left(false),
                    show_base(false), zero_padding(false), type('s'), fill(0),
-                   precision(0), width(0)
+                   precision(0), width(0), arg_index(-1)
                    {}
   };
 
   struct CompiledFormat
   {
     Items items;
-    ItemFmtIdx items_fmt_idx;
+    MapArgItems arg_items_map;
+    std::size_t  expected_arg_count;
+    CompiledFormat() : expected_arg_count(0) {}
   };
   typedef SharedPtr<CompiledFormat> CompiledFormatPtr;
 
@@ -1353,13 +1366,17 @@ private:
 private:
   CompiledFormatPtr m_compiled_fmt_ptr;
   mutable yat::String m_str;
-  mutable std::size_t m_fmt_idx;
-  std::size_t m_max_fmt_idx;
+  std::size_t m_arg_index;
+  std::size_t m_item_by_arg_idx;
+  ReplacementMap m_replacements;
+  std::ios m_null_fmt;
+  std::ostringstream m_oss;
 
-  ItemFormat* parse_format(const yat::String& fmt);
+  ItemFormat* parse_format(yat::String& fmt);
+  bool get_next_format(ItemFormat** pp_fmt);
   void parse();
-  void prepare_format(char& type, std::ostringstream** pp_str);
-  void prepare_type(std::ostringstream& oss, std::ios_base::fmtflags& ff, const char& type);
+  void prepare_format(char& type, ItemFormat* item_p);
+  void prepare_type(std::ios_base::fmtflags& ff, const char& type);
 };
 
 //! @deprecated original class name

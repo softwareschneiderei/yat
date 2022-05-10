@@ -1225,9 +1225,30 @@ inline void rep_double_char(std::string& str, char c)
 //---------------------------------------------------------------------------
 // Format::parse_format
 //---------------------------------------------------------------------------
-Format::ItemFormat* Format::parse_format(const yat::String& fmt)
+Format::ItemFormat* Format::parse_format(yat::String& fmt)
 {
   ItemFormat* item_p = new ItemFormat;
+
+  // string value before substitution is '{fmt}'
+  item_p->fmt_spec.append(1, '{');
+  item_p->fmt_spec.append(fmt);
+  item_p->fmt_spec.append(1, '}');
+
+  // first look for an element index (2 digits max)
+  if( (fmt.size() > 1 && isdigit(fmt[0]) && fmt[1] == ':') ||
+      (fmt.size() > 2 && isdigit(fmt[0]) && isdigit(fmt[1]) && fmt[2] == ':') )
+  {
+    int arg_index = -1;
+    arg_index = fmt[0] - '0';
+    if( fmt[2] == ':' )
+    {
+      arg_index = 10 * arg_index + fmt[1] - '0';
+      fmt = fmt.substr(3);
+    }
+    else // fmt[1] == ':'
+      fmt = fmt.substr(2);
+    item_p->arg_index = arg_index;
+  }
 
   if( fmt.empty() )
   { // no format specified
@@ -1235,12 +1256,7 @@ Format::ItemFormat* Format::parse_format(const yat::String& fmt)
   }
   item_p->empty_fmt = false;
 
-  // value before substitution is '{fmt}'
-  item_p->fmt_spec.append(1, '{');
-  item_p->fmt_spec.append(fmt);
-  item_p->fmt_spec.append(1, '}');
-
-  if( fmt.size() == 1 )
+  if( fmt.size() == 1 && isalpha(fmt[0]) )
   {
     // type only
     item_p->type = fmt[0];
@@ -1334,56 +1350,55 @@ Format::ItemFormat* Format::parse_format(const yat::String& fmt)
 //---------------------------------------------------------------------------
 // Format::prepare_type
 //---------------------------------------------------------------------------
-inline void Format::prepare_type(std::ostringstream& oss, std::ios_base::fmtflags& ff, const char& type)
+inline void Format::prepare_type(std::ios_base::fmtflags& ff, const char& type)
 {
   switch( type )
   {
     case 'p':
       ff |= std::ios::showbase;
-      oss.setf(ff);
-      oss << std::hex;
+      m_oss.setf(ff);
+      m_oss << std::hex;
       break;
 
     case 'X':
       ff |= std::ios::uppercase;
     case 'x':
-      oss.setf(ff);
-      oss << std::hex;
+      m_oss.setf(ff);
+      m_oss << std::hex;
       break;
 
     case 'o':
-      oss.setf(ff);
-      oss << std::oct;
+      m_oss.setf(ff);
+      m_oss << std::oct;
       break;
 
     case 'b':
       ff |= std::ios::boolalpha;
-      oss.setf(ff);
+      m_oss.setf(ff);
       break;
 
     case 'f':
     case 'F':
     case '%':
       ff |= std::ios::fixed;
-      oss.setf(ff);
+      m_oss.setf(ff);
       break;
 
     case 'E':
       ff |= std::ios::uppercase;
     case 'e':
       ff |= std::ios::scientific;
-      oss.setf(ff);
+      m_oss.setf(ff);
       break;
 
     case 'G':
       ff |= std::ios::uppercase;
-      oss.setf(ff);
+      m_oss.setf(ff);
       break;
 
     default:
-      oss.setf(ff);
+      m_oss.setf(ff);
       break;
-
   }
 }
 
@@ -1396,8 +1411,10 @@ void Format::parse()
     return;
 
   std::size_t start_pos, end_pos, start_str = 0, end_str = std::string::npos;
-  std::size_t start_search = 0;
+  std::size_t start_search = 0, arg_auto_index = 0, n_formats = 0;
   yat::String fmt;
+  bool manual_positioning = false, first_fmt = true;
+
   while( true )
   {
     start_pos = m_str.find('{', start_search);
@@ -1460,8 +1477,30 @@ void Format::parse()
       start_str = end_pos + 1;
       end_str = end_pos + 1;
       ItemFormat* fmt_p = parse_format(fmt);
-      m_compiled_fmt_ptr->items.push_back(ItemPtr(fmt_p));
-      m_compiled_fmt_ptr->items_fmt_idx.push_back(m_compiled_fmt_ptr->items.size() - 1);
+      ++n_formats;
+      ItemPtr ptr(fmt_p);
+
+      // { positioning
+      if( !first_fmt )
+      {
+        if( manual_positioning && fmt_p->arg_index == -1 )
+          throw yat::Exception("BAD_FORMAT", "Can't switch from manual argument positioning to automatic positioning", "yat::Format::parse");
+        if( !manual_positioning && fmt_p->arg_index != -1 )
+          throw yat::Exception("BAD_FORMAT", "Can't switch from automatic argument positioning to manual positioning", "yat::Format::parse");
+      }
+      else
+        first_fmt = false;
+
+      if( fmt_p->arg_index != -1 )
+      { // manual positioning: {0} {1}...
+        m_compiled_fmt_ptr->arg_items_map[std::size_t(fmt_p->arg_index)].push_back(ptr);
+        manual_positioning = true;
+      }
+      else // automatic positioning: {} {}...
+        m_compiled_fmt_ptr->arg_items_map[arg_auto_index++].push_back(ptr);
+      // } positioning
+
+      m_compiled_fmt_ptr->items.push_back(ptr);
       start_search = end_pos + 1;
     }
     else
@@ -1478,44 +1517,63 @@ void Format::parse()
       break;
     }
   }
+
+  // The map size is logically the expected arguments count
+  m_compiled_fmt_ptr->expected_arg_count = m_compiled_fmt_ptr->arg_items_map.size();
+  // check the position indexes. it must start at 0
+  for( std::size_t i = 0; i < m_compiled_fmt_ptr->expected_arg_count; ++i )
+  {
+    if( m_compiled_fmt_ptr->arg_items_map.find(i) == m_compiled_fmt_ptr->arg_items_map.end() )
+      throw yat::Exception("BAD_FORMAT", "An argument index in Format is out of the expected", "yat::Format::parse");
+  }
+}
+
+//---------------------------------------------------------------------------
+// Format::get_next_format
+//---------------------------------------------------------------------------
+bool Format::get_next_format(Format::ItemFormat** pp_fmt)
+{
+  if( m_arg_index >= m_compiled_fmt_ptr->expected_arg_count )
+    throw yat::Exception("BAD_ARG", "Format argument not expected", "yat::Format::parse");
+
+  if( m_item_by_arg_idx < m_compiled_fmt_ptr->arg_items_map[m_arg_index].size() )
+  {
+    *pp_fmt = dynamic_cast<ItemFormat*>(m_compiled_fmt_ptr->arg_items_map[m_arg_index][m_item_by_arg_idx++].get());
+    m_oss.copyfmt(m_null_fmt);
+    m_oss.str("");
+    return true;
+  }
+
+  *pp_fmt = 0;
+  m_item_by_arg_idx = 0;
+  ++m_arg_index;
+  return false;
 }
 
 //---------------------------------------------------------------------------
 // Format::prepare_format
 //---------------------------------------------------------------------------
-void Format::prepare_format(char& type, std::ostringstream** pp_str)
+void Format::prepare_format(char& type, Format::ItemFormat* item_p)
 {
-  if( m_fmt_idx >= m_compiled_fmt_ptr->items_fmt_idx.size() )
-    throw yat::Exception("ERROR", "Format out of bounds error", "yat::Format");
-
-  m_max_fmt_idx = m_compiled_fmt_ptr->items_fmt_idx[m_fmt_idx];
-  ItemFormat *item_p = dynamic_cast<ItemFormat*>
-                      (m_compiled_fmt_ptr->items[m_max_fmt_idx].get());
-  if( !item_p )
-    throw yat::Exception("ERROR", "Format error", "yat::Format");
-
-  ++m_fmt_idx;
-  *pp_str = &(item_p->oss);
-
   if( item_p->empty_fmt )
   {
     if( 0 != type )
     {
-      std::ios_base::fmtflags ff = item_p->oss.flags();
-      prepare_type(item_p->oss, ff, type);
+      std::ios_base::fmtflags ff = m_oss.flags();
+      prepare_type(ff, type);
     }
     // no defined spec
     return;
   }
 
-  std::ios_base::fmtflags ff = item_p->oss.flags();
+  std::ios_base::fmtflags ff = m_oss.flags();
   type = item_p->type;
 
   if( item_p->type_only_fmt )
   {
     // type only
     type = item_p->type;
-    prepare_type(item_p->oss, ff, type);
+    prepare_type(ff, type);
     return;
   }
 
@@ -1530,33 +1588,41 @@ void Format::prepare_format(char& type, std::ostringstream** pp_str)
     ff |= std::ios::internal;
     item_p->fill = '0';
   }
-  prepare_type(item_p->oss, ff, type);
+  prepare_type(ff, type);
 
-  if( item_p->fill )            item_p->oss << std::setfill(item_p->fill);
-  if( item_p->width > 0 )       item_p->oss << std::setw(item_p->width);
-  if( item_p->precision > 0 )   item_p->oss << std::setprecision(item_p->precision);
+  if( item_p->fill )            m_oss << std::setfill(item_p->fill);
+  if( item_p->width > 0 )       m_oss << std::setw(item_p->width);
+  if( item_p->precision > 0 )   m_oss << std::setprecision(item_p->precision);
 }
 
 #define __STRING_TYPES_FORMAT_EX(v) \
-  char type = 's'; \
-  std::ostringstream *target_p = 0; \
-  prepare_format(type, &target_p); \
-  (*target_p) << v; \
+  ItemFormat *item_p = 0; \
+  while( get_next_format(&item_p) ) \
+  { \
+    char type = 's'; \
+    prepare_format(type, item_p); \
+    m_oss << v; \
+    m_replacements[PTR2INT(item_p)] = m_oss.str(); \
+  } \
   return *this
 
 #define __CHAR_TYPES_FORMAT_EX(v) \
-  char type = 0; \
-  std::ostringstream *target_p = 0; \
-  prepare_format(type, &target_p); \
-   if( 'B' == type ) \
+  ItemFormat *item_p = 0; \
+  while( get_next_format(&item_p) ) \
   { \
-    std::bitset<8> bs(v); \
-    (*target_p) << bs; \
+    char type = 0; \
+    prepare_format(type, item_p); \
+     if( 'B' == type ) \
+    { \
+      std::bitset<8> bs(v); \
+      m_oss << bs; \
+    } \
+    else if( 'd' == type || 'o' == type || 'X' == type || 'x' == type ) \
+      m_oss << int(v); \
+    else \
+      m_oss << v; \
+    m_replacements[PTR2INT(item_p)] = m_oss.str(); \
   } \
-  else if( 'd' == type || 'o' == type || 'X' == type || 'x' == type ) \
-    (*target_p) << int(v); \
-  else \
-    (*target_p) << v; \
   return *this
 
 //---------------------------------------------------------------------------
@@ -1584,10 +1650,14 @@ Format& Format::arg(const unsigned char& v)
 }
 Format& Format::arg(const bool& v)
 {
-  char type = 'b';
-  std::ostringstream *target_p = 0;
-  prepare_format(type, &target_p);
-  (*target_p) << v;
+  ItemFormat *item_p = 0;
+  while( get_next_format(&item_p) )
+  {
+    char type = 'b';
+    prepare_format(type, item_p);
+    m_oss << v;
+    m_replacements[PTR2INT(item_p)] = m_oss.str();
+  }
   return *this;
 }
 
@@ -1596,29 +1666,24 @@ Format& Format::arg(const bool& v)
 //---------------------------------------------------------------------------
 String& Format::get() const
 {
-  if( m_fmt_idx != std::string::npos )
+  m_str.clear();
+  for( std::size_t i = 0; i < m_compiled_fmt_ptr->items.size(); ++i )
   {
-    m_str.clear();
-    for( std::size_t i = 0; i < m_compiled_fmt_ptr->items.size(); ++i )
+    if( m_compiled_fmt_ptr->items[i]->item_type() == format_item_fmt )
     {
-      if( m_compiled_fmt_ptr->items[i]->item_type() == format_item_fmt )
-      {
-        ItemFormat* item_p = dynamic_cast<ItemFormat*>(m_compiled_fmt_ptr->items[i].get());
-        if( i > m_max_fmt_idx )
-          // unused format => write format spec on output string
-          m_str.append(item_p->fmt_spec);
-        else
-          // used format
-          m_str.append(item_p->oss.str());
-        // reset string value
-        item_p->oss.str("");
-      }
-      else // format_item_str
-      {
-        m_str.append(dynamic_cast<ItemString*>(m_compiled_fmt_ptr->items[i].get())->str);
-      }
+      ItemFormat* item_p = dynamic_cast<ItemFormat*>(m_compiled_fmt_ptr->items[i].get());
+      ReplacementMap::const_iterator it = m_replacements.find(PTR2INT(item_p));
+      if( it != m_replacements.end() )
+        // used format
+        m_str.append(it->second);
+      else
+        // unused format => write format spec on output string
+        m_str.append(item_p->fmt_spec);
     }
-    m_fmt_idx = std::string::npos;
+    else // format_item_str
+    {
+      m_str.append(dynamic_cast<ItemString*>(m_compiled_fmt_ptr->items[i].get())->str);
+    }
   }
   return m_str;
 }
