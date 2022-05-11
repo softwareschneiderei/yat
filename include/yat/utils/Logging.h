@@ -190,7 +190,7 @@ public:
   //! \param eLevel Log level.
   //! \param pszType %Message type.
   //! \param strMsg %Message to log.
-  static void log(ELogLevel eLevel, pcsz pszType, const std::string &strMsg);
+  static void log(ELogLevel eLevel, pcsz pszType, const std::string &strMsg, std::ostream* os_p=0);
 
   //! \brief Gets the minimum log level taken into account.
   static int min_level() { return Instance()->m_iMinLevel; }
@@ -340,8 +340,13 @@ class YAT_DECL LogFormat alert(const std::string& msg_fmt);
 class YAT_DECL LogFormat emergency(const std::string& msg_fmt);
 //! \brief log a critical message with format
 class YAT_DECL LogFormat critical(const std::string& msg_fmt);
-//! \brief log a generic message with format
-class YAT_DECL LogFormat log(const std::string& msg_fmt);
+
+//! \brief log a message with format on std::cout stream
+class YAT_DECL LogFormat cout(const std::string& msg_fmt);
+//! \brief log a message with format on std::cerr stream
+class YAT_DECL LogFormat cerr(const std::string& msg_fmt);
+//! \brief log a message with format on std::clog stream
+class YAT_DECL LogFormat clog(const std::string& msg_fmt);
 
 // Internal class used to log formatted messages
 // This object can't be manually allocated nor copied
@@ -357,7 +362,9 @@ friend LogFormat error(const std::string& msg_fmt);
 friend LogFormat alert(const std::string& msg_fmt);
 friend LogFormat emergency(const std::string& msg_fmt);
 friend LogFormat critical(const std::string& msg_fmt);
-friend LogFormat log(const std::string& msg_fmt);
+friend LogFormat cout(const std::string& msg_fmt);
+friend LogFormat cerr(const std::string& msg_fmt);
+friend LogFormat clog(const std::string& msg_fmt);
 
 public:
   template<typename T> LogFormat& arg(T v)
@@ -399,7 +406,10 @@ public:
         LogManager::log(LOG_EMERGENCY, "", get());
         break;
       case LOG_NOLEVEL:
-        LogManager::log(LOG_NOLEVEL, "", get());
+        if( m_os_p )
+          LogManager::log(LOG_NOLEVEL, "", get().append(1, '\n'), m_os_p);
+        else
+          LogManager::log(LOG_NOLEVEL, "", get());
         break;
       default:
         break;
@@ -407,14 +417,18 @@ public:
   }
 
 private:
-  LogFormat(const std::string& s, ELogLevel l): yat::Format(s),
-   level_(l) {  }
+  LogFormat(const std::string& s, ELogLevel l, std::ostream* os_p=0): yat::Format(s),
+   level_(l), m_os_p(os_p) {  }
+
+  LogFormat(const std::string& s, std::ostream* os_p=0): yat::Format(s),
+   level_(LOG_NOLEVEL), m_os_p(os_p) {  }
 
   // unused & unusable
   LogFormat& operator=(const LogFormat&) { return *this;}
   LogFormat(const LogFormat&) : yat::Format() {}
 
   ELogLevel level_;
+  std::ostream* m_os_p;
 };
 
 //@} Log functions
@@ -488,7 +502,7 @@ do {                                                          \
 #define YAT_ALERT_STREAM(s)     YAT_MSG_STREAM(yat::LOG_ALERT, "alt", s)
 #define YAT_EMERGENCY_STREAM(s) YAT_MSG_STREAM(yat::LOG_EMERGENCY, "emg", s)
 
-//! \brief stream log macros
+//! \brief stream log macros. Should be deprecated, prefere to use log functions with format
 #define YAT_VERBOSE   yat::LogManager::verbose_stream()
 #define YAT_RESULT    yat::LogManager::result_stream()
 #define YAT_INFO      yat::LogManager::info_stream()

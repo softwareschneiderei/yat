@@ -1159,198 +1159,548 @@ h64_t StringUtil::hash64(const std::string& str)
 //=============================================================================
 const String String::nil = "";
 
-//---------------------------------------------------------------------------
-// Format::prepare_format
-//---------------------------------------------------------------------------
-void Format::prepare_format(std::ostringstream& oss, char& type, yat::String& before, yat::String& after)
+//=============================================================================
+// Format::Cache
+//=============================================================================
+Format::Cache& Format::Cache::instance()
 {
-  std::size_t start_pos = m_str.find('{', m_fmt_idx);
-  if( std::string::npos == start_pos )
-    throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::Format::prepare_format");
+  static Format::Cache the_unique_instance;
+  return the_unique_instance;
+}
 
-  if( (start_pos > 0 && m_str[start_pos-1] != '\\') || 0 == start_pos )
+//---------------------------------------------------------------------------
+// Format::Cache::insert
+//---------------------------------------------------------------------------
+void Format::Cache::insert(h64_t h, CompiledFormatPtr& entry_ptr)
+{
+  AutoMutex<> __lock(instance().m_mtx);
+  std::map<h64_t, Format::CompiledFormatPtr>::iterator it = instance().m_cache.find(h);
+  if( it == instance().m_cache.end() )
+    instance().m_cache[h] = entry_ptr;
+}
+
+//---------------------------------------------------------------------------
+// Format::Cache::get
+//---------------------------------------------------------------------------
+bool Format::Cache::get(const yat::String& fmt, h64_t&  h, CompiledFormatPtr& entry_ptr)
+{
+  h = fmt.hash64();
+
   {
-    std::size_t end_pos = m_str.find('}', start_pos);
-    if( std::string::npos == end_pos )
-      throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::Format::prepare_format");
-
-    std::string fmt = m_str.substr(start_pos + 1, end_pos - start_pos - 1);
-    before = m_str.substr(0, start_pos);
-    after = m_str.substr(end_pos + 1);
-    m_fmt_idx = end_pos;
-    bool show_sign = false;
-    bool align_right = false, align_left = false, align_sign = false, zero_padding = false;
-    bool show_base = false;
-    char fill = 0;
-    std::size_t search_start = 0;
-    // search for align characters
-    std::size_t align_pos = fmt.find_first_of("<>");
-    if( align_pos > 1 && align_pos != std::string::npos )
-      throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::Format::prepare_format");
-    if( align_pos != std::string::npos )
+    AutoMutex<> __lock(instance().m_mtx);
+    std::map<h64_t, Format::CompiledFormatPtr>::iterator it = instance().m_cache.find(h);
+    if( it != instance().m_cache.end() )
     {
-      switch( fmt[align_pos] )
+      entry_ptr = it->second;
+      return true;
+    }
+  }
+  entry_ptr = new CompiledFormat;
+  return false;
+}
+
+//=============================================================================
+// Format
+//=============================================================================
+
+inline void rep_double_char(std::string& str, char c)
+{
+  std::size_t p1 = 0, p2 = 0;
+  do
+  {
+    do
+    {
+      p1 = str.find(c, p2);
+      if( std::string::npos == p1 )
+        break;
+      if( p1 < str.size() - 1 && c == str[p1+1] )
       {
-        case '<':
-          align_left = true;
-          break;
-        case '>':
-          align_right = true;
-          break;
-        case '=':
-          align_sign = true;
-          break;
-        default:
-          break;
+        p2 = std::string::npos;
+        break;
       }
-      if( align_pos > 0 )
-        fill = fmt[0];
-      search_start = align_pos;
+      p2 = p1 + 1;
     }
+    while( true );
 
-    std::size_t sign_pos = fmt.find_first_of("+-", search_start);
-    if( sign_pos != std::string::npos )
+    if( p2 == std::string::npos )
     {
-      if( fmt[sign_pos] == '+' )
-        show_sign = true;
-      search_start = sign_pos;
+      str.replace(p1, 2, 1, c);
+      p2 = p1 + 1;
     }
-    std::size_t sharp_pos = fmt.find('#', search_start);
-    if( sharp_pos != std::string::npos )
+    else
+      break;
+  }
+  while(true);
+}
+
+//---------------------------------------------------------------------------
+// Format::parse_format
+//---------------------------------------------------------------------------
+Format::ItemFormat* Format::parse_format(yat::String& fmt)
+{
+  ItemFormat* item_p = new ItemFormat;
+
+  // string value before substitution is '{fmt}'
+  item_p->fmt_spec.append(1, '{');
+  item_p->fmt_spec.append(fmt);
+  item_p->fmt_spec.append(1, '}');
+
+  // first look for an element index (2 digits max)
+  if( (fmt.size() > 1 && isdigit(fmt[0]) && fmt[1] == ':') ||
+      (fmt.size() > 2 && isdigit(fmt[0]) && isdigit(fmt[1]) && fmt[2] == ':') )
+  {
+    int arg_index = -1;
+    arg_index = fmt[0] - '0';
+    if( fmt[2] == ':' )
     {
-      show_base = true;
-      search_start = sharp_pos;
+      arg_index = 10 * arg_index + fmt[1] - '0';
+      fmt = fmt.substr(3);
     }
+    else // fmt[1] == ':'
+      fmt = fmt.substr(2);
+    item_p->arg_index = arg_index;
+  }
 
-    std::size_t decimal_point_pos = fmt.find('.', search_start);
-    std::size_t precision_pos = std::string::npos;
-    if( decimal_point_pos != std::string::npos )
-      precision_pos = decimal_point_pos + 1;
+  if( fmt.empty() )
+  { // no format specified
+    return item_p;
+  }
+  item_p->empty_fmt = false;
 
-    std::size_t width_pos = fmt.find_first_of("123456789", search_start);
-    if( width_pos == precision_pos )
-      width_pos = std::string::npos;
+  if( fmt.size() == 1 && isalpha(fmt[0]) )
+  {
+    // type only
+    item_p->type = fmt[0];
+    item_p->empty_fmt = false;
+    item_p->type_only_fmt = true;
+    return item_p;
+  }
 
-    std::size_t zero_pad_pos = fmt.find('0', search_start);
-    if( zero_pad_pos == width_pos - 1 )
-      zero_padding = true;
-
-    std::size_t type_pos = std::string::npos;
-    if( fmt.size() > 0 && (std::isalpha(fmt[fmt.size() - 1]) || fmt[fmt.size() - 1] == '%') )
+  bool zero_padding = false;
+  std::size_t search_start = 0;
+  // search for align characters
+  std::size_t align_pos = fmt.find_first_of("<>");
+  if( align_pos > 1 && align_pos != std::string::npos )
+    throw yat::Exception("BAD_FORMAT", "Invalid format string", "yat::Format::prepare_format");
+  if( align_pos != std::string::npos )
+  {
+    switch( fmt[align_pos] )
     {
-      type_pos = fmt.size() - 1;
-      type = fmt[type_pos];
+      case '<':
+        item_p->align_left = true;
+        break;
+      case '>':
+        item_p->align_right = true;
+        break;
+      case '=':
+        item_p->align_sign = true;
+        break;
+      default:
+        break;
+    }
+    if( align_pos > 0 )
+      item_p->fill = fmt[0];
+    search_start = align_pos;
+  }
+
+  std::size_t sign_pos = fmt.find_first_of("+-", search_start);
+  if( sign_pos != std::string::npos )
+  {
+    if( fmt[sign_pos] == '+' )
+      item_p->show_sign = true;
+    search_start = sign_pos;
+  }
+  std::size_t sharp_pos = fmt.find('#', search_start);
+  if( sharp_pos != std::string::npos )
+  {
+    item_p->show_base = true;
+    search_start = sharp_pos;
+  }
+
+  std::size_t decimal_point_pos = fmt.find('.', search_start);
+  std::size_t precision_pos = std::string::npos;
+  if( decimal_point_pos != std::string::npos )
+    precision_pos = decimal_point_pos + 1;
+
+  std::size_t width_pos = fmt.find_first_of("123456789", search_start);
+  if( width_pos == precision_pos )
+    width_pos = std::string::npos;
+
+  std::size_t zero_pad_pos = fmt.find('0', search_start);
+  if( zero_pad_pos == width_pos - 1 )
+    zero_padding = true;
+
+  std::size_t type_pos = std::string::npos;
+  if( fmt.size() > 0 && (std::isalpha(fmt[fmt.size() - 1]) || fmt[fmt.size() - 1] == '%') )
+  {
+    type_pos = fmt.size() - 1;
+    item_p->type = fmt[type_pos];
+  }
+
+  if( decimal_point_pos != std::string::npos && width_pos != std::string::npos )
+    item_p->width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, decimal_point_pos - width_pos));
+  else if( width_pos != std::string::npos )
+    item_p->width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, type_pos - width_pos));
+
+  if( precision_pos != std::string::npos )
+    item_p->precision = StringUtil::to_num<std::size_t>(fmt.substr(precision_pos, type_pos - precision_pos));
+
+  if( zero_padding && ('x' == item_p->type || 'X' == item_p->type ||
+                       'o' == item_p->type || 'd' == item_p->type ||
+                       'f' == item_p->type || 'F' == item_p->type ||
+                       'g' == item_p->type || 'G' == item_p->type ||
+                       'e' == item_p->type || 'E' == item_p->type ) )
+    {
+      item_p->zero_padding = true;
+      item_p->fill = '0';
     }
 
-    std::size_t precision = 0;
-    std::size_t width = 0;
+  return item_p;
+}
 
-    if( decimal_point_pos != std::string::npos && width_pos != std::string::npos )
-      width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, decimal_point_pos - width_pos));
-    else if( width_pos != std::string::npos )
-      width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, type_pos - width_pos));
+//---------------------------------------------------------------------------
+// Format::prepare_type
+//---------------------------------------------------------------------------
+inline void Format::prepare_type(std::ios_base::fmtflags& ff, const char& type)
+{
+  switch( type )
+  {
+    case 'p':
+      ff |= std::ios::showbase;
+      m_oss.setf(ff);
+      m_oss << std::hex;
+      break;
 
-    if( precision_pos != std::string::npos )
-      precision = StringUtil::to_num<std::size_t>(fmt.substr(precision_pos, type_pos - precision_pos));
+    case 'X':
+      ff |= std::ios::uppercase;
+    case 'x':
+      m_oss.setf(ff);
+      m_oss << std::hex;
+      break;
 
-    std::ios_base::fmtflags ff = oss.flags();
-    if( show_base || 'p' == type )  ff |= std::ios::showbase;
-    if( show_sign)   ff |= std::ios::showpos;
-    if( align_right) ff |= std::ios::right;
-    if( align_left)  ff |= std::ios::left;
-    if( align_sign)  ff |= std::ios::left;
-    if( 'f' == type || 'F' == type || '%' == type)  ff |= std::ios::fixed;
-    if( 'e' == type || 'E' == type )                ff |= std::ios::scientific;
-    if( 'E' == type || 'X' == type || 'G' == type ) ff |= std::ios::uppercase;
-    if( 'b' == type ) ff |= std::ios::boolalpha;
-    if( zero_padding && ('x' == type || 'X' == type ||
-                         'o' == type || 'd' == type ||
-                         'f' == type || 'F' == type ||
-                         'g' == type || 'G' == type ||
-                         'e' == type || 'E' == type ) )
-      { ff |= std::ios::internal;
-        fill = '0';
-      }
+    case 'o':
+      m_oss.setf(ff);
+      m_oss << std::oct;
+      break;
 
-    oss << before;
-    oss.setf(ff);
+    case 'b':
+      ff |= std::ios::boolalpha;
+      m_oss.setf(ff);
+      break;
 
-    if( 'x' == type || 'X' == type || 'p' == type ) oss << std::hex;
-    if( 'o' == type )                oss << std::oct;
-    if( fill )                       oss << std::setfill(fill);
-    if( width > 0 )                  oss << std::setw(width);
-    if( precision > 0 )              oss << std::setprecision(precision);
+    case 'f':
+    case 'F':
+    case '%':
+      ff |= std::ios::fixed;
+      m_oss.setf(ff);
+      break;
+
+    case 'E':
+      ff |= std::ios::uppercase;
+    case 'e':
+      ff |= std::ios::scientific;
+      m_oss.setf(ff);
+      break;
+
+    case 'G':
+      ff |= std::ios::uppercase;
+      m_oss.setf(ff);
+      break;
+
+    default:
+      m_oss.setf(ff);
+      break;
   }
 }
 
-#define __STRING_TYPES_FORMAT(v) \
-  std::ostringstream oss; \
-  char type = 's'; \
-  yat::String before, after; \
-  prepare_format(oss, type, before, after); \
-  oss << v; \
-  m_fmt_idx = oss.str().size(); \
-  oss << after; \
-  m_str = oss.str(); \
-  return *this;
+//---------------------------------------------------------------------------
+// Format::parse
+//---------------------------------------------------------------------------
+void Format::parse()
+{
+  h64_t h;
+  if( Cache::get(m_str, h, m_compiled_fmt_ptr) )
+    return;
 
+  std::size_t start_pos, end_pos, start_str = 0, end_str = std::string::npos;
+  std::size_t start_search = 0, arg_auto_index = 0, n_formats = 0;
+  yat::String fmt;
+  bool manual_positioning = false, first_fmt = true;
+
+  while( true )
+  {
+    start_pos = m_str.find('{', start_search);
+    end_pos = m_str.find('}', start_search);
+
+    bool double_end = false, double_start = false;
+
+    if( start_pos != std::string::npos )
+    {
+      if( start_pos < m_str.size()-1 && m_str[start_pos+1] == '{' )
+        // '{{' detected
+        double_start = true;
+      else
+        end_str = start_pos;
+    }
+
+    if( end_pos != std::string::npos && end_pos < m_str.size()-1
+                                     && m_str[end_pos+1] == '}' )
+    { // '}}' detected
+      double_end = true;
+    }
+
+    if( double_start )
+    {
+      end_str = start_pos + 1;
+      start_search = end_str + 1;
+      continue;
+    }
+    else if( double_end && start_pos > end_pos)
+    {
+      end_str = end_pos + 1;
+      start_search = end_str + 1;
+      continue;
+    }
+
+    if( end_pos != std::string::npos && start_pos == std::string::npos  )
+      throw yat::Exception("BAD_FORMAT", "Single '}' found", "yat::Format::parse");
+
+    else if( end_pos == std::string::npos && start_pos != std::string::npos  )
+      throw yat::Exception("BAD_FORMAT", "Single '{' found", "yat::Format::parse");
+
+    else if( end_pos != std::string::npos && start_pos != std::string::npos )
+    {
+      if( end_pos < start_pos )
+        throw yat::Exception("BAD_FORMAT", "Single '}' found", "yat::Format::parse");
+
+      fmt = m_str.substr(start_pos + 1, end_pos - start_pos - 1);
+      if( fmt.find('{') != std::string::npos )
+        throw yat::Exception("BAD_FORMAT", "Unexpected '{' found inside format", "yat::Format::parse");
+
+      // ok, continue
+      if( start_str != end_str )
+      {
+        ItemString* p = new ItemString;
+        p->str = m_str.substr(start_str, end_str - start_str);
+        rep_double_char(p->str, '{');
+        rep_double_char(p->str, '}');
+        m_compiled_fmt_ptr->items.push_back(ItemPtr(p));
+      }
+      start_str = end_pos + 1;
+      end_str = end_pos + 1;
+      ItemFormat* fmt_p = parse_format(fmt);
+      ++n_formats;
+      ItemPtr ptr(fmt_p);
+
+      // { positioning
+      if( !first_fmt )
+      {
+        if( manual_positioning && fmt_p->arg_index == -1 )
+          throw yat::Exception("BAD_FORMAT", "Can't switch from manual argument positioning to automatic positioning", "yat::Format::parse");
+        if( !manual_positioning && fmt_p->arg_index != -1 )
+          throw yat::Exception("BAD_FORMAT", "Can't switch from automatic argument positioning to manual positioning", "yat::Format::parse");
+      }
+      else
+        first_fmt = false;
+
+      if( fmt_p->arg_index != -1 )
+      { // manual positioning: {0} {1}...
+        m_compiled_fmt_ptr->arg_items_map[std::size_t(fmt_p->arg_index)].push_back(ptr);
+        manual_positioning = true;
+      }
+      else // automatic positioning: {} {}...
+        m_compiled_fmt_ptr->arg_items_map[arg_auto_index++].push_back(ptr);
+      // } positioning
+
+      m_compiled_fmt_ptr->items.push_back(ptr);
+      start_search = end_pos + 1;
+    }
+    else
+    {
+      // no more format spec
+      if( start_str < m_str.size() )
+      {
+        ItemString* p = new ItemString;
+        p->str = m_str.substr(start_str);
+        rep_double_char(p->str, '{');
+        rep_double_char(p->str, '}');
+        m_compiled_fmt_ptr->items.push_back(ItemPtr(p));
+      }
+      break;
+    }
+  }
+
+  // The map size is logically the expected arguments count
+  m_compiled_fmt_ptr->expected_arg_count = m_compiled_fmt_ptr->arg_items_map.size();
+  // check the position indexes. it must start at 0
+  for( std::size_t i = 0; i < m_compiled_fmt_ptr->expected_arg_count; ++i )
+  {
+    if( m_compiled_fmt_ptr->arg_items_map.find(i) == m_compiled_fmt_ptr->arg_items_map.end() )
+      throw yat::Exception("BAD_FORMAT", "Bad argument numbering. Must start at '0'", "yat::Format::parse");
+  }
+
+  // insert into cache
+  Cache::insert(h, m_compiled_fmt_ptr);
+}
+
+//---------------------------------------------------------------------------
+// Format::get_next_format
+//---------------------------------------------------------------------------
+bool Format::get_next_format(Format::ItemFormat** pp_fmt)
+{
+  if( m_arg_index >= m_compiled_fmt_ptr->expected_arg_count )
+    throw yat::Exception("BAD_ARG", "Format argument not expected", "yat::Format::parse");
+
+  if( m_item_by_arg_idx < m_compiled_fmt_ptr->arg_items_map[m_arg_index].size() )
+  {
+    *pp_fmt = dynamic_cast<ItemFormat*>(m_compiled_fmt_ptr->arg_items_map[m_arg_index][m_item_by_arg_idx++].get());
+    m_oss.copyfmt(m_null_fmt);
+    m_oss.str("");
+    return true;
+  }
+
+  *pp_fmt = 0;
+  m_item_by_arg_idx = 0;
+  ++m_arg_index;
+  return false;
+}
+
+//---------------------------------------------------------------------------
+// Format::prepare_format
+//---------------------------------------------------------------------------
+void Format::prepare_format(char& type, Format::ItemFormat* item_p)
+{
+  if( item_p->empty_fmt )
+  {
+    if( 0 != type )
+    {
+      std::ios_base::fmtflags ff = m_oss.flags();
+      prepare_type(ff, type);
+    }
+    // no defined spec
+    return;
+  }
+
+  std::ios_base::fmtflags ff = m_oss.flags();
+  type = item_p->type;
+
+  if( item_p->type_only_fmt )
+  {
+    // type only
+    type = item_p->type;
+    prepare_type(ff, type);
+    return;
+  }
+
+  if( item_p->show_base )   ff |= std::ios::showbase;
+  if( item_p->show_sign )   ff |= std::ios::showpos;
+  if( item_p->align_right ) ff |= std::ios::right;
+  if( item_p->align_left )  ff |= std::ios::left;
+  if( item_p->align_sign )  ff |= std::ios::left;
+
+  if( item_p->zero_padding )
+  {
+    ff |= std::ios::internal;
+    item_p->fill = '0';
+  }
+  prepare_type(ff, type);
+
+  if( item_p->fill )            m_oss << std::setfill(item_p->fill);
+  if( item_p->width > 0 )       m_oss << std::setw(item_p->width);
+  if( item_p->precision > 0 )   m_oss << std::setprecision(item_p->precision);
+}
+
+#define __STRING_TYPES_FORMAT_EX(v) \
+  ItemFormat *item_p = 0; \
+  while( get_next_format(&item_p) ) \
+  { \
+    char type = 's'; \
+    prepare_format(type, item_p); \
+    m_oss << v; \
+    m_replacements[PTR2INT(item_p)] = m_oss.str(); \
+  } \
+  return *this
+
+#define __CHAR_TYPES_FORMAT_EX(v) \
+  ItemFormat *item_p = 0; \
+  while( get_next_format(&item_p) ) \
+  { \
+    char type = 0; \
+    prepare_format(type, item_p); \
+     if( 'B' == type ) \
+    { \
+      std::bitset<8> bs(v); \
+      m_oss << bs; \
+    } \
+    else if( 'd' == type || 'o' == type || 'X' == type || 'x' == type ) \
+      m_oss << int(v); \
+    else \
+      m_oss << v; \
+    m_replacements[PTR2INT(item_p)] = m_oss.str(); \
+  } \
+  return *this
+
+//---------------------------------------------------------------------------
+// Format::arg
+//---------------------------------------------------------------------------
 Format& Format::arg(const char *v)
 {
- __STRING_TYPES_FORMAT(v)
+ __STRING_TYPES_FORMAT_EX(v);
 }
-
 Format& Format::arg(const std::string& v)
 {
- __STRING_TYPES_FORMAT(v)
+ __STRING_TYPES_FORMAT_EX(v);
 }
-
 Format& Format::arg(const yat::String& v)
 {
- __STRING_TYPES_FORMAT(v)
+ __STRING_TYPES_FORMAT_EX(v);
 }
-
-#define __CHAR_TYPES_FORMAT(v) \
-  std::ostringstream oss; \
-  char type = 0; \
-  yat::String before, after; \
-  prepare_format(oss, type, before, after); \
-  if( 'B' == type ) \
-  { \
-    std::bitset<8> bs(v); \
-    oss << bs; \
-  } \
-  else if( 'd' == type || 'o' == type || 'X' == type || 'x' == type ) \
-    oss << int(v); \
-  else \
-    oss << v; \
-  m_fmt_idx = oss.str().size(); \
-  oss << after; \
-  m_str = oss.str(); \
-  return *this;
-
 Format& Format::arg(const char& v)
 {
-  __CHAR_TYPES_FORMAT(v)
+  __CHAR_TYPES_FORMAT_EX(v);
 }
-
 Format& Format::arg(const unsigned char& v)
 {
-  __CHAR_TYPES_FORMAT(v)
+  __CHAR_TYPES_FORMAT_EX(v);
 }
-
 Format& Format::arg(const bool& v)
 {
-  std::ostringstream oss;
-  char type = 'b';
-  yat::String before, after;
-  prepare_format(oss, type, before, after);
-
-  oss << v;
-  m_fmt_idx = oss.str().size();
-
-  oss << after;
-  m_str = oss.str();
+  ItemFormat *item_p = 0;
+  while( get_next_format(&item_p) )
+  {
+    char type = 'b';
+    prepare_format(type, item_p);
+    m_oss << v;
+    m_replacements[PTR2INT(item_p)] = m_oss.str();
+  }
   return *this;
+}
+
+//---------------------------------------------------------------------------
+// Format::get
+//---------------------------------------------------------------------------
+String& Format::get() const
+{
+  m_str.clear();
+  for( std::size_t i = 0; i < m_compiled_fmt_ptr->items.size(); ++i )
+  {
+    if( m_compiled_fmt_ptr->items[i]->item_type() == format_item_fmt )
+    {
+      ItemFormat* item_p = dynamic_cast<ItemFormat*>(m_compiled_fmt_ptr->items[i].get());
+      ReplacementMap::const_iterator it = m_replacements.find(PTR2INT(item_p));
+      if( it != m_replacements.end() )
+        // used format
+        m_str.append(it->second);
+      else
+        // unused format => write format spec on output string
+        m_str.append(item_p->fmt_spec);
+    }
+    else // format_item_str
+    {
+      m_str.append(dynamic_cast<ItemString*>(m_compiled_fmt_ptr->items[i].get())->str);
+    }
+  }
+  return m_str;
 }
 
 //---------------------------------------------------------------------------

@@ -45,6 +45,7 @@
 #include <cctype>
 #include <yat/CommonHeader.h>
 #include <yat/utils/NonCopyable.h>
+#include <yat/memory/SharedPtr.h>
 #include <yat/Exception.h>
 
 // STL headers
@@ -1148,6 +1149,7 @@ YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 //! \class Format
 //! \brief Format string using a format specification close to the
 //! format-spec defined in Python (https://docs.python.org/3/library/string.html#formatspec)
+//! use '{{' or '}}' to escape '{' or '}'
 //! \par Usage:
 //! \code{.cpp}
 //! std::cout << yat::Format("ga: {}, bu: {}, zo: {}, meu: {}").arg("pomper").arg(true).arg(12).arg(3.14) << std::endl;
@@ -1165,33 +1167,48 @@ class Format
 {
 public:
   //! \brief Default constructor.
-  Format() {}
+  Format() : m_null_fmt(NULL) {}
 
   //! \brief Constructor from a char pointer.
   //! \param psz Char pointer.
-  Format(const char *psz) : m_str(psz), m_fmt_idx(0) {}
+  Format(const char *psz) : m_str(psz), m_arg_index(0), m_item_by_arg_idx(0),
+                            m_null_fmt(NULL)
+  {
+    parse();
+  }
 
   //! \brief Constructor from char buffer.
   //! \param psz Char pointer.
   //! \param size %Buffer size.
-  Format(const char *psz, int size) : m_str(psz, size), m_fmt_idx(0) {}
+  Format(const char *psz, int size) : m_str(psz, size),
+                                      m_arg_index(0), m_item_by_arg_idx(0), m_null_fmt(NULL)
+  {
+    parse();
+  }
 
   //! \brief Copy Constructor.
   //! \param str The source string.
-  Format(const String &str) : m_str(str), m_fmt_idx(0) {}
+  Format(const String &str) : m_str(str), m_arg_index(0), m_item_by_arg_idx(0), m_null_fmt(NULL)
+  {
+    parse();
+  }
 
   //! \brief Constructor from std::string.
   //! \param str The string.
-  Format(const std::string &str) : m_str(str), m_fmt_idx(0) {}
+  Format(const std::string &str) : m_str(str), m_arg_index(0),
+                                   m_item_by_arg_idx(0), m_null_fmt(NULL)
+  {
+    parse();
+  }
 
   //! Explicit conversion
-  operator const std::string&() const { return m_str.str(); }
-  operator std::string&() { return m_str; }
-  operator const yat::String&() const { return m_str; }
-  operator yat::String&() { return m_str; }
+  operator const std::string&() const { return get().str(); }
+  operator std::string&() { return get(); }
+  operator const yat::String&() const { return get(); }
+  operator yat::String&() { return get(); }
 
-  //! Get string
-  String& get() { return m_str; }
+  //! Get final string
+  String& get() const;
 
   //! Apply format
   //!
@@ -1225,29 +1242,29 @@ public:
   //! 'f' Fixed-point notation. Displays the number as a fixed-point number. The default precision is 6.\n
   //! 'g' General format. For a given precision p >= 1, this rounds the number to p significant digits and then formats the result in either fixed-point format or in scientific notation, depending on its magnitude.\n
   //! 'G' General format. Same as 'g' except switches to 'E' if the number gets too large. The representations of infinity and NaN are uppercased, too.\n
+  //! 'p' special type to be used only to output pointer value (ex: yat::Format('{p}').arg(PTR2INT(my_pointer)) )
   //! '%%' Percentage. Multiplies the number by 100 and displays in fixed ('f') format, followed by a percent sign.\n
   template<typename T> Format& arg(const T& v)
   {
-    std::ostringstream oss;
-    char type = 0;
-    yat::String before, after;
-    prepare_format(oss, type, before, after);
-
-    if( 'B' == type )
+    ItemFormat *item_p = 0;
+    while( get_next_format(&item_p) )
     {
-      std::bitset<8 * sizeof(T)> bs(v);
-      oss << bs;
-    }
-    else if( '%' == type )
-    {
-      oss << 100 * v << '%';
-    }
-    else
-      oss << v;
+      char type = 0;
+      prepare_format(type, item_p);
 
-    m_fmt_idx = oss.str().size();
-    oss << after;
-    m_str = oss.str();
+      if( 'B' == type )
+      {
+        std::bitset<8 * sizeof(T)> bs(v);
+        m_oss << bs;
+      }
+      else if( '%' == type )
+      {
+        m_oss << 100 * v << '%';
+      }
+      else
+        m_oss << v;
+      m_replacements[PTR2INT(item_p)] = m_oss.str();
+    }
     return *this;
   }
 
@@ -1264,16 +1281,14 @@ public:
   //!
   template<typename T> Format& argp(const T* p)
   {
-    std::ostringstream oss;
-    char type = 'p';
-    yat::String before, after;
-    prepare_format(oss, type, before, after);
-
-    oss << reinterpret_cast<uintptr>(p);
-
-    m_fmt_idx = oss.str().size();
-    oss << after;
-    m_str = oss.str();
+    ItemFormat *item_p = 0;
+    while( get_next_format(&item_p) )
+    {
+      char type = 'p';
+      prepare_format(type, item_p);
+      m_oss << reinterpret_cast<uintptr>(p);
+      m_replacements[PTR2INT(item_p)] = m_oss.str();
+    }
     return *this;
   }
 
@@ -1281,10 +1296,88 @@ public:
   template<class T> Format& format(const T& v) { return arg(v); }
 
 private:
-  yat::String m_str;
-  std::size_t m_fmt_idx;
 
-  void prepare_format(std::ostringstream& oss, char& type, yat::String& before, yat::String& after);
+  enum ItemType { format_item_fmt, format_item_str };
+
+  class ItemBase
+  {
+  public:
+    virtual ItemType item_type() = 0;
+    virtual ~ItemBase() {}
+  };
+  typedef SharedPtr<ItemBase> ItemPtr;
+  typedef std::vector<ItemPtr> Items;
+  typedef std::map<std::size_t, Items> MapArgItems;
+  typedef std::map<uintptr, std::string> ReplacementMap;
+
+  class ItemString : public ItemBase
+  {
+  public:
+    ItemType item_type() { return format_item_str; }
+    std::string str;
+  };
+
+  class ItemFormat : public ItemBase
+  {
+  public:
+    ItemType item_type() { return format_item_fmt; }
+    bool empty_fmt;
+    bool type_only_fmt;
+    bool show_sign;
+    bool align_sign;
+    bool align_right;
+    bool align_left;
+    bool show_base;
+    bool zero_padding;
+    char type;
+    char fill;
+    std::size_t precision;
+    std::size_t width;
+    int arg_index;
+    yat::String fmt_spec;
+
+    ItemFormat() : empty_fmt(true), type_only_fmt(false), show_sign(false),
+                   align_sign(false), align_right(false), align_left(false),
+                   show_base(false), zero_padding(false), type('s'), fill(0),
+                   precision(0), width(0), arg_index(-1)
+                   {}
+  };
+
+  struct CompiledFormat
+  {
+    Items items;
+    MapArgItems arg_items_map;
+    std::size_t  expected_arg_count;
+    CompiledFormat() : expected_arg_count(0) {}
+  };
+  typedef SharedPtr<CompiledFormat> CompiledFormatPtr;
+
+  class Cache
+  {
+  public:
+    static bool get(const yat::String& fmt, h64_t& h, CompiledFormatPtr& entry_ptr);
+    static void insert(h64_t h, CompiledFormatPtr& entry_ptr);
+
+  private:
+    static Cache& instance();
+    std::map<h64_t, CompiledFormatPtr> m_cache;
+    Mutex m_mtx;
+  };
+
+private:
+  CompiledFormatPtr m_compiled_fmt_ptr;
+  mutable yat::String m_str;
+  std::size_t m_arg_index;
+  std::size_t m_item_by_arg_idx;
+  ReplacementMap m_replacements;
+  std::ios m_null_fmt;
+  std::ostringstream m_oss;
+
+  ItemFormat* parse_format(yat::String& fmt);
+  bool get_next_format(ItemFormat** pp_fmt);
+  void parse();
+  void prepare_format(char& type, ItemFormat* item_p);
+  void prepare_type(std::ios_base::fmtflags& ff, const char& type);
 };
 
 //! @deprecated original class name
