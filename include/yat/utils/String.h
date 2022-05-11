@@ -1355,7 +1355,8 @@ private:
   class Cache
   {
   public:
-    static bool get(const yat::String& fmt, CompiledFormatPtr& entry_ptr);
+    static bool get(const yat::String& fmt, h64_t& h, CompiledFormatPtr& entry_ptr);
+    static void insert(h64_t h, CompiledFormatPtr& entry_ptr);
 
   private:
     static Cache& instance();

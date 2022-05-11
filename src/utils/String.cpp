@@ -1169,22 +1169,33 @@ Format::Cache& Format::Cache::instance()
 }
 
 //---------------------------------------------------------------------------
-// Format::Cache::get
+// Format::Cache::insert
 //---------------------------------------------------------------------------
-bool Format::Cache::get(const yat::String& fmt, CompiledFormatPtr& entry_ptr)
+void Format::Cache::insert(h64_t h, CompiledFormatPtr& entry_ptr)
 {
-  h64_t h = fmt.hash64();
-
   AutoMutex<> __lock(instance().m_mtx);
   std::map<h64_t, Format::CompiledFormatPtr>::iterator it = instance().m_cache.find(h);
-  if( it != instance().m_cache.end() )
-  {
-    entry_ptr = it->second;
-    return true;
-  }
+  if( it == instance().m_cache.end() )
+    instance().m_cache[h] = entry_ptr;
+}
 
+//---------------------------------------------------------------------------
+// Format::Cache::get
+//---------------------------------------------------------------------------
+bool Format::Cache::get(const yat::String& fmt, h64_t&  h, CompiledFormatPtr& entry_ptr)
+{
+  h = fmt.hash64();
+
+  {
+    AutoMutex<> __lock(instance().m_mtx);
+    std::map<h64_t, Format::CompiledFormatPtr>::iterator it = instance().m_cache.find(h);
+    if( it != instance().m_cache.end() )
+    {
+      entry_ptr = it->second;
+      return true;
+    }
+  }
   entry_ptr = new CompiledFormat;
-  instance().m_cache[h] = entry_ptr;
   return false;
 }
 
@@ -1407,7 +1418,8 @@ inline void Format::prepare_type(std::ios_base::fmtflags& ff, const char& type)
 //---------------------------------------------------------------------------
 void Format::parse()
 {
-  if( Cache::get(m_str, m_compiled_fmt_ptr) )
+  h64_t h;
+  if( Cache::get(m_str, h, m_compiled_fmt_ptr) )
     return;
 
   std::size_t start_pos, end_pos, start_str = 0, end_str = std::string::npos;
@@ -1524,8 +1536,11 @@ void Format::parse()
   for( std::size_t i = 0; i < m_compiled_fmt_ptr->expected_arg_count; ++i )
   {
     if( m_compiled_fmt_ptr->arg_items_map.find(i) == m_compiled_fmt_ptr->arg_items_map.end() )
-      throw yat::Exception("BAD_FORMAT", "An argument index in Format is out of the expected", "yat::Format::parse");
+      throw yat::Exception("BAD_FORMAT", "Bad argument numbering. Must start at '0'", "yat::Format::parse");
   }
+
+  // insert into cache
+  Cache::insert(h, m_compiled_fmt_ptr);
 }
 
 //---------------------------------------------------------------------------
