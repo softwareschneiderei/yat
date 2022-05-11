@@ -251,7 +251,9 @@ void LogManager::log(ELogLevel eLevel, pcsz pszType, const std::string& strMsg, 
     current_log_target()->log(eLevel, pszType, strMsg);
 
   if( os_p )
-    (*os_p) << strMsg << std::endl;
+  {
+    (*os_p) << strMsg;
+  }
 }
 
 //----------------------------------------------------------------------------

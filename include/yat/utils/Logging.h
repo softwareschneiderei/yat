@@ -406,7 +406,10 @@ public:
         LogManager::log(LOG_EMERGENCY, "", get());
         break;
       case LOG_NOLEVEL:
-        LogManager::log(LOG_NOLEVEL, "", get(), m_os_p);
+        if( m_os_p )
+          LogManager::log(LOG_NOLEVEL, "", get().append(1, '\n'), m_os_p);
+        else
+          LogManager::log(LOG_NOLEVEL, "", get());
         break;
       default:
         break;
