@@ -79,7 +79,7 @@ void extract_submatches(const yat::Regex::Match& m, int opt)
   for (size_t j = 1; j < m.size(); ++j)
   {
     if( !m.str(j).empty() || (m.str(j).empty() && (opt & empty)) )
-      std::cout << yat::Format("{%3d}: '{}'\n").arg(j).arg(m.str(j));
+      std::cout << yat::Format("{02d}: '{}'\n").arg(j).arg(m.str(j));
   }
 
   if( opt & details )

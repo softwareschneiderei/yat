@@ -120,8 +120,9 @@ void Consumer::handle_message (yat::Message& _msg)
         else
           this->lost_msg_counter += _msg.id() - (this->last_msg_id + 1);
 #endif
+        YAT_LOG("got a message " << user_msg_counter);
         //- simulate some time consuming activity
-        yat::ThreadingUtilities::sleep(0, 10000);
+        yat::Thread::sleep(2);
   		}
   		break;
     //- kDATA_MSG -------------------
@@ -129,8 +130,8 @@ void Consumer::handle_message (yat::Message& _msg)
       {
         //- code relative to the task's tmo handling goes here
         SharedBuffer* sb = _msg.detach_data<SharedBuffer>();
-        YAT_LOG("got a SharedBuffer containing " << sb->length() << " elements");
         sb->release();
+        yat::Thread::sleep(2);
       }
       break;
   	default:

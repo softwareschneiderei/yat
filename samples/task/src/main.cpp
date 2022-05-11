@@ -11,7 +11,9 @@
  * \author   N. Leclercq, J. Malik - Synchrotron SOLEIL
  */
 
+#include <yat/utils/Logging.h>
 #include <yat/time/Timer.h>
+#include <yat/utils/String.h>
 #include "my_task.h"
 
 // ============================================================================
@@ -40,15 +42,15 @@ int main(int argc, char* argv[])
   YAT_LOG_STATIC("Instanciating Task...");
 
   Consumer * dt = new Consumer(kLO_WATER_MARK, kHI_WATER_MARK);
-
   YAT_LOG_STATIC("Starting Task...");
 
   try
   {
     dt->go(2000);
   }
-  catch (const yat::Exception&)
+  catch (const yat::Exception& e)
   {
+    YAT_LOG_EXCEPTION(e);
     YAT_LOG_STATIC("yat exception caught - could not start task. aborting...");
     dt->exit();
     return 0;

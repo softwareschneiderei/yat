@@ -89,6 +89,7 @@ public:
 
 	//- ctor ---------------------------------
 	Consumer (size_t lo_wm, size_t hi_wm);
+  Consumer(const yat::Task::Config& c) : Task(c) {}
 
 	//- dtor ---------------------------------
 	virtual ~Consumer (void);
