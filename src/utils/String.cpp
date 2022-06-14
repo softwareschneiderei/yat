@@ -1236,43 +1236,42 @@ inline void rep_double_char(std::string& str, char c)
 //---------------------------------------------------------------------------
 // Format::parse_format
 //---------------------------------------------------------------------------
-Format::ItemFormat* Format::parse_format(yat::String& fmt)
+Format::ItemFormat* Format::parse_format(yat::String& fmt, int* arg_index_p)
 {
   ItemFormat* item_p = new ItemFormat;
 
   // string value before substitution is '{fmt}'
-  item_p->fmt_spec.append(1, '{');
-  item_p->fmt_spec.append(fmt);
-  item_p->fmt_spec.append(1, '}');
+  item_p->fc.fmt_spec.append(1, '{');
+  item_p->fc.fmt_spec.append(fmt);
+  item_p->fc.fmt_spec.append(1, '}');
 
   // first look for an element index (2 digits max)
   if( (fmt.size() > 1 && isdigit(fmt[0]) && fmt[1] == ':') ||
       (fmt.size() > 2 && isdigit(fmt[0]) && isdigit(fmt[1]) && fmt[2] == ':') )
   {
-    int arg_index = -1;
-    arg_index = fmt[0] - '0';
+    *arg_index_p = -1;
+    *arg_index_p = fmt[0] - '0';
     if( fmt[2] == ':' )
     {
-      arg_index = 10 * arg_index + fmt[1] - '0';
+      *arg_index_p = 10 * (*arg_index_p) + fmt[1] - '0';
       fmt = fmt.substr(3);
     }
     else // fmt[1] == ':'
       fmt = fmt.substr(2);
-    item_p->arg_index = arg_index;
   }
 
   if( fmt.empty() )
   { // no format specified
     return item_p;
   }
-  item_p->empty_fmt = false;
+  item_p->fc.empty_fmt = false;
 
   if( fmt.size() == 1 && isalpha(fmt[0]) )
   {
     // type only
-    item_p->type = fmt[0];
-    item_p->empty_fmt = false;
-    item_p->type_only_fmt = true;
+    item_p->fc.type = fmt[0];
+    item_p->fc.empty_fmt = false;
+    item_p->fc.type_only_fmt = true;
     return item_p;
   }
 
@@ -1287,19 +1286,19 @@ Format::ItemFormat* Format::parse_format(yat::String& fmt)
     switch( fmt[align_pos] )
     {
       case '<':
-        item_p->align_left = true;
+        item_p->fc.align_left = true;
         break;
       case '>':
-        item_p->align_right = true;
+        item_p->fc.align_right = true;
         break;
       case '=':
-        item_p->align_sign = true;
+        item_p->fc.align_sign = true;
         break;
       default:
         break;
     }
     if( align_pos > 0 )
-      item_p->fill = fmt[0];
+      item_p->fc.fill = fmt[0];
     search_start = align_pos;
   }
 
@@ -1307,13 +1306,13 @@ Format::ItemFormat* Format::parse_format(yat::String& fmt)
   if( sign_pos != std::string::npos )
   {
     if( fmt[sign_pos] == '+' )
-      item_p->show_sign = true;
+      item_p->fc.show_sign = true;
     search_start = sign_pos;
   }
   std::size_t sharp_pos = fmt.find('#', search_start);
   if( sharp_pos != std::string::npos )
   {
-    item_p->show_base = true;
+    item_p->fc.show_base = true;
     search_start = sharp_pos;
   }
 
@@ -1334,25 +1333,30 @@ Format::ItemFormat* Format::parse_format(yat::String& fmt)
   if( fmt.size() > 0 && (std::isalpha(fmt[fmt.size() - 1]) || fmt[fmt.size() - 1] == '%') )
   {
     type_pos = fmt.size() - 1;
-    item_p->type = fmt[type_pos];
+    item_p->fc.type = fmt[type_pos];
   }
 
   if( decimal_point_pos != std::string::npos && width_pos != std::string::npos )
-    item_p->width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, decimal_point_pos - width_pos));
+    item_p->fc.width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, decimal_point_pos - width_pos));
   else if( width_pos != std::string::npos )
-    item_p->width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, type_pos - width_pos));
+    item_p->fc.width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, type_pos - width_pos));
 
   if( precision_pos != std::string::npos )
-    item_p->precision = StringUtil::to_num<std::size_t>(fmt.substr(precision_pos, type_pos - precision_pos));
+    item_p->fc.precision = StringUtil::to_num<std::size_t>(fmt.substr(precision_pos, type_pos - precision_pos));
 
-  if( zero_padding && ('x' == item_p->type || 'X' == item_p->type ||
-                       'o' == item_p->type || 'd' == item_p->type ||
-                       'f' == item_p->type || 'F' == item_p->type ||
-                       'g' == item_p->type || 'G' == item_p->type ||
-                       'e' == item_p->type || 'E' == item_p->type ) )
+  if( 'p' == item_p->fc.type )
+  {
+    item_p->fc.width = 2 * YAT_PTR_BYTES_LEN + 2;
+  }
+
+  if( zero_padding && ('x' == item_p->fc.type || 'X' == item_p->fc.type ||
+                       'o' == item_p->fc.type || 'd' == item_p->fc.type ||
+                       'f' == item_p->fc.type || 'F' == item_p->fc.type ||
+                       'g' == item_p->fc.type || 'G' == item_p->fc.type ||
+                       'e' == item_p->fc.type || 'E' == item_p->fc.type ) )
     {
-      item_p->zero_padding = true;
-      item_p->fill = '0';
+      item_p->fc.zero_padding = true;
+      item_p->fc.fill = '0';
     }
 
   return item_p;
@@ -1361,54 +1365,57 @@ Format::ItemFormat* Format::parse_format(yat::String& fmt)
 //---------------------------------------------------------------------------
 // Format::prepare_type
 //---------------------------------------------------------------------------
-inline void Format::prepare_type(std::ios_base::fmtflags& ff, const char& type)
+inline void Format::prepare_type(std::ios_base::fmtflags& ff, std::ostream &oss, const char& type)
 {
   switch( type )
   {
     case 'p':
       ff |= std::ios::showbase;
-      m_oss.setf(ff);
-      m_oss << std::hex;
+      ff |= std::ios::internal;
+      oss.setf(ff);
+      oss << std::hex;
+      oss << std::setfill('0');
+      oss << std::setw(2 * YAT_PTR_BYTES_LEN + 2);
       break;
 
     case 'X':
       ff |= std::ios::uppercase;
     case 'x':
-      m_oss.setf(ff);
-      m_oss << std::hex;
+      oss.setf(ff);
+      oss << std::hex;
       break;
 
     case 'o':
-      m_oss.setf(ff);
-      m_oss << std::oct;
+      oss.setf(ff);
+      oss << std::oct;
       break;
 
     case 'b':
       ff |= std::ios::boolalpha;
-      m_oss.setf(ff);
+      oss.setf(ff);
       break;
 
     case 'f':
     case 'F':
     case '%':
       ff |= std::ios::fixed;
-      m_oss.setf(ff);
+      oss.setf(ff);
       break;
 
     case 'E':
       ff |= std::ios::uppercase;
     case 'e':
       ff |= std::ios::scientific;
-      m_oss.setf(ff);
+      oss.setf(ff);
       break;
 
     case 'G':
       ff |= std::ios::uppercase;
-      m_oss.setf(ff);
+      oss.setf(ff);
       break;
 
     default:
-      m_oss.setf(ff);
+      oss.setf(ff);
       break;
   }
 }
@@ -1488,24 +1495,25 @@ void Format::parse()
       }
       start_str = end_pos + 1;
       end_str = end_pos + 1;
-      ItemFormat* fmt_p = parse_format(fmt);
+      int arg_index = -1;
+      ItemFormat* fmt_p = parse_format(fmt, &arg_index);
       ++n_formats;
       ItemPtr ptr(fmt_p);
 
       // { positioning
       if( !first_fmt )
       {
-        if( manual_positioning && fmt_p->arg_index == -1 )
+        if( manual_positioning && arg_index == -1 )
           throw yat::Exception("BAD_FORMAT", "Can't switch from manual argument positioning to automatic positioning", "yat::Format::parse");
-        if( !manual_positioning && fmt_p->arg_index != -1 )
+        if( !manual_positioning && arg_index != -1 )
           throw yat::Exception("BAD_FORMAT", "Can't switch from automatic argument positioning to manual positioning", "yat::Format::parse");
       }
       else
         first_fmt = false;
 
-      if( fmt_p->arg_index != -1 )
+      if( arg_index != -1 )
       { // manual positioning: {0} {1}...
-        m_compiled_fmt_ptr->arg_items_map[std::size_t(fmt_p->arg_index)].push_back(ptr);
+        m_compiled_fmt_ptr->arg_items_map[std::size_t(arg_index)].push_back(ptr);
         manual_positioning = true;
       }
       else // automatic positioning: {} {}...
@@ -1554,6 +1562,7 @@ bool Format::get_next_format(Format::ItemFormat** pp_fmt)
   if( m_item_by_arg_idx < m_compiled_fmt_ptr->arg_items_map[m_arg_index].size() )
   {
     *pp_fmt = dynamic_cast<ItemFormat*>(m_compiled_fmt_ptr->arg_items_map[m_arg_index][m_item_by_arg_idx++].get());
+    // re-init internal output stream
     m_oss.copyfmt(m_null_fmt);
     m_oss.str("");
     return true;
@@ -1568,112 +1577,49 @@ bool Format::get_next_format(Format::ItemFormat** pp_fmt)
 //---------------------------------------------------------------------------
 // Format::prepare_format
 //---------------------------------------------------------------------------
-void Format::prepare_format(char& type, Format::ItemFormat* item_p)
+void Format::prepare_format(char& type, std::ostream &oss,
+                            const Format::Context& fc, char force_type)
 {
-  if( item_p->empty_fmt )
+  if( force_type )
+    type = force_type;
+
+  if( fc.empty_fmt )
   {
     if( 0 != type )
     {
-      std::ios_base::fmtflags ff = m_oss.flags();
-      prepare_type(ff, type);
+      std::ios_base::fmtflags ff = oss.flags();
+      prepare_type(ff, oss, type);
     }
     // no defined spec
     return;
   }
 
-  std::ios_base::fmtflags ff = m_oss.flags();
-  type = item_p->type;
+  std::ios_base::fmtflags ff = oss.flags();
+  if( 0 != fc.type && 0 == force_type )
+    type = fc.type;
 
-  if( item_p->type_only_fmt )
+  if( fc.type_only_fmt )
   {
-    // type only
-    type = item_p->type;
-    prepare_type(ff, type);
+    prepare_type(ff, oss, type);
     return;
   }
 
-  if( item_p->show_base )   ff |= std::ios::showbase;
-  if( item_p->show_sign )   ff |= std::ios::showpos;
-  if( item_p->align_right ) ff |= std::ios::right;
-  if( item_p->align_left )  ff |= std::ios::left;
-  if( item_p->align_sign )  ff |= std::ios::left;
+  if( fc.show_base )   ff |= std::ios::showbase;
+  if( fc.show_sign )   ff |= std::ios::showpos;
+  if( fc.zero_padding )ff |= std::ios::internal;
 
-  if( item_p->zero_padding )
+  prepare_type(ff, oss, type);
+
+  if( fc.fill )            oss << std::setfill(fc.fill);
+  if( fc.width > 0 )       oss << std::setw(fc.width);
+  if( fc.precision > 0 )   oss << std::setprecision(fc.precision);
+
+  if( (!fc.zero_padding && 'p' != type) || 's' == type )
   {
-    ff |= std::ios::internal;
-    item_p->fill = '0';
+    if( fc.align_right )     oss << std::right;
+    if( fc.align_left )      oss << std::left;
+    if( fc.align_sign )      oss << std::left;
   }
-  prepare_type(ff, type);
-
-  if( item_p->fill )            m_oss << std::setfill(item_p->fill);
-  if( item_p->width > 0 )       m_oss << std::setw(item_p->width);
-  if( item_p->precision > 0 )   m_oss << std::setprecision(item_p->precision);
-}
-
-#define __STRING_TYPES_FORMAT_EX(v) \
-  ItemFormat *item_p = 0; \
-  while( get_next_format(&item_p) ) \
-  { \
-    char type = 's'; \
-    prepare_format(type, item_p); \
-    m_oss << v; \
-    m_replacements[PTR2INT(item_p)] = m_oss.str(); \
-  } \
-  return *this
-
-#define __CHAR_TYPES_FORMAT_EX(v) \
-  ItemFormat *item_p = 0; \
-  while( get_next_format(&item_p) ) \
-  { \
-    char type = 0; \
-    prepare_format(type, item_p); \
-     if( 'B' == type ) \
-    { \
-      std::bitset<8> bs(v); \
-      m_oss << bs; \
-    } \
-    else if( 'd' == type || 'o' == type || 'X' == type || 'x' == type ) \
-      m_oss << int(v); \
-    else \
-      m_oss << v; \
-    m_replacements[PTR2INT(item_p)] = m_oss.str(); \
-  } \
-  return *this
-
-//---------------------------------------------------------------------------
-// Format::arg
-//---------------------------------------------------------------------------
-Format& Format::arg(const char *v)
-{
- __STRING_TYPES_FORMAT_EX(v);
-}
-Format& Format::arg(const std::string& v)
-{
- __STRING_TYPES_FORMAT_EX(v);
-}
-Format& Format::arg(const String& v)
-{
- __STRING_TYPES_FORMAT_EX(v);
-}
-Format& Format::arg(const char& v)
-{
-  __CHAR_TYPES_FORMAT_EX(v);
-}
-Format& Format::arg(const unsigned char& v)
-{
-  __CHAR_TYPES_FORMAT_EX(v);
-}
-Format& Format::arg(const bool& v)
-{
-  ItemFormat *item_p = 0;
-  while( get_next_format(&item_p) )
-  {
-    char type = 'b';
-    prepare_format(type, item_p);
-    m_oss << v;
-    m_replacements[PTR2INT(item_p)] = m_oss.str();
-  }
-  return *this;
 }
 
 //---------------------------------------------------------------------------
@@ -1693,7 +1639,7 @@ String& Format::get() const
         m_str.append(it->second);
       else
         // unused format => write format spec on output string
-        m_str.append(item_p->fmt_spec);
+        m_str.append(item_p->fc.fmt_spec);
     }
     else // format_item_str
     {
@@ -1701,6 +1647,112 @@ String& Format::get() const
     }
   }
   return m_str;
+}
+
+//---------------------------------------------------------------------------
+// Format::output_ptr_value
+//---------------------------------------------------------------------------
+void Format::output_ptr_value(uintptr p, const Format::Context& fc)
+{
+  if( p )
+  {
+    char type = 'p';
+    prepare_format(type, m_oss, fc);
+    m_oss << p;
+  }
+  else
+  {
+    char type = 0;
+    prepare_format(type, m_oss, fc, 's');
+    m_oss << std::setfill(' ') << "null";
+  }
+}
+
+//---------------------------------------------------------------------------
+// Format::arg(const char *s)
+//---------------------------------------------------------------------------
+Format& Format::arg(const char *s)
+{
+  ItemFormat *item_p = 0;
+  while( get_next_format(&item_p) )
+  {
+    if( 'p' == item_p->fc.type || !s )
+      output_ptr_value(reinterpret_cast<uintptr>(s), item_p->fc);
+    else
+    {
+      char type = 0;
+      prepare_format(type, m_oss, item_p->fc, 's');
+      m_oss << s;
+    }
+    m_replacements[PTR2INT(item_p)] = m_oss.str();
+  }
+  return *this;
+}
+
+//---------------------------------------------------------------------------
+// Format::Formatter<std::string>
+//---------------------------------------------------------------------------
+void Format::Formatter<std::string>::operator()(const std::string& v, std::ostream &oss, const Format::Context& fc)
+{
+  char type = 0;
+  prepare_format(type, oss, fc, 's');
+  oss << v;
+}
+
+//---------------------------------------------------------------------------
+// Format::Formatter<String>
+//---------------------------------------------------------------------------
+void Format::Formatter<String>::operator()(const String& v, std::ostream &oss, const Format::Context& fc)
+{
+  char type = 0;
+  prepare_format(type, oss, fc, 's');
+  oss << v;
+}
+
+//---------------------------------------------------------------------------
+// Format::Formatter<char>
+//---------------------------------------------------------------------------
+void Format::Formatter<char>::operator()(const char& v, std::ostream &oss, const Format::Context& fc)
+{
+  char type = 0;
+  prepare_format(type, oss, fc);
+   if( 'B' == type )
+  {
+    std::bitset<8> bs(v);
+    oss << bs;
+  }
+  else if( 'd' == type || 'o' == type || 'X' == type || 'x' == type )
+    oss << int(v);
+  else
+    oss << v;
+}
+
+//---------------------------------------------------------------------------
+// Format::Formatter<unsigned char>
+//---------------------------------------------------------------------------
+void Format::Formatter<unsigned char>::operator()(const unsigned char& v, std::ostream &oss, const Format::Context& fc)
+{
+  char type = 0;
+  prepare_format(type, oss, fc);
+   if( 'B' == type )
+  {
+    std::bitset<8> bs(v);
+    oss << bs; \
+  }
+  else if( 'd' == type || 'o' == type || 'X' == type || 'x' == type )
+    oss << int(v);
+  else
+    oss << v;
+}
+
+//---------------------------------------------------------------------------
+// Format::Formatter<bool>
+//---------------------------------------------------------------------------
+void Format::Formatter<bool>::operator()(const bool& v, std::ostream &oss, const Format::Context& fc)
+{
+  char type = 'b'; // this type may be overrided by format spec
+  prepare_format(type, oss, fc);
+  oss << v;
 }
 
 //---------------------------------------------------------------------------
