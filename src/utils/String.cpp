@@ -1651,7 +1651,7 @@ Format& Format::arg(const std::string& v)
 {
  __STRING_TYPES_FORMAT_EX(v);
 }
-Format& Format::arg(const yat::String& v)
+Format& Format::arg(const String& v)
 {
  __STRING_TYPES_FORMAT_EX(v);
 }
