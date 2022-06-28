@@ -1234,32 +1234,34 @@ inline void rep_double_char(std::string& str, char c)
 }
 
 //---------------------------------------------------------------------------
-// Format::parse_format
+// Format::parse_field
 //---------------------------------------------------------------------------
-Format::ItemFormat* Format::parse_format(yat::String& fmt, int* arg_index_p)
+Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
 {
   ItemFormat* item_p = new ItemFormat;
 
   // string value before substitution is '{fmt}'
-  item_p->fc.fmt_spec.append(1, '{');
-  item_p->fc.fmt_spec.append(fmt);
-  item_p->fc.fmt_spec.append(1, '}');
+  item_p->fc.field.append(1, '{');
+  item_p->fc.field.append(field);
+  item_p->fc.field.append(1, '}');
 
   // first look for an element index (2 digits max)
-  if( (fmt.size() > 1 && isdigit(fmt[0]) && fmt[1] == ':') ||
-      (fmt.size() > 2 && isdigit(fmt[0]) && isdigit(fmt[1]) && fmt[2] == ':') )
+  if( (field.size() > 1 && isdigit(field[0]) && field[1] == ':') ||
+      (field.size() > 2 && isdigit(field[0]) && isdigit(field[1]) && field[2] == ':') )
   {
     *arg_index_p = -1;
-    *arg_index_p = fmt[0] - '0';
-    if( fmt[2] == ':' )
+    *arg_index_p = field[0] - '0';
+    if( field[2] == ':' )
     {
-      *arg_index_p = 10 * (*arg_index_p) + fmt[1] - '0';
-      fmt = fmt.substr(3);
+      *arg_index_p = 10 * (*arg_index_p) + field[1] - '0';
+      field = field.substr(3);
     }
     else // fmt[1] == ':'
-      fmt = fmt.substr(2);
+      field = field.substr(2);
   }
+  item_p->fc.fmt_spec = field;
 
+  yat::String &fmt = field;
   if( fmt.empty() )
   { // no format specified
     return item_p;
@@ -1431,8 +1433,8 @@ void Format::parse()
 
   std::size_t start_pos, end_pos, start_str = 0, end_str = std::string::npos;
   std::size_t start_search = 0, arg_auto_index = 0, n_formats = 0;
-  yat::String fmt;
-  bool manual_positioning = false, first_fmt = true;
+  yat::String field;
+  bool manual_positioning = false, first_field = true;
 
   while( true )
   {
@@ -1480,8 +1482,8 @@ void Format::parse()
       if( end_pos < start_pos )
         throw yat::Exception("BAD_FORMAT", "Single '}' found", "yat::Format::parse");
 
-      fmt = m_str.substr(start_pos + 1, end_pos - start_pos - 1);
-      if( fmt.find('{') != std::string::npos )
+      field = m_str.substr(start_pos + 1, end_pos - start_pos - 1);
+      if( field.find('{') != std::string::npos )
         throw yat::Exception("BAD_FORMAT", "Unexpected '{' found inside format", "yat::Format::parse");
 
       // ok, continue
@@ -1496,12 +1498,12 @@ void Format::parse()
       start_str = end_pos + 1;
       end_str = end_pos + 1;
       int arg_index = -1;
-      ItemFormat* fmt_p = parse_format(fmt, &arg_index);
+      ItemFormat* field_p = parse_field(field, &arg_index);
       ++n_formats;
-      ItemPtr ptr(fmt_p);
+      ItemPtr ptr(field_p);
 
       // { positioning
-      if( !first_fmt )
+      if( !first_field )
       {
         if( manual_positioning && arg_index == -1 )
           throw yat::Exception("BAD_FORMAT", "Can't switch from manual argument positioning to automatic positioning", "yat::Format::parse");
@@ -1509,7 +1511,7 @@ void Format::parse()
           throw yat::Exception("BAD_FORMAT", "Can't switch from automatic argument positioning to manual positioning", "yat::Format::parse");
       }
       else
-        first_fmt = false;
+        first_field = false;
 
       if( arg_index != -1 )
       { // manual positioning: {0} {1}...
@@ -1638,8 +1640,8 @@ String& Format::get() const
         // used format
         m_str.append(it->second);
       else
-        // unused format => write format spec on output string
-        m_str.append(item_p->fc.fmt_spec);
+        // unused format => write replacement field on output string
+        m_str.append(item_p->fc.field);
     }
     else // format_item_str
     {

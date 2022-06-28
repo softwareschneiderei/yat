@@ -1217,19 +1217,20 @@ public:
   class Context
   {
   public:
-    bool empty_fmt;
-    bool type_only_fmt;
-    bool show_sign;
-    bool align_sign;
-    bool align_right;
-    bool align_left;
-    bool show_base;
-    bool zero_padding;
-    char type;
-    char fill;
-    std::size_t precision;
-    std::size_t width;
-    yat::String fmt_spec;
+    bool empty_fmt;        //! this format spec is empty
+    bool type_only_fmt;    //! only value type is set in this instance
+    bool show_sign;        //! positive sign of numeric value will be printed
+    bool align_sign;       //! eq. to left-alignement
+    bool align_right;      //! field value should be right-aligned
+    bool align_left;       //! field value should be left-aligned
+    bool show_base;        //! numeric field should be preceded by base information
+    bool zero_padding;     //! numeric value should be padded with '0'
+    char type;             //! field type, if any
+    char fill;             //! fill character
+    std::size_t precision; //! float value precision
+    std::size_t width;     //! field width
+    yat::String fmt_spec;  //! format specification
+    yat::String field;     //! replacement field before substitution
 
     Context() : empty_fmt(true), type_only_fmt(false), show_sign(false),
                    align_sign(false), align_right(false), align_left(false),
@@ -1390,7 +1391,7 @@ private:
   std::ios m_null_fmt;
   std::ostringstream m_oss;
 
-  ItemFormat* parse_format(yat::String& fmt, int* arg_index_p);
+  ItemFormat* parse_field(yat::String& field, int* arg_index_p);
   bool get_next_format(ItemFormat** pp_fmt);
   void parse();
   void output_ptr_value(uintptr p, const Context& fc);
