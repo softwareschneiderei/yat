@@ -1210,6 +1210,61 @@ public:
   //! Get final string
   String& get() const;
 
+  // ============================================================================
+  //! \class Context
+  //! \brief decoded format specification
+  // ============================================================================
+  class Context
+  {
+  public:
+    bool empty_fmt;        //! this format spec is empty
+    bool type_only_fmt;    //! only value type is set in this instance
+    bool show_sign;        //! positive sign of numeric value will be printed
+    bool align_sign;       //! eq. to left-alignement
+    bool align_right;      //! field value should be right-aligned
+    bool align_left;       //! field value should be left-aligned
+    bool show_base;        //! numeric field should be preceded by base information
+    bool zero_padding;     //! numeric value should be padded with '0'
+    char type;             //! field type, if any
+    char fill;             //! fill character
+    std::size_t precision; //! float value precision
+    std::size_t width;     //! field width
+    yat::String fmt_spec;  //! format specification
+    yat::String field;     //! replacement field before substitution
+
+    Context() : empty_fmt(true), type_only_fmt(false), show_sign(false),
+                   align_sign(false), align_right(false), align_left(false),
+                   show_base(false), zero_padding(false), type(0), fill(0),
+                   precision(0), width(0)
+                   {}
+  };
+
+  // ============================================================================
+  //! \struct Formatter
+  //! \brief default formatter for basic (numeric) types
+  // ============================================================================
+  template<typename T>
+  struct Formatter
+  {
+    void operator()(const T& v, std::ostream &oss, const Context& fc)
+    {
+      char type = 0;
+      prepare_format(type, oss, fc);
+
+      if( 'B' == type )
+      {
+        std::bitset<8 * sizeof(T)> bs(v);
+        oss << bs;
+      }
+      else if( '%' == type )
+      {
+        oss << 100 * v << '%';
+      }
+      else
+        oss << v;
+    }
+  };
+
   //! Apply format
   //!
   //! format spec is:\n
@@ -1242,55 +1297,37 @@ public:
   //! 'f' Fixed-point notation. Displays the number as a fixed-point number. The default precision is 6.\n
   //! 'g' General format. For a given precision p >= 1, this rounds the number to p significant digits and then formats the result in either fixed-point format or in scientific notation, depending on its magnitude.\n
   //! 'G' General format. Same as 'g' except switches to 'E' if the number gets too large. The representations of infinity and NaN are uppercased, too.\n
-  //! 'p' special type to be used only to output pointer value (ex: yat::Format('{p}').arg(PTR2INT(my_pointer)) )
+  //! 'p' special type to be used only to output pointer value (ex: yat::Format('{p}').arg(my_pointer))
   //! '%%' Percentage. Multiplies the number by 100 and displays in fixed ('f') format, followed by a percent sign.\n
   template<typename T> Format& arg(const T& v)
   {
     ItemFormat *item_p = 0;
     while( get_next_format(&item_p) )
     {
-      char type = 0;
-      prepare_format(type, item_p);
-
-      if( 'B' == type )
-      {
-        std::bitset<8 * sizeof(T)> bs(v);
-        m_oss << bs;
-      }
-      else if( '%' == type )
-      {
-        m_oss << 100 * v << '%';
-      }
-      else
-        m_oss << v;
+      Formatter<T>()(v, m_oss, item_p->fc);
       m_replacements[PTR2INT(item_p)] = m_oss.str();
     }
     return *this;
   }
 
-  //! Specializations of arg() method
-  //!
-  Format& arg(const bool& v);
-  Format& arg(const unsigned char& v);
-  Format& arg(const char& v);
-  Format& arg(const char *v);
-  Format& arg(const std::string& v);
-  Format& arg(const yat::String& v);
-
   //! Apply format for any pointers type
+  //! output pointer address
+  //! 'p' output type may be omitted in format specification
   //!
-  template<typename T> Format& argp(const T* p)
+  template<typename T> Format& arg(T* p)
   {
     ItemFormat *item_p = 0;
     while( get_next_format(&item_p) )
     {
-      char type = 'p';
-      prepare_format(type, item_p);
-      m_oss << reinterpret_cast<uintptr>(p);
+      output_ptr_value(reinterpret_cast<uintptr>(p), item_p->fc);
       m_replacements[PTR2INT(item_p)] = m_oss.str();
     }
     return *this;
   }
+
+  //! arg specialization for C-string pointer
+  //! output pointed string, instead of pointer address
+  Format& arg(const char *s);
 
   //! @deprecated
   template<class T> Format& format(const T& v) { return arg(v); }
@@ -1321,26 +1358,7 @@ private:
   {
   public:
     ItemType item_type() { return format_item_fmt; }
-    bool empty_fmt;
-    bool type_only_fmt;
-    bool show_sign;
-    bool align_sign;
-    bool align_right;
-    bool align_left;
-    bool show_base;
-    bool zero_padding;
-    char type;
-    char fill;
-    std::size_t precision;
-    std::size_t width;
-    int arg_index;
-    yat::String fmt_spec;
-
-    ItemFormat() : empty_fmt(true), type_only_fmt(false), show_sign(false),
-                   align_sign(false), align_right(false), align_left(false),
-                   show_base(false), zero_padding(false), type('s'), fill(0),
-                   precision(0), width(0), arg_index(-1)
-                   {}
+    Context fc;
   };
 
   struct CompiledFormat
@@ -1373,11 +1391,37 @@ private:
   std::ios m_null_fmt;
   std::ostringstream m_oss;
 
-  ItemFormat* parse_format(yat::String& fmt);
+  ItemFormat* parse_field(yat::String& field, int* arg_index_p);
   bool get_next_format(ItemFormat** pp_fmt);
   void parse();
-  void prepare_format(char& type, ItemFormat* item_p);
-  void prepare_type(std::ios_base::fmtflags& ff, const char& type);
+  void output_ptr_value(uintptr p, const Context& fc);
+  static void prepare_format(char& type, std::ostream &oss, const Context& fc, char force_type = 0);
+  static void prepare_type(std::ios_base::fmtflags& ff, std::ostream &oss, const char& type);
+};
+
+template<> struct Format::Formatter<std::string>
+{
+  void operator()(const std::string& v, std::ostream &oss, const Format::Context& fc);
+};
+
+template<> struct Format::Formatter<String>
+{
+  void operator()(const String& v, std::ostream &oss, const Format::Context& fc);
+};
+
+template<> struct Format::Formatter<char>
+{
+  void operator()(const char& v, std::ostream &oss, const Format::Context& fc);
+};
+
+template<> struct Format::Formatter<unsigned char>
+{
+  void operator()(const unsigned char& v, std::ostream &oss, const Format::Context& fc);
+};
+
+template<> struct Format::Formatter<bool>
+{
+  void operator()(const bool& v, std::ostream &oss, const Format::Context& fc);
 };
 
 //! @deprecated original class name

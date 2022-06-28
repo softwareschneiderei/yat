@@ -367,9 +367,15 @@ friend LogFormat cerr(const std::string& msg_fmt);
 friend LogFormat clog(const std::string& msg_fmt);
 
 public:
-  template<typename T> LogFormat& arg(T v)
+  template<typename T> LogFormat& arg(const T& v)
   {
     try { Format::arg(v); }
+    catch(...) {}
+    return *this;
+  }
+  template<typename T> LogFormat& arg(T* p)
+  {
+    try { Format::arg(p); }
     catch(...) {}
     return *this;
   }

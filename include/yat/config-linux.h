@@ -84,8 +84,10 @@ namespace yat
   typedef uint64_t uint64;
 #if __WORDSIZE == 64
   typedef uint64_t uintptr;
+  #define YAT_PTR_BYTES_LEN 8
 #else
   typedef uint32_t uintptr;
+  #define YAT_PTR_BYTES_LEN 4
 #endif
 }
 
