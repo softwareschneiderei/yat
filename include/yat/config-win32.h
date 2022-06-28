@@ -120,10 +120,12 @@ namespace yat
     typedef int int32;
     typedef unsigned int uint32;
     typedef unsigned __int64 uintptr;
+    #define YAT_PTR_BYTES_LEN 8
   #else
     typedef long int32;
     typedef unsigned long uint32;
     typedef unsigned long uintptr;
+    #define YAT_PTR_BYTES_LEN 4
   #endif
 
   typedef __int64 int64;
