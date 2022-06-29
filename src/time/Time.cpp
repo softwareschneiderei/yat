@@ -1846,22 +1846,30 @@ std::string Duration::to_string_millis(char sep) const
 {
   DurationFields df;
   get(&df);
-  std::string duration;
+  std::ostringstream oss;
 
   if(  df.days > 0 )
-    yat::StringUtil::printf(&duration, "%dd%c%02dh%c%02dm%c%02ds.%03d",
-                                       df.days, sep, df.hours, sep, df.minutes, sep, df.seconds, df.micros / 1000);
-  else if( df.hours > 0 )
-    yat::StringUtil::printf(&duration, "%02dh%c%02dm%c%02ds.%03d",
-                                       df.hours, sep, df.minutes, sep, df.seconds,  df.micros / 1000 );
-  else if( df.minutes > 0 )
-    yat::StringUtil::printf(&duration, "%02dm%c%02ds.%03d",
-                                       df.minutes, sep, df.seconds,  df.micros / 1000 );
-  else
-    yat::StringUtil::printf(&duration, "%02ds.%03d",
-                                       df.seconds,  df.micros / 1000 );
+    oss << std::internal << std::setfill('0') << std::setw(2) << int(df.days)
+        << 'd' << sep    << std::setfill('0') << std::setw(2) << int(df.hours)
+        << 'h' << sep    << std::setfill('0') << std::setw(2) << int(df.minutes)
+        << 'm' << sep    << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
+        << 's' << '.'    << std::setfill('0') << std::setw(3) << df.micros / 1000;
 
-  return duration;
+  else if( df.hours > 0 )
+    oss << std::internal << std::setfill('0') << std::setw(2) << int(df.hours)
+        << 'h' << sep    << std::setfill('0') << std::setw(2) << int(df.minutes)
+        << 'm' << sep    << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
+        << 's' << '.'    << std::setfill('0') << std::setw(3) << df.micros / 1000;
+
+  else if( df.minutes > 0 )
+    oss << std::internal << std::setfill('0') << std::setw(2) << int(df.minutes)
+        << 'm' << sep    << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
+        << 's' << '.'    << std::setfill('0') << std::setw(3) << df.micros / 1000;
+  else
+    oss << std::internal << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
+        << 's' << '.'    << std::setfill('0') << std::setw(3) << df.micros / 1000;
+
+  return oss.str();
 }
 
 //----------------------------------------------------------------------------
@@ -1871,22 +1879,30 @@ std::string Duration::to_string(char sep) const
 {
   DurationFields df;
   get(&df);
-  std::string duration;
+  std::ostringstream oss;
 
   if(  df.days > 0 )
-    yat::StringUtil::printf(&duration, "%dd%c%02dh%c%02dm%c%02ds",
-                                       df.days, sep, df.hours, sep, df.minutes, sep, df.seconds);
-  else if( df.hours > 0 )
-    yat::StringUtil::printf(&duration, "%02dh%c%02dm%c%02ds",
-                                       df.hours, sep, df.minutes, sep, df.seconds);
-  else if( df.minutes > 0 )
-    yat::StringUtil::printf(&duration, "%02dm%c%02ds",
-                                       df.minutes, sep, df.seconds);
-  else
-    yat::StringUtil::printf(&duration, "%02ds",
-                                       df.seconds);
+    oss << std::internal << std::setfill('0') << std::setw(2) << int(df.days)
+        << 'd' << sep    << std::setfill('0') << std::setw(2) << int(df.hours)
+        << 'h' << sep    << std::setfill('0') << std::setw(2) << int(df.minutes)
+        << 'm' << sep    << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
+        << 's';
 
-  return duration;
+  else if( df.hours > 0 )
+    oss << std::internal << std::setfill('0') << std::setw(2) << int(df.hours)
+        << 'h' << sep    << std::setfill('0') << std::setw(2) << int(df.minutes)
+        << 'm' << sep    << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
+        << 's';
+
+  else if( df.minutes > 0 )
+    oss << std::internal << std::setfill('0') << std::setw(2) << int(df.minutes)
+        << 'm' << sep    << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
+        << 's';
+  else
+    oss << std::internal << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
+        << 's';
+
+  return oss.str();
 }
 
 //----------------------------------------------------------------------------
@@ -1896,22 +1912,35 @@ std::string Duration::to_iso8601() const
 {
   DurationFields df;
   get(&df);
-  std::string duration;
+  std::ostringstream oss;
 
   if(  df.days > 0 )
-    yat::StringUtil::printf(&duration, "%02dDT%02dH%02dM%02dS",
-                                       df.days, df.hours, df.minutes, df.seconds );
-  else if( df.hours > 0 )
-    yat::StringUtil::printf(&duration, "T%02dH%02dM%02dS",
-                                       df.hours, df.minutes, df.seconds );
-  else if( df.minutes > 0 )
-    yat::StringUtil::printf(&duration, "T%02dM%02dS",
-                                       df.minutes, df.seconds );
-  else
-    yat::StringUtil::printf(&duration, "T%02dS",
-                                       df.seconds );
+    oss << std::internal
+                << std::setfill('0') << std::setw(2) << int(df.days)
+        << "DT" << std::setfill('0') << std::setw(2) << int(df.hours)
+        << 'H'  << std::setfill('0') << std::setw(2) << int(df.minutes)
+        << 'M'  << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
+        << 'S';
 
-  return duration;
+  else if( df.hours > 0 )
+    oss << 'T' << std::internal
+               << std::setfill('0') << std::setw(2) << int(df.hours)
+        << 'H' << std::setfill('0') << std::setw(2) << int(df.minutes)
+        << 'M' << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
+        << 'S';
+
+  else if( df.minutes > 0 )
+    oss << 'T'
+        << std::internal << std::internal << std::setfill('0') << std::setw(2) << int(df.minutes)
+        << 'M' << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
+        << 'S';
+  else
+    oss << 'T'
+        << std::internal
+        << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
+        << 'S';
+
+  return oss.str();
 }
 
 }
