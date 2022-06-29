@@ -1272,7 +1272,7 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
   item_p->fc.empty_fmt = false;
 
   // look for a format custom part extension
-  std::size_t fmt_ext_pos = fmt.find('|');
+  std::size_t fmt_ext_pos = fmt.find('/');
   if( fmt_ext_pos != std::string::npos )
   {
     // custom format can't start with either '<' or '>'
@@ -1633,6 +1633,9 @@ void Format::prepare_format(char& type, std::ostream &oss,
   if( fc.fill )            oss << std::setfill(fc.fill);
   if( fc.width > 0 )       oss << std::setw(fc.width);
   if( fc.precision > 0 )   oss << std::setprecision(fc.precision);
+
+  if( 's' == type || 'b' == type )
+    oss << std::left;
 
   if( (!fc.zero_padding && 'p' != type) || 's' == type )
   {
