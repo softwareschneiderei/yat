@@ -159,9 +159,14 @@ public:
   //!
   //! once instanciated and configured, the UDPTrigger must be started by a call to
   //! yat::Thread::start_undetached (inherited method)
+  //!
+  //! \warning throw an exception if the udp addr is not valid
   UDPTrigger( const UDPTrigger::Config& cfg )
       : m_cfg(cfg), m_udp_socket(0), m_trigger_cnt(0), m_sequence_length(0)
   {
+    if( cfg.udp_port > 2147483647 )
+      throw yat::Exception("ERROR", "Invalid udp port number", "yat::UDPTrigger::UDPTrigger");
+
     setup_udp_socket();
   }
 
