@@ -1240,6 +1240,8 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
 {
   ItemFormat* item_p = new ItemFormat;
 
+  field.trim();
+
   // string value before substitution is '{fmt}'
   item_p->fc.field.append(1, '{');
   item_p->fc.field.append(field);
@@ -1259,6 +1261,7 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
     else // fmt[1] == ':'
       field = field.substr(2);
   }
+  field.trim();
   item_p->fc.fmt_spec = field;
 
   yat::String &fmt = field;
@@ -1267,6 +1270,21 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
     return item_p;
   }
   item_p->fc.empty_fmt = false;
+
+  // look for a format custom part extension
+  std::size_t fmt_ext_pos = fmt.find('|');
+  if( fmt_ext_pos != std::string::npos )
+  {
+    // custom format can't start with either '<' or '>'
+    if( !(fmt_ext_pos < fmt.size() - 1
+        && ( fmt[fmt_ext_pos + 1] == '<' || fmt[fmt_ext_pos + 1] == '>')) )
+    {
+      if( fmt_ext_pos < fmt.size() - 1 )
+        item_p->fc.fmt_ext = fmt.substr(fmt_ext_pos + 1);
+      fmt = fmt.substr(0, fmt_ext_pos);
+      fmt.trim();
+    }
+  }
 
   if( fmt.size() == 1 && isalpha(fmt[0]) )
   {
