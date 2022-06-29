@@ -1373,7 +1373,8 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
                        'o' == item_p->fc.type || 'd' == item_p->fc.type ||
                        'f' == item_p->fc.type || 'F' == item_p->fc.type ||
                        'g' == item_p->fc.type || 'G' == item_p->fc.type ||
-                       'e' == item_p->fc.type || 'E' == item_p->fc.type ) )
+                       'e' == item_p->fc.type || 'E' == item_p->fc.type ||
+                       '%' == item_p->fc.type) )
     {
       item_p->fc.zero_padding = true;
       item_p->fc.fill = '0';
