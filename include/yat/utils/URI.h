@@ -217,7 +217,57 @@ public:
 
 };
 
-
+//==================================================================================================
+//! \struct Format::Formatter<URI>
+//! \brief for using with yat::Format class
+//!
+//! Extended format specification description for URI class:
+//! <field name or abbreviated field name>
+//! where field name/abbreviated name is one of:
+//! - scheme/s
+//! - authority/a
+//! - path/p
+//! - userinfo/u
+//! - host/h
+//! - port/p
+//! - query/q
+//! - fragment/f
+//! or none. In this later case the full URI string is printed
+//!
+//! \par Usage:
+//! \code{.cpp}
+//! yat::URI uri(<some valid URI>);
+//! yat::cout("{}").arg(uri);            // whole uri
+//! yat::cout("{/scheme}").arg(uri);     // scheme part
+//! yat::cout("{/path}").arg(uri);       // path part
+//! yat::cout("{0:/a} {0:/p}").arg(uri); // authority and path parts
+//! \endcode
+//==================================================================================================
+template<>
+struct Format::Formatter<URI>
+{
+  void operator()(const URI& uri, std::ostream &oss, const Format::Context& fc)
+  {
+    if( fc.fmt_ext.empty() )
+      oss << uri.get();
+    else if( fc.fmt_ext.is_equal_no_case("scheme") || fc.fmt_ext.is_equal_no_case("s") )
+      oss << uri.get(URI::SCHEME);
+    else if( fc.fmt_ext.is_equal_no_case("authority") || fc.fmt_ext.is_equal_no_case("a") )
+      oss << uri.get(URI::AUTHORITY);
+    else if( fc.fmt_ext.is_equal_no_case("path") || fc.fmt_ext.is_equal_no_case("p") )
+      oss << uri.get(URI::PATH);
+    else if( fc.fmt_ext.is_equal_no_case("userinfo") || fc.fmt_ext.is_equal_no_case("u") )
+      oss << uri.get(URI::USERINFO);
+    else if( fc.fmt_ext.is_equal_no_case("host") || fc.fmt_ext.is_equal_no_case("h") )
+      oss << uri.get(URI::HOST);
+    else if( fc.fmt_ext.is_equal_no_case("port") || fc.fmt_ext.is_equal_no_case("r") )
+      oss << uri.get(URI::PORT);
+    else if( fc.fmt_ext.is_equal_no_case("query") || fc.fmt_ext.is_equal_no_case("q") )
+      oss << uri.get(URI::QUERY);
+    else if( fc.fmt_ext.is_equal_no_case("fragment") || fc.fmt_ext.is_equal_no_case("f") )
+      oss << uri.get(URI::FRAGMENT);
+  }
+};
 
 } // namespace
 

@@ -1147,12 +1147,22 @@ YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 
 // ============================================================================
 //! \class Format
-//! \brief Format string using a format specification close to the
+//! \brief Format string using a specification close to the
 //! format-spec defined in Python (https://docs.python.org/3/library/string.html#formatspec)
-//! use '{{' or '}}' to escape '{' or '}'
+//!
+//! Replacement field syntax is: {[manual_field_index:]<format_spec>}
+//! where manual_field_index have to be used of all fields or none in a given format string.
+//! manual_field_index must start at '0'.
+//! Mixing manual and automatic field indexing is not allowed.
+//!
+//! Use '{{' or '}}' to escape '{' or '}'
+//!
+//! See the arg() method for a detailed explanation of the format specification mini language
+//!
 //! \par Usage:
 //! \code{.cpp}
 //! std::cout << yat::Format("ga: {}, bu: {}, zo: {}, meu: {}").arg("pomper").arg(true).arg(12).arg(3.14) << std::endl;
+//! std::cout << yat::Format("{1:} {0:}").arg("gabu").arg("zomeu") << std::endl;
 //! std::cout << yat::Format("shadock={<10}").arg("gabu") << std::endl;
 //! std::cout << yat::Format("shadock={>10}").arg("zomeu") << std::endl;
 //! std::cout << yat::Format("ga {b} zo {s}").arg(true).arg("meu") << std::endl;
@@ -1269,7 +1279,7 @@ public:
   //! Apply format
   //!
   //! format spec is:\n
-  //! [[fill]align][sign][#][0][width][.precision][type] \n
+  //! [[fill]align][sign][#][0][width][.precision][type][/format extension] \n
   //! fill        ::=  any character\n
   //! align       ::=  "<" | ">"\n
   //! sign        ::=  "+" | "-"\n
@@ -1300,6 +1310,7 @@ public:
   //! 'G' General format. Same as 'g' except switches to 'E' if the number gets too large. The representations of infinity and NaN are uppercased, too.\n
   //! 'p' special type to be used only to output pointer value (ex: yat::Format('{p}').arg(my_pointer))
   //! '%%' Percentage. Multiplies the number by 100 and displays in fixed ('f') format, followed by a percent sign.\n
+  //! format_extension is optional and is decoded and interpreted by custom formatter
   template<typename T> Format& arg(const T& v)
   {
     ItemFormat *item_p = 0;
@@ -1327,7 +1338,8 @@ public:
   }
 
   //! arg specialization for C-string pointer
-  //! output pointed string, instead of pointer address
+  //! output pointed string if the format spec is empty, instead of pointer address
+  //! but output the pointer address if the 'p' type is specified ('{p}')
   Format& arg(const char *s);
 
   //! @deprecated
