@@ -1259,15 +1259,14 @@ public:
   {
     void operator()(const T& v, std::ostream &oss, const Context& fc)
     {
-      char type = 0;
-      prepare_format(type, oss, fc);
+      prepare_format(oss, fc);
 
-      if( 'B' == type )
+      if( 'B' == fc.type )
       {
         std::bitset<8 * sizeof(T)> bs(v);
         oss << bs;
       }
-      else if( '%' == type )
+      else if( '%' == fc.type )
       {
         oss << 100 * v << '%';
       }
@@ -1408,7 +1407,8 @@ private:
   bool get_next_format(ItemFormat** pp_fmt);
   void parse();
   void output_ptr_value(uintptr p, const Context& fc);
-  static void prepare_format(char& type, std::ostream &oss, const Context& fc, char force_type = 0);
+  static void prepare_format(std::ostream &oss, const Context& fc,
+                             char default_type = 0, bool force_type = false);
   static void prepare_type(std::ios_base::fmtflags& ff, std::ostream &oss, const char& type);
 };
 

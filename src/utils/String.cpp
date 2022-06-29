@@ -1597,11 +1597,11 @@ bool Format::get_next_format(Format::ItemFormat** pp_fmt)
 //---------------------------------------------------------------------------
 // Format::prepare_format
 //---------------------------------------------------------------------------
-void Format::prepare_format(char& type, std::ostream &oss,
-                            const Format::Context& fc, char force_type)
+void Format::prepare_format(std::ostream &oss,
+                            const Format::Context& fc, char default_type,
+                            bool force_type)
 {
-  if( force_type )
-    type = force_type;
+  char type = default_type;
 
   if( fc.empty_fmt )
   {
@@ -1615,7 +1615,7 @@ void Format::prepare_format(char& type, std::ostream &oss,
   }
 
   std::ios_base::fmtflags ff = oss.flags();
-  if( 0 != fc.type && 0 == force_type )
+  if( 0 != fc.type && !force_type )
     type = fc.type;
 
   if( fc.type_only_fmt )
@@ -1679,14 +1679,12 @@ void Format::output_ptr_value(uintptr p, const Format::Context& fc)
 {
   if( p )
   {
-    char type = 'p';
-    prepare_format(type, m_oss, fc);
+    prepare_format(m_oss, fc, 'p');
     m_oss << p;
   }
   else
   {
-    char type = 0;
-    prepare_format(type, m_oss, fc, 's');
+    prepare_format(m_oss, fc, 's', true);
     m_oss << std::setfill(' ') << "null";
   }
 }
@@ -1703,8 +1701,7 @@ Format& Format::arg(const char *s)
       output_ptr_value(reinterpret_cast<uintptr>(s), item_p->fc);
     else
     {
-      char type = 0;
-      prepare_format(type, m_oss, item_p->fc, 's');
+      prepare_format(m_oss, item_p->fc, 's', true);
       m_oss << s;
     }
     m_replacements[PTR2INT(item_p)] = m_oss.str();
@@ -1717,8 +1714,7 @@ Format& Format::arg(const char *s)
 //---------------------------------------------------------------------------
 void Format::Formatter<std::string>::operator()(const std::string& v, std::ostream &oss, const Format::Context& fc)
 {
-  char type = 0;
-  prepare_format(type, oss, fc, 's');
+  prepare_format(oss, fc, 's', true);
   oss << v;
 }
 
@@ -1727,8 +1723,7 @@ void Format::Formatter<std::string>::operator()(const std::string& v, std::ostre
 //---------------------------------------------------------------------------
 void Format::Formatter<String>::operator()(const String& v, std::ostream &oss, const Format::Context& fc)
 {
-  char type = 0;
-  prepare_format(type, oss, fc, 's');
+  prepare_format(oss, fc, 's', true);
   oss << v;
 }
 
@@ -1737,14 +1732,13 @@ void Format::Formatter<String>::operator()(const String& v, std::ostream &oss, c
 //---------------------------------------------------------------------------
 void Format::Formatter<char>::operator()(const char& v, std::ostream &oss, const Format::Context& fc)
 {
-  char type = 0;
-  prepare_format(type, oss, fc);
-   if( 'B' == type )
+  prepare_format(oss, fc);
+   if( 'B' == fc.type )
   {
     std::bitset<8> bs(v);
     oss << bs;
   }
-  else if( 'd' == type || 'o' == type || 'X' == type || 'x' == type )
+  else if( 'd' == fc.type || 'o' == fc.type || 'X' == fc.type || 'x' == fc.type )
     oss << int(v);
   else
     oss << v;
@@ -1755,14 +1749,13 @@ void Format::Formatter<char>::operator()(const char& v, std::ostream &oss, const
 //---------------------------------------------------------------------------
 void Format::Formatter<unsigned char>::operator()(const unsigned char& v, std::ostream &oss, const Format::Context& fc)
 {
-  char type = 0;
-  prepare_format(type, oss, fc);
-   if( 'B' == type )
+  prepare_format(oss, fc);
+   if( 'B' == fc.type )
   {
     std::bitset<8> bs(v);
     oss << bs; \
   }
-  else if( 'd' == type || 'o' == type || 'X' == type || 'x' == type )
+  else if( 'd' == fc.type || 'o' == fc.type || 'X' == fc.type || 'x' == fc.type )
     oss << int(v);
   else
     oss << v;
@@ -1773,8 +1766,7 @@ void Format::Formatter<unsigned char>::operator()(const unsigned char& v, std::o
 //---------------------------------------------------------------------------
 void Format::Formatter<bool>::operator()(const bool& v, std::ostream &oss, const Format::Context& fc)
 {
-  char type = 'b'; // this type may be overrided by format spec
-  prepare_format(type, oss, fc);
+  prepare_format(oss, fc, 'b');
   oss << v;
 }
 
