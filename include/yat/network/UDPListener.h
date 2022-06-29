@@ -270,6 +270,9 @@ protected:
             ++m_total_ignored_events;
             continue;
           }
+
+          ++m_received_events;
+
           //- extract UDP event number (identifier) from the UDP packet
           //- this is set by SpiUdpTimebase (i.e. the UDP event emitter)
           udp_evt_number = *(reinterpret_cast<yat::uint32*>(ib.base()));

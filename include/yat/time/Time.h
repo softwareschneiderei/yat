@@ -927,6 +927,98 @@ private:
   Duration    m_mean;
 };
 
+//==================================================================================================
+//! \struct Format::Formatter<Time>
+//! \brief for using with yat::Format class
+//!
+//! Extended format specification description for Time class:
+//! [[utc|local]time_zone]|[<specific time format spec>]\n
+//! utc       ::= "u" | "U"\n
+//! local     ::= "l" | "L"\n
+//! time_zone ::= "z" | "Z"\n
+//! <specific time format spec>: see Time::to_string() method
+//!
+//! \par Usage:
+//! \code{.cpp}
+//! yat::Time t;
+//! t.now();
+//! yat::cout("{}").arg(t); will output the ISO8601 standard representation of t
+//! yat::cout("{/u}").arg(t): will output the ISO8601 standard representation of t converted in UTC if needed
+//! yat::cout("{/l}").arg(t): will output the ISO8601 standard representation of t converted in local time if needed
+//! yat::cout("{/z}").arg(t): will output the ISO8601 standard representation of t with time zone information
+//! yat::cout("{/uz}").arg(t): will output the ISO8601 standard representation of UTC(t) with time zone information
+//! yat::cout("{/Lz}").arg(t): will output the ISO8601 standard representation of local_time(t) with time zone information
+//! yat::cout("{/%H:%M}").arg(t): will output t using the given format (hour:minutes in this exemple)
+//! \endcode
+//==================================================================================================
+template<>
+struct Format::Formatter<Time>
+{
+  void operator()(const Time& t, std::ostream &oss, const Format::Context& fc)
+  {
+    if( !fc.fmt_ext.empty() )
+    {
+      if( fc.fmt_ext[0] == '%' )
+        // Specific time format string
+        oss << t.to_string(fc.fmt_ext);
+      else
+      {
+        bool utc = false;
+        bool local = false;
+        bool tz = false;
+        if( fc.fmt_ext[0] == 'u' || fc.fmt_ext[0] == 'U' )
+          utc = true;
+        else if( fc.fmt_ext[0] == 'l' || fc.fmt_ext[0] == 'L' )
+          local = true;
+
+        if( (fc.fmt_ext[0] == 'z' || fc.fmt_ext[0] == 'Z') ||
+            (fc.fmt_ext.size() > 1 &&
+               (fc.fmt_ext[1] == 'z' || fc.fmt_ext[1] == 'Z')) )
+        {
+          tz = true;
+        }
+
+        if( utc )
+          oss << t.to_string_utc(tz ? Time::iso8601_z : Time::iso8601, fc.precision);
+        else if( local )
+          oss << t.to_string_local(tz ? Time::iso8601_z : Time::iso8601, fc.precision);
+        else
+          oss << t.to_string(tz ? Time::iso8601_z : Time::iso8601, fc.precision);
+      }
+    }
+    else // default formatting
+      oss << t.to_string(Time::iso8601, fc.precision);
+  }
+};
+
+//==================================================================================================
+//! \struct Format::Formatter<CurrentTime>
+//! \brief for using with yat::Format class
+//! \see Format::Formatter<Time>
+//==================================================================================================
+template<>
+struct Format::Formatter<CurrentTime>
+{
+  void operator()(const CurrentTime& t, std::ostream &oss, const Format::Context& fc)
+  {
+    Format::Formatter<Time>()(reinterpret_cast<const Time&>(t), oss, fc);
+  }
+};
+
+//==================================================================================================
+//! \struct Format::Formatter<Duration>
+//! \brief for using with yat::Format class
+//! Output standard ISO8601 representation of the given duration
+//==================================================================================================
+template<>
+struct Format::Formatter<Duration>
+{
+  void operator()(const Duration& d, std::ostream &oss, const Format::Context& fc)
+  {
+    oss << d.to_iso8601();
+  }
+};
+
 
 } // namespace
 
