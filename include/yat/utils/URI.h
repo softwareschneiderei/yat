@@ -221,18 +221,12 @@ public:
 //! \struct Format::Formatter<URI>
 //! \brief for using with yat::Format class
 //!
-//! Extended format specification description for URI class:
-//! <field name or abbreviated field name>
-//! where field name/abbreviated name is one of:
-//! - scheme/s
-//! - authority/a
-//! - path/p
-//! - userinfo/u
-//! - host/h
-//! - port/p
-//! - query/q
-//! - fragment/f
-//! or none. In this later case the full URI string is printed
+//! Extended format specification:
+//! [<field name>|<short field name>]\n
+//! field name ::= "scheme" | "authority" | "path" | "userinfo" | "host" |
+//! "port" | "query" | "fragment"\n
+//! short field name ::= "s" | "a" | "p" | "u" | "h" | "r" | "q" | "f"\n
+//! If no field name or short name is provided then full URI string is printed
 //!
 //! \par Usage:
 //! \code{.cpp}

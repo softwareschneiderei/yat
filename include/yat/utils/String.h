@@ -1148,16 +1148,19 @@ YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 // ============================================================================
 //! \class Format
 //! \brief Format string using a specification close to the
-//! format-spec defined in Python (https://docs.python.org/3/library/string.html#formatspec)
+//! format-spec defined in Python\n
+//! (https://docs.python.org/3/library/string.html#formatspec)
 //!
-//! Replacement field syntax is: {[manual_field_index:]<format_spec>}
-//! where manual_field_index have to be used of all fields or none in a given format string.
-//! manual_field_index must start at '0'.
+//! Replacement field syntax is:\n
+//! {[manual_field_index:][<standard_format_spec>][/<format extension>]}
+//! where manual_field_index have to be used of all fields or none in a given
+//! format string.
+//! 'manual_field_index' must start at '0'.
 //! Mixing manual and automatic field indexing is not allowed.
-//!
 //! Use '{{' or '}}' to escape '{' or '}'
 //!
-//! See the arg() method for a detailed explanation of the format specification mini language
+//! See the arg() method for a detailed explanation of the format
+//! specification mini language
 //!
 //! \par Usage:
 //! \code{.cpp}
@@ -1222,7 +1225,7 @@ public:
 
   // ============================================================================
   //! \class Context
-  //! \brief decoded format specification
+  //! \brief decoded standard format specification
   // ============================================================================
   class Context
   {
@@ -1251,8 +1254,11 @@ public:
   };
 
   // ============================================================================
-  //! \struct Formatter
+  //! \struct Formatter<T>
   //! \brief default formatter for basic (numeric) types
+  //!
+  //! Formatters optionnaly use an extended format specification which start after
+  //! a '/' in the replacement field
   // ============================================================================
   template<typename T>
   struct Formatter
@@ -1278,7 +1284,7 @@ public:
   //! Apply format
   //!
   //! format spec is:\n
-  //! [[fill]align][sign][#][0][width][.precision][type][/format extension] \n
+  //! [[fill]align][sign][#][0][width][.precision][type][/format extension]\n
   //! fill        ::=  any character\n
   //! align       ::=  "<" | ">"\n
   //! sign        ::=  "+" | "-"\n
@@ -1309,7 +1315,7 @@ public:
   //! 'G' General format. Same as 'g' except switches to 'E' if the number gets too large. The representations of infinity and NaN are uppercased, too.\n
   //! 'p' special type to be used only to output pointer value (ex: yat::Format('{p}').arg(my_pointer))
   //! '%%' Percentage. Multiplies the number by 100 and displays in fixed ('f') format, followed by a percent sign.\n
-  //! format_extension is optional and is decoded and interpreted by custom formatter
+  //! <format extension> is optional and is decoded and interpreted by custom formatters
   template<typename T> Format& arg(const T& v)
   {
     ItemFormat *item_p = 0;

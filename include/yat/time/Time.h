@@ -931,8 +931,8 @@ private:
 //! \struct Format::Formatter<Time>
 //! \brief for using with yat::Format class
 //!
-//! Extended format specification description for Time class:
-//! [[utc|local]time_zone]|[<specific time format spec>]\n
+//! Extended format specification:
+//! [[<utc>|<local>]<time_zone>]|[<specific time format spec>]\n
 //! utc       ::= "u" | "U"\n
 //! local     ::= "l" | "L"\n
 //! time_zone ::= "z" | "Z"\n
