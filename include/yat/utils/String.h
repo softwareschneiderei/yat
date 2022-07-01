@@ -1180,7 +1180,7 @@ class Format
 {
 public:
   //! \brief Default constructor.
-  Format() : m_null_fmt(NULL) {}
+  Format() : m_arg_index(0), m_item_by_arg_idx(0), m_null_fmt(NULL) {}
 
   //! \brief Constructor from a char pointer.
   //! \param psz Char pointer.
@@ -1274,7 +1274,10 @@ public:
       }
       else if( '%' == fc.type )
       {
-        oss << 100 * v << '%';
+        if( 0 == fc.precision )
+          oss << int(100. * v) << '%';
+        else
+          oss << 100. * v << '%';
       }
       else
         oss << v;
