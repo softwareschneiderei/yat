@@ -1652,22 +1652,26 @@ void Format::prepare_format(std::ostream &oss,
 String& Format::get() const
 {
   m_str.clear();
-  for( std::size_t i = 0; i < m_compiled_fmt_ptr->items.size(); ++i )
+
+  if( m_compiled_fmt_ptr )
   {
-    if( m_compiled_fmt_ptr->items[i]->item_type() == format_item_fmt )
+    for( std::size_t i = 0; i < m_compiled_fmt_ptr->items.size(); ++i )
     {
-      ItemFormat* item_p = dynamic_cast<ItemFormat*>(m_compiled_fmt_ptr->items[i].get());
-      ReplacementMap::const_iterator it = m_replacements.find(PTR2INT(item_p));
-      if( it != m_replacements.end() )
-        // used format
-        m_str.append(it->second);
-      else
-        // unused format => write replacement field on output string
-        m_str.append(item_p->fc.field);
-    }
-    else // format_item_str
-    {
-      m_str.append(dynamic_cast<ItemString*>(m_compiled_fmt_ptr->items[i].get())->str);
+      if( m_compiled_fmt_ptr->items[i]->item_type() == format_item_fmt )
+      {
+        ItemFormat* item_p = dynamic_cast<ItemFormat*>(m_compiled_fmt_ptr->items[i].get());
+        ReplacementMap::const_iterator it = m_replacements.find(PTR2INT(item_p));
+        if( it != m_replacements.end() )
+          // used format
+          m_str.append(it->second);
+        else
+          // unused format => write replacement field on output string
+          m_str.append(item_p->fc.field);
+      }
+      else // format_item_str
+      {
+        m_str.append(dynamic_cast<ItemString*>(m_compiled_fmt_ptr->items[i].get())->str);
+      }
     }
   }
   return m_str;
