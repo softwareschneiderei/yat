@@ -815,6 +815,8 @@ void FileName::info( Info* info_p, bool follow_link ) const
     info_p->is_file   = (st.st_mode & S_IFREG) == S_IFREG;
     info_p->is_dir    = (st.st_mode & S_IFDIR) == S_IFDIR;
     info_p->is_link   = (st.st_mode & S_IFLNK) == S_IFLNK;
+    info_p->suid      = (st.st_mode & S_ISUID) == S_ISUID;
+    info_p->sgid      = (st.st_mode & S_ISGID) == S_ISGID;
     info_p->uid       = st.st_uid;
     info_p->gid       = st.st_gid;
     mod_time( &(info_p->mod_time), true, !follow_link );

@@ -412,6 +412,8 @@ public:
     bool        is_file;
     bool        is_dir;
     bool        is_link;
+    bool        sgid;
+    bool        suid;
     std::string link_to;
 
     Info() { clear(); }
