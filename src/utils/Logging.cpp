@@ -539,8 +539,8 @@ LogFormat alert(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_ALER
 LogFormat critical(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_CRITICAL); }
 LogFormat emergency(const std::string& msg_fmt) { return LogFormat(msg_fmt, LOG_EMERGENCY); }
 
-LogFormat cout(const std::string& msg_fmt) { return LogFormat(msg_fmt, &std::cout); }
-LogFormat clog(const std::string& msg_fmt) { return LogFormat(msg_fmt, &std::clog); }
-LogFormat cerr(const std::string& msg_fmt) { return LogFormat(msg_fmt, &std::cerr); }
+LogFormat fcout(const std::string& msg_fmt) { return LogFormat(msg_fmt, &std::cout); }
+LogFormat fclog(const std::string& msg_fmt) { return LogFormat(msg_fmt, &std::clog); }
+LogFormat fcerr(const std::string& msg_fmt) { return LogFormat(msg_fmt, &std::cerr); }
 
 } // namespace

@@ -341,12 +341,12 @@ class YAT_DECL LogFormat emergency(const std::string& msg_fmt);
 //! \brief log a critical message with format
 class YAT_DECL LogFormat critical(const std::string& msg_fmt);
 
-//! \brief log a message with format on std::cout stream
-class YAT_DECL LogFormat cout(const std::string& msg_fmt);
-//! \brief log a message with format on std::cerr stream
-class YAT_DECL LogFormat cerr(const std::string& msg_fmt);
-//! \brief log a message with format on std::clog stream
-class YAT_DECL LogFormat clog(const std::string& msg_fmt);
+//! \brief log a formatted message on std::cout stream
+class YAT_DECL LogFormat fcout(const std::string& msg_fmt);
+//! \brief log a formatted message on std::cerr stream
+class YAT_DECL LogFormat fcerr(const std::string& msg_fmt);
+//! \brief log a formatted message on std::clog stream
+class YAT_DECL LogFormat fclog(const std::string& msg_fmt);
 
 // Internal class used to log formatted messages
 // This object can't be manually allocated nor copied
@@ -362,9 +362,9 @@ friend LogFormat error(const std::string& msg_fmt);
 friend LogFormat alert(const std::string& msg_fmt);
 friend LogFormat emergency(const std::string& msg_fmt);
 friend LogFormat critical(const std::string& msg_fmt);
-friend LogFormat cout(const std::string& msg_fmt);
-friend LogFormat cerr(const std::string& msg_fmt);
-friend LogFormat clog(const std::string& msg_fmt);
+friend LogFormat fcout(const std::string& msg_fmt);
+friend LogFormat fcerr(const std::string& msg_fmt);
+friend LogFormat fclog(const std::string& msg_fmt);
 
 public:
   template<typename T> LogFormat& arg(const T& v)
