@@ -1346,7 +1346,7 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
     width_pos = std::string::npos;
 
   std::size_t zero_pad_pos = fmt.find('0', search_start);
-  if( zero_pad_pos == width_pos - 1 )
+  if( zero_pad_pos != std::string::npos && zero_pad_pos == width_pos - 1 )
     zero_padding = true;
 
   std::size_t type_pos = std::string::npos;
