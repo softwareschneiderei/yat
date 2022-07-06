@@ -293,6 +293,8 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const
     return;
   }
 
+  bool sgid = false;
+
   do
   {
     *p = 0;
@@ -303,7 +305,7 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const
         // stat call report error != file not found
         ThrowExceptionFromErrno(Format(ERR_STAT_FAILED).arg(str), "FileName::mkdir");
 
-      if( ::mkdir(PSZ(str), 0000777) )
+      if( ::mkdir(PSZ(str), 0777) )
       {
         // failure
         ThrowExceptionFromErrno(Format(ERR_CANNOT_CREATE_FOLDER).arg(str), "FileName::mkdir");
@@ -312,16 +314,20 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const
       // Change access mode if needed
       if( mode != 0 )
       {
-        if( ::chmod(PSZ(str), mode) )
+        mode_t m = mode;
+        if( sgid )
+          m |= 02000;
+        if( ::chmod(PSZ(str), m) )
         {
           // changing access mode failed
           ThrowExceptionFromErrno(Format(ERR_CHMOD_FAILED).arg(str).arg(mode), "FileName::mkdir");
         }
       }
+
       // Change owner if needed
       if( (int)uid != -1 || (int)gid != -1 )
       {
-        if( ::chown(PSZ(str), uid, gid) )
+        if( ::chown(PSZ(str), uid, sgid ? -1 : gid) )
         {
           // changing owner mode failed
           ThrowExceptionFromErrno(Format(ERR_CHOWN_FAILED).arg(str).arg(uid).arg(gid), "FileName::mkdir");
@@ -332,11 +338,17 @@ void FileName::mkdir(mode_t mode, uid_t uid, gid_t gid) const
     {
       if( !(st.st_mode & S_IFDIR) )
       {
-        // c'est un fichier : erreur
+        // It's a file, not a group!
         std::string strErr = Format(ERR_CANNOT_CREATE_FOLDER).arg(str);
         throw BadPathException(strErr, "FileName::mkdir");
       }
-      // Directory : ok
+      // Directory : ok.
+      if( !sgid && (st.st_mode & S_ISGID) )
+        // A parent group have the sgid bit
+        sgid = true;
+      else if( sgid && !(st.st_mode & S_ISGID) )
+        // Only considere the immediate parent group of the first directory created
+        sgid = false;
     }
     // Next path component
     *p = SEP_PATH;
@@ -517,9 +529,16 @@ void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool 
     throw Exception("FILE_ERROR", strErr, "FileName::copy");
   }
 
-  struct stat st;
-  int iRc = stat(PSZ(full_name()), &st);
-  if( iRc )
+  struct stat st, st_dir;
+  int rc = stat(PSZ(full_name()), &st);
+  if( rc )
+  {
+    std::string strErr = Format(ERR_COPY_FAILED).arg(full_name()).arg(fDst.full_name());
+    ThrowExceptionFromErrno(strErr, "FileName::copy");
+  }
+
+  rc = stat(fDst.path().c_str(), &st_dir);
+  if( rc )
   {
     std::string strErr = Format(ERR_COPY_FAILED).arg(full_name()).arg(fDst.full_name());
     ThrowExceptionFromErrno(strErr, "FileName::copy");
@@ -660,7 +679,7 @@ void FileName::priv_copy(const std::string& strDst, yat::String* md5sum_p, bool 
   {
     try
     {
-      fDst.chown(st.st_uid, st.st_gid);
+      fDst.chown(st.st_uid, (st_dir.st_mode & S_ISGID) ? -1 : st.st_gid);
     }
     catch( ... )
     {
