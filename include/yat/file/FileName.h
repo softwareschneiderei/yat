@@ -1337,8 +1337,136 @@ private:
   LockFile* m_lock_p;
 };
 
-}
 
+//==================================================================================================
+//! \struct Format::Formatter<FileName>
+//! \brief for using with yat::Format class
+//!
+//! Extended format specification:
+//! [<path>|<name>|<extension>|<name_extension>|<dir_name>|<size>]\n
+//! path      ::= "p" | "P"\n
+//! name      ::= "n" | "N"\n
+//! extension ::= "e" | "E"\n
+//! name extension ::= "ne" | "NE"\n
+//! dir name  ::= "dn" | "DN"\n
+//! size      ::= "s" | "S"\n
+//!
+//! \par Usage:
+//! \code{.cpp}
+//! yat::FileName fn("/tmp/test.txt");
+//! yat::cout("{}").arg(fn); will output "/tmp/test.txt"
+//! yat::cout("{/p}").arg(fn): will output "/tmp/"
+//! yat::cout("{/n}").arg(fn): will output "test"
+//! yat::cout("{/ne}").arg(t): will output "test.txt"
+//! yat::cout("{/dn}").arg(t): will output "tmp"
+//! yat::cout("{/s}").arg(t): will output the file size in bytes
+//! \endcode
+//==================================================================================================
+template<>
+struct Format::Formatter<FileName>
+{
+  void operator()(const FileName& fn, std::ostream &oss, const Format::Context& fc)
+  {
+    // setup width & alignment
+    prepare_format(oss, fc, 's');
+
+    if( !fc.fmt_ext.empty() )
+    {
+      if( fc.fmt_ext.size() == 1 )
+      {
+        if( fc.fmt_ext[0] == 'p' || fc.fmt_ext[0] == 'P')
+          oss << fn.path();
+        else if( fc.fmt_ext[0] == 'n' || fc.fmt_ext[0] == 'N')
+          oss << fn.name();
+        else if( fc.fmt_ext[0] == 'e' || fc.fmt_ext[0] == 'E')
+          oss << fn.ext();
+        else if( fc.fmt_ext[0] == 's' || fc.fmt_ext[0] == 'S')
+          oss << fn.size64();
+      }
+      else
+      {
+        if( fc.fmt_ext == "ne" || fc.fmt_ext =="NE" )
+          oss << fn.name_ext();
+        else if( fc.fmt_ext == "dn" || fc.fmt_ext == "DN" )
+          oss << fn.dir_name();
+      }
+    }
+    else // default output
+      oss << fn.full_name();
+  }
+};
+
+//==================================================================================================
+//! \struct Format::Formatter<TempFileName>
+//! \brief for using with yat::Format class
+//! \see Format::Formatter<FileName>
+//==================================================================================================
+template<>
+struct Format::Formatter<TempFileName>
+{
+  void operator()(const TempFileName& f, std::ostream &oss, const Format::Context& fc)
+  {
+    Format::Formatter<FileName>()(f, oss, fc);
+  }
+};
+
+//==================================================================================================
+//! \struct Format::Formatter<File>
+//! \brief for using with yat::Format class
+//! \see Format::Formatter<FileName>
+//==================================================================================================
+template<>
+struct Format::Formatter<File>
+{
+  void operator()(const File& f, std::ostream &oss, const Format::Context& fc)
+  {
+    Format::Formatter<FileName>()(f, oss, fc);
+  }
+};
+
+//==================================================================================================
+//! \struct Format::Formatter<CfgFile>
+//! \brief for using with yat::Format class
+//! \see Format::Formatter<FileName>
+//==================================================================================================
+template<>
+struct Format::Formatter<CfgFile>
+{
+  void operator()(const CfgFile& f, std::ostream &oss, const Format::Context& fc)
+  {
+    Format::Formatter<FileName>()(f, oss, fc);
+  }
+};
+
+//==================================================================================================
+//! \struct Format::Formatter<FileEnum>
+//! \brief for using with yat::Format class
+//! \see Format::Formatter<FileName>
+//==================================================================================================
+template<>
+struct Format::Formatter<FileEnum>
+{
+  void operator()(const FileEnum& fe, std::ostream &oss, const Format::Context& fc)
+  {
+    Format::Formatter<FileName>()(fe, oss, fc);
+  }
+};
+
+//==================================================================================================
+//! \struct Format::Formatter<DirectoryWatcher>
+//! \brief for using with yat::Format class
+//! \see Format::Formatter<FileName>
+//==================================================================================================
+template<>
+struct Format::Formatter<DirectoryWatcher>
+{
+  void operator()(const DirectoryWatcher& dw, std::ostream &oss, const Format::Context& fc)
+  {
+    Format::Formatter<FileName>()(dw, oss, fc);
+  }
+};
+
+} // namespace
 
 #endif
 
