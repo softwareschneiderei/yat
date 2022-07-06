@@ -956,6 +956,9 @@ struct Format::Formatter<Time>
 {
   void operator()(const Time& t, std::ostream &oss, const Format::Context& fc)
   {
+    // setup width & alignment
+    prepare_format(oss, fc, 's');
+
     if( !fc.fmt_ext.empty() )
     {
       if( fc.fmt_ext[0] == '%' )
@@ -1001,7 +1004,49 @@ struct Format::Formatter<CurrentTime>
 {
   void operator()(const CurrentTime& t, std::ostream &oss, const Format::Context& fc)
   {
-    Format::Formatter<Time>()(reinterpret_cast<const Time&>(t), oss, fc);
+    Format::Formatter<Time>()(t, oss, fc);
+  }
+};
+
+//==================================================================================================
+//! \struct Format::Formatter<CurrentUTime>
+//! \brief for using with yat::Format class
+//! \see Format::Formatter<Time>
+//==================================================================================================
+template<>
+struct Format::Formatter<CurrentUTime>
+{
+  void operator()(const CurrentUTime& t, std::ostream &oss, const Format::Context& fc)
+  {
+    Format::Formatter<Time>()(t, oss, fc);
+  }
+};
+
+//==================================================================================================
+//! \struct Format::Formatter<UnixTime>
+//! \brief for using with yat::Format class
+//! \see Format::Formatter<Time>
+//==================================================================================================
+template<>
+struct Format::Formatter<UnixTime>
+{
+  void operator()(const UnixTime& t, std::ostream &oss, const Format::Context& fc)
+  {
+    Format::Formatter<Time>()(t, oss, fc);
+  }
+};
+
+//==================================================================================================
+//! \struct Format::Formatter<LocalTime>
+//! \brief for using with yat::Format class
+//! \see Format::Formatter<Time>
+//==================================================================================================
+template<>
+struct Format::Formatter<LocalTime>
+{
+  void operator()(const LocalTime& t, std::ostream &oss, const Format::Context& fc)
+  {
+    Format::Formatter<Time>()(t, oss, fc);
   }
 };
 
