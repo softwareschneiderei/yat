@@ -1,5 +1,65 @@
 YAT history file
 
+1.19.0 (2022/07/08)
+===================
+
+Fixes:
+    class Pulser
+        Synchronization between Pulser config and PulserCoreImpl
+
+    class StringTemplate
+        Fixed method value() when UNCHANGE_STRING mode is set
+
+    class UDPListener
+        member variable m_received_events was never incremented
+
+    class Atomic
+        was unusable due to bad header file!
+
+Changes:
+    class Format
+        Complete rewriting for better performances (~x5 speedup) and thread-safety
+        Several fixes
+        Added argument ordering support
+        New subclass Formatter<T> in order to define formatting for any class type
+        with custom format specification ability
+    -> see <yat/utils/String.h>
+
+    new YAT_PTR_BYTES_LEN define value
+    -> see <yat/config-linux.h>
+    -> see <yat/config-win32.h>
+
+    class UDPTrigger
+        c-tor now throw an excpetion if the port number is > MAX_INT32/2
+
+    class FileName
+        Added suid & guid boolean fields to FileName::Info struct
+    -> see <yat/file/FileName.h>
+
+        Take care of the sgid bit when creating a subdirectory structure and
+        when copying a file as root
+
+    Logging utilities
+        new free functions fcout/fcerr/fclog ('f' stands for 'format') that can
+        be used as replacements to std::cout/std::cerr/std::clog.
+        Those three functions use the Format class for string formatting.
+        The free function 'log' is removed.
+    -> see <yat/utils/Logging.h>
+
+    template class Format::Formatter<T>
+        Added implementations for:
+            all basic types and C-pointer type,
+            Time/CurrentTime/CurrentUTime/UnixTime/LocalTime,
+            Duration
+            FileName/File/FileEnum/TempFileName/CfgFile/DirectoryWatcher
+            URI
+            Dictionary<T>
+    -> see <yat/utils/String.h>
+           <yat/time/Time.h>
+           <yat/time/FileName.h>
+           <yat/utils/URI.h>
+           <yat/utils/Dictionary.h>
+
 1.18.9 (2022/04/22)
 ===================
 
