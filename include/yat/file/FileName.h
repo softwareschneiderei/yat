@@ -1356,12 +1356,12 @@ private:
 //! \par Usage:
 //! \code{.cpp}
 //! yat::FileName fn("/tmp/test.txt");
-//! yat::cout("{}").arg(fn); will output "/tmp/test.txt"
-//! yat::cout("{/p}").arg(fn): will output "/tmp/"
-//! yat::cout("{/n}").arg(fn): will output "test"
-//! yat::cout("{/ne}").arg(t): will output "test.txt"
-//! yat::cout("{/dn}").arg(t): will output "tmp"
-//! yat::cout("{/s}").arg(t): will output the file size in bytes
+//! yat::fcout("{}").arg(fn); will output "/tmp/test.txt"
+//! yat::fcout("{/p}").arg(fn): will output "/tmp/"
+//! yat::fcout("{/n}").arg(fn): will output "test"
+//! yat::fcout("{/ne}").arg(t): will output "test.txt"
+//! yat::fcout("{/dn}").arg(t): will output "tmp"
+//! yat::fcout("{/s}").arg(t): will output the file size in bytes
 //! \endcode
 //==================================================================================================
 template<>

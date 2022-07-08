@@ -231,10 +231,10 @@ public:
 //! \par Usage:
 //! \code{.cpp}
 //! yat::URI uri(<some valid URI>);
-//! yat::cout("{}").arg(uri);            // whole uri
-//! yat::cout("{/scheme}").arg(uri);     // scheme part
-//! yat::cout("{/path}").arg(uri);       // path part
-//! yat::cout("{0:/a} {0:/p}").arg(uri); // authority and path parts
+//! yat::fcout("{}").arg(uri);            // whole uri
+//! yat::fcout("{/scheme}").arg(uri);     // scheme part
+//! yat::fcout("{/path}").arg(uri);       // path part
+//! yat::fcout("{0:/a} {0:/p}").arg(uri); // authority and path parts
 //! \endcode
 //==================================================================================================
 template<>

@@ -942,13 +942,13 @@ private:
 //! \code{.cpp}
 //! yat::Time t;
 //! t.now();
-//! yat::cout("{}").arg(t); will output the ISO8601 standard representation of t
-//! yat::cout("{/u}").arg(t): will output the ISO8601 standard representation of t converted in UTC if needed
-//! yat::cout("{/l}").arg(t): will output the ISO8601 standard representation of t converted in local time if needed
-//! yat::cout("{/z}").arg(t): will output the ISO8601 standard representation of t with time zone information
-//! yat::cout("{/uz}").arg(t): will output the ISO8601 standard representation of UTC(t) with time zone information
-//! yat::cout("{/Lz}").arg(t): will output the ISO8601 standard representation of local_time(t) with time zone information
-//! yat::cout("{/%H:%M}").arg(t): will output t using the given format (hour:minutes in this exemple)
+//! yat::fcout("{}").arg(t); will output the ISO8601 standard representation of t
+//! yat::fcout("{/u}").arg(t): will output the ISO8601 standard representation of t converted in UTC if needed
+//! yat::fcout("{/l}").arg(t): will output the ISO8601 standard representation of t converted in local time if needed
+//! yat::fcout("{/z}").arg(t): will output the ISO8601 standard representation of t with time zone information
+//! yat::fcout("{/uz}").arg(t): will output the ISO8601 standard representation of UTC(t) with time zone information
+//! yat::fcout("{/Lz}").arg(t): will output the ISO8601 standard representation of local_time(t) with time zone information
+//! yat::fcout("{/%H:%M}").arg(t): will output t using the given format (hour:minutes in this exemple)
 //! \endcode
 //==================================================================================================
 template<>

@@ -1175,6 +1175,24 @@ YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 //! std::cout << yat::Format("bu {X}").arg(12) << std::endl;
 //! std::cout << yat::Format("ga {12} {8.4} {*<+30} {!>15g} {8.7E} {>12.2f}").arg(5).arg(65*3.47).arg(42).arg(42).arg(4.245684451).arg(42) << std::endl;
 //! \endcode
+//!
+//! This class use functors, called formatters, to deal with values types.\n
+//! Two default formatters are defined: for basic types and for C-pointers
+//! To declare a formatter outside of the yat namespace:
+//! \code{.cpp}
+//! namespace yat {
+//! template<> struct Format::Formatter<MyClassType>
+//! {
+//!   void operator()(const MyClassType& v, std::ostream &oss, const Format::Context& fc)
+//!   {
+//!     // calling the following method is optional
+//!     prepare_format(oss, fc);
+//!
+//!     oss << v.some_method_returning_the_value_to_be_put_on_the_ostream();
+//!   }
+//! };
+//! } // namespace yat
+//! \endcode
 // ============================================================================
 class Format
 {
@@ -1253,37 +1271,6 @@ public:
                    {}
   };
 
-  // ============================================================================
-  //! \struct Formatter<T>
-  //! \brief default formatter for basic (numeric) types
-  //!
-  //! Formatters optionnaly use an extended format specification which start after
-  //! a '/' in the replacement field
-  // ============================================================================
-  template<typename T>
-  struct Formatter
-  {
-    void operator()(const T& v, std::ostream &oss, const Context& fc)
-    {
-      prepare_format(oss, fc);
-
-      if( 'B' == fc.type )
-      {
-        std::bitset<8 * sizeof(T)> bs(v);
-        oss << bs;
-      }
-      else if( '%' == fc.type )
-      {
-        if( 0 == fc.precision )
-          oss << int(100. * v) << '%';
-        else
-          oss << 100. * v << '%';
-      }
-      else
-        oss << v;
-    }
-  };
-
   //! Apply format
   //!
   //! format spec is:\n
@@ -1355,6 +1342,31 @@ public:
 
 private:
 
+  // Default Formatter
+  template<typename T>
+  struct Formatter
+  {
+    void operator()(const T& v, std::ostream &oss, const Context& fc)
+    {
+      prepare_format(oss, fc);
+
+      if( 'B' == fc.type )
+      {
+        std::bitset<8 * sizeof(T)> bs(v);
+        oss << bs;
+      }
+      else if( '%' == fc.type )
+      {
+        if( 0 == fc.precision )
+          oss << int(100. * v) << '%';
+        else
+          oss << 100. * v << '%';
+      }
+      else
+        oss << v;
+    }
+  };
+
   enum ItemType { format_item_fmt, format_item_str };
 
   class ItemBase
@@ -1416,9 +1428,20 @@ private:
   bool get_next_format(ItemFormat** pp_fmt);
   void parse();
   void output_ptr_value(uintptr p, const Context& fc);
+  static void prepare_type(std::ios_base::fmtflags& ff, std::ostream &oss, const char& type);
+
+public:
+  //! \brief setup ostream according to the format context
+  //!
+  //! This static method can be called by formatters
+  //!
+  //! \param oss the ostream
+  //! \param fc  the context
+  //! \param default_type proposed default type if none is specified in the context
+  //!        all type may be invoked except 'B' & '%'
+  //! \param force_type default_type will override the type specified in the context
   static void prepare_format(std::ostream &oss, const Context& fc,
                              char default_type = 0, bool force_type = false);
-  static void prepare_type(std::ios_base::fmtflags& ff, std::ostream &oss, const char& type);
 };
 
 template<> struct Format::Formatter<std::string>
