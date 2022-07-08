@@ -349,7 +349,7 @@ class YAT_DECL LogFormat fcerr(const std::string& msg_fmt);
 class YAT_DECL LogFormat fclog(const std::string& msg_fmt);
 
 // Internal class used to log formatted messages
-// This object can't be manually allocated nor copied
+// This class can't be manually instancied and instances can't be copied
 class YAT_DECL LogFormat : public Format
 {
 // methods allowed to construct a LogFormat object
