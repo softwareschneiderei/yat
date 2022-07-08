@@ -223,9 +223,11 @@ public:
 //!
 //! Extended format specification:
 //! [<field name>|<short field name>]\n
-//! field name ::= "scheme" | "authority" | "path" | "userinfo" | "host" |
-//! "port" | "query" | "fragment"\n
-//! short field name ::= "s" | "a" | "p" | "u" | "h" | "r" | "q" | "f"\n
+//! \code{.unparsed}
+//! field name       ::= "scheme" | "authority" | "path" | "userinfo" | "host" |
+//!                      "port" | "query" | "fragment"
+//! short field name ::= "s" | "a" | "p" | "u" | "h" | "r" | "q" | "f"
+//! \endcode
 //! If no field name or short name is provided then full URI string is printed
 //!
 //! \par Usage:

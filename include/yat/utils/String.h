@@ -1151,46 +1151,95 @@ YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 //! format-spec defined in Python\n
 //! (https://docs.python.org/3/library/string.html#formatspec)
 //!
-//! Replacement field syntax is:\n
-//! {[manual_field_index:][<standard_format_spec>][/<format extension>]}
-//! where manual_field_index have to be used of all fields or none in a given
-//! format string.
-//! 'manual_field_index' must start at '0'.
-//! Mixing manual and automatic field indexing is not allowed.
-//! Use '{{' or '}}' to escape '{' or '}'
+//! Format strings contain “replacement fields” surrounded by curly braces {}.
+//! Anything that is not contained in braces is considered literal text, which
+//! is copied unchanged to the output.\n
+//! If you need to include a brace character in the literal text, it can be
+//! escaped by doubling: {{ and }}.
 //!
-//! See the arg() method for a detailed explanation of the format
-//! specification mini language
+//! The grammar for a replacement field is as follows:\n
+//! \code{.unparsed}
+//! replacement field ::= {[<argument index>:][<format spec>]}
+//! argument_index    ::= integer
+//! format_spec       ::= <see below>
+//! \endcode
+//! \notice argument_index have to be used on all fields or none in a given
+//! format string, and, if used, must start at '0'.\n
+//! Mixing manual (with argument indexes) and automatic field indexing is not allowed.
+//!
+//! \par Format specification mini-language
+//! \code{.unparsed}
+//! [[fill]align][sign][#][0][width][.precision][type][/format extension]
+//!
+//! fill             ::=  any character
+//! align            ::=  "<" | ">"
+//! sign             ::=  "+" | "-"
+//! width            ::=  integer
+//! precision        ::=  integer
+//! type             ::=  "b" | "d" | "B" | "e" | "E" | "f" | "F" | "g" | "G" | "o" | "s" | "x" | "X" | "%"
+//! format extension ::= specific format synax interpreted by Formatter functor (see below)
+//! \endcode
+//! \par align
+//! '<' Forces the field to be left-aligned within the available space (this is the default for most objects).\n
+//! '>' Forces the field to be right-aligned within the available space (this is the default for numbers).
+//! \par sign
+//! '+' indicates that a sign should be used for both positive as well as negative numbers.\n
+//! '-' indicates that a sign should be used only for negative numbers (this is the default behavior).
+//! \par '#' character
+//! only valid for integers, and only for octal or hexadecimal output.
+//! If present, it specifies that the output will be prefixed by '0' or '0x', respectively.
+//! \par '0' character
+//! For numeric types, a zero preceding the width field forces the padding,
+//! using '0', to be placed after sign or base (if any) but before the digits.
+//! This is used for printing fields in the form ‘+000000120’ or '0x00ff'
+//! \par type
+//! 's' String format. This is the default type for strings and may be omitted.\n
+//! 'd' Decimal format. Outputs the number in base 10.\n
+//! 'B' Binary format. Outputs the number in base 2.\n
+//! 'o' Octal format. Outputs the number in base 8.\n
+//! 'x' Hex format. Outputs the number in base 16, using lower- case letters for the digits above 9.\n
+//! 'X' Hex format. Outputs the number in base 16, using upper- case letters for the digits above 9.\n
+//! 'e' Exponent notation. Prints the number in scientific notation using the letter ‘e’ to indicate the exponent. The default precision is 6.\n
+//! 'E' Exponent notation. Same as 'e' except it uses an upper case ‘E’ as the separator character.\n
+//! 'f' Fixed-point notation. Displays the number as a fixed-point number. The default precision is 6.\n
+//! 'g' General format. For a given precision p >= 1, this rounds the number to p significant digits and then formats the result in either fixed-point format or in scientific notation, depending on its magnitude.\n
+//! 'G' General format. Same as 'g' except switches to 'E' if the number gets too large. The representations of infinity and NaN are uppercased, too.\n
+//! 'p' special type to be used only to output pointer value (ex: yat::Format('{p}').arg(my_pointer))\n
+//! '%%' Percentage. Multiplies the number by 100 and displays in fixed ('f') format, followed by a percent sign.\n
+//! \par format extension
+//! If present, this part is decoded and interpreted by custom formatters
 //!
 //! \par Usage:
 //! \code{.cpp}
-//! std::cout << yat::Format("ga: {}, bu: {}, zo: {}, meu: {}").arg("pomper").arg(true).arg(12).arg(3.14) << std::endl;
-//! std::cout << yat::Format("{1:} {0:}").arg("gabu").arg("zomeu") << std::endl;
-//! std::cout << yat::Format("shadock={<10}").arg("gabu") << std::endl;
-//! std::cout << yat::Format("shadock={>10}").arg("zomeu") << std::endl;
-//! std::cout << yat::Format("ga {b} zo {s}").arg(true).arg("meu") << std::endl;
-//! std::cout << yat::Format("pct {.1%}").arg(0.2) << std::endl;
-//! std::cout << yat::Format("bu {B}").arg(h) << std::endl;
-//! std::cout << yat::Format("bu {*>#8x}").arg(12) << std::endl;
-//! std::cout << yat::Format("bu {X}").arg(12) << std::endl;
-//! std::cout << yat::Format("ga {12} {8.4} {*<+30} {!>15g} {8.7E} {>12.2f}").arg(5).arg(65*3.47).arg(42).arg(42).arg(4.245684451).arg(42) << std::endl;
+//! yat::fcout("ga: {}, bu: {}, zo: {}, meu: {}").arg("pomper").arg(true).arg(42).arg(3.14);
+//! yat::fcout("{1:} {0:}").arg("gabu").arg("zomeu");
+//! yat::fcout("shadock={<10}").arg("gabu");
+//! yat::fcout("shadock={>10}").arg("zomeu");
+//! yat::fcout("ga {b} zo {s}").arg(true).arg("meu");
+//! yat::fcout("pct {.1%}").arg(0.2);
+//! yat::fcout("bu {B}").arg(42);
+//! yat::fcout("bu {*>#8x}").arg(42);
+//! yat::fcout("bu {X}").arg(42);
+//! yat::fcout("ga {12} {8.4} {*<+30} {!>15g} {8.7E} {>12.2f}").arg(5).arg(65*3.47).arg(42).arg(42).arg(4.245684451).arg(42);
 //! \endcode
 //!
-//! This class use functors, called formatters, to deal with values types.\n
-//! Two default formatters are defined: for basic types and for C-pointers
+//! \par Format::Formatter\<T\>
+//! The Format class use functors, called formatters, to deal with differents types.\n
+//! Two default formatters are defined: for basic types and for C-pointers.\n
 //! To declare a formatter outside of the yat namespace:
 //! \code{.cpp}
-//! namespace yat {
-//! template<> struct Format::Formatter<MyClassType>
+//! namespace yat
 //! {
-//!   void operator()(const MyClassType& v, std::ostream &oss, const Format::Context& fc)
+//!   template<> struct Format::Formatter<MyClassType>
 //!   {
-//!     // calling the following method is optional
-//!     prepare_format(oss, fc);
+//!     void operator()(const MyClassType& v, std::ostream &oss, const Format::Context& fc)
+//!     {
+//!       // calling the following method is optional
+//!       prepare_format(oss, fc);
 //!
-//!     oss << v.some_method_returning_the_value_to_be_put_on_the_ostream();
-//!   }
-//! };
+//!       oss << v.some_method_returning_the_value_to_be_pushed_on_the_ostream();
+//!     }
+//!   };
 //! } // namespace yat
 //! \endcode
 // ============================================================================
@@ -1271,41 +1320,9 @@ public:
                    {}
   };
 
-  //! Apply format
+  //! \brief Apply format
   //!
-  //! format spec is:\n
-  //! [[fill]align][sign][#][0][width][.precision][type][/format extension]\n
-  //! fill        ::=  any character\n
-  //! align       ::=  "<" | ">"\n
-  //! sign        ::=  "+" | "-"\n
-  //! width       ::=  integer\n
-  //! precision   ::=  integer\n
-  //! type        ::=  "b" | "d" | "B" | "e" | "E" | "f" | "F" | "g" | "G" | "o" | "s" | "x" | "X" | "%"\n
-  //! \par align:
-  //! '<' Forces the field to be left-aligned within the available space (this is the default for most objects).\n
-  //! '>' Forces the field to be right-aligned within the available space (this is the default for numbers).
-  //! \par sign
-  //! '+' indicates that a sign should be used for both positive as well as negative numbers.\n
-  //! '-' indicates that a sign should be used only for negative numbers (this is the default behavior).
-  //! \par '#' character
-  //! only valid for integers, and only for binary, octal, or hexadecimal output. If present, it specifies that the output will be prefixed by '0b', '0o', or '0x', respectively.
-  //! \par '0' character
-  //! For numeric types, a zero preceding the width field forces the padding, using '0', to be placed after sign or base (if any) but before the digits. This is used for printing fields in the form ‘+000000120’ or '0x00ff'
-  //! \par type
-  //! 's' String format. This is the default type for strings and may be omitted.\n
-  //! 'd' Decimal format. Outputs the number in base 10.\n
-  //! 'B' Binary format. Outputs the number in base 2.\n
-  //! 'o' Octal format. Outputs the number in base 8.\n
-  //! 'x' Hex format. Outputs the number in base 16, using lower- case letters for the digits above 9.\n
-  //! 'X' Hex format. Outputs the number in base 16, using upper- case letters for the digits above 9.\n
-  //! 'e' Exponent notation. Prints the number in scientific notation using the letter ‘e’ to indicate the exponent. The default precision is 6.\n
-  //! 'E' Exponent notation. Same as 'e' except it uses an upper case ‘E’ as the separator character.\n
-  //! 'f' Fixed-point notation. Displays the number as a fixed-point number. The default precision is 6.\n
-  //! 'g' General format. For a given precision p >= 1, this rounds the number to p significant digits and then formats the result in either fixed-point format or in scientific notation, depending on its magnitude.\n
-  //! 'G' General format. Same as 'g' except switches to 'E' if the number gets too large. The representations of infinity and NaN are uppercased, too.\n
-  //! 'p' special type to be used only to output pointer value (ex: yat::Format('{p}').arg(my_pointer))
-  //! '%%' Percentage. Multiplies the number by 100 and displays in fixed ('f') format, followed by a percent sign.\n
-  //! <format extension> is optional and is decoded and interpreted by custom formatters
+  //! \param v the value argument
   template<typename T> Format& arg(const T& v)
   {
     ItemFormat *item_p = 0;
@@ -1317,10 +1334,12 @@ public:
     return *this;
   }
 
-  //! Apply format for any pointers type
-  //! output pointer address
-  //! 'p' output type may be omitted in format specification
+  //! \brief Apply format for any pointers type
   //!
+  //! Output pointer address\n
+  //! 'p' output type may be omitted in format specification.
+  //!
+  //! \param p the pointeur value argument
   template<typename T> Format& arg(T* p)
   {
     ItemFormat *item_p = 0;
@@ -1332,9 +1351,12 @@ public:
     return *this;
   }
 
-  //! arg specialization for C-string pointer
-  //! output pointed string if the format spec is empty, instead of pointer address
+  //! \brief arg specialization for C-string pointer
+  //!
+  //! Output pointed string if the format spec is empty, instead of pointer address
   //! but output the pointer address if the 'p' type is specified ('{p}')
+  //!
+  //! \param s pointeur to a C-string
   Format& arg(const char *s);
 
   //! @deprecated
