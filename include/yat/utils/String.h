@@ -1176,7 +1176,7 @@ YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 //! sign             ::=  "+" | "-"
 //! width            ::=  integer
 //! precision        ::=  integer
-//! type             ::=  "b" | "d" | "B" | "e" | "E" | "f" | "F" | "g" | "G" | "o" | "s" | "x" | "X" | "%"
+//! type             ::=  "b" | "d" | "B" | "e" | "E" | "f" | "F" | "g" | "G" | "o" | "s" | "x" | "X" | "p" | "%"
 //! format extension ::= specific format synax interpreted by Formatter functor (see below)
 //! \endcode
 //! \par align
