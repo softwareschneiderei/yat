@@ -202,7 +202,7 @@ public:
   }
 
   //! \brief serialization
-  void to_string(std::string* str_p, char sep_pair='\n', char sep_key=':')
+  void to_string(std::string* str_p, char sep_pair='\n', char sep_key=':') const
   {
     str_p->clear();
     std::ostringstream oss;
@@ -218,7 +218,7 @@ public:
   }
 
   //| dump the dictionary content (for debug purposes)
-  void dump()
+  void dump() const
   {
     for( std::map<std::string, std::string>::const_iterator cit = m_map.begin();
          cit != m_map.end(); ++cit )
@@ -268,6 +268,78 @@ public:
     return Optional<bool>();
   }
   //@}
+};
+
+//==================================================================================================
+//! \struct Format::Formatter<StringDictionary>
+//! \brief for using with yat::Format class
+//!
+//! Extended format specification: <key name>
+//! \par Usage:
+//! \code{.cpp}
+//! yat::Dictionary<int> dict;
+//! dict["gabu"] = "zomeu";
+//! dict["foo"] = "bar";
+//! ...
+//! yat::fcout("{}").arg(dict);
+//! yat::fcout("{/foo}").arg(dict);
+//! yat::fcout("foo: {0:/foo} ; gabu: {0:/gabu}").arg(dict);
+//! \endcode
+//==================================================================================================
+template<typename T>
+struct Format::Formatter< Dictionary<T> >
+{
+  void operator()(const  Dictionary<T>& v, std::ostream &oss, const Format::Context& fc)
+  {
+    // setup width & alignment
+    prepare_format(oss, fc);
+
+    if( !fc.fmt_ext.empty() )
+    {
+      oss << v.at(fc.fmt_ext);
+    }
+    else // default formatting
+    {
+      oss << "Dictionay object containing " << v.size() << " elements";
+    }
+  }
+};
+
+//==================================================================================================
+//! \struct Format::Formatter<StringDictionary>
+//! \brief for using with yat::Format class
+//!
+//! Extended format specification: <key name>
+//! \par Usage:
+//! \code{.cpp}
+//! yat::StringDictionary dict;
+//! dict["gabu"] = "zomeu";
+//! dict["foo"] = "bar";
+//! ...
+//! yat::fcout("{}").arg(dict);
+//! yat::fcout("{/foo}").arg(dict);
+//! yat::fcout("foo: {0:/foo} ; gabu: {0:/gabu}").arg(dict);
+//! \endcode
+//==================================================================================================
+template<>
+struct Format::Formatter<StringDictionary>
+{
+  void operator()(const StringDictionary& v, std::ostream &oss, const Format::Context& fc)
+  {
+    // setup width & alignment
+    prepare_format(oss, fc, 's');
+
+    if( !fc.fmt_ext.empty() )
+    {
+      oss << v.at(fc.fmt_ext);
+    }
+    else // default formatting
+    {
+      std::string str;
+      v.to_string(&str, '|', ':');
+      oss << str;
+    }
+  }
 };
 
 }
