@@ -1491,6 +1491,26 @@ template<> struct Format::Formatter<bool>
   void operator()(const bool& v, std::ostream &oss, const Format::Context& fc);
 };
 
+//==================================================================================================
+//! \brief for using with yat::Format class
+//!
+//! No specific format syntax defined for this formatter\n
+//! Output the SharedPtr instance address\n
+//! To output address of the pointed objet, call arg with ptr.get()\n
+//! To output the pointed objet string representation, call arg with *ptr
+//==================================================================================================
+template <typename T, typename L>
+struct Format::Formatter< SharedPtr<T,L> >
+{
+  void operator()(const SharedPtr<T,L>& ptr, std::ostream &oss, const Format::Context& fc)
+  {
+    // setup width & alignment
+    prepare_format(oss, fc, 'p');
+
+    oss << this;
+  }
+};
+
 //! @deprecated original class name
 typedef Format StringFormat;
 
