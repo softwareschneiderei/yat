@@ -932,11 +932,14 @@ private:
 //! \brief for using with yat::Format class
 //!
 //! Extended format specification:
-//! [[<utc>|<local>]<time_zone>]|[<specific time format spec>]\n
-//! utc       ::= "u" | "U"\n
-//! local     ::= "l" | "L"\n
-//! time_zone ::= "z" | "Z"\n
-//! <specific time format spec>: see Time::to_string() method
+//! \code{.unparsed}
+//! [<utc>|<local>]<time_zone>]|[<time format spec>]
+//!
+//! utc              ::= "u" | "U"
+//! local            ::= "l" | "L"
+//! time_zone        ::= "z" | "Z"
+//! time format spec ::= <see Time::to_string() method>
+//! \endcode
 //!
 //! \par Usage:
 //! \code{.cpp}

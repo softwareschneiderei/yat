@@ -271,15 +271,14 @@ public:
 };
 
 //==================================================================================================
-//! \struct Format::Formatter<StringDictionary>
 //! \brief for using with yat::Format class
 //!
-//! Extended format specification: <key name>
+//! Extended format specification: \<key name\>
 //! \par Usage:
 //! \code{.cpp}
 //! yat::Dictionary<int> dict;
-//! dict["gabu"] = "zomeu";
-//! dict["foo"] = "bar";
+//! dict["gabu"] = 12;
+//! dict["foo"] = 42;
 //! ...
 //! yat::fcout("{}").arg(dict);
 //! yat::fcout("{/foo}").arg(dict);
@@ -309,7 +308,7 @@ struct Format::Formatter< Dictionary<T> >
 //! \struct Format::Formatter<StringDictionary>
 //! \brief for using with yat::Format class
 //!
-//! Extended format specification: <key name>
+//! Extended format specification: \<key name\>
 //! \par Usage:
 //! \code{.cpp}
 //! yat::StringDictionary dict;
