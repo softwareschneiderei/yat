@@ -1346,7 +1346,9 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
     width_pos = std::string::npos;
 
   std::size_t zero_pad_pos = fmt.find('0', search_start);
-  if( zero_pad_pos != std::string::npos && zero_pad_pos == width_pos - 1 )
+  if( zero_pad_pos != std::string::npos && ( zero_pad_pos == 0
+          || (zero_pad_pos > 0 && !std::isdigit(fmt[zero_pad_pos - 1]) &&
+                                         '.' != fmt[zero_pad_pos - 1])))
     zero_padding = true;
 
   std::size_t type_pos = std::string::npos;
@@ -1364,17 +1366,12 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
   if( precision_pos != std::string::npos )
     item_p->fc.precision = StringUtil::to_num<std::size_t>(fmt.substr(precision_pos, type_pos - precision_pos));
 
-  if( 'p' == item_p->fc.type )
-  {
-    item_p->fc.width = 2 * YAT_PTR_BYTES_LEN + 2;
-  }
-
   if( zero_padding && ('x' == item_p->fc.type || 'X' == item_p->fc.type ||
                        'o' == item_p->fc.type || 'd' == item_p->fc.type ||
                        'f' == item_p->fc.type || 'F' == item_p->fc.type ||
                        'g' == item_p->fc.type || 'G' == item_p->fc.type ||
                        'e' == item_p->fc.type || 'E' == item_p->fc.type ||
-                       '%' == item_p->fc.type) )
+                       '%' == item_p->fc.type || 'p' == item_p->fc.type) )
     {
       item_p->fc.zero_padding = true;
       item_p->fc.fill = '0';
@@ -1395,8 +1392,6 @@ inline void Format::prepare_type(std::ios_base::fmtflags& ff, std::ostream &oss,
       ff |= std::ios::internal;
       oss.setf(ff);
       oss << std::hex;
-      oss << std::setfill('0');
-      oss << std::setw(2 * YAT_PTR_BYTES_LEN + 2);
       break;
 
     case 'X':
@@ -1578,7 +1573,7 @@ void Format::parse()
 bool Format::get_next_format(Format::ItemFormat** pp_fmt)
 {
   if( m_arg_index >= m_compiled_fmt_ptr->expected_arg_count )
-    throw yat::Exception("BAD_ARG", "Format argument not expected", "yat::Format::parse");
+    throw yat::Exception("BAD_ARG", "Format argument not expected", "yat::Format::get_next_format");
 
   if( m_item_by_arg_idx < m_compiled_fmt_ptr->arg_items_map[m_arg_index].size() )
   {
@@ -1644,6 +1639,11 @@ void Format::prepare_format(std::ostream &oss,
     if( fc.align_left )      oss << std::left;
     if( fc.align_sign )      oss << std::left;
   }
+  else if( fc.zero_padding && 'p' == type )
+  {
+    oss << std::setfill('0');
+    oss << std::setw(2 * YAT_PTR_BYTES_LEN + 2);
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -1690,6 +1690,8 @@ void Format::output_ptr_value(uintptr p, const Format::Context& fc)
   else
   {
     prepare_format(m_oss, fc, 's', true);
+    if( fc.zero_padding )
+      m_oss << std::setw(2 * YAT_PTR_BYTES_LEN + 2);
     m_oss << std::setfill(' ') << "null";
   }
 }

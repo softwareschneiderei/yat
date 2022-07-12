@@ -1204,7 +1204,7 @@ YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 //! 'f' Fixed-point notation. Displays the number as a fixed-point number. The default precision is 6.\n
 //! 'g' General format. For a given precision p >= 1, this rounds the number to p significant digits and then formats the result in either fixed-point format or in scientific notation, depending on its magnitude.\n
 //! 'G' General format. Same as 'g' except switches to 'E' if the number gets too large. The representations of infinity and NaN are uppercased, too.\n
-//! 'p' special type to be used only to output pointer value (ex: yat::Format('{p}').arg(my_pointer))\n
+//! 'p' special type to be used only to output pointer value (ex: yat::Format('{p}').arg(my_pointer)). Use '{0p}' to not truncate zeros. A null pointeur will output 'null' rather than 0x0.\n
 //! '%%' Percentage. Multiplies the number by 100 and displays in fixed ('f') format, followed by a percent sign.\n
 //! \par format extension
 //! If present, this part is decoded and interpreted by custom formatters
