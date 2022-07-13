@@ -424,6 +424,8 @@ public:
       uid = gid = 0;
       mode = 0;
       size = 0;
+      sgid = false;
+      suid = false;
       link_to.clear();
     }
   };
