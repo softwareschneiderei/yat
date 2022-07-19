@@ -1154,6 +1154,94 @@ h64_t StringUtil::hash64(const std::string& str)
   return hash64;
 }
 
+//---------------------------------------------------------------------------
+// StringUtil::hash128
+//---------------------------------------------------------------------------
+h128_t StringUtil::hash128(const std::string& str)
+{
+  const uint64 baseH = 0x6c62272e07bb0142ULL;
+  const uint64 baseL = 0x62b821756295c58dULL;
+  const uint32 P128_B = 0x01000000;
+  const uint32 P128_D = 0x0000013B;
+  const uint32 P128_BD = 0xFFFEC5;
+
+  uint64 a = baseH >> 32, b = (uint32)baseH, c = baseL >> 32, d = (uint32)baseL;
+
+  uint64 f = 0, fLm = 0;
+  uint32 i = 0;
+
+  for( i = 0; i < str.size(); ++i )
+  {
+    d ^= str[i];
+
+    // Below is an optimized implementation (limited) of the LX4Cnh algorithm specially for Fnv1a128
+    // (c) Denis Kuzmin <x-3F@outlook.com> github/3F
+
+    f = b * P128_B;
+
+    uint64 v = (uint32)f;
+
+    f = (f >> 32) + v;
+
+    if( a > b )
+    {
+      f += (uint32)((a - b) * P128_B);
+    }
+    else if( a < b )
+    {
+      f -= (uint32)((b - a) * P128_B);
+    }
+
+    uint64 fHigh = (f << 32) + (uint32)v;
+    uint64 r2    = d * P128_D;
+
+    v = (r2 >> 32) + (r2 & 0xFFFFFFFFFFFFFFFULL);
+
+    f = (r2 & 0xF000000000000000ULL) >> 32;
+
+    if( c > d )
+    {
+      fLm = v;
+      v += (c - d) * P128_D;
+      if(fLm > v) f += 0x100000000ULL;
+    }
+    else if( c < d )
+    {
+      fLm = v;
+      v -= (d - c) * P128_D;
+      if( fLm < v ) f -= 0x100000000ULL;
+    }
+
+    fLm = (((uint64)(uint32)v) << 32) + (uint32)r2;
+
+    f = fHigh + fLm + f + (v >> 32);
+
+    fHigh   = (a << 32) + b; //fa
+    v       = (c << 32) + d; //fb
+
+    if( fHigh < v )
+    {
+      f += (v - fHigh) * P128_BD;
+    }
+    else if( fHigh > v )
+    {
+      f -= (fHigh - v) * P128_BD;
+    }
+
+    a = f >> 32;
+    b = (uint32)f;
+    c = fLm >> 32;
+    d = (uint32)fLm;
+  }
+
+  if( i < 1 )
+  {
+    return std::make_pair(baseH, baseL);
+  }
+
+  return std::make_pair(f, fLm);
+}
+
 //=============================================================================
 // String
 //=============================================================================

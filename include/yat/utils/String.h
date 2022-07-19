@@ -93,8 +93,11 @@ namespace yat
 
 typedef const char *   pcsz;
 typedef char *         psz;
-typedef uint64         h64_t;
-typedef uint32         h32_t;
+
+//! hash values types
+typedef std::pair<uint64, uint64>  h128_t;
+typedef uint64                     h64_t;
+typedef uint32                     h32_t;
 
 class String;
 
@@ -480,6 +483,17 @@ public:
   //! on http://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function.
   //! \param str input string.
   static h64_t hash64(const std::string& str);
+
+  //! \brief Returns the hash code using the FNV-1a algorithm.
+  //!
+  //! Calculates a 128 bits hash code. See details of the algorithm
+  //! on http://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function.
+  //! Derived from this C# implementation: https://github.com/3F/Fnv1a128
+  //! This is an high-speed implementation using LX4Cnh (https://github.com/3F/LX4Cnh)
+  //!
+  //! \return an h128_t value that consist of a pair of uint64 numbers
+  //!         first is the high 64bits part, second is the low 64bits part
+  static h128_t hash128(const std::string& str);
 
   //! \brief Converts string content to numeric type \<_T\>.
   //!
@@ -1086,15 +1100,27 @@ public:
 
 
   //! \brief Returns a 32 bits hash code.
-  uint32 hash() const
+  h32_t hash() const
   { return StringUtil::hash(m_str); }
 
   //! \brief Returns the hash code using the FNV-1a algorithm.
   //!
   //! Calculates a 64 bits hash code. See details of the algorithm
   //! on http://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function.
-  uint64 hash64() const
+  h64_t hash64() const
   { return StringUtil::hash64(m_str); }
+
+  //! \brief Returns the hash code using the FNV-1a algorithm.
+  //!
+  //! Calculates a 128 bits hash code. See details of the algorithm
+  //! on http://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function.
+  //! Derived from this C# implementation: https://github.com/3F/Fnv1a128
+  //! This is an high-speed implementation using LX4Cnh (https://github.com/3F/LX4Cnh)
+  //!
+  //! \return an h128_t value that consist of a pair of uint64 numbers
+  //!         first is the high 64bits part, second is the low 64bits part
+  h128_t hash128() const
+  { return StringUtil::hash128(m_str); }
 
   //! \brief Converts from type \<T\>
   //!
