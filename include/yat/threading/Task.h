@@ -205,7 +205,8 @@ public:
   //! \param tmo_msecs Timeout in ms.
   //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  void post (Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO);
+  //! \return if exception throwing is not set, then return -1 if the message is not posted due to timeout, 0 if it's ok
+  int post (Message * msg, size_t tmo_msecs = kDEFAULT_POST_MSG_TMO);
 
   //! \brief Posts the specified message type to the task asynchronously (i.e. does NOT wait for
   //! the message to be handled, but still waits for the message to be posted).
@@ -213,7 +214,8 @@ public:
   //! \param tmo_msecs Timeout in ms.
   //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  void post (size_t msg_type, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
+  //! \return if exception throwing is not set, then return -1 if the message is not posted due to timeout, 0 if it's ok
+  int post (size_t msg_type, size_t tmo_msecs = kDEFAULT_MSG_TMO_MSECS);
 
   //! \brief Posts the specified message type with specified data to the task asynchronously
   //! (i.e. does NOT wait for the message to be handled, but still waits for the message to be posted).
@@ -223,7 +225,8 @@ public:
   //! \param tmo_msecs Timeout in ms.
   //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  template <typename T> void post (size_t msg_type, T * data, bool transfer_ownership, size_t tmo_msecs);
+  //! \return if exception throwing is not set, then return -1 if the message is not posted due to timeout, 0 if it's ok
+  template <typename T> int post (size_t msg_type, T * data, bool transfer_ownership, size_t tmo_msecs);
 
   //! \brief Posts the specified message type with specified data to the task asynchronously
   //! (i.e. does NOT wait for the message to be handled, but still waits for the message to be posted).
@@ -232,7 +235,8 @@ public:
   //! \param tmo_msecs Timeout in ms.
   //! \exception INTERNAL_ERROR Thrown when message cannot be posted (msgQ error).
   //! \exception TIMEOUT_EXPIRED Thrown when timeout expires.
-  template <typename T> void post (size_t msg_type, const T & data, size_t tmo_msecs);
+  //! \return if exception throwing is not set, then return -1 if the message is not posted due to timeout, 0 if it's ok
+  template <typename T> int post (size_t msg_type, const T & data, size_t tmo_msecs);
 
   //! \brief Posts the specified message to the task then waits for this message to be handled
   //! (synchronous approach).
@@ -392,7 +396,7 @@ private:
 // ============================================================================
 // Task::post
 // ============================================================================
-template <typename T> void Task::post (size_t msg_type,
+template <typename T> int Task::post (size_t msg_type,
                                        T * data,
                                        bool transfer_ownership,
                                        size_t tmo_msecs)
@@ -405,12 +409,12 @@ template <typename T> void Task::post (size_t msg_type,
                     "Task::post");
   }
   m->attach_data(data);
-  this->post(m, tmo_msecs);
+  return this->post(m, tmo_msecs);
 }
 // ============================================================================
 // Task::post
 // ============================================================================
-template <typename T> void Task::post (size_t msg_type,
+template <typename T> int Task::post (size_t msg_type,
                                        const T & data,
                                        size_t tmo_msecs)
 {
@@ -422,7 +426,7 @@ template <typename T> void Task::post (size_t msg_type,
                     "Task::post");
   }
   m->attach_data(data);
-  this->post(m, tmo_msecs);
+  return this->post(m, tmo_msecs);
 }
 // ============================================================================
 // Task::wait_msg_handled

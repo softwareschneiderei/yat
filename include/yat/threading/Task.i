@@ -36,7 +36,7 @@ namespace yat
 // ============================================================================
 // Task::post
 // ============================================================================
-YAT_INLINE void Task::post (size_t msg_type, size_t tmo_msecs)
+YAT_INLINE int Task::post (size_t msg_type, size_t tmo_msecs)
 {
   Message * m = new (std::nothrow) Message(msg_type);
   if (! m)
@@ -45,7 +45,7 @@ YAT_INLINE void Task::post (size_t msg_type, size_t tmo_msecs)
                     "yat::Message allocation failed",
                     "Task::post");
   }
-  this->post(m, tmo_msecs);
+  return this->post(m, tmo_msecs);
 }
 
 // ============================================================================
@@ -176,9 +176,9 @@ YAT_INLINE double Task::actual_timeout () const
 // ============================================================================
 // Task::post
 // ============================================================================
-YAT_INLINE void Task::post (yat::Message * _msg, size_t _tmo_msecs)
+YAT_INLINE int Task::post (yat::Message * _msg, size_t _tmo_msecs)
 {
-  this->msg_q_.post (_msg, _tmo_msecs);
+  return this->msg_q_.post (_msg, _tmo_msecs);
 }
 
 // ============================================================================
