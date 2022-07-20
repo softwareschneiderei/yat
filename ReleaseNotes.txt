@@ -1,5 +1,25 @@
 YAT history file
 
+1.19.2 (2022/07/20)
+===================
+
+    Changes:
+        class Task
+            Task::post methods now return the value returned by MessageQ::post
+            in order to be able to know if a message was properly posted,
+            without activating exception throwing in Task configuration
+        -> see <yat/threading/Task.h>
+
+        class Format
+            pointer value output: '{p}' now truncate zeros, but '{0p}' does not.
+        -> see <yat/utils/String.h>
+
+    Additions:
+        Added formatter for SharedPtr. It allow to output object address
+            yat::Format("{}").arg(my_shared_ptr) -> address of SharedPtr object
+            yat::Format("{}").arg(my_shared_ptr.get()) -> address of pointed object
+            yat::Format("{}").arg(*my_shared_ptr) -> pointed object value
+
 1.19.1 (2022/07/18)
 ===================
 
@@ -30,6 +50,7 @@ Changes:
         with custom format specification ability
     -> see <yat/utils/String.h>
 
+Additions:
     new YAT_PTR_BYTES_LEN define value
     -> see <yat/config-linux.h>
     -> see <yat/config-win32.h>
