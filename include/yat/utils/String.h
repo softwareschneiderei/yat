@@ -43,6 +43,7 @@
 #include <sstream>
 #include <iostream>
 #include <cctype>
+#include <cstring>
 #include <yat/CommonHeader.h>
 #include <yat/utils/NonCopyable.h>
 #include <yat/memory/SharedPtr.h>
@@ -1247,11 +1248,11 @@ class Format
 {
 public:
   //! \brief Default constructor.
-  Format() : m_arg_index(0), m_item_by_arg_idx(0), m_null_fmt(NULL) {}
+  Format() : m_arg_index(0), m_section_by_arg_idx(0), m_null_fmt(NULL) {}
 
   //! \brief Constructor from a char pointer.
   //! \param psz Char pointer.
-  Format(const char *psz) : m_str(psz), m_arg_index(0), m_item_by_arg_idx(0),
+  Format(const char *psz) : m_str(psz), m_arg_index(0), m_section_by_arg_idx(0),
                             m_null_fmt(NULL)
   {
     parse();
@@ -1261,14 +1262,14 @@ public:
   //! \param psz Char pointer.
   //! \param size %Buffer size.
   Format(const char *psz, int size) : m_str(psz, size),
-                                      m_arg_index(0), m_item_by_arg_idx(0), m_null_fmt(NULL)
+                                      m_arg_index(0), m_section_by_arg_idx(0), m_null_fmt(NULL)
   {
     parse();
   }
 
   //! \brief Copy Constructor.
   //! \param str The source string.
-  Format(const String &str) : m_str(str), m_arg_index(0), m_item_by_arg_idx(0), m_null_fmt(NULL)
+  Format(const String &str) : m_str(str), m_arg_index(0), m_section_by_arg_idx(0), m_null_fmt(NULL)
   {
     parse();
   }
@@ -1276,7 +1277,7 @@ public:
   //! \brief Constructor from std::string.
   //! \param str The string.
   Format(const std::string &str) : m_str(str), m_arg_index(0),
-                                   m_item_by_arg_idx(0), m_null_fmt(NULL)
+                                   m_section_by_arg_idx(0), m_null_fmt(NULL)
   {
     parse();
   }
@@ -1292,7 +1293,7 @@ public:
 
   // ============================================================================
   //! \class Context
-  //! \brief decoded standard format specification
+  //! \brief decoded standard format specification of a replacement field
   // ============================================================================
   class Context
   {
@@ -1325,11 +1326,11 @@ public:
   //! \param v the value argument
   template<typename T> Format& arg(const T& v)
   {
-    ItemFormat *item_p = 0;
-    while( get_next_format(&item_p) )
+    FieldSection *section_p = 0;
+    while( get_next_format(&section_p) )
     {
-      Formatter<T>()(v, m_oss, item_p->fc);
-      m_replacements[PTR2INT(item_p)] = m_oss.str();
+      Formatter<T>()(v, m_oss, section_p->fc);
+      m_replacements[PTR2INT(section_p)] = m_oss.str();
     }
     return *this;
   }
@@ -1342,11 +1343,11 @@ public:
   //! \param p the pointeur value argument
   template<typename T> Format& arg(T* p)
   {
-    ItemFormat *item_p = 0;
-    while( get_next_format(&item_p) )
+    FieldSection *section_p = 0;
+    while( get_next_format(&section_p) )
     {
-      output_ptr_value(reinterpret_cast<uintptr>(p), item_p->fc);
-      m_replacements[PTR2INT(item_p)] = m_oss.str();
+      output_ptr_value(reinterpret_cast<uintptr>(p), section_p->fc);
+      m_replacements[PTR2INT(section_p)] = m_oss.str();
     }
     return *this;
   }
@@ -1364,6 +1365,65 @@ public:
 
 private:
 
+  // Format::output_percent_value
+  template<typename T>
+  static void output_percent_value(const T& v, std::ostream &oss, const Context& fc)
+  {
+    if( 0 == fc.precision )
+      oss << int(100. * v) << '%';
+    else
+      oss << 100. * v << '%';
+  }
+
+  // Format::output_binary_value
+  template<typename T>
+  static void output_binary_value(const T& v, std::ostream &oss, const Context& fc)
+  {
+    std::size_t length = 0, nbits = 8 * sizeof(T);
+    char setbit = '1';
+    char unsetbit = '0';
+    T vv = v;
+
+    if( fc.show_base )
+      length = 2; // reserved for '0b'
+
+    if( !(vv > 0) && vv != 0 ) // negative value test, without compiler warning!
+    {
+      setbit = '0';
+      unsetbit = '1';
+      vv = -v - 1; // Two's complement two invert bits
+    }
+    else
+    {
+      nbits = 0;
+      for( std::size_t i = 0; vv > 0; ++i )
+      {
+        if( vv & 1 ) nbits = i + 1;
+        vv = vv >> 1;
+      }
+      vv = v; // reset field value
+    }
+    nbits = std::max(nbits, std::size_t(1));
+    if( fc.width > 0 && fc.zero_padding )
+      nbits = std::max(fc.width - (fc.show_base ? 2 : 0), nbits);
+    length += nbits;
+    char* sz = new char[length+1];
+    sz[length] = 0;
+    std::memset(sz, unsetbit, length);
+    if( fc.show_base )
+    {
+      sz[0] = '0';
+      sz[1] = 'b';
+    }
+    for( std::size_t idx = 0; vv && idx < nbits; ++idx )
+    {
+      if( vv & 1 ) sz[length - idx - 1] = setbit;
+      vv = vv >> 1;
+    }
+    oss << sz;
+    delete sz;
+  }
+
   // Default Formatter
   template<typename T>
   struct Formatter
@@ -1373,53 +1433,49 @@ private:
       prepare_format(oss, fc);
 
       if( 'B' == fc.type )
-      {
-        std::bitset<8 * sizeof(T)> bs(v);
-        oss << bs;
-      }
+        output_binary_value(v, oss, fc);
       else if( '%' == fc.type )
-      {
-        if( 0 == fc.precision )
-          oss << int(100. * v) << '%';
-        else
-          oss << 100. * v << '%';
-      }
+        output_percent_value(v, oss, fc);
       else
         oss << v;
     }
   };
 
-  enum ItemType { format_item_fmt, format_item_str };
+  // The whole format string is split into 'sections':
+  // - 'strings' to be output as they are
+  // - 'replacement fields' to be replaced by argument values before output
+  enum SectionType { replacement_field, string };
 
-  class ItemBase
+  // Generic section base class
+  class Section
   {
   public:
-    virtual ItemType item_type() = 0;
-    virtual ~ItemBase() {}
+    virtual SectionType type() = 0;
+    virtual ~Section() {}
   };
-  typedef SharedPtr<ItemBase> ItemPtr;
-  typedef std::vector<ItemPtr> Items;
-  typedef std::map<std::size_t, Items> MapArgItems;
+  typedef SharedPtr<Section> SectionPtr;
+  typedef std::vector<SectionPtr> Sections;
+  typedef std::map<std::size_t, Sections> MapArgSections;
   typedef std::map<uintptr, std::string> ReplacementMap;
 
-  class ItemString : public ItemBase
+  class StringSection : public Section
   {
   public:
-    ItemType item_type() { return format_item_str; }
+    SectionType type() { return string; }
     std::string str;
   };
 
-  class ItemFormat : public ItemBase
+  class FieldSection : public Section
   {
   public:
-    ItemType item_type() { return format_item_fmt; }
+    SectionType type() { return replacement_field; }
     Context fc;
   };
 
   struct CompiledFormat
   {
-    Items items;
-    MapArgItems arg_items_map;
+    Sections sections;
+    MapArgSections arg_sections_map;
     std::size_t  expected_arg_count;
     CompiledFormat() : expected_arg_count(0) {}
   };
@@ -1441,13 +1497,13 @@ private:
   CompiledFormatPtr m_compiled_fmt_ptr;
   mutable yat::String m_str;
   std::size_t m_arg_index;
-  std::size_t m_item_by_arg_idx;
+  std::size_t m_section_by_arg_idx;
   ReplacementMap m_replacements;
   std::ios m_null_fmt;
   std::ostringstream m_oss;
 
-  ItemFormat* parse_field(yat::String& field, int* arg_index_p);
-  bool get_next_format(ItemFormat** pp_fmt);
+  FieldSection* parse_field(yat::String& field, int* arg_index_p);
+  bool get_next_format(FieldSection** pp_fmt);
   void parse();
   void output_ptr_value(uintptr p, const Context& fc);
   static void prepare_type(std::ios_base::fmtflags& ff, std::ostream &oss, const char& type);
@@ -1489,6 +1545,16 @@ template<> struct Format::Formatter<unsigned char>
 template<> struct Format::Formatter<bool>
 {
   void operator()(const bool& v, std::ostream &oss, const Format::Context& fc);
+};
+
+template<> struct Format::Formatter<double>
+{
+  void operator()(const double& v, std::ostream &oss, const Format::Context& fc);
+};
+
+template<> struct Format::Formatter<float>
+{
+  void operator()(const float& v, std::ostream &oss, const Format::Context& fc);
 };
 
 //==================================================================================================

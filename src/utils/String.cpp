@@ -1236,16 +1236,16 @@ inline void rep_double_char(std::string& str, char c)
 //---------------------------------------------------------------------------
 // Format::parse_field
 //---------------------------------------------------------------------------
-Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
+Format::FieldSection* Format::parse_field(yat::String& field, int* arg_index_p)
 {
-  ItemFormat* item_p = new ItemFormat;
+  FieldSection* section_p = new FieldSection;
 
   field.trim();
 
   // string value before substitution is '{fmt}'
-  item_p->fc.field.append(1, '{');
-  item_p->fc.field.append(field);
-  item_p->fc.field.append(1, '}');
+  section_p->fc.field.append(1, '{');
+  section_p->fc.field.append(field);
+  section_p->fc.field.append(1, '}');
 
   // first look for an element index (2 digits max)
   if( (field.size() > 1 && isdigit(field[0]) && field[1] == ':') ||
@@ -1262,14 +1262,14 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
       field = field.substr(2);
   }
   field.trim();
-  item_p->fc.fmt_spec = field;
+  section_p->fc.fmt_spec = field;
 
   yat::String &fmt = field;
   if( fmt.empty() )
   { // no format specified
-    return item_p;
+    return section_p;
   }
-  item_p->fc.empty_fmt = false;
+  section_p->fc.empty_fmt = false;
 
   // look for a format custom part extension
   std::size_t fmt_ext_pos = fmt.find('/');
@@ -1280,7 +1280,7 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
         && ( fmt[fmt_ext_pos + 1] == '<' || fmt[fmt_ext_pos + 1] == '>')) )
     {
       if( fmt_ext_pos < fmt.size() - 1 )
-        item_p->fc.fmt_ext = fmt.substr(fmt_ext_pos + 1);
+        section_p->fc.fmt_ext = fmt.substr(fmt_ext_pos + 1);
       fmt = fmt.substr(0, fmt_ext_pos);
       fmt.trim();
     }
@@ -1289,10 +1289,10 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
   if( fmt.size() == 1 && isalpha(fmt[0]) )
   {
     // type only
-    item_p->fc.type = fmt[0];
-    item_p->fc.empty_fmt = false;
-    item_p->fc.type_only_fmt = true;
-    return item_p;
+    section_p->fc.type = fmt[0];
+    section_p->fc.empty_fmt = false;
+    section_p->fc.type_only_fmt = true;
+    return section_p;
   }
 
   bool zero_padding = false;
@@ -1306,19 +1306,19 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
     switch( fmt[align_pos] )
     {
       case '<':
-        item_p->fc.align_left = true;
+        section_p->fc.align_left = true;
         break;
       case '>':
-        item_p->fc.align_right = true;
+        section_p->fc.align_right = true;
         break;
       case '=':
-        item_p->fc.align_sign = true;
+        section_p->fc.align_sign = true;
         break;
       default:
         break;
     }
     if( align_pos > 0 )
-      item_p->fc.fill = fmt[0];
+      section_p->fc.fill = fmt[0];
     search_start = align_pos;
   }
 
@@ -1326,13 +1326,13 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
   if( sign_pos != std::string::npos )
   {
     if( fmt[sign_pos] == '+' )
-      item_p->fc.show_sign = true;
+      section_p->fc.show_sign = true;
     search_start = sign_pos;
   }
   std::size_t sharp_pos = fmt.find('#', search_start);
   if( sharp_pos != std::string::npos )
   {
-    item_p->fc.show_base = true;
+    section_p->fc.show_base = true;
     search_start = sharp_pos;
   }
 
@@ -1355,29 +1355,31 @@ Format::ItemFormat* Format::parse_field(yat::String& field, int* arg_index_p)
   if( fmt.size() > 0 && (std::isalpha(fmt[fmt.size() - 1]) || fmt[fmt.size() - 1] == '%') )
   {
     type_pos = fmt.size() - 1;
-    item_p->fc.type = fmt[type_pos];
+    section_p->fc.type = fmt[type_pos];
   }
 
   if( decimal_point_pos != std::string::npos && width_pos != std::string::npos )
-    item_p->fc.width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, decimal_point_pos - width_pos));
+    section_p->fc.width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, decimal_point_pos - width_pos));
   else if( width_pos != std::string::npos )
-    item_p->fc.width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, type_pos - width_pos));
+    section_p->fc.width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, type_pos - width_pos));
 
   if( precision_pos != std::string::npos )
-    item_p->fc.precision = StringUtil::to_num<std::size_t>(fmt.substr(precision_pos, type_pos - precision_pos));
 
-  if( zero_padding && ('x' == item_p->fc.type || 'X' == item_p->fc.type ||
-                       'o' == item_p->fc.type || 'd' == item_p->fc.type ||
-                       'f' == item_p->fc.type || 'F' == item_p->fc.type ||
-                       'g' == item_p->fc.type || 'G' == item_p->fc.type ||
-                       'e' == item_p->fc.type || 'E' == item_p->fc.type ||
-                       '%' == item_p->fc.type || 'p' == item_p->fc.type) )
+    section_p->fc.precision = StringUtil::to_num<std::size_t>(fmt.substr(precision_pos, type_pos - precision_pos));
+
+  if( zero_padding && ('x' == section_p->fc.type || 'X' == section_p->fc.type ||
+                       'o' == section_p->fc.type || 'd' == section_p->fc.type ||
+                       'f' == section_p->fc.type || 'F' == section_p->fc.type ||
+                       'g' == section_p->fc.type || 'G' == section_p->fc.type ||
+                       'e' == section_p->fc.type || 'E' == section_p->fc.type ||
+                       '%' == section_p->fc.type || 'p' == section_p->fc.type ||
+                       'B' == section_p->fc.type) )
     {
-      item_p->fc.zero_padding = true;
-      item_p->fc.fill = '0';
+      section_p->fc.zero_padding = true;
+      section_p->fc.fill = '0';
     }
 
-  return item_p;
+  return section_p;
 }
 
 //---------------------------------------------------------------------------
@@ -1503,18 +1505,18 @@ void Format::parse()
       // ok, continue
       if( start_str != end_str )
       {
-        ItemString* p = new ItemString;
+        StringSection* p = new StringSection;
         p->str = m_str.substr(start_str, end_str - start_str);
         rep_double_char(p->str, '{');
         rep_double_char(p->str, '}');
-        m_compiled_fmt_ptr->items.push_back(ItemPtr(p));
+        m_compiled_fmt_ptr->sections.push_back(SectionPtr(p));
       }
       start_str = end_pos + 1;
       end_str = end_pos + 1;
       int arg_index = -1;
-      ItemFormat* field_p = parse_field(field, &arg_index);
+      FieldSection* field_p = parse_field(field, &arg_index);
       ++n_formats;
-      ItemPtr ptr(field_p);
+      SectionPtr ptr(field_p);
 
       // { positioning
       if( !first_field )
@@ -1529,14 +1531,14 @@ void Format::parse()
 
       if( arg_index != -1 )
       { // manual positioning: {0} {1}...
-        m_compiled_fmt_ptr->arg_items_map[std::size_t(arg_index)].push_back(ptr);
+        m_compiled_fmt_ptr->arg_sections_map[std::size_t(arg_index)].push_back(ptr);
         manual_positioning = true;
       }
       else // automatic positioning: {} {}...
-        m_compiled_fmt_ptr->arg_items_map[arg_auto_index++].push_back(ptr);
+        m_compiled_fmt_ptr->arg_sections_map[arg_auto_index++].push_back(ptr);
       // } positioning
 
-      m_compiled_fmt_ptr->items.push_back(ptr);
+      m_compiled_fmt_ptr->sections.push_back(ptr);
       start_search = end_pos + 1;
     }
     else
@@ -1544,22 +1546,22 @@ void Format::parse()
       // no more format spec
       if( start_str < m_str.size() )
       {
-        ItemString* p = new ItemString;
+        StringSection* p = new StringSection;
         p->str = m_str.substr(start_str);
         rep_double_char(p->str, '{');
         rep_double_char(p->str, '}');
-        m_compiled_fmt_ptr->items.push_back(ItemPtr(p));
+        m_compiled_fmt_ptr->sections.push_back(SectionPtr(p));
       }
       break;
     }
   }
 
   // The map size is logically the expected arguments count
-  m_compiled_fmt_ptr->expected_arg_count = m_compiled_fmt_ptr->arg_items_map.size();
+  m_compiled_fmt_ptr->expected_arg_count = m_compiled_fmt_ptr->arg_sections_map.size();
   // check the position indexes. it must start at 0
   for( std::size_t i = 0; i < m_compiled_fmt_ptr->expected_arg_count; ++i )
   {
-    if( m_compiled_fmt_ptr->arg_items_map.find(i) == m_compiled_fmt_ptr->arg_items_map.end() )
+    if( m_compiled_fmt_ptr->arg_sections_map.find(i) == m_compiled_fmt_ptr->arg_sections_map.end() )
       throw yat::Exception("BAD_FORMAT", "Bad argument numbering. Must start at '0'", "yat::Format::parse");
   }
 
@@ -1570,14 +1572,14 @@ void Format::parse()
 //---------------------------------------------------------------------------
 // Format::get_next_format
 //---------------------------------------------------------------------------
-bool Format::get_next_format(Format::ItemFormat** pp_fmt)
+bool Format::get_next_format(Format::FieldSection** pp_fmt)
 {
   if( m_arg_index >= m_compiled_fmt_ptr->expected_arg_count )
     throw yat::Exception("BAD_ARG", "Format argument not expected", "yat::Format::get_next_format");
 
-  if( m_item_by_arg_idx < m_compiled_fmt_ptr->arg_items_map[m_arg_index].size() )
+  if( m_section_by_arg_idx < m_compiled_fmt_ptr->arg_sections_map[m_arg_index].size() )
   {
-    *pp_fmt = dynamic_cast<ItemFormat*>(m_compiled_fmt_ptr->arg_items_map[m_arg_index][m_item_by_arg_idx++].get());
+    *pp_fmt = dynamic_cast<FieldSection*>(m_compiled_fmt_ptr->arg_sections_map[m_arg_index][m_section_by_arg_idx++].get());
     // re-init internal output stream
     m_oss.copyfmt(m_null_fmt);
     m_oss.str("");
@@ -1585,7 +1587,7 @@ bool Format::get_next_format(Format::ItemFormat** pp_fmt)
   }
 
   *pp_fmt = 0;
-  m_item_by_arg_idx = 0;
+  m_section_by_arg_idx = 0;
   ++m_arg_index;
   return false;
 }
@@ -1627,7 +1629,7 @@ void Format::prepare_format(std::ostream &oss,
   prepare_type(ff, oss, type);
 
   if( fc.fill )            oss << std::setfill(fc.fill);
-  if( fc.width > 0 )       oss << std::setw(fc.width);
+  if( fc.width > 0 && 'p' != type ) oss << std::setw(fc.width);
   if( fc.precision > 0 )   oss << std::setprecision(fc.precision);
 
   if( 's' == type || 'b' == type )
@@ -1655,22 +1657,22 @@ String& Format::get() const
 
   if( m_compiled_fmt_ptr )
   {
-    for( std::size_t i = 0; i < m_compiled_fmt_ptr->items.size(); ++i )
+    for( std::size_t i = 0; i < m_compiled_fmt_ptr->sections.size(); ++i )
     {
-      if( m_compiled_fmt_ptr->items[i]->item_type() == format_item_fmt )
+      if( m_compiled_fmt_ptr->sections[i]->type() == replacement_field )
       {
-        ItemFormat* item_p = dynamic_cast<ItemFormat*>(m_compiled_fmt_ptr->items[i].get());
-        ReplacementMap::const_iterator it = m_replacements.find(PTR2INT(item_p));
+        FieldSection* section_p = dynamic_cast<FieldSection*>(m_compiled_fmt_ptr->sections[i].get());
+        ReplacementMap::const_iterator it = m_replacements.find(PTR2INT(section_p));
         if( it != m_replacements.end() )
           // used format
           m_str.append(it->second);
         else
           // unused format => write replacement field on output string
-          m_str.append(item_p->fc.field);
+          m_str.append(section_p->fc.field);
       }
-      else // format_item_str
+      else // string
       {
-        m_str.append(dynamic_cast<ItemString*>(m_compiled_fmt_ptr->items[i].get())->str);
+        m_str.append(dynamic_cast<StringSection*>(m_compiled_fmt_ptr->sections[i].get())->str);
       }
     }
   }
@@ -1701,17 +1703,17 @@ void Format::output_ptr_value(uintptr p, const Format::Context& fc)
 //---------------------------------------------------------------------------
 Format& Format::arg(const char *s)
 {
-  ItemFormat *item_p = 0;
-  while( get_next_format(&item_p) )
+  FieldSection *section_p = 0;
+  while( get_next_format(&section_p) )
   {
-    if( 'p' == item_p->fc.type || !s )
-      output_ptr_value(reinterpret_cast<uintptr>(s), item_p->fc);
+    if( 'p' == section_p->fc.type || !s )
+      output_ptr_value(reinterpret_cast<uintptr>(s), section_p->fc);
     else
     {
-      prepare_format(m_oss, item_p->fc, 's', true);
+      prepare_format(m_oss, section_p->fc, 's', true);
       m_oss << s;
     }
-    m_replacements[PTR2INT(item_p)] = m_oss.str();
+    m_replacements[PTR2INT(section_p)] = m_oss.str();
   }
   return *this;
 }
@@ -1741,10 +1743,7 @@ void Format::Formatter<char>::operator()(const char& v, std::ostream &oss, const
 {
   prepare_format(oss, fc);
    if( 'B' == fc.type )
-  {
-    std::bitset<8> bs(v);
-    oss << bs;
-  }
+    output_binary_value(v, oss, fc);
   else if( 'd' == fc.type || 'o' == fc.type || 'X' == fc.type || 'x' == fc.type )
     oss << int(v);
   else
@@ -1758,10 +1757,7 @@ void Format::Formatter<unsigned char>::operator()(const unsigned char& v, std::o
 {
   prepare_format(oss, fc);
    if( 'B' == fc.type )
-  {
-    std::bitset<8> bs(v);
-    oss << bs; \
-  }
+    output_binary_value(v, oss, fc);
   else if( 'd' == fc.type || 'o' == fc.type || 'X' == fc.type || 'x' == fc.type )
     oss << int(v);
   else
@@ -1775,6 +1771,34 @@ void Format::Formatter<bool>::operator()(const bool& v, std::ostream &oss, const
 {
   prepare_format(oss, fc, 'b');
   oss << v;
+}
+
+//---------------------------------------------------------------------------
+// Format::Formatter<double>
+//---------------------------------------------------------------------------
+void Format::Formatter<double>::operator()(const double& v, std::ostream &oss,
+                                           const Format::Context& fc)
+{
+  prepare_format(oss, fc);
+
+  if( '%' == fc.type )
+    output_percent_value(v, oss, fc);
+  else
+    oss << v;
+}
+
+//---------------------------------------------------------------------------
+// Format::Formatter<float>
+//---------------------------------------------------------------------------
+void Format::Formatter<float>::operator()(const float& v, std::ostream &oss,
+                                          const Format::Context& fc)
+{
+  prepare_format(oss, fc);
+
+  if( '%' == fc.type )
+    output_percent_value(v, oss, fc);
+  else
+    oss << v;
 }
 
 //---------------------------------------------------------------------------
