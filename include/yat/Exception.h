@@ -199,7 +199,7 @@ do                                                                         \
     try  { statement; } \
     __YAT_CATCH_THROW__ \
     __YAT_CATCH_THROW_STD__ \
-    __YAT_CATCH_THROW_STD__ \
+    __YAT_CATCH_THROW_OTHER__ \
   } while(0)
 
 //---------------------------------
