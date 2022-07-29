@@ -1849,7 +1849,8 @@ std::string Duration::to_string_millis(char sep) const
   std::ostringstream oss;
 
   if(  df.days > 0 )
-    oss << std::internal << std::setfill('0') << std::setw(2) << int(df.days)
+    oss <<                                                       int(df.days)
+        << std::internal
         << 'd' << sep    << std::setfill('0') << std::setw(2) << int(df.hours)
         << 'h' << sep    << std::setfill('0') << std::setw(2) << int(df.minutes)
         << 'm' << sep    << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
@@ -1882,7 +1883,8 @@ std::string Duration::to_string(char sep) const
   std::ostringstream oss;
 
   if(  df.days > 0 )
-    oss << std::internal << std::setfill('0') << std::setw(2) << int(df.days)
+    oss <<                                                       int(df.days)
+        << std::internal
         << 'd' << sep    << std::setfill('0') << std::setw(2) << int(df.hours)
         << 'h' << sep    << std::setfill('0') << std::setw(2) << int(df.minutes)
         << 'm' << sep    << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
@@ -1915,8 +1917,8 @@ std::string Duration::to_iso8601() const
   std::ostringstream oss;
 
   if(  df.days > 0 )
-    oss << std::internal
-                << std::setfill('0') << std::setw(2) << int(df.days)
+    oss <<                                              int(df.days)
+        << std::internal
         << "DT" << std::setfill('0') << std::setw(2) << int(df.hours)
         << 'H'  << std::setfill('0') << std::setw(2) << int(df.minutes)
         << 'M'  << std::setfill('0') << std::setw(2) << int(df.seconds + 0.5)
