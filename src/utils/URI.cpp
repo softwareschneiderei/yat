@@ -145,13 +145,13 @@ URI& URI::operator=(const URI& src)
 //----------------------------------------------------------------------------
 URI::URI(const URI::Fields& fields)
 {
-  if( check(URI::SCHEME, fields.scheme) &&
-      check(URI::USERINFO, fields.userinfo) &&
-      check(URI::HOST, fields.host) &&
-      check(URI::PORT, fields.port) &&
-      check(URI::PATH, fields.path) &&
-      check(URI::QUERY, fields.query) &&
-      check(URI::FRAGMENT, fields.fragment) )
+  if( check(URI::SCHEME, fields.scheme, true) &&
+      check(URI::USERINFO, fields.userinfo, true) &&
+      check(URI::HOST, fields.host, true) &&
+      check(URI::PORT, fields.port, true) &&
+      check(URI::PATH, fields.path, true) &&
+      check(URI::QUERY, fields.query, true) &&
+      check(URI::FRAGMENT, fields.fragment, true) )
   {
     m_part[URI::SCHEME]    = fields.scheme;
     m_part[URI::USERINFO]  = fields.userinfo;
@@ -167,7 +167,7 @@ URI::URI(const URI::Fields& fields)
 // URI::check_value
 //----------------------------------------------------------------------------
 bool URI::check_value(const std::string& part, Regex* re,
-                         const std::string& part_name, bool throw_exception)
+                      const std::string& part_name, bool throw_exception)
 {
   if( !re_match(re, part) )
   {
@@ -175,7 +175,6 @@ bool URI::check_value(const std::string& part, Regex* re,
       THROW_YAT_ERROR(uri_syntax_error,
                       "Bad '" << part_name << "' syntax: " << part,
                       "yat::URI::check_value" );
-    YAT_WARNING << "Bad '" << part_name << "' syntax: " << part << std::endl;
     return false;
   }
   return true;
