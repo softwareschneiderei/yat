@@ -1379,13 +1379,12 @@ private:
   template<typename T>
   static void output_binary_value(const T& v, std::ostream &oss, const Context& fc)
   {
-    std::size_t length = 0, nbits = 8 * sizeof(T);
     char setbit = '1';
     char unsetbit = '0';
+    std::size_t length = 0, nbits = 8 * sizeof(T);
     T vv = v;
 
-    if( fc.show_base )
-      length = 2; // reserved for '0b'
+    if( fc.show_base ) length = 2; // reserved for '0b'
 
     if( !(vv > 0) && vv != 0 ) // negative value test, without compiler warning!
     {
@@ -1410,15 +1409,74 @@ private:
     char* sz = new char[length+1];
     sz[length] = 0;
     std::memset(sz, unsetbit, length);
-    if( fc.show_base )
-    {
-      sz[0] = '0';
-      sz[1] = 'b';
-    }
+    if( fc.show_base ) { sz[0] = '0'; sz[1] = 'b'; }
+
     for( std::size_t idx = 0; vv && idx < nbits; ++idx )
     {
       if( vv & 1 ) sz[length - idx - 1] = setbit;
       vv = vv >> 1;
+    }
+    oss << sz;
+    delete sz;
+  }
+
+  // Format::output_octal_value
+  template<typename T>
+  static void output_octal_value(const T& v, std::ostream &oss, const Context& fc)
+  {
+    static char odigits[8] = {'0', '1', '2', '3', '4', '5', '6', '7'};
+    std::size_t length = 0, ndigits = 0;
+    T vv = v;
+    bool negative = false;
+
+    if( fc.show_base ) length = 2; // reserved for '0o'
+
+    if( !(vv > 0) && vv != 0 ) // negative value test, without compiler warning!
+    {
+      negative = true;
+      vv = -v - 1; // Two's complement two invert bits
+    }
+
+    if( negative )
+      ndigits = (sizeof(T) * 8) / 3 + 1;
+    else
+    {
+      for( std::size_t i = 0; vv > 0; ++i )
+      {
+        if( vv & 1 || vv & 2 || vv & 4 ) ndigits = i + 1;
+        vv = vv >> 3;
+      }
+    }
+    // reset field value
+    if( negative )
+      vv = -v - 1;
+    else
+      vv = v;
+
+    ndigits = std::max(ndigits, std::size_t(1));
+    if( fc.width > 0 && fc.zero_padding )
+      ndigits = std::max(fc.width - (fc.show_base ? 2 : 0), ndigits);
+    length += ndigits;
+    char* sz = new char[length+1];
+    sz[length] = 0;
+    std::memset(sz, '0', length);
+    if( negative ) ndigits--;
+    if( fc.show_base )  { sz[0] = '0'; sz[1] = 'o'; }
+
+    unsigned int o = 0, idx = 0;
+    for( ; idx < ndigits; ++idx )
+    {
+      o = ((vv & 1) ? 1 : 0) + ((vv & 2) ? 2 : 0) + ((vv & 4) ? 4 : 0);
+      sz[length - idx - 1] = negative ? odigits[7-o] : odigits[o];
+      vv = vv >> 3;
+    }
+    if( negative )
+    {
+      if( (8 * sizeof(T)) % 3 == 1 )
+        o = ((vv & 1) ? 1 : 0) + 6; // last bit
+      else
+        o = ((vv & 1) ? 1 : 0) + ((vv & 2) ? 2 : 0) + 4; // two last bits
+      sz[length - idx - 1] = odigits[7-o];
     }
     oss << sz;
     delete sz;
@@ -1434,6 +1492,8 @@ private:
 
       if( 'B' == fc.type )
         output_binary_value(v, oss, fc);
+      else if( 'o' == fc.type )
+        output_octal_value(v, oss, fc);
       else if( '%' == fc.type )
         output_percent_value(v, oss, fc);
       else

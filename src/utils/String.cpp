@@ -1742,9 +1742,11 @@ void Format::Formatter<String>::operator()(const String& v, std::ostream &oss, c
 void Format::Formatter<char>::operator()(const char& v, std::ostream &oss, const Format::Context& fc)
 {
   prepare_format(oss, fc);
-   if( 'B' == fc.type )
+  if( 'B' == fc.type )
     output_binary_value(v, oss, fc);
-  else if( 'd' == fc.type || 'o' == fc.type || 'X' == fc.type || 'x' == fc.type )
+  else if( 'o' == fc.type )
+    output_octal_value(v, oss, fc);
+  else if( 'd' == fc.type || 'X' == fc.type || 'x' == fc.type )
     oss << int(v);
   else
     oss << v;
@@ -1756,9 +1758,11 @@ void Format::Formatter<char>::operator()(const char& v, std::ostream &oss, const
 void Format::Formatter<unsigned char>::operator()(const unsigned char& v, std::ostream &oss, const Format::Context& fc)
 {
   prepare_format(oss, fc);
-   if( 'B' == fc.type )
+  if( 'B' == fc.type )
     output_binary_value(v, oss, fc);
-  else if( 'd' == fc.type || 'o' == fc.type || 'X' == fc.type || 'x' == fc.type )
+  else if( 'o' == fc.type )
+    output_octal_value(v, oss, fc);
+  else if( 'd' == fc.type || 'X' == fc.type || 'x' == fc.type )
     oss << int(v);
   else
     oss << v;
