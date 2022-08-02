@@ -1346,10 +1346,14 @@ Format::FieldSection* Format::parse_field(yat::String& field, int* arg_index_p)
     width_pos = std::string::npos;
 
   std::size_t zero_pad_pos = fmt.find('0', search_start);
-  if( zero_pad_pos != std::string::npos && ( zero_pad_pos == 0
+  if( !section_p->fc.align_right && !section_p->fc.align_left
+     && zero_pad_pos != std::string::npos && ( zero_pad_pos == 0
           || (zero_pad_pos > 0 && !std::isdigit(fmt[zero_pad_pos - 1]) &&
                                          '.' != fmt[zero_pad_pos - 1])))
-    zero_padding = true;
+  {
+    section_p->fc.zero_padding = true;
+    section_p->fc.fill = '0';
+  }
 
   std::size_t type_pos = std::string::npos;
   if( fmt.size() > 0 && (std::isalpha(fmt[fmt.size() - 1]) || fmt[fmt.size() - 1] == '%') )
@@ -1364,20 +1368,7 @@ Format::FieldSection* Format::parse_field(yat::String& field, int* arg_index_p)
     section_p->fc.width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, type_pos - width_pos));
 
   if( precision_pos != std::string::npos )
-
     section_p->fc.precision = StringUtil::to_num<std::size_t>(fmt.substr(precision_pos, type_pos - precision_pos));
-
-  if( zero_padding && ('x' == section_p->fc.type || 'X' == section_p->fc.type ||
-                       'o' == section_p->fc.type || 'd' == section_p->fc.type ||
-                       'f' == section_p->fc.type || 'F' == section_p->fc.type ||
-                       'g' == section_p->fc.type || 'G' == section_p->fc.type ||
-                       'e' == section_p->fc.type || 'E' == section_p->fc.type ||
-                       '%' == section_p->fc.type || 'p' == section_p->fc.type ||
-                       'B' == section_p->fc.type) )
-    {
-      section_p->fc.zero_padding = true;
-      section_p->fc.fill = '0';
-    }
 
   return section_p;
 }
@@ -1391,21 +1382,8 @@ inline void Format::prepare_type(std::ios_base::fmtflags& ff, std::ostream &oss,
   {
     case 'p':
       ff |= std::ios::showbase;
-      ff |= std::ios::internal;
       oss.setf(ff);
       oss << std::hex;
-      break;
-
-    case 'X':
-      ff |= std::ios::uppercase;
-    case 'x':
-      oss.setf(ff);
-      oss << std::hex;
-      break;
-
-    case 'o':
-      oss.setf(ff);
-      oss << std::oct;
       break;
 
     case 'b':
@@ -1629,19 +1607,17 @@ void Format::prepare_format(std::ostream &oss,
   prepare_type(ff, oss, type);
 
   if( fc.fill )            oss << std::setfill(fc.fill);
-  if( fc.width > 0 && 'p' != type ) oss << std::setw(fc.width);
+  if( fc.width > 0 && !('p' == type && fc.zero_padding) ) oss << std::setw(fc.width);
   if( fc.precision > 0 )   oss << std::setprecision(fc.precision);
 
   if( 's' == type || 'b' == type )
     oss << std::left;
 
-  if( (!fc.zero_padding && 'p' != type) || 's' == type )
-  {
-    if( fc.align_right )     oss << std::right;
-    if( fc.align_left )      oss << std::left;
-    if( fc.align_sign )      oss << std::left;
-  }
-  else if( fc.zero_padding && 'p' == type )
+  if( fc.align_right )     oss << std::right;
+  if( fc.align_left )      oss << std::left;
+  if( fc.align_sign )      oss << std::left;
+
+  if( fc.zero_padding && 'p' == type )
   {
     oss << std::setfill('0');
     oss << std::setw(2 * YAT_PTR_BYTES_LEN + 2);
@@ -1746,7 +1722,9 @@ void Format::Formatter<char>::operator()(const char& v, std::ostream &oss, const
     output_binary_value(v, oss, fc);
   else if( 'o' == fc.type )
     output_octal_value(v, oss, fc);
-  else if( 'd' == fc.type || 'X' == fc.type || 'x' == fc.type )
+  else if( 'X' == fc.type || 'x' == fc.type )
+    output_hex_value(v, oss, fc);
+  else if( 'd' == fc.type )
     oss << int(v);
   else
     oss << v;
@@ -1762,7 +1740,9 @@ void Format::Formatter<unsigned char>::operator()(const unsigned char& v, std::o
     output_binary_value(v, oss, fc);
   else if( 'o' == fc.type )
     output_octal_value(v, oss, fc);
-  else if( 'd' == fc.type || 'X' == fc.type || 'x' == fc.type )
+  else if( 'X' == fc.type || 'x' == fc.type )
+    output_hex_value(v, oss, fc);
+  else if( 'd' == fc.type )
     oss << int(v);
   else
     oss << v;
