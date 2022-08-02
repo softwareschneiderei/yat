@@ -1191,8 +1191,11 @@ YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 //! If present, it specifies that the output will be prefixed by '0' or '0x', respectively.
 //! \par '0' character
 //! For numeric types, a zero preceding the width field forces the padding,
-//! using '0', to be placed after sign or base (if any) but before the digits.
-//! This is used for printing fields in the form ‘+000000120’ or '0x00ff'
+//! using '0', to be placed after sign or base (if any) but before the digits.\n
+//! This is used for printing fields in the form ‘+000000120’ or '0x00ff'.\n
+//! With base conversion format (B, x/X/p, o) the field with may be ommitted and
+//! the number of digits therefore depends of the integer type.
+//! If the 0 character and an align option both appear, the 0 character is ignored.
 //! \par type
 //! 's' String format. This is the default type for strings and may be omitted.\n
 //! 'd' Decimal format. Outputs the number in base 10.\n
@@ -1367,62 +1370,19 @@ private:
 
   // Format::output_percent_value
   template<typename T>
-  static void output_percent_value(const T& v, std::ostream &oss, const Context& fc)
-  {
-    if( 0 == fc.precision )
-      oss << int(100. * v) << '%';
-    else
-      oss << 100. * v << '%';
-  }
+  static void output_percent_value(const T& v, std::ostream &oss, const Context& fc);
 
   // Format::output_binary_value
   template<typename T>
-  static void output_binary_value(const T& v, std::ostream &oss, const Context& fc)
-  {
-    std::size_t length = 0, nbits = 8 * sizeof(T);
-    char setbit = '1';
-    char unsetbit = '0';
-    T vv = v;
+  static void output_binary_value(const T& v, std::ostream &oss, const Context& fc);
 
-    if( fc.show_base )
-      length = 2; // reserved for '0b'
+  // Format::output_octal_value
+  template<typename T>
+  static void output_octal_value(const T& v, std::ostream &oss, const Context& fc);
 
-    if( !(vv > 0) && vv != 0 ) // negative value test, without compiler warning!
-    {
-      setbit = '0';
-      unsetbit = '1';
-      vv = -v - 1; // Two's complement two invert bits
-    }
-    else
-    {
-      nbits = 0;
-      for( std::size_t i = 0; vv > 0; ++i )
-      {
-        if( vv & 1 ) nbits = i + 1;
-        vv = vv >> 1;
-      }
-      vv = v; // reset field value
-    }
-    nbits = std::max(nbits, std::size_t(1));
-    if( fc.width > 0 && fc.zero_padding )
-      nbits = std::max(fc.width - (fc.show_base ? 2 : 0), nbits);
-    length += nbits;
-    char* sz = new char[length+1];
-    sz[length] = 0;
-    std::memset(sz, unsetbit, length);
-    if( fc.show_base )
-    {
-      sz[0] = '0';
-      sz[1] = 'b';
-    }
-    for( std::size_t idx = 0; vv && idx < nbits; ++idx )
-    {
-      if( vv & 1 ) sz[length - idx - 1] = setbit;
-      vv = vv >> 1;
-    }
-    oss << sz;
-    delete sz;
-  }
+  // Format::output_hex_value
+  template<typename T>
+  static void output_hex_value(const T& v, std::ostream &oss, const Context& fc);
 
   // Default Formatter
   template<typename T>
@@ -1434,6 +1394,10 @@ private:
 
       if( 'B' == fc.type )
         output_binary_value(v, oss, fc);
+      else if( 'o' == fc.type )
+        output_octal_value(v, oss, fc);
+      else if( 'x' == fc.type || 'X' == fc.type )
+        output_hex_value(v, oss, fc);
       else if( '%' == fc.type )
         output_percent_value(v, oss, fc);
       else
@@ -1581,5 +1545,7 @@ struct Format::Formatter< SharedPtr<T,L> >
 typedef Format StringFormat;
 
 } // namespace
+
+#include <yat/utils/String.tpp>
 
 #endif
