@@ -556,5 +556,16 @@ void URI::pct_decode(std::string& to_decode)
   to_decode = decoded.str();
 }
 
+//----------------------------------------------------------------------------
+// URI::is_ipv4
+//----------------------------------------------------------------------------
+bool URI::is_ipv4(const std::string& host)
+{
+  Regex re(_IPV4, Regex::extended | Regex::nosubs);
+  if( re.match(host) )
+    return true;
+  return false;
+}
+
 } //- namespace yat
 

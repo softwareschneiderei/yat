@@ -209,6 +209,14 @@ public:
   //! \brief percent decoding for any string that have to be part of an uri
   static void pct_decode(std::string& to_decode);
 
+  //! \name utility methods
+  //@{
+
+  //! return true if the given host is a valid ipv4 address
+  static bool is_ipv4(const std::string& host);
+
+  //@}
+
   //! \name deprecated
   //@{
   static void pct_encode(std::string* x, const std::string& y=URI_RESERVED) { pct_encode(*x, y); }
