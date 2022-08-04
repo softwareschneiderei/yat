@@ -11,3 +11,5 @@ samples/time/target
 samples/task/target
 samples/pulser/target
 wandbox
+catch1/target
+catch1/pom_dev.xml
