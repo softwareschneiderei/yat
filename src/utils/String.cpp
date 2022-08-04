@@ -1731,6 +1731,24 @@ void Format::Formatter<char>::operator()(const char& v, std::ostream &oss, const
 }
 
 //---------------------------------------------------------------------------
+// Format::Formatter<char>
+//---------------------------------------------------------------------------
+void Format::Formatter<int8>::operator()(const int8& v, std::ostream &oss, const Format::Context& fc)
+{
+  prepare_format(oss, fc);
+  if( 'B' == fc.type )
+    output_binary_value(v, oss, fc);
+  else if( 'o' == fc.type )
+    output_octal_value(v, oss, fc);
+  else if( 'X' == fc.type || 'x' == fc.type )
+    output_hex_value(v, oss, fc);
+  else if( 'd' == fc.type )
+    oss << int(v);
+  else
+    oss << v;
+}
+
+//---------------------------------------------------------------------------
 // Format::Formatter<unsigned char>
 //---------------------------------------------------------------------------
 void Format::Formatter<unsigned char>::operator()(const unsigned char& v, std::ostream &oss, const Format::Context& fc)

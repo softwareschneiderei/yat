@@ -1501,6 +1501,11 @@ template<> struct Format::Formatter<char>
   void operator()(const char& v, std::ostream &oss, const Format::Context& fc);
 };
 
+template<> struct Format::Formatter<int8>
+{
+  void operator()(const int8& v, std::ostream &oss, const Format::Context& fc);
+};
+
 template<> struct Format::Formatter<unsigned char>
 {
   void operator()(const unsigned char& v, std::ostream &oss, const Format::Context& fc);
