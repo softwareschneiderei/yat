@@ -97,7 +97,7 @@ public:
     SOCK_OPT_LINGER,
     //! Disable the Nagle algorithm for packet coalescing.
     SOCK_OPT_NO_DELAY,
-    //! Socket protocol type.
+    //! Socket protocol type. Notice: this is a READ ONLY option!
     SOCK_OPT_PROTOCOL_TYPE,
     //! Allow reuse of a TCP address without delay.
     SOCK_OPT_REUSE_ADDRESS,
