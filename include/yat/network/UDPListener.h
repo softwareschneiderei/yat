@@ -15,6 +15,7 @@
 #include <yat/utils/StringTokenizer.h>
 #include <yat/utils/Logging.h>
 #include <yat/utils/Callback.h>
+#include <yat/utils/URI.h>
 
 namespace yat
 {
@@ -101,8 +102,8 @@ public:
 
     //! \brief default constructor
     Config ()
-        : udp_addr(),
-          udp_port(0),
+        : udp_addr("225.0.0.1"),
+          udp_port(30001),
           udp_tmo_ms(1000),
           task_to_notify(0),
           uer_notification_msg_id(UDP_LISTENER_NOTIF_DISABLED),
@@ -143,7 +144,12 @@ public:
       m_total_ignored_events(0),
       m_cfg(cfg)
   {
-  }
+    if( !URI::is_ipv4(cfg.udp_addr) )
+      throw yat::Exception("ERROR", "Invalid udp address", "yat::UDPListener::UDPListener");
+
+    if( cfg.udp_port > 2147483647 )
+      throw yat::Exception("ERROR", "Invalid udp port number", "yat::UDPListener::UDPListener");
+}
 
   //--------------------------------------------------------
   //! \brief  start the UDP listener in FINITE mode (n > 0) or INFINITE mod (n = 0)
