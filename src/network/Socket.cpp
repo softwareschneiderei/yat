@@ -640,7 +640,12 @@ void Socket::set_option (Socket::Option _opt, int _value)
       set_sock_option(this->m_os_desc, level, native_opt, _value);
       break;
     case SOCK_OPT_LINGER:
-      set_sock_option(this->m_os_desc, level, native_opt, _value);
+    {
+      struct linger _linger;
+      _linger.l_onoff = 1;
+      _linger.l_linger = _value;
+      set_sock_option(this->m_os_desc, level, native_opt, _linger);
+    }
       break;
     case SOCK_OPT_ITIMEOUT:
     case SOCK_OPT_OTIMEOUT:
