@@ -539,9 +539,17 @@ int Socket::get_option (Socket::Option _opt) const
       break;
     case SOCK_OPT_IBUFFER_SIZE:
     case SOCK_OPT_OBUFFER_SIZE:
+      {
+        _get_sock_option_(this->m_os_desc, level, native_opt, opt_value);
+      }
+      break;
     case SOCK_OPT_PROTOCOL_TYPE:
       {
         _get_sock_option_(this->m_os_desc, level, native_opt, opt_value);
+        if( SOCK_STREAM == opt_value )
+          opt_value = TCP_PROTOCOL;
+        else if( SOCK_DGRAM == opt_value )
+          opt_value = UDP_PROTOCOL;
       }
       break;
     case SOCK_OPT_LINGER:
