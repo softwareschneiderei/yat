@@ -51,6 +51,7 @@
 #include <yat/threading/Pulser.h>
 #include <yat/utils/Logging.h>
 #include <yat/utils/Callback.h>
+#include <yat/utils/URI.h>
 
 namespace yat
 {
@@ -128,7 +129,8 @@ public:
 
     //! \brief default constructor
     Config()
-        : udp_port(0),
+        : udp_addr(YAT_DEFAULT_MULTICAST_GROUP),
+          udp_port(YAT_DEFAULT_MULTICAST_PORT),
           trigger_period_ms(0),
           task_to_notify(0),
           eos_notification_msg_id(YAT_UDP_TRIGGER_NOTIF_DISABLED),
@@ -164,6 +166,9 @@ public:
   UDPTrigger( const UDPTrigger::Config& cfg )
       : m_cfg(cfg), m_udp_socket(0), m_trigger_cnt(0), m_sequence_length(0)
   {
+    if( !URI::is_ipv4(cfg.udp_addr) )
+      throw yat::Exception("ERROR", "Invalid udp address", "yat::UDPTrigger::UDPTrigger");
+
     if( cfg.udp_port > 2147483647 )
       throw yat::Exception("ERROR", "Invalid udp port number", "yat::UDPTrigger::UDPTrigger");
 
