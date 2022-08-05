@@ -1730,8 +1730,9 @@ void Format::Formatter<char>::operator()(const char& v, std::ostream &oss, const
     oss << v;
 }
 
+#ifdef YAT_LINUX
 //---------------------------------------------------------------------------
-// Format::Formatter<char>
+// Format::Formatter<int8>
 //---------------------------------------------------------------------------
 void Format::Formatter<int8>::operator()(const int8& v, std::ostream &oss, const Format::Context& fc)
 {
@@ -1747,6 +1748,7 @@ void Format::Formatter<int8>::operator()(const int8& v, std::ostream &oss, const
   else
     oss << v;
 }
+#endif
 
 //---------------------------------------------------------------------------
 // Format::Formatter<unsigned char>
