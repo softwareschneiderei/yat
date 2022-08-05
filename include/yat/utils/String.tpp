@@ -68,10 +68,10 @@ void Format::output_binary_value(const T& v, std::ostream &oss, const Format::Co
 {
   char setbit = '1';
   char unsetbit = '0';
-  std::size_t length = 0, nbits = 8 * sizeof(T);
+  std::size_t length = 0, nbits = 8 * sizeof(T), padding = 0, base = 0;
   T vv = v;
 
-  if( fc.show_base ) length = 2; // reserved for '0b'
+  if( fc.show_base ) base = 2; // reserved for '0b'
 
   if( !(vv > 0) && vv != 0 ) // negative value test, without compiler warning!
   {
@@ -89,13 +89,15 @@ void Format::output_binary_value(const T& v, std::ostream &oss, const Format::Co
     }
     vv = v; // reset field value
   }
-  nbits = std::max(nbits, std::size_t(1));
-  if( fc.width > 0 && fc.zero_padding )
-    nbits = std::max(fc.width - (fc.show_base ? 2 : 0), nbits);
-  length += nbits;
-  char sz[length+1];
+  if( nbits < 1 ) nbits = 1;
+  if( fc.width > 0 && fc.zero_padding && fc.width + base > nbits )
+    padding = fc.width - nbits - base;
+  length = nbits + padding + base;
+  char* sz = new char[length+1];
   sz[length] = 0;
-  std::memset(sz, unsetbit, length);
+  if( padding > 0 )
+    std::memset(sz + base, '0', padding);
+  std::memset(sz + base + padding, unsetbit, length - padding - base);
   if( fc.show_base ) { sz[0] = '0'; sz[1] = 'b'; }
 
   for( std::size_t idx = 0; vv && idx < nbits; ++idx )
@@ -104,6 +106,7 @@ void Format::output_binary_value(const T& v, std::ostream &oss, const Format::Co
     vv = vv >> 1;
   }
   oss << sz;
+  delete [] sz;
 }
 
 //----------------------------------------------------------------------------
@@ -115,11 +118,11 @@ void Format::output_octal_value(const T& v, std::ostream &oss, const Format::Con
   static char odigits[8]  = {'0', '1', '2', '3', '4', '5', '6', '7'};
   static char ordigits[8] = {'7', '6', '5', '4', '3', '2', '1', '0'};
   char *digits_p = odigits;
-  std::size_t length = 0, ndigits = 0;
+  std::size_t length = 0, ndigits = 0, padding = 0, base = 0;
   T vv = v;
   bool negative = false;
 
-  if( fc.show_base ) length = 2; // reserved for '0o'
+  if( fc.show_base ) base = 2; // reserved for '0o'
 
   if( !(vv > 0) && vv != 0 ) // negative value test, without compiler warning!
   {
@@ -144,11 +147,11 @@ void Format::output_octal_value(const T& v, std::ostream &oss, const Format::Con
   else
     vv = v;
 
-  ndigits = std::max(ndigits, std::size_t(1));
-  if( fc.width > 0 && fc.zero_padding )
-    ndigits = std::max(fc.width - (fc.show_base ? 2 : 0), ndigits);
-  length += ndigits;
-  char sz[length+1];
+  if( ndigits < 1 ) ndigits = 1;
+  if( fc.width > 0 && fc.zero_padding && fc.width + base > ndigits )
+    padding = fc.width - ndigits - base;
+  length = ndigits + padding + base;
+  char* sz = new char[length+1];
   sz[length] = 0;
   std::memset(sz, '0', length);
   if( negative ) ndigits--;
@@ -166,6 +169,7 @@ void Format::output_octal_value(const T& v, std::ostream &oss, const Format::Con
     sz[length - idx - 1] = digits_p[o];
   }
   oss << sz;
+  delete [] sz;
 }
 
 //----------------------------------------------------------------------------
@@ -182,13 +186,13 @@ void Format::output_hex_value(const T& v, std::ostream &oss, const Format::Conte
                               '9', '8', '7', '6', '5', '4', '3', '2', '1', '0'};
   static char Xrdigits[16] = {'F', 'E', 'D', 'C', 'B', 'A',
                               '9', '8', '7', '6', '5', '4', '3', '2', '1', '0'};
-  std::size_t length = 0, ndigits = (sizeof(T) << 1);
+  std::size_t length = 0, ndigits = (sizeof(T) << 1), padding = 0, base = 0;
   T vv = v;
   bool negative = false, uppercase = false;
   char *digits_p = xdigits;
 
 
-  if( fc.show_base ) length = 2; // reserved for '0x' or '0X'
+  if( fc.show_base ) base = 2; // reserved for '0x' or '0X'
 
   if( !(vv > 0) && vv != 0 ) // negative value test, without compiler warning!
   {
@@ -230,13 +234,15 @@ void Format::output_hex_value(const T& v, std::ostream &oss, const Format::Conte
   else
     vv = v;
 
-  ndigits = std::max(ndigits, std::size_t(1));
-  if( fc.width > 0 && fc.zero_padding )
-    ndigits = std::max(fc.width - (fc.show_base ? 2 : 0), ndigits);
-  length += ndigits;
-  char sz[length+1];
+  if( ndigits < 1 ) ndigits = 1;
+  if( fc.width > 0 && fc.zero_padding && fc.width + base > ndigits )
+    padding = fc.width - ndigits - base;
+  length = ndigits + padding + base;
+  char* sz = new char[length+1];
   sz[length] = 0;
-  std::memset(sz, negative ? (uppercase ? 'F' : 'f') : '0', length);
+  if( padding > 0 )
+    std::memset(sz, '0', base + padding);
+  std::memset(sz + base + padding, negative ? (uppercase ? 'F' : 'f') : '0', length - padding - base);
   if( fc.show_base )
   {
      sz[0] = '0';
@@ -251,6 +257,7 @@ void Format::output_hex_value(const T& v, std::ostream &oss, const Format::Conte
     vv = vv >> 4;
   }
   oss << sz;
+  delete [] sz;
 }
 
 } // namespace
