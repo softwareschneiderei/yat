@@ -1247,7 +1247,7 @@ YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 //! } // namespace yat
 //! \endcode
 // ============================================================================
-class Format
+class YAT_DECL Format
 {
 public:
   //! \brief Default constructor.
