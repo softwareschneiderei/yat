@@ -236,34 +236,6 @@ TEST_CASE("format_float", "[Format]")
   #endif
 }
 
-TEST_CASE("format_bool", "[Format]")
-{
-  yat::String res = yat::Format("a boolean: {b}").arg(true);
-  INFO("result is " << res);
-  CHECK(res.is_equal("a boolean: true"));
-}
-
-TEST_CASE("format_binary", "[Format]")
-{
-  yat::String res = yat::Format("a binary value: {B}").arg((yat::uint8)42);
-  INFO("result is " << res);
-  CHECK(res.is_equal("a binary value: 101010"));
-}
-
-TEST_CASE("format_hex", "[Format]")
-{
-  yat::String res = yat::Format("a hex: {x}").arg(255);
-  INFO("result is " << res);
-  CHECK(res.is_equal("a hex: ff"));
-}
-
-TEST_CASE("format_octal", "[Format]")
-{
-  yat::String res = yat::Format("an octal number: {o}").arg(255);
-  INFO("result is " << res);
-  CHECK(res.is_equal("an octal number: 377"));
-}
-
 TEST_CASE("format_all", "[Format]")
 {
   yat::String res = yat::Format("a string: {}; a float number: {4.1e}; an octal number: {o}; a boolean: {b}; a hex: {x}")
@@ -340,6 +312,7 @@ SCENARIO( "Some Format operations tests", "[Format]" )
     {
       yat::int8 i8 = 12;
 
+      CHECK_FORMAT(i8, "{}", "12")
       CHECK_FORMAT(i8, "{d}", "12")
       CHECK_FORMAT(i8, "{+d}", "+12")
 
@@ -395,6 +368,7 @@ SCENARIO( "Some Format operations tests", "[Format]" )
     {
       yat::uint8 ui8 = 42;
 
+      CHECK_FORMAT(ui8, "{}", "42")
       CHECK_FORMAT(ui8, "{d}", "42")
 
       CHECK_FORMAT(ui8, "{B}", "101010")
@@ -440,20 +414,20 @@ SCENARIO( "Some Format operations tests", "[Format]" )
       CHECK_FORMAT(i16, "{d}", "3000")
       CHECK_FORMAT(i16, "{+d}", "+3000")
 
-      CHECK_FORMAT(i16, "{B}", "111010100110000")
-      CHECK_FORMAT(i16, "{o}", "72460")
-      CHECK_FORMAT(i16, "{x}", "7530")
-      CHECK_FORMAT(i16, "{X}", "7530")
+      CHECK_FORMAT(i16, "{B}", "101110111000")
+      CHECK_FORMAT(i16, "{o}", "5670")
+      CHECK_FORMAT(i16, "{x}", "bb8")
+      CHECK_FORMAT(i16, "{X}", "BB8")
 
-      CHECK_FORMAT(i16, "{#B}", "0b111010100110000")
-      CHECK_FORMAT(i16, "{#o}", "0o72460")
-      CHECK_FORMAT(i16, "{#x}", "0x7530")
-      CHECK_FORMAT(i16, "{#X}", "0X7530")
+      CHECK_FORMAT(i16, "{#B}", "0b101110111000")
+      CHECK_FORMAT(i16, "{#o}", "0o5670")
+      CHECK_FORMAT(i16, "{#x}", "0xbb8")
+      CHECK_FORMAT(i16, "{#X}", "0XBB8")
 
-      CHECK_FORMAT(i16, "{#0B}", "0b0111010100110000")
-      CHECK_FORMAT(i16, "{#0o}", "0o072460")
-      CHECK_FORMAT(i16, "{#0x}", "0x7530")
-      CHECK_FORMAT(i16, "{#0X}", "0X7530")
+      CHECK_FORMAT(i16, "{#0B}", "0b0000101110111000")
+      CHECK_FORMAT(i16, "{#0o}", "0o005670")
+      CHECK_FORMAT(i16, "{#0x}", "0x0bb8")
+      CHECK_FORMAT(i16, "{#0X}", "0X0BB8")
     }
   }
 }
