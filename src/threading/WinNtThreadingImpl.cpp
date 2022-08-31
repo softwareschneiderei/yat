@@ -601,8 +601,11 @@ ThreadUID ThreadingUtilities::self ()
 // ----------------------------------------------------------------------------
 // ThreadingUtilities::sleep
 // ----------------------------------------------------------------------------
-void ThreadingUtilities::sleep (long _secs, long _nano_secs)
+void ThreadingUtilities::sleep_impl (long _secs, long _nano_secs)
 {
+  //## TODO use SetWaitableTimer
+  // (https://docs.microsoft.com/fr-fr/windows/win32/api/synchapi/nf-synchapi-setwaitabletimer?redirectedfrom=MSDN)
+  // (https://docs.microsoft.com/en-us/windows/win32/sync/using-a-waitable-timer-with-an-asynchronous-procedure-call?source=recommendations)
   //- requested sleep time <= to max sleep time per ::Sleep call
   if (_secs <= MAX_SLEEP_SECONDS)
   {

@@ -79,10 +79,24 @@ public:
    //! \brief Returns the calling thread identifier.
   static ThreadUID self ();
 
+  //! \deprecated
+  static void sleep (long secs, long nanosecs = 0);
+
   //! \brief Causes the caller to sleep for the given time.
   //! \param secs Time in seconds.
-  //! \param nanosecs Nanoseconds precision of time.
-  static void sleep (long secs, long nanosecs = 0);
+  static void sleep(double secs);
+
+  //! \brief Causes the caller to sleep for the given time.
+  //! \param secs Time in milliseconds.
+  static void sleep_millis(uint64 millis);
+
+  //! \brief Causes the caller to sleep for the given time.
+  //! \param secs Time in microeconds.
+  static void sleep_micros(uint64 micros);
+
+  //! \brief Causes the caller to sleep for the given time.
+  //! \param secs Time in nanoeconds.
+  static void sleep_nanos(uint64 nanos);
 
   //! \brief Returns number of concurrent threads supported by the implementation.
   //! The value should be considered only a hint.
@@ -124,6 +138,10 @@ private:
   static void ThreadingUtilities::get_time_now (unsigned long & abs_sec_,
                                                 unsigned long & abs_nano_sec_);
 #endif
+
+  //- internal impl
+  static void sleep_impl(long secs, long nanosecs = 0);
+
 };
 
 } // namespace yat

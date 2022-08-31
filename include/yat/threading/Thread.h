@@ -126,8 +126,7 @@ public:
   //! \brief Allows another thread to run.
   static void yield ();
 
-  //! \brief Causes the thread to sleep for the given time.
-  //! \param msecs Time.
+  //! \deprecated use yat::TheadingUtilities::sleep family methods instead
   static void sleep (unsigned long msecs);
 
   //! \brief Causes the thread to be detached.

@@ -628,9 +628,9 @@ ThreadUID ThreadingUtilities::self ()
 }
 
 // ----------------------------------------------------------------------------
-// ThreadingUtilities::sleep
+// ThreadingUtilities::sleep_impl
 // ----------------------------------------------------------------------------
-void ThreadingUtilities::sleep (long _secs, long _nano_secs)
+void ThreadingUtilities::sleep_impl(long _secs, long _nano_secs)
 {
 #if defined(YAT_HAS_NANOSLEEP)
 
