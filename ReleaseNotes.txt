@@ -1,5 +1,30 @@
 YAT history file
 
+1.19.3 (2022/09/28)
+===================
+
+Changes:
+    classes UDPListener & UDPTrigger
+        Use valid default values in config c-tor
+        Better check of configuration values
+
+    class Format
+         binary output with showbase option is now prefixed with '0b'
+         octal output with showbase option is now prefixed with '0o'
+
+    class URI
+        URI(const URI::Field&) c-tor now throw in case of bad field value
+
+Additions:
+    class URI
+        new utility method is_ipv4
+    -> see <yat/utils/URI.h>
+
+Fixes:
+    class Socket
+        return value from get_option() is now Socket::TCP_PROTOCOL or
+        Socket::UDP_PROTOCOL
+
 1.19.2 (2022/07/20)
 ===================
 
