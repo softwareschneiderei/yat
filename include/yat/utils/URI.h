@@ -200,7 +200,7 @@ public:
   //! \exception BAD_URI_SYNTAX Thrown if the value syntax is not correct.
   bool check(Part part, const std::string &value, bool throw_exception=false);
 
-  //! \brief Just the the fun ;)
+  //! \brief Just for the fun ;)
   yat::String get_full_pattern();
 
   //! \brief percent encoding for any string that have to be part of an uri
