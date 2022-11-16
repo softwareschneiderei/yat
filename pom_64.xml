@@ -95,6 +95,11 @@
               <activation>
                 <os>Linux</os>
               </activation>
+			  <c>
+                <defines>
+                  <define>YAT_HAS_GNUREGEX</define>
+                </defines>
+              </c>
               <cpp>
                 <defines>
                   <define>_FILE_OFFSET_BITS=64</define>
