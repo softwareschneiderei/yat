@@ -1419,7 +1419,7 @@ inline void Format::prepare_type(std::ios_base::fmtflags& ff, std::ostream &oss,
 //---------------------------------------------------------------------------
 // Format::parse
 //---------------------------------------------------------------------------
-void Format::parse()
+void Format::parse(bool throw_exception)
 {
   h64_t h;
   if( Cache::get(m_str, h, m_compiled_fmt_ptr) )
@@ -1429,6 +1429,7 @@ void Format::parse()
   std::size_t start_search = 0, arg_auto_index = 0, n_formats = 0;
   yat::String field;
   bool manual_positioning = false, first_field = true;
+  bool parsing_error = false;
 
   while( true )
   {
@@ -1465,20 +1466,40 @@ void Format::parse()
       continue;
     }
 
-    if( end_pos != std::string::npos && start_pos == std::string::npos  )
-      throw yat::Exception("BAD_FORMAT", "Single '}' found", "yat::Format::parse");
+    if( end_pos != std::string::npos && start_pos == std::string::npos )
+    {
+      if( throw_exception )
+        throw yat::Exception("BAD_FORMAT", "Single '}' found", "yat::Format::parse");
+      parsing_error = true;
+      break;
+    }
 
-    else if( end_pos == std::string::npos && start_pos != std::string::npos  )
-      throw yat::Exception("BAD_FORMAT", "Single '{' found", "yat::Format::parse");
+    else if( end_pos == std::string::npos && start_pos != std::string::npos )
+    {
+      if( throw_exception )
+        throw yat::Exception("BAD_FORMAT", "Single '{' found", "yat::Format::parse");
+      parsing_error = true;
+      break;
+    }
 
     else if( end_pos != std::string::npos && start_pos != std::string::npos )
     {
       if( end_pos < start_pos )
-        throw yat::Exception("BAD_FORMAT", "Single '}' found", "yat::Format::parse");
+      {
+        if( throw_exception )
+          throw yat::Exception("BAD_FORMAT", "Single '}' found", "yat::Format::parse");
+        parsing_error = true;
+        break;
+      }
 
       field = m_str.substr(start_pos + 1, end_pos - start_pos - 1);
       if( field.find('{') != std::string::npos )
-        throw yat::Exception("BAD_FORMAT", "Unexpected '{' found inside format", "yat::Format::parse");
+      {
+        if( throw_exception )
+          throw yat::Exception("BAD_FORMAT", "Unexpected '{' found inside format", "yat::Format::parse");
+        parsing_error = true;
+        break;
+      }
 
       // ok, continue
       if( start_str != end_str )
@@ -1500,9 +1521,19 @@ void Format::parse()
       if( !first_field )
       {
         if( manual_positioning && arg_index == -1 )
-          throw yat::Exception("BAD_FORMAT", "Can't switch from manual argument positioning to automatic positioning", "yat::Format::parse");
+        {
+          if( throw_exception )
+            throw yat::Exception("BAD_FORMAT", "Can't switch from manual argument positioning to automatic positioning", "yat::Format::parse");
+          parsing_error = true;
+          break;
+        }
         if( !manual_positioning && arg_index != -1 )
-          throw yat::Exception("BAD_FORMAT", "Can't switch from automatic argument positioning to manual positioning", "yat::Format::parse");
+        {
+          if( throw_exception )
+            throw yat::Exception("BAD_FORMAT", "Can't switch from automatic argument positioning to manual positioning", "yat::Format::parse");
+          parsing_error = true;
+          break;
+        }
       }
       else
         first_field = false;
@@ -1534,16 +1565,31 @@ void Format::parse()
     }
   }
 
+  if( parsing_error )
+  {
+    // A error was occured but we do not throwed an exception
+    // the end of format string will but output as is
+    if( start_str < m_str.size() )
+    {
+      StringSection* p = new StringSection;
+      p->str = m_str.substr(start_str);
+      m_compiled_fmt_ptr->sections.push_back(SectionPtr(p));
+    }
+  }
   // The map size is logically the expected arguments count
   m_compiled_fmt_ptr->expected_arg_count = m_compiled_fmt_ptr->arg_sections_map.size();
-  // check the position indexes. it must start at 0
-  for( std::size_t i = 0; i < m_compiled_fmt_ptr->expected_arg_count; ++i )
+
+  if( throw_exception )
   {
-    if( m_compiled_fmt_ptr->arg_sections_map.find(i) == m_compiled_fmt_ptr->arg_sections_map.end() )
-      throw yat::Exception("BAD_FORMAT", "Bad argument numbering. Must start at '0'", "yat::Format::parse");
+    // check the position indexes. it must start at 0
+    for( std::size_t i = 0; i < m_compiled_fmt_ptr->expected_arg_count; ++i )
+    {
+      if( m_compiled_fmt_ptr->arg_sections_map.find(i) == m_compiled_fmt_ptr->arg_sections_map.end() )
+        throw yat::Exception("BAD_FORMAT", "Bad argument numbering. Must start at '0'", "yat::Format::parse");
+    }
   }
 
-  // insert into cache
+  // insert into cache, event if parsing error occured (in case of no exception throwing)
   Cache::insert(h, m_compiled_fmt_ptr);
 }
 
@@ -1553,7 +1599,10 @@ void Format::parse()
 bool Format::get_next_format(Format::FieldSection** pp_fmt)
 {
   if( m_arg_index >= m_compiled_fmt_ptr->expected_arg_count )
-    throw yat::Exception("BAD_ARG", "Format argument not expected", "yat::Format::get_next_format");
+  {
+    *pp_fmt = 0;
+    return false;
+  }
 
   if( m_section_by_arg_idx < m_compiled_fmt_ptr->arg_sections_map[m_arg_index].size() )
   {
