@@ -423,10 +423,10 @@ public:
   }
 
 private:
-  LogFormat(const std::string& s, ELogLevel l, std::ostream* os_p=0): yat::Format(s),
-   level_(l), m_os_p(os_p) {  }
+  LogFormat(const std::string& s, ELogLevel l, std::ostream* os_p=0):
+   yat::Format(s, false), level_(l), m_os_p(os_p) {  }
 
-  LogFormat(const std::string& s, std::ostream* os_p=0): yat::Format(s),
+  LogFormat(const std::string& s, std::ostream* os_p=0): yat::Format(s, false),
    level_(LOG_NOLEVEL), m_os_p(os_p) {  }
 
   // unused & unusable

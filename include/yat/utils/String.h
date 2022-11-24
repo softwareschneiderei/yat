@@ -1255,34 +1255,34 @@ public:
 
   //! \brief Constructor from a char pointer.
   //! \param psz Char pointer.
-  Format(const char *psz) : m_str(psz), m_arg_index(0), m_section_by_arg_idx(0),
+  Format(const char *psz, bool throw_exception = true) : m_str(psz), m_arg_index(0), m_section_by_arg_idx(0),
                             m_null_fmt(NULL)
   {
-    parse();
+    parse(throw_exception);
   }
 
   //! \brief Constructor from char buffer.
   //! \param psz Char pointer.
   //! \param size %Buffer size.
-  Format(const char *psz, int size) : m_str(psz, size),
+  Format(const char *psz, int size, bool throw_exception = true) : m_str(psz, size),
                                       m_arg_index(0), m_section_by_arg_idx(0), m_null_fmt(NULL)
   {
-    parse();
+    parse(throw_exception);
   }
 
   //! \brief Copy Constructor.
   //! \param str The source string.
-  Format(const String &str) : m_str(str), m_arg_index(0), m_section_by_arg_idx(0), m_null_fmt(NULL)
+  Format(const String &str, bool throw_exception = true) : m_str(str), m_arg_index(0), m_section_by_arg_idx(0), m_null_fmt(NULL)
   {
-    parse();
+    parse(throw_exception);
   }
 
   //! \brief Constructor from std::string.
   //! \param str The string.
-  Format(const std::string &str) : m_str(str), m_arg_index(0),
+  Format(const std::string &str, bool throw_exception = true) : m_str(str), m_arg_index(0),
                                    m_section_by_arg_idx(0), m_null_fmt(NULL)
   {
-    parse();
+    parse(throw_exception);
   }
 
   //! Explicit conversion
@@ -1468,7 +1468,7 @@ private:
 
   FieldSection* parse_field(yat::String& field, int* arg_index_p);
   bool get_next_format(FieldSection** pp_fmt);
-  void parse();
+  void parse(bool throw_exception);
   void output_ptr_value(uintptr p, const Context& fc);
   static void prepare_type(std::ios_base::fmtflags& ff, std::ostream &oss, const char& type);
 
