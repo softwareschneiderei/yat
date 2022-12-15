@@ -1362,13 +1362,21 @@ Format::FieldSection* Format::parse_field(yat::String& field, int* arg_index_p)
     section_p->fc.type = fmt[type_pos];
   }
 
-  if( decimal_point_pos != std::string::npos && width_pos != std::string::npos )
-    section_p->fc.width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, decimal_point_pos - width_pos));
-  else if( width_pos != std::string::npos )
-    section_p->fc.width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, type_pos - width_pos));
+  try
+  {
+    if( decimal_point_pos != std::string::npos && width_pos != std::string::npos )
+      section_p->fc.width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, decimal_point_pos - width_pos));
+    else if( width_pos != std::string::npos )
+      section_p->fc.width = StringUtil::to_num<std::size_t>(fmt.substr(width_pos, type_pos - width_pos));
 
-  if( precision_pos != std::string::npos )
-    section_p->fc.precision = StringUtil::to_num<std::size_t>(fmt.substr(precision_pos, type_pos - precision_pos));
+    if( precision_pos != std::string::npos )
+      section_p->fc.precision = StringUtil::to_num<std::size_t>(fmt.substr(precision_pos, type_pos - precision_pos));
+  }
+  catch(yat::Exception& e)
+  {
+    e.push_error("ERROR", "Bad replacement field definition", "Format::parse_field");
+    throw e;
+  }
 
   return section_p;
 }
@@ -1431,60 +1439,44 @@ void Format::parse(bool throw_exception)
   bool manual_positioning = false, first_field = true;
   bool parsing_error = false;
 
-  while( true )
+  try
   {
-    start_pos = m_str.find('{', start_search);
-    end_pos = m_str.find('}', start_search);
-
-    bool double_end = false, double_start = false;
-
-    if( start_pos != std::string::npos )
+    while( true )
     {
-      if( start_pos < m_str.size()-1 && m_str[start_pos+1] == '{' )
-        // '{{' detected
-        double_start = true;
-      else
-        end_str = start_pos;
-    }
+      start_pos = m_str.find('{', start_search);
+      end_pos = m_str.find('}', start_search);
 
-    if( end_pos != std::string::npos && end_pos < m_str.size()-1
-                                     && m_str[end_pos+1] == '}' )
-    { // '}}' detected
-      double_end = true;
-    }
+      bool double_end = false, double_start = false;
 
-    if( double_start )
-    {
-      end_str = start_pos + 1;
-      start_search = end_str + 1;
-      continue;
-    }
-    else if( double_end && start_pos > end_pos)
-    {
-      end_str = end_pos + 1;
-      start_search = end_str + 1;
-      continue;
-    }
+      if( start_pos != std::string::npos )
+      {
+        if( start_pos < m_str.size()-1 && m_str[start_pos+1] == '{' )
+          // '{{' detected
+          double_start = true;
+        else
+          end_str = start_pos;
+      }
 
-    if( end_pos != std::string::npos && start_pos == std::string::npos )
-    {
-      if( throw_exception )
-        throw yat::Exception("BAD_FORMAT", "Single '}' found", "yat::Format::parse");
-      parsing_error = true;
-      break;
-    }
+      if( end_pos != std::string::npos && end_pos < m_str.size()-1
+                                       && m_str[end_pos+1] == '}' )
+      { // '}}' detected
+        double_end = true;
+      }
 
-    else if( end_pos == std::string::npos && start_pos != std::string::npos )
-    {
-      if( throw_exception )
-        throw yat::Exception("BAD_FORMAT", "Single '{' found", "yat::Format::parse");
-      parsing_error = true;
-      break;
-    }
+      if( double_start )
+      {
+        end_str = start_pos + 1;
+        start_search = end_str + 1;
+        continue;
+      }
+      else if( double_end && start_pos > end_pos)
+      {
+        end_str = end_pos + 1;
+        start_search = end_str + 1;
+        continue;
+      }
 
-    else if( end_pos != std::string::npos && start_pos != std::string::npos )
-    {
-      if( end_pos < start_pos )
+      if( end_pos != std::string::npos && start_pos == std::string::npos )
       {
         if( throw_exception )
           throw yat::Exception("BAD_FORMAT", "Single '}' found", "yat::Format::parse");
@@ -1492,77 +1484,102 @@ void Format::parse(bool throw_exception)
         break;
       }
 
-      field = m_str.substr(start_pos + 1, end_pos - start_pos - 1);
-      if( field.find('{') != std::string::npos )
+      else if( end_pos == std::string::npos && start_pos != std::string::npos )
       {
         if( throw_exception )
-          throw yat::Exception("BAD_FORMAT", "Unexpected '{' found inside format", "yat::Format::parse");
+          throw yat::Exception("BAD_FORMAT", "Single '{' found", "yat::Format::parse");
         parsing_error = true;
         break;
       }
 
-      // ok, continue
-      if( start_str != end_str )
+      else if( end_pos != std::string::npos && start_pos != std::string::npos )
       {
-        StringSection* p = new StringSection;
-        p->str = m_str.substr(start_str, end_str - start_str);
-        rep_double_char(p->str, '{');
-        rep_double_char(p->str, '}');
-        m_compiled_fmt_ptr->sections.push_back(SectionPtr(p));
-      }
-      start_str = end_pos + 1;
-      end_str = end_pos + 1;
-      int arg_index = -1;
-      FieldSection* field_p = parse_field(field, &arg_index);
-      ++n_formats;
-      SectionPtr ptr(field_p);
+        if( end_pos < start_pos )
+        {
+          if( throw_exception )
+            throw yat::Exception("BAD_FORMAT", "Single '}' found", "yat::Format::parse");
+          parsing_error = true;
+          break;
+        }
 
-      // { positioning
-      if( !first_field )
-      {
-        if( manual_positioning && arg_index == -1 )
+        field = m_str.substr(start_pos + 1, end_pos - start_pos - 1);
+        if( field.find('{') != std::string::npos )
         {
           if( throw_exception )
-            throw yat::Exception("BAD_FORMAT", "Can't switch from manual argument positioning to automatic positioning", "yat::Format::parse");
+            throw yat::Exception("BAD_FORMAT", "Unexpected '{' found inside format", "yat::Format::parse");
           parsing_error = true;
           break;
         }
-        if( !manual_positioning && arg_index != -1 )
+
+        // ok, continue
+        if( start_str != end_str )
         {
-          if( throw_exception )
-            throw yat::Exception("BAD_FORMAT", "Can't switch from automatic argument positioning to manual positioning", "yat::Format::parse");
-          parsing_error = true;
-          break;
+          StringSection* p = new StringSection;
+          p->str = m_str.substr(start_str, end_str - start_str);
+          rep_double_char(p->str, '{');
+          rep_double_char(p->str, '}');
+          m_compiled_fmt_ptr->sections.push_back(SectionPtr(p));
         }
+        start_str = end_pos + 1;
+        end_str = end_pos + 1;
+        int arg_index = -1;
+        FieldSection* field_p = parse_field(field, &arg_index);
+        ++n_formats;
+        SectionPtr ptr(field_p);
+
+        // { positioning
+        if( !first_field )
+        {
+          if( manual_positioning && arg_index == -1 )
+          {
+            if( throw_exception )
+              throw yat::Exception("BAD_FORMAT", "Can't switch from manual argument positioning to automatic positioning", "yat::Format::parse");
+            parsing_error = true;
+            break;
+          }
+          if( !manual_positioning && arg_index != -1 )
+          {
+            if( throw_exception )
+              throw yat::Exception("BAD_FORMAT", "Can't switch from automatic argument positioning to manual positioning", "yat::Format::parse");
+            parsing_error = true;
+            break;
+          }
+        }
+        else
+          first_field = false;
+
+        if( arg_index != -1 )
+        { // manual positioning: {0} {1}...
+          m_compiled_fmt_ptr->arg_sections_map[std::size_t(arg_index)].push_back(ptr);
+          manual_positioning = true;
+        }
+        else // automatic positioning: {} {}...
+          m_compiled_fmt_ptr->arg_sections_map[arg_auto_index++].push_back(ptr);
+        // } positioning
+
+        m_compiled_fmt_ptr->sections.push_back(ptr);
+        start_search = end_pos + 1;
       }
       else
-        first_field = false;
-
-      if( arg_index != -1 )
-      { // manual positioning: {0} {1}...
-        m_compiled_fmt_ptr->arg_sections_map[std::size_t(arg_index)].push_back(ptr);
-        manual_positioning = true;
-      }
-      else // automatic positioning: {} {}...
-        m_compiled_fmt_ptr->arg_sections_map[arg_auto_index++].push_back(ptr);
-      // } positioning
-
-      m_compiled_fmt_ptr->sections.push_back(ptr);
-      start_search = end_pos + 1;
-    }
-    else
-    {
-      // no more format spec
-      if( start_str < m_str.size() )
       {
-        StringSection* p = new StringSection;
-        p->str = m_str.substr(start_str);
-        rep_double_char(p->str, '{');
-        rep_double_char(p->str, '}');
-        m_compiled_fmt_ptr->sections.push_back(SectionPtr(p));
+        // no more format spec
+        if( start_str < m_str.size() )
+        {
+          StringSection* p = new StringSection;
+          p->str = m_str.substr(start_str);
+          rep_double_char(p->str, '{');
+          rep_double_char(p->str, '}');
+          m_compiled_fmt_ptr->sections.push_back(SectionPtr(p));
+        }
+        break;
       }
-      break;
     }
+  }
+  catch(...)
+  {
+    if( throw_exception )
+      throw;
+    parsing_error = true;
   }
 
   if( parsing_error )
