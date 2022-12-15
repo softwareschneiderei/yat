@@ -1,5 +1,13 @@
 YAT history file
 
+1.19.4 (2022/12/14)
+===================
+
+Changes
+    class Format
+        Format::parse now take a boolean argument which control whenever the
+        method throw an exception in case of bad format syntax.
+
 1.19.3 (2022/09/28)
 ===================
 
