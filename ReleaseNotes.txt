@@ -1,5 +1,13 @@
 YAT history file
 
+1.19.5 (2022/12/15)
+===================
+
+Fixes
+    class Format
+         An exception could be thrown despite passing false as 2nd argument
+         in Format c-tor
+
 1.19.4 (2022/12/14)
 ===================
 
