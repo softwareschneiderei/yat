@@ -166,7 +166,7 @@ Changes:
 Additions:
     class Atomic<T>
         Fully inspired by std::atomic. This class is aimed to offer the same
-        functionnlity as std::atomic. 1st implementation is non-lock free,
+        functionality as std::atomic. 1st implementation is non-lock free,
         using Mutex.
     -> see <yat/threading/Atomic.h>
 

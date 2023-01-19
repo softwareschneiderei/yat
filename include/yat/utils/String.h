@@ -1313,7 +1313,7 @@ public:
     char fill;             //! fill character
     std::size_t precision; //! float value precision
     std::size_t width;     //! field width
-    yat::String fmt_ext;   //! format extension for custom foramtter
+    yat::String fmt_ext;   //! format extension for custom formatter
     yat::String fmt_spec;  //! format specification
     yat::String field;     //! replacement field before substitution
 
