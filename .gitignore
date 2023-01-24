@@ -2,6 +2,8 @@
 /yat.sublime-project
 /yat.sublime-workspace
 /target/
+CMakeFiles
+test_package
 
 samples/memory/sharedptr/target
 samples/semaphore/target
