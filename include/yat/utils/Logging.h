@@ -324,30 +324,30 @@ public:
 //! yat::verbose("A message with an argument value: {}.").arg(value);
 //! yat::verbose("A simple message");
 //! \endverbatim
-class YAT_DECL LogFormat verbose(const std::string& msg_fmt);
+class YAT_DECL LogFormat YAT_DECL verbose(const std::string& msg_fmt);
 //! \brief log a notice message with format
-class YAT_DECL LogFormat notice(const std::string& msg_fmt);
+class YAT_DECL LogFormat YAT_DECL notice(const std::string& msg_fmt);
 //! \brief log a result message with format
-class YAT_DECL LogFormat result(const std::string& msg_fmt);
+class YAT_DECL LogFormat YAT_DECL result(const std::string& msg_fmt);
 //! \brief log a info message with format
-class YAT_DECL LogFormat info(const std::string& msg_fmt);
+class YAT_DECL LogFormat YAT_DECL info(const std::string& msg_fmt);
 //! \brief log a warning message with format
-class YAT_DECL LogFormat warning(const std::string& msg_fmt);
+class YAT_DECL LogFormat YAT_DECL warning(const std::string& msg_fmt);
 //! \brief log a error message with format
-class YAT_DECL LogFormat error(const std::string& msg_fmt);
+class YAT_DECL LogFormat YAT_DECL error(const std::string& msg_fmt);
 //! \brief log a alert message with format
-class YAT_DECL LogFormat alert(const std::string& msg_fmt);
+class YAT_DECL LogFormat YAT_DECL alert(const std::string& msg_fmt);
 //! \brief log a emergency message with format
-class YAT_DECL LogFormat emergency(const std::string& msg_fmt);
+class YAT_DECL LogFormat YAT_DECL emergency(const std::string& msg_fmt);
 //! \brief log a critical message with format
 class YAT_DECL LogFormat critical(const std::string& msg_fmt);
 
 //! \brief log a formatted message on std::cout stream
-class YAT_DECL LogFormat fcout(const std::string& msg_fmt);
+class YAT_DECL LogFormat YAT_DECL fcout(const std::string& msg_fmt);
 //! \brief log a formatted message on std::cerr stream
-class YAT_DECL LogFormat fcerr(const std::string& msg_fmt);
+class YAT_DECL LogFormat YAT_DECL fcerr(const std::string& msg_fmt);
 //! \brief log a formatted message on std::clog stream
-class YAT_DECL LogFormat fclog(const std::string& msg_fmt);
+class YAT_DECL LogFormat YAT_DECL fclog(const std::string& msg_fmt);
 
 // Internal class used to log formatted messages
 // This class can't be manually instancied and instances can't be copied

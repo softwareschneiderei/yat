@@ -987,16 +987,30 @@ struct Format::Formatter<Time>
           tz = true;
         }
 
+#if (defined YAT_WIN32 || defined YAT_WIN64) && defined(YAT_DECL)
+// In shared mode The microsoft linker does not found static members Time::iso8601_z &  Time::iso8601
+        if( utc )
+          oss << t.to_string_utc(tz ? "%Y-%m-%dT%H:%M:%S%Z" : "%Y-%m-%dT%H:%M:%S", fc.precision);
+        else if( local )
+          oss << t.to_string_local(tz ? "%Y-%m-%dT%H:%M:%S%Z" : "%Y-%m-%dT%H:%M:%S", fc.precision);
+        else
+          oss << t.to_string(tz ? "%Y-%m-%dT%H:%M:%S%Z" : "%Y-%m-%dT%H:%M:%S", fc.precision);
+#else
         if( utc )
           oss << t.to_string_utc(tz ? Time::iso8601_z : Time::iso8601, fc.precision);
         else if( local )
           oss << t.to_string_local(tz ? Time::iso8601_z : Time::iso8601, fc.precision);
         else
           oss << t.to_string(tz ? Time::iso8601_z : Time::iso8601, fc.precision);
+#endif
       }
     }
     else // default formatting
+#if (defined YAT_WIN32 || defined YAT_WIN64 ) && defined(YAT_DECL)
+      oss << t.to_string("%Y-%m-%dT%H:%M:%S", fc.precision);
+#else
       oss << t.to_string(Time::iso8601, fc.precision);
+#endif
   }
 };
 

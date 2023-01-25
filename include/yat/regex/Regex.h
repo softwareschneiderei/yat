@@ -166,7 +166,7 @@ public:
   };
 
   //! Sub-match result
-  class SubMatch
+  class YAT_DECL SubMatch
   {
     friend class Regex;
   public:
@@ -189,13 +189,13 @@ public:
     yat::String m_string;
   };
 
-  class Match
+  class YAT_DECL Match
   {
     friend class Regex;
   public:
 
     //! forward iterator over submatchs
-    class iterator
+    class YAT_DECL iterator
     {
       friend class Match;
     public:
