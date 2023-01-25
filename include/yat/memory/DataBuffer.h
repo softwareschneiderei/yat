@@ -149,11 +149,12 @@ public:
   //! Throw an exception if length is already at max capacity
   void append(const T &val);
 
-  //! \brief Copy n elments of type T from the specified source to the buffer.
+  //! \brief Copy n elements of type T from the specified source to the buffer.
   //! The number of bytes actually copied is n * sizeof(T).
   //! The copied data is placed into the buffer at 'buffer base' address + offset.
   //! The buffer length is then set to current length + num_elements.
   //!
+  //! \param src source buffer.
   //! \param num_elements Number of elements of type T to be copied.
   //! \param offset Offset in number of elements from the buffer base address.
   void memcpy(const void *src, std::size_t num_elements, std::size_t offset = 0);

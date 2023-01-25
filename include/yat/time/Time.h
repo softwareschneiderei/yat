@@ -413,7 +413,7 @@ public:
   void set_month(uint8 uiMonth);
 
   //! \brief Sets the month part as string.
-  //! \param uiMonth Month in range [1, 12].
+  //! \param month_name Month in range [1, 12].
   void set_month(const std::string& month_name);
 
   //! \brief Sets the year part.
@@ -483,6 +483,7 @@ public:
 
   //! \brief Initializes date from a string.
   //!
+  //! \param date_time input string with date/time
   //! \param format date-time format
   //!        ex: %Y-%M-%DT%h:%m:%s.%ms for a ISO8601 string
   //!          %a 	Abbreviated weekday name (ex: Sun)
@@ -591,6 +592,7 @@ public:
   //@{
 
   //! \brief Format date according to the given format
+  //! \param df The input date fields
   //! \param format The format
   //! \param precision modify the format field '%S' specification to
   //!        the requested precision: 0 (second) to 6 (microseconds)
@@ -638,10 +640,12 @@ public:
 
   //! \brief Month name.
   //! \param iMonth Month number.
+  //! \param long_name if 'true' return the long name.
   static pcsz month_name(uint8 iMonth, bool long_name = false);
 
   //! \brief Day name.
   //! \param day day number.
+  //! \param long_name if 'true' return the long name.
   static pcsz day_name(uint8 day, bool long_name = false);
 
   //! \brief Gets Unix current time.
@@ -716,7 +720,7 @@ class YAT_DECL CurrentTime : public Time
 public:
   //! \brief Constructor.
   //!
-  //! \param bUT If set to true, the date is initialized with Universal %Time instead
+  //! \param utc If set to true, the date is initialized with Universal %Time instead
   //! of local time.
   CurrentTime(bool utc=false);
 };
@@ -733,8 +737,7 @@ class YAT_DECL UnixTime : public Time
 public:
   //! \brief Constructor.
   //!
-  //! \param bUT If set to true, the date is initialized with Universal %Time instead
-  //! of local time.
+  //! \param unix_time input Unix time value
   UnixTime(double unix_time = 0.) : Time()
   {
     set_double_unix(unix_time);
@@ -840,7 +843,7 @@ public:
   Duration(yat::int64 microsecs) : m_microsecs(llabs(microsecs)) { }
 
   //! c-tor
-  //! \param double duration in seconds with microseconds precision
+  //! \param seconds duration in seconds with microseconds precision
   //! a negative value will be converted to positive one
   Duration(double seconds) : m_microsecs( yat::int64(fabs(seconds) * MICROSEC_PER_SEC) ) { }
 
@@ -889,14 +892,14 @@ public:
   ///
   /// Export duration to a string using this format:
   /// <d>d<sep><hh>h<sep><mm>m<sep><ss>s
-  /// @param field separator
+  /// \param sep field separator
   /// example: 1d:12h:05m:25s, with sep = ':'
   std::string to_string(char sep=':') const;
 
   ///
   /// Export duration to a string using this format:
   /// <d>d<sep><hh>h<sep><mm>m<sep><ss>s.micros
-  /// @param field separator
+  /// \param sep field separator
   /// example: 1d:12h:05m:25s.123, with sep = ':'
   std::string to_string_millis(char sep=':') const;
 

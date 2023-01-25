@@ -114,41 +114,47 @@ public:
   //! \brief Empty string - useful when need a const string &.
   static const std::string empty;
 
-  //! \brief Compares std::strings (i.e. operator==).
+  //! \brief Compares strings (i.e. operator==).
   //!
-  //! Returns true if std::strings are equal, false otherwise.
-  //! \param str The source std::string.
+  //! Returns true if strings are equal, false otherwise.
+  //! \param str The source string.
+  //! \param other The other string to compare with.
   static bool is_equal(const std::string& str, const std::string& other);
 
   //! \brief Compares std::string in a no case sensitive way.
   //!
-  //! Returns true if std::strings are equal, false otherwise.
-  //! \param str The source std::string.
+  //! Returns true if strings are equal, false otherwise.
+  //! \param str The source string.
+  //! \param other The other string to compare with.
   static bool is_equal_no_case(const std::string& str, const std::string& other);
 
   //! \brief Tests the first character.
   //!
-  //! Returns true if the std::string starts with this character, false otherwise.
-  //! \param c The character.
+  //! Returns true if the string starts with this character, false otherwise.
+  //! \param str The source string.
+  //! \param c The character to compare with.
   static bool starts_with(const std::string& str, char c);
 
   //! \brief Tests the first character with that of another std::string.
   //!
-  //! Returns true if the std::strings start with the same character, false otherwise.
-  //! \param pcszStart The source std::string.
+  //! Returns true if the strings start with the same character, false otherwise.
+  //! \param src The source string.
+  //! \param pcszStart The string fragment to compare with.
   //! \param bNoCase If set to true, the test is not case sensitive.
   static bool starts_with(const std::string& str, pcsz pcszStart, bool bNoCase=false);
 
   //! \brief Tests the last character.
   //!
-  //! Returns true if the std::string ends with this character, false otherwise.
+  //! Returns true if the string ends with this character, false otherwise.
+  //! \param str The source string.
   //! \param c The character.
   static bool ends_with(const std::string& str, char c);
 
   //! \brief Tests the last character with that of another std::string.
   //!
-  //! Returns true if the std::strings end with the same character, false otherwise.
-  //! \param pcszEnd The source std::string.
+  //! Returns true if the strings end with the same character, false otherwise.
+  //! \param str The source string.
+  //! \param pcszEnd The source string.
   //! \param bNoCase If set to true, the test is not case sensitive.
   static bool ends_with(const std::string& str, pcsz pcszEnd, bool bNoCase=false);
 
@@ -170,9 +176,10 @@ public:
   //!
   //! Returns the extraction status.\n
   //! The function looks for the first separator occurrence. The extracted token is removed from the std::string.
+  //! \param str_p The source string to extract from.
   //! \param c Separator.
-  //! \param[out] pstrToken %std::string object receiving the extracted token.
-  //! \param apply_escape Take care of '\' before c to escape it
+  //! \param[out] pstrToken %string object receiving the extracted token.
+  //! \param escape_char escape character to take care of.
   static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken,
                                        char escape_char);
   static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken);
@@ -181,9 +188,10 @@ public:
   //!
   //! Returns the extraction status.\n
   //! The function looks for the first separator occurrence. The extracted token is removed from the std::string.
+  //! \param str_p The source string to extract from.
   //! \param c Separator.
   //! \param[out] pstrToken Extracted token.
-  //! \param apply_escape Take care of '\' before c to escape it
+  //! \param escape_char escape character to take care of.
   static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken,
                                              char escape_char);
   static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken);
@@ -192,10 +200,11 @@ public:
   //!
   //! Returns the extraction status.\n
   //! The function looks for the first left separator occurrence. The extracted token is removed from the std::string.
+  //! \param str_p The source string to extract from.
   //! \param cLeft Left separator.
   //! \param cRight Right separator.
   //! \param[out] pstrToken Extracted token.
-  //! \param apply_escape Take care of '\' before cLeft/cRight to escape them
+  //! \param escape_char escape character to take care of.
   static ExtractTokenRes extract_token(std::string* str_p, char cLeft, char cRight,
                                        std::string *pstrToken, char escape_char);
   static ExtractTokenRes extract_token(std::string* str_p, char cLeft, char cRight,
@@ -205,10 +214,11 @@ public:
   //!
   //! Returns the extraction status.\n
   //! The function looks for the first left separator occurrence. The extracted token is removed from the std::string.
+  //! \param str_p The source string to extract from.
   //! \param cLeft Left separator.
   //! \param cRight Right separator.
   //! \param[out] pstrToken Extracted token.
-  //! \param apply_escape Take care of '\' before cLeft/cRight to escape them
+  //! \param escape_char escape character to take care of.
   static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight,
                                              std::string *pstrToken, char escape_char);
   static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight,
@@ -222,6 +232,7 @@ public:
   //! ex: RemoveEnclosure("'", "'") -\> removes quotes in a std::string like 'std::string'.
   //! ex: RemoveEnclosure("(\[", ")\]") -\> removes parenthesis in a std::string like (std::string) or \[std::string\]
   //! but not in std::string like (std::string\].
+  //! \param str_p The source string to extract from.
   //! \param pszLeft List of possible left enclosure characters.
   //! \param pszRight List of possible right enclosure characters.
   //! \remark \<pszLeft\> and \<pszRight\> must have the same length.
@@ -231,62 +242,75 @@ public:
   //!
   //! Returns true if enclosure was removed.
   //! ex: RemoveEnclosure("'", "'") -\> removes quotes in a std::string like 'std::string'.
+  //! \param str_p The source string to extract from.
   //! \param cLeft Left enclosure character.
   //! \param cRight Right enclosure character.
   static bool remove_enclosure(std::string* str_p, char cLeft, char cRight);
 
-  //! \brief Tests if std::string matches with mask containing '*' and '?' jokers.
+  //! \brief Tests if string matches with mask containing '*' and '?' jokers.
   //!
-  //! Returns true if std::string matches the mask, false otherwise. \n
+  //! Returns true if string matches the mask, false otherwise. \n
   //! The mask can contain:
   //! - '*': match any number of characters.
   //! - '?': match one character.
+  //! \param str The source string.
   //! \param pszMask The mask.
   //! \param pvectokens elements that match '*' and '?' can be pushed in a vector
   static bool match(const std::string& str, pcsz pszMask, std::vector<std::string> *pvectokens=0);
 
-  //! \brief Tests if std::string matches with mask containing '*' and '?' jokers.
+  //! \brief Tests if string matches with mask containing '*' and '?' jokers.
   //!
-  //! Returns true if std::string matches the mask, false otherwise. \n
+  //! Returns true if string matches the mask, false otherwise. \n
   //! The mask can contain:
   //! - '*': match any number of characters.
   //! - '?': match one character.
+  //! \param str The source string.
   //! \param pvectokens elements that match '*' and '?' can be pushed in a vector
   //! \param strMask The mask.
   static bool match(const std::string& str, const std::string &strMask, std::vector<std::string> *pvectokens=0);
 
   //! \brief Removes white spaces at beginning and end of string.
+  //! \param str_p input/output string.
   static void trim(std::string* str_p);
 
   //! \brief Removes white spaces at beginning of string.
+  //! \param str_p input/output string.
   static void trim_left(std::string* str_p);
 
   //! \brief Removes white spaces at end of string.
+  //! \param str_p input/output string.
   static void trim_right(std::string* str_p);
 
   //! \brief Removes white spaces at beginning and end of all strings in collection.
+  //! \param vec_p input/output strings vector.
   static void trim(std::vector<std::string>* vec_p);
 
   //! \brief Removes white spaces at end of all strings in collection.
+  //! \param vec_p input/output strings vector.
   static void trim_right(std::vector<std::string>* vec_p);
 
   //! \brief Removes white spaces at beginning of all strings in collection.
+  //! \param vec_p input/output strings vector.
   static void trim_left(std::vector<std::string>* vec_p);
 
   //! \brief Removes white spaces at beginning and end of all strings in collection.
+  //! \param vec_p input/output strings vector.
   static void trim(std::vector<yat::String>* vec_p);
 
   //! \brief Removes white spaces at end of all strings in collection.
+  //! \param vec_p input/output strings vector.
   static void trim_right(std::vector<yat::String>* vec_p);
 
   //! \brief Removes white spaces at beginning of all strings in collection.
+  //! \param vec_p input/output strings vector.
   static void trim_left(std::vector<yat::String>* vec_p);
 
-  //! \brief Splits the std::string.
+  //! \brief Splits the string.
   //!
-  //! The std::string is split in tokens separated with the specified separator.
+  //! The string is split in tokens separated with the specified separator.
   //! The extracted tokens are put in the std::string vector, while *this*
-  //! std::string is preserved.
+  //! string is preserved.
+  //! \param str_p input/output string.
   //! \param c Separator.
   //! \param[out] pvecstr Pointer to a vector of std::strings.
   //! \param clear_coll If set to true, the vector is cleared.
@@ -295,11 +319,12 @@ public:
   static void split(std::string* str_p, char c, std::vector<String> *pvecstr,
                     bool clear_coll=true);
 
-  //! \brief Splits the std::string.
+  //! \brief Splits the string.
   //!
-  //! The std::string is split in tokens separated with the specified separator.
+  //! The string is split in tokens separated with the specified separator.
   //! The extracted tokens are put in the std::string vector, while *this*
-  //! std::string ispreserved.
+  //! string ispreserved.
+  //! \param str input string.
   //! \param c Separator.
   //! \param[out] pvecstr Pointer to a vector of std::strings.
   //! \param clear_coll If set to true, the vector is cleared.
@@ -308,11 +333,12 @@ public:
   static void split(const std::string& str, char c, std::vector<String> *pvecstr,
                     bool clear_coll=true);
 
-  //! \brief Splits the std::string.
+  //! \brief Splits the string.
   //!
-  //! The std::string is split in tokens separated with the specified separator.
+  //! The string is split in tokens separated with the specified separator.
   //! The extracted tokens are put in the std::string deque, while *this*
-  //! std::string is preserved.
+  //! string is preserved.
+  //! \param str_p input/output string.
   //! \param c Separator.
   //! \param[out] p_deque Pointer to a vector of std::strings.
   //! \param clear_coll If set to true, the deque is cleared first.
@@ -323,9 +349,10 @@ public:
 
   //! \brief Splits the std::string.
   //!
-  //! The std::string is split in tokens separated with the specified separator.
+  //! The string is split in tokens separated with the specified separator.
   //! The extracted tokens are put in the std::string deque, while *this*
-  //! std::string is preserved.
+  //! string is preserved.
+  //! \param str input string.
   //! \param c Separator.
   //! \param[out] p_deque Pointer to a deque of std::strings.
   //! \param clear_coll If set to true, the deque is cleared first.
@@ -334,10 +361,11 @@ public:
   static void split(const std::string& str, char c, std::deque<String> *p_deque,
                     bool clear_coll=true);
 
-  //! \brief Splits the std::string.
+  //! \brief Splits the string.
   //!
-  //! The std::string is split in 2 tokens separated with the specified separator.
+  //! The string is split in 2 tokens separated with the specified separator.
   //!
+  //! \param str input string.
   //! \param c Separator.
   //! \param[out] pstrLeft Left part of the split std::string.
   //! \param[out] pstrRight Right part of the split std::string.
@@ -345,10 +373,11 @@ public:
   static void split(const std::string& str, char c, std::string *pstrLeft,
                     std::string *pstrRight, bool trim = false);
 
-  //! \brief Splits the std::string.
+  //! \brief Splits the string.
   //!
-  //! The std::string is split in 2 tokens separated with the specified separator.
+  //! The string is split in 2 tokens separated with the specified separator.
   //!
+  //! \param str_p input/output string.
   //! \param c Separator.
   //! \param[out] pstrLeft Left part of the split std::string.
   //! \param[out] pstrRight Right part of the split std::string.
@@ -360,6 +389,7 @@ public:
   //!
   //! Replaces *this* std::string with the result.
   //! For instance: join (\<str1, str2\>, ";") gives: str1;str2
+  //! \param str_p input/output string.
   //! \param vecStr The source vector.
   //! \param cSep %std::string separator.
   static void join(std::string* str_p, const std::vector<std::string> &vecStr,
@@ -381,6 +411,7 @@ public:
   //!
   //! Replaces *this* std::string with the result.
   //! For instance: join (\<str1, str2\>, ";") gives: str1;str2
+  //! \param str_p input/output string.
   //! \param deque The source deque.
   //! \param cSep %std::string separator.
   static void join(std::string* str_p, const std::deque<std::string> &deque,
@@ -399,54 +430,62 @@ public:
   //!
   //! For instance: std::string like "item1,item2,item3,...". \n
   //! Returns true if any item was found, false otherwise.
+  //! \param str_p input/output string.
   //! \param strItem Item to find and remove.
   //! \param cSep Items separator.
   static bool remove_item(std::string* str_p, const std::string &strItem,
                           char cSep=',');
 
   //! \brief Converts std::string to lowercase.
+  //! \param str_p input/output string.
   static void to_lower(std::string* str_p);
 
   //! \brief Converts std::string to uppercase.
+  //! \param str_p input/output string.
   static void to_upper(std::string* str_p);
 
   //! \brief Finds and replaces a std::string.
+  //! \param str_p input/output string.
   //! \param pszSrc %std::string to replace.
   //! \param pszDst Substitution std::string.
   static void replace(std::string* str_p, pcsz pszSrc, pcsz pszDst);
 
   //! \brief Finds and replaces one character.
   //!
+  //! \param str_p input/output string.
   //! \param cSrc Character to replace.
   //! \param cDst Substitution character.
   static void replace(std::string* str_p, char cSrc, char cDst);
 
   //! \brief Substitute occurences of characters by a single one
   //!
+  //! \param str_p input/output string.
   //! \param pszCharSet Characters set to substitute.
-  //! \param cDst Substitution character.
+  //! \param cReplacement Substitution character.
   static void substitute(std::string* str_p, pcsz pszCharSet, char cReplacement);
 
   //! \brief Remove occurences of characters
   //!
+  //! \param str_p input/output string.
   //! \param pszCharSet Characters set to remove.
-  //! \param cDst Substitution character.
   static void remove(std::string* str_p, pcsz pszCharSet);
 
   //! \brief Returns a 32 bits hash code.
+  //! \param str input string.
   static h32_t hash(const std::string& str);
 
   //! \brief Returns the hash code using the FNV-1a algorithm.
   //!
   //! Calculates a 64 bits hash code. See details of the algorithm
   //! on http://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function.
+  //! \param str input string.
   static h64_t hash64(const std::string& str);
 
   //! \brief Converts string content to numeric type \<_T\>.
   //!
   //! Returns the converted string in numeric type \<_T\>.
   //! Should also work for any "istringstream::operator>>" supported type.
-  //! \param _s The string to convert.
+  //! \param str The string to convert.
   //! \param _throw If set to true, throws an exception if conversion fails.
   //! \exception SOFTWARE_ERROR Thrown if conversion fails.
   template <class T>
@@ -478,6 +517,7 @@ public:
 
   //! \brief Converts from type \<T\> to std::string.
   //!
+  //! \param str_p input/output string.
   //! \param number The \<T\> type value to convert.
   //! \param _throw If set to true, throws an exception if conversion fails.
   //! \exception SOFTWARE_ERROR Thrown if conversion fails.
@@ -508,6 +548,7 @@ public:
   //!
   //! \param number The \<T\> type value to convert.
   //! \param _throw If set to true, throws an exception if conversion fails.
+  //! \return the number converted in string
   //! \exception SOFTWARE_ERROR Thrown if conversion fails.
   template <class T>
   static std::string to_string(const T& number, bool _throw = true)
@@ -535,15 +576,14 @@ public:
   //! \name Deprecated methods
   //@{
   static std::string str_format(pcsz pszFormat, ...);
-  static ExtractTokenRes extract_token(std::string* str_p, char c, std::string *pstrToken,
-                                       bool apply_escape);
-  static ExtractTokenRes extract_token_right(std::string* str_p, char c, std::string *pstrToken,
-                                             bool apply_escape);
-  static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight,
-                                             std::string *pstrToken, bool apply_escape);
-  static ExtractTokenRes extract_token(std::string* str_p, char cLeft, char cRight,
-                                       std::string *pstrToken, bool apply_escape);
-  static int printf(std::string* str_p, pcsz pszFormat, ...);
+  static ExtractTokenRes extract_token(std::string*, char, std::string*, bool);
+  static ExtractTokenRes extract_token_right(std::string*, char, std::string*,
+                                             bool);
+  static ExtractTokenRes extract_token_right(std::string*, char, char,
+                                             std::string*, bool);
+  static ExtractTokenRes extract_token(std::string*, char, char,
+                                       std::string*, bool);
+  static int printf(std::string*, pcsz, ...);
   static bool start_with(const std::string& str, char c)
   { return starts_with(str, c); }
   static bool start_with(const std::string& s, pcsz p, bool b=false)
@@ -860,7 +900,7 @@ public:
   //! Returns the extraction status.\n
   //! The function looks for the first separator occurrence. The extracted token is removed from the string.
   //! \param c Separator.
-  //! \param[out] pstrToken %String object receiving the extracted token.
+  //! \param[out] token_p %String object receiving the extracted token.
   //! \param apply_escape Take care of '\' before c to escape it
   ExtractTokenRes extract_token(char c, String *token_p, bool apply_escape=false)
   { return static_cast<ExtractTokenRes>(StringUtil::extract_token(&m_str, c, &(token_p->str()), apply_escape)); }
@@ -995,8 +1035,8 @@ public:
   //! The string is split in 2 tokens separated with the specified separator.
   //!
   //! \param c Separator.
-  //! \param[out] pstrLeft Left part of the split string.
-  //! \param[out] pstrRight Right part of the split string.
+  //! \param[out] left Left part of the split string.
+  //! \param[out] right Right part of the split string.
   //! \param trim Trim left & right parts.
   void split(char c, String *left, String *right, bool trim=false)
   { StringUtil::split(&m_str, c, &(left->m_str), &(right->m_str), trim); }
@@ -1018,8 +1058,8 @@ public:
   //!
   //! For instance: string like "item1,item2,item3,...". \n
   //! Returns true if any item was found, false otherwise.
-  //! \param item Item to find and remove.
-  //! \param cep Items separator.
+  //! \param[in] item Item to find and remove.
+  //! \param sep Items separator.
   bool remove_item(const std::string &item, char sep=',')
   { return StringUtil::remove_item(&m_str, item, sep); }
 
@@ -1164,7 +1204,7 @@ YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 //! argument_index    ::= integer
 //! format_spec       ::= <see below>
 //! \endcode
-//! \notice argument_index have to be used on all fields or none in a given
+//! \remark argument_index have to be used on all fields or none in a given
 //! format string, and, if used, must start at '0'.\n
 //! Mixing manual (with argument indexes) and automatic field indexing is not allowed.
 //!
@@ -1255,6 +1295,7 @@ public:
 
   //! \brief Constructor from a char pointer.
   //! \param psz Char pointer.
+  //! \param throw_exception if 'true' then throw in case of error.
   Format(const char *psz, bool throw_exception = true) : m_str(psz), m_arg_index(0), m_section_by_arg_idx(0),
                             m_null_fmt(NULL)
   {
@@ -1263,7 +1304,8 @@ public:
 
   //! \brief Constructor from char buffer.
   //! \param psz Char pointer.
-  //! \param size %Buffer size.
+  //! \param size Buffer size.
+  //! \param throw_exception if 'true' then throw in case of error.
   Format(const char *psz, int size, bool throw_exception = true) : m_str(psz, size),
                                       m_arg_index(0), m_section_by_arg_idx(0), m_null_fmt(NULL)
   {
@@ -1272,6 +1314,7 @@ public:
 
   //! \brief Copy Constructor.
   //! \param str The source string.
+  //! \param throw_exception if 'true' then throw in case of error.
   Format(const String &str, bool throw_exception = true) : m_str(str), m_arg_index(0), m_section_by_arg_idx(0), m_null_fmt(NULL)
   {
     parse(throw_exception);
@@ -1279,6 +1322,7 @@ public:
 
   //! \brief Constructor from std::string.
   //! \param str The string.
+  //! \param throw_exception if 'true' then throw in case of error.
   Format(const std::string &str, bool throw_exception = true) : m_str(str), m_arg_index(0),
                                    m_section_by_arg_idx(0), m_null_fmt(NULL)
   {

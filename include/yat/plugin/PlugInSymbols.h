@@ -69,7 +69,6 @@ public:
   //! \brief Creates a new \<Object\> type object.
   //! \param object A reference to a IPlugInObject pointer that will hold
   //! the address of the created object.
-  //! \param p A set of parameters to customize the object creation if necessary.
   virtual void create(IPlugInObject*& object,
                       const PlugInObjectParams&)
   {

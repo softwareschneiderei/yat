@@ -188,8 +188,9 @@ public:
 
   //! \brief Logs a message.
   //! \param eLevel Log level.
-  //! \param pszType %Message type.
-  //! \param strMsg %Message to log.
+  //! \param pszType Message type.
+  //! \param strMsg Message to log.
+  //! \param os_p Stream object to log message in.
   static void log(ELogLevel eLevel, pcsz pszType, const std::string &strMsg, std::ostream* os_p=0);
 
   //! \brief Gets the minimum log level taken into account.

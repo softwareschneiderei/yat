@@ -275,44 +275,46 @@ public:
   ~Regex();
 
   //! Returns the pattern
-  const yat::String& pattern() const { return m_pattern; }
+  const String& pattern() const { return m_pattern; }
 
   //! Check if whole string match the regex and fill match object
   //! \param str string to match
   //! \param match_p result object, may be null ptr if one not interested on sub-matchs
   //! \param mflags match flags
   //! \return true/false
-  bool match(const yat::String& str, Match* match_p = NULL, MatchFlags mflags = match_default);
+  bool match(const String& str, Match* match_p = NULL, MatchFlags mflags = match_default);
 
   //! Check if whole string match the regex and return a match object
   //! \param str string to match
   //! \param mflags match flags
   //! \return sharedptr on a match result object
-  MatchPtr match2(const yat::String& str, MatchFlags mflags = match_default);
+  MatchPtr match2(const String& str, MatchFlags mflags = match_default);
 
   //! Search for next match in the given string
   //! \param str matching string
-  //! \param result object
-  //! \param start_pos starting poition of searching
-  bool search(const yat::String& str, Match* match_p = NULL, MatchFlags mflags = match_default);
+  //! \param match_p result object, may be null ptr if one not interested on sub-matchs
+  //! \param mflags match flags
+  bool search(const String& str, Match* match_p = NULL, MatchFlags mflags = match_default);
 
   //! Search for all match in the given string
   //! \param str matching string
-  //! \param result_p objects
-  bool search(const yat::String& str, std::vector<Match>* match_p, MatchFlags mflags = match_default);
+  //! \param match_p result objects
+  //! \param mflags match flags
+  bool search(const String& str, std::vector<Match>* match_p, MatchFlags mflags = match_default);
 
   //! Replace pieces of text matching the regex in the input string
   //! \param input string to process
   //! \param replacement matching pieces replacement
+  //! \param mflags match flags
   //! \return output string
-  yat::String replace(const yat::String& input, const yat::String& replacement, MatchFlags mflags = match_default);
+  String replace(const String& input, const yat::String& replacement, MatchFlags mflags = match_default);
 
   //! Set the regex cache size (1 or 0 means no cache)
   //! \param s maximum number of items in cache
   static void set_cache_size(std::size_t s);
 
 private:
-  bool exec(const yat::String& str, Match* match_p, std::size_t start_pos,
+  bool exec(const String& str, Match* match_p, std::size_t start_pos,
             Regex::MatchFlags mflags, std::size_t req_len);
 
   void priv_init();

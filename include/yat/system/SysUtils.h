@@ -110,7 +110,7 @@ public:
   //!
   //! \remark Does the same as SysUtils::exec() function on a Windows plateform.
   //! \param script The full path to the script.
-  //! \param args Arguments passed to the script
+  //! \param args_vec Arguments passed to the script
   //! \param timeout in millisecs, if timout > 1000 then resolution down to second (i.e: 250 mean 250 millis, 2500 mean 2s, not 2.5s).
   //! \param is_timeout_p will be set to 'true' if the timer process finished first
   //! \return 0 on success, EXEC_ERROR_STATUS if the script can't be executed (not found, bad permissions,...) or the script error code

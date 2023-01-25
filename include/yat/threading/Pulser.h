@@ -197,25 +197,23 @@ public:
   //! \brief Starts the pulser.
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
-  //! \param sync if set then use wait_msg_handled to ensure the start action is done before return
   virtual void start ();
 
   //! \brief Stops the pulser.
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
-  //! \param sync if set then use wait_msg_handled to ensure the stop action is done before return
   virtual void stop ();
 
   //! \brief Starts the pulser synchronously.
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
-  //! \notice Ensure the start action is done before return
+  //! \remark Ensure the start action is done before return
   virtual void start_sync ();
 
   //! \brief Stops the pulser synchronously.
   //!
   //! \exception An exception is thrown in case the pulser initialization failed.
-  //! \notice Ensure the stop action is done before return
+  //! \remark Ensure the stop action is done before return
   virtual void stop_sync ();
 
   //! \brief Changes the pulser's period.
@@ -236,7 +234,7 @@ public:
   void suspend ();
 
   //! \brief Suspends the Pulser activity synchronously
-  //! \notice Ensure the suspend action is done before return
+  //! \remark Ensure the suspend action is done before return
   void suspend_sync ();
 
   //! \brief Check the Pulser activity
@@ -249,7 +247,7 @@ public:
   void resume ();
 
   //! \brief Resumes the Pulser activity synchronously
-  //! \notice Ensure the resume action is done before return
+  //! \remark Ensure the resume action is done before return
   void resume_sync ();
 
 private:

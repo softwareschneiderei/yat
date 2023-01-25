@@ -230,13 +230,13 @@ private:
 struct ThreadExiter
 {
   //! \brief operator().
-  //! \param object The object to delete.
-  void operator()(Thread* thread)
+  //! \param thread_p Pointer to the thread object to delete.
+  void operator()(Thread* thread_p)
   {
     try
     {
-      YAT_LOG( "Exiting Thread object @" << (void*)thread );
-      thread->exit();
+      YAT_LOG( "Exiting Thread object @" << (void*)thread_p );
+      thread_p->exit();
     }
     catch(...)
     {

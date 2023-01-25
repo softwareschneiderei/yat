@@ -191,8 +191,8 @@ public:
   { }
 
   //! \brief Constructor.
-  //! \param pcszDesc Exception description.
-  //! \param pcszOrigin Exception origin.
+  //! \param desc Exception description.
+  //! \param origin Exception origin.
   IOException(const std::string& desc, const std::string& origin):
   yat::Exception("IO_ERROR", desc, origin)
   { }
@@ -526,17 +526,18 @@ public:
   //! \brief Constructor from file name.
   //!
   //! The specified name can be a path name, a file name or a full path file name.
-  //! \param strFileName %File name.
+  //! \param strFileName File name.
   FileName(const std::string& strFileName): m_progress_target_p(0) { set(strFileName); }
 
   //! \brief Constructor from file and path names.
   //! \param strPath Path name.
-  //! \param strName %File name.
+  //! \param strName File name.
   FileName(const std::string& strPath, const std::string& strName): m_progress_target_p(0)  { set(strPath, strName); }
 
   //! \brief Constructor from file, extension and path names.
   //! \param strPath Path name.
-  //! \param strName %File name.
+  //! \param strName File name.
+  //! \param strExt File name extension.
   FileName(const std::string& strPath, const std::string& strName, const std::string& strExt): m_progress_target_p(0)  { set(strPath, strName, strExt); }
 
   //! \brief virtual d-tor
@@ -725,7 +726,7 @@ public:
 
   //! \brief Copies the file to the specified destination.
   //! \param strDest Destination file.
-  //! \param bKeepMetaData If set to true and uid is root, the copy keeps metadata
+  //! \param keep_metadata If set to true and uid is root, the copy keeps metadata
   //! (access mode, owner & group). Metadata are not kept otherwise.
   //! \exception FILE_NOT_FOUND Thrown if *this* file doesn't exist.
   //! \exception FILE_ERROR Thrown if file copy fails.
@@ -736,7 +737,7 @@ public:
   //! \brief Copies the file to the specified destination.
   //! \param strDest Destination file.
   //! \param md5sum_str_p String that will contains the md5sum of the source file
-  //! \param bKeepMetaData If set to true and uid is root, the copy keeps metadata
+  //! \param keep_metadata If set to true and uid is root, the copy keeps metadata
   //! (access mode, owner & group). Metadata are not kept otherwise.
   //! \exception FILE_NOT_FOUND Thrown if *this* file doesn't exist.
   //! \exception FILE_ERROR Thrown if file copy fails.
@@ -754,6 +755,8 @@ public:
   //! \brief Returns file last modification date & time.
   //! \param pTm Last modification time (in yat::Time format).
   //! \param bLocalTime If set to true, converts date & time to local time.
+  //! \param stat_link If set to true, then it returns information about the link
+  //! itself, not the file that it refers to.
   //! \exception FILE_ERROR Thrown if file information access fails.
   //! Specific WIN32 error : file handle creation fails.
   void mod_time(Time *pTm, bool bLocalTime=false, bool stat_link=false) const
@@ -768,6 +771,8 @@ public:
 
   //! \brief get information about the current path
   //! \param info_p FileName::Info class
+  //! \param follow_link if 'true' and if the file is actually a link,
+  //! then return information about the file that the refer to.
   void info( Info* info_p, bool follow_link=true ) const;
 
   //! \brief Changes file rights.
@@ -872,7 +877,7 @@ class YAT_DECL File: public FileName
   { set(strFileName); }
 
   //! \brief Constructor from full file name.
-  //! \param strFileName %File name.
+  //! \param file_name %File name.
   File(const FileName& file_name) : FileName(file_name) {}
 
   //! \brief Constructor from path and file name.
@@ -1138,6 +1143,7 @@ public:
   //!
   //! Returns nil string if value name not found in the section.
   //! \param strParamName Value name.
+  //! \param throw_exception if 'true' then throw in case of error.
   std::string get_param_value(const std::string& strParamName, bool throw_exception=false) const;
 
 };
@@ -1363,7 +1369,6 @@ private:
 //! yat::fcout("{/n}").arg(fn): will output "test"
 //! yat::fcout("{/ne}").arg(t): will output "test.txt"
 //! yat::fcout("{/dn}").arg(t): will output "tmp"
-//! yat::fcout("{/s}").arg(t): will output the file size in bytes
 //! \endcode
 //==================================================================================================
 template<>

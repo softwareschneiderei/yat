@@ -74,6 +74,8 @@ typedef enum
 //! Provides a "do nothing" Mutex implementation. May be used as template argument
 //! in order to control the template instanciation and avoiding locking
 //! overhead where thread safety is not required.\n
+//!
+//! \verbatim
 //!    template <typename LOCK> class OptionalThreadSafetyImpl\n
 //!    {\n
 //!    public:\n
@@ -85,6 +87,7 @@ typedef enum
 //!    private:\n
 //!      LOCK m_mutex;\n
 //!    };\n
+//! \endverbatim
 //!
 //! OptionalThreadSafetyImpl<yat::Mutex> will be thread safe while...
 //! OptionalThreadSafetyImpl<yat::NullMutex> will not be!

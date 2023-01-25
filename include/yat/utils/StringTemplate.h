@@ -116,21 +116,21 @@ private:
 
 public:
   //! \brief Constructor.
-  //! \param eNotFoundReplacement %Template not found strategy.
+  //! \param not_found_replacement %Template not found strategy.
   StringTemplate(NotFoundReplacement not_found_replacement = SYMBOL_NAME) : m_not_found_replacement(not_found_replacement) {}
 
   //! \brief Adds a symbol interpreter.
-  //! \param pInterpreter Symbol interpreter.
+  //! \param interpreter_p Symbol interpreter.
   void add_symbol_interpreter(ISymbolInterpreter* interpreter_p);
 
   //! \brief Removes a symbol interpreter.
-  //! \param pInterpreter Symbol interpreter.
+  //! \param interpreter_p Symbol interpreter.
   void remove_symbol_interpreter(ISymbolInterpreter* interpreter_p);
 
   //! \brief Replaces a variable by its real value.
   //!
   //! Returns true if evaluation is done, false otherwise.
-  //! \param[in,out] pstrSymbol Symbol to evaluate, will contain the result.
+  //! \param[in,out] variable_p Symbol to evaluate, will contain the result.
   bool value(std::string* variable_p);
 
   //! \brief Processes a template string.

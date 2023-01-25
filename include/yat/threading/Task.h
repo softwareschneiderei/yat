@@ -288,7 +288,7 @@ public:
   bool timeout_msg_enabled () const;
 
   //! \brief Periodic message period mutator.
-  //! \param p_msecs Period in ms.
+  //! \param ms Period in ms.
   void set_periodic_msg_period (double ms);
 
   //! \brief Periodic message period accessor.
@@ -472,8 +472,8 @@ template <typename T> void Task::wait_msg_handled (size_t msg_type,
 struct YAT_DECL TaskExiter
 {
   //! \brief operator().
-  //! \param object The object to delete.
-  void operator()(Task* task);
+  //! \param task_p Pointer to the task object to delete.
+  void operator()(Task* task_p);
 };
 
 } // namespace

@@ -55,8 +55,8 @@ namespace yat
 //! \class UniquePtr
 //! \brief A C++03 emulation of the C++11 unique_ptr
 //!
-//! \notice Due to C++ 03 limitation some bad things can't be forbidden:
-//! \notice The copy constructor exists but should not be used
+//! \remark Due to C++ 03 limitation some bad things can't be forbidden:
+//! \remark The copy constructor exists but should not be used
 //!
 //! \verbatim
 //! Allocate an object and give ownership to an UniquePtr
@@ -120,7 +120,7 @@ public:
 
   //! \brief Copy constructor from same data type \<T\>.
   //! \param s The source pointer.
-  //! \notice the owner ship is transfered to the new object
+  //! \remark the owner ship is transfered to the new object
   UniquePtr(const ThisType & s)
     : m_p(s.m_p), m_deleter(s.m_deleter)
   {
@@ -132,8 +132,8 @@ public:
   //! \brief Copy constructor from other data type \<Y\>.
   //! \param s The source pointer.
   //! \exception BAD_CAST Thrown if type \<Y\> is not compatible with type \<T\>.
-  //! \notice the owner ship is transfered to the new object
-  //! \notice Deleter objects must be the same
+  //! \remark the owner ship is transfered to the new object
+  //! \remark Deleter objects must be the same
   template<typename Y>
   UniquePtr(const UniquePtr<Y> & s)
   {
@@ -193,7 +193,6 @@ public:
   }
 
   //! \brief Resets pointer with new type \<T\> data.
-  //! \param p New pointed data.
   T* release()
   {
     PTR_DBG("UniquePtr<T>::release(" << std::hex << (void*)m_p << ")");

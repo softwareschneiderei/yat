@@ -61,7 +61,7 @@ public:
   {};
 
   //! \brief Executes operation with \<P\> as argument.
-  //! \param p Template type \<P\> argument.
+  //! \param P Template type \<P\> argument.
   virtual void operator() (P) const = 0;
 
   //! \brief Deep copy.

@@ -209,6 +209,7 @@ public:
   //! Returns the actual number of bytes received.
   //! \param ib The buffer in which the data will be placed.
   //! \param nb The number of bytes to read.
+  //! \param src_addr The socket address
   //! \exception SOCKET_ERROR Thrown when:
   //! - connection has been reset/closed by peer or
   //! - operation may block the caller (for non blocking socket) or
@@ -219,6 +220,7 @@ public:
   //!
   //! Returns the actual number of bytes received.
   //! \param ib The buffer in which the data will be placed.
+  //! \param src_addr The socket address
   //! \exception SOCKET_ERROR Thrown when:
   //! - destination buffer has a null capacity or
   //! - connection has been reset/closed by peer or
@@ -232,6 +234,7 @@ public:
   //!
   //! Returns the actual number of bytes received.
   //! \param is The string in which the data will be placed.
+  //! \param src_addr The socket address
   //! \exception SOCKET_ERROR Thrown when:
   //! - buffer reallocation fails or
   //! - string assignment fails or
