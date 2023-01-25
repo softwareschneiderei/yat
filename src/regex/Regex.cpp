@@ -370,13 +370,15 @@ bool Regex::search(const yat::String& str, std::vector<Match>* matchs_p,
 {
   bool is_match = false;
   std::size_t start_pos = 0;
-  matchs_p->clear();
+  if( matchs_p )
+    matchs_p->clear();
   while( true )
   {
     Regex::Match match;
     if( exec(str, &match, start_pos, mflags, 0) )
     {
-      matchs_p->push_back(match);
+      if( matchs_p )
+        matchs_p->push_back(match);
       start_pos = match.position() + match.length();
       is_match = true;
     }
