@@ -1530,48 +1530,6 @@ public:
                              char default_type = 0, bool force_type = false);
 };
 
-template<> struct Format::Formatter<std::string>
-{
-  void operator()(const std::string& v, std::ostream &oss, const Format::Context& fc);
-};
-
-template<> struct Format::Formatter<String>
-{
-  void operator()(const String& v, std::ostream &oss, const Format::Context& fc);
-};
-
-#ifdef YAT_LINUX
-template<> struct Format::Formatter<int8>
-{
-  void operator()(const int8& v, std::ostream &oss, const Format::Context& fc);
-};
-#endif
-
-template<> struct Format::Formatter<char>
-{
-  void operator()(const char& v, std::ostream &oss, const Format::Context& fc);
-};
-
-template<> struct Format::Formatter<unsigned char>
-{
-  void operator()(const unsigned char& v, std::ostream &oss, const Format::Context& fc);
-};
-
-template<> struct Format::Formatter<bool>
-{
-  void operator()(const bool& v, std::ostream &oss, const Format::Context& fc);
-};
-
-template<> struct Format::Formatter<double>
-{
-  void operator()(const double& v, std::ostream &oss, const Format::Context& fc);
-};
-
-template<> struct Format::Formatter<float>
-{
-  void operator()(const float& v, std::ostream &oss, const Format::Context& fc);
-};
-
 //==================================================================================================
 //! \brief for using with yat::Format class
 //!

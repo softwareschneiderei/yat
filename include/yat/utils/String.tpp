@@ -260,6 +260,116 @@ void Format::output_hex_value(const T& v, std::ostream &oss, const Format::Conte
   delete [] sz;
 }
 
+template<> struct Format::Formatter<std::string>
+{
+  void operator()(const std::string& v, std::ostream &oss, const Format::Context& fc)
+  {
+    prepare_format(oss, fc, 's', true);
+    oss << v;
+  }
+};
+
+template<> struct Format::Formatter<String>
+{
+  void operator()(const String& v, std::ostream &oss, const Format::Context& fc)
+  {
+    prepare_format(oss, fc, 's', true);
+    oss << v;
+  }
+};
+
+#ifdef YAT_LINUX
+template<> struct Format::Formatter<int8>
+{
+  void operator()(const int8& v, std::ostream &oss, const Format::Context& fc)
+  {
+    prepare_format(oss, fc);
+    if( 'B' == fc.type )
+      output_binary_value(v, oss, fc);
+    else if( 'o' == fc.type )
+      output_octal_value(v, oss, fc);
+    else if( 'X' == fc.type || 'x' == fc.type )
+      output_hex_value(v, oss, fc);
+    else if( 'd' == fc.type )
+      oss << int(v);
+    else
+      oss << v;
+  }
+};
+#endif
+
+template<> struct Format::Formatter<char>
+{
+  void operator()(const char& v, std::ostream &oss, const Format::Context& fc)
+  {
+    prepare_format(oss, fc);
+    if( 'B' == fc.type )
+      output_binary_value(v, oss, fc);
+    else if( 'o' == fc.type )
+      output_octal_value(v, oss, fc);
+    else if( 'X' == fc.type || 'x' == fc.type )
+      output_hex_value(v, oss, fc);
+    else if( 'd' == fc.type )
+      oss << int(v);
+    else
+      oss << v;
+  }
+};
+
+template<> struct Format::Formatter<unsigned char>
+{
+  void operator()(const unsigned char& v, std::ostream &oss, const Format::Context& fc)
+  {
+    prepare_format(oss, fc);
+    if( 'B' == fc.type )
+      output_binary_value(v, oss, fc);
+    else if( 'o' == fc.type )
+      output_octal_value(v, oss, fc);
+    else if( 'X' == fc.type || 'x' == fc.type )
+      output_hex_value(v, oss, fc);
+    else if( 'd' == fc.type )
+      oss << int(v);
+    else
+      oss << v;
+  }
+};
+
+template<> struct Format::Formatter<bool>
+{
+  void operator()(const bool& v, std::ostream &oss, const Format::Context& fc)
+  {
+    prepare_format(oss, fc, 'b');
+    oss << v;
+  }
+};
+
+template<> struct Format::Formatter<double>
+{
+  void operator()(const double& v, std::ostream &oss, const Format::Context& fc)
+  {
+    prepare_format(oss, fc);
+
+    if( '%' == fc.type )
+      output_percent_value(v, oss, fc);
+    else
+      oss << v;
+  }
+};
+
+template<> struct Format::Formatter<float>
+{
+  void operator()(const float& v, std::ostream &oss, const Format::Context& fc)
+  {
+    prepare_format(oss, fc);
+
+    if( '%' == fc.type )
+      output_percent_value(v, oss, fc);
+    else
+      oss << v;
+  }
+};
+
+
 } // namespace
 
 #endif
