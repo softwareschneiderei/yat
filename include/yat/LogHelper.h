@@ -52,7 +52,7 @@
 # if defined (YAT_ENABLE_TRACE)
     namespace yat
     {
-      class YAT_DECL TraceHelper
+      class TraceHelper
       {
       public:
         TraceHelper(const char* _func_name, const void * _this = 0 )
