@@ -161,6 +161,7 @@ public:
     m_ignored_events = 0;
     m_expected_events = n;
     m_mode = n ? UDP_FINITE : UDP_INFINITE;
+    m_start_tmr.restart();
   }
 
   //--------------------------------------------------------
@@ -259,12 +260,15 @@ protected:
     //- input data buffer
     yat::Socket::Data ib(2048);
 
+    //- Effective timout, can be different in order to manage a start while the wait of data.
+    yat::uint32 udp_tmo_ms = m_cfg.udp_tmo_ms;
+
     //- (almost) infinite reading loop
     yat::uint32 udp_evt_number = 0;
     while ( m_go_on )
     {
       //- wait for some input data
-      if ( sock.wait_input_data(m_cfg.udp_tmo_ms, false) )
+      if ( sock.wait_input_data(udp_tmo_ms, false) )
       {
         //- read input data
         yat::uint32  rb = sock.receive_from(ib);
@@ -321,6 +325,21 @@ protected:
         //- are we running?
         if ( m_mode == UDP_STANDBY )
           continue;
+
+        //- is it too soon? It should be true only once for the first timeout after the start.
+        double remain_for_true_timeout = m_cfg.udp_tmo_ms - m_start_tmr.elapsed_msec();
+        yat::fcout("remain_for_true_timeout={}").arg(remain_for_true_timeout);
+        if (remain_for_true_timeout > 0)
+        {
+          //- it's too soon, the timeout is set to a shorter value to compensate and we exit the iteration.
+          udp_tmo_ms = remain_for_true_timeout;
+          continue;
+        }
+        else
+        {
+          udp_tmo_ms = m_cfg.udp_tmo_ms;
+        }
+
         //- call 'tmo' callback (if any)
         if ( ! m_cfg.tmo_callback.is_empty() )
         {
@@ -345,6 +364,7 @@ private:
   yat::uint32 m_ignored_events;
   yat::uint32 m_total_ignored_events;
   UDPListener::Config m_cfg;
+  yat::Timer m_start_tmr;
 };
 
 } //- namespace yat
