@@ -1338,6 +1338,9 @@ public:
   //! Get final string
   String& get() const;
 
+  //! Get final string as c-string
+  const char* cget() const;
+
   // ============================================================================
   //! \class Context
   //! \brief decoded standard format specification of a replacement field
