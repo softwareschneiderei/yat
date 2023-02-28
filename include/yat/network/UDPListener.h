@@ -328,7 +328,6 @@ protected:
 
         //- is it too soon? It should be true only once for the first timeout after the start.
         double remain_for_true_timeout = m_cfg.udp_tmo_ms - m_start_tmr.elapsed_msec();
-        yat::fcout("remain_for_true_timeout={}").arg(remain_for_true_timeout);
         if (remain_for_true_timeout > 0)
         {
           //- it's too soon, the timeout is set to a shorter value to compensate and we exit the iteration.
