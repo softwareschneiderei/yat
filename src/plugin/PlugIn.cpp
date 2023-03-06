@@ -93,11 +93,9 @@ IPlugInInfo::~IPlugInInfo()
 //==============================================================================
 // PlugIn::PlugIn
 //==============================================================================
-PlugIn::PlugIn( const std::string &library_file_name )
-  : m_libraryHandle( NULL )
-  , m_libraryName( library_file_name )
+PlugIn::PlugIn( const std::string &library_file_name ) : PlugInBase(library_file_name)
 {
-  this->load_library( library_file_name );
+  load_library( library_file_name );
 }
 
 //==============================================================================
@@ -105,7 +103,7 @@ PlugIn::PlugIn( const std::string &library_file_name )
 //==============================================================================
 PlugIn::~PlugIn()
 {
-  this->release_library();
+  release_library();
 }
 
 //==============================================================================
@@ -174,28 +172,6 @@ IPlugInFactory* PlugIn::factory()
                     "PlugIn::factory");
   }
   return factory;
-}
-
-
-//==============================================================================
-// PlugIn::find_symbol
-//==============================================================================
-PlugIn::Symbol PlugIn::find_symbol( const std::string &symbol )
-{
-  try
-  {
-    Symbol symbol_pointer = this->do_find_symbol( symbol );
-    if ( symbol_pointer != NULL )
-      return symbol_pointer;
-  }
-  catch ( ... )
-  {
-  }
-
-  THROW_YAT_ERROR("SHAREDLIBRARY_ERROR",
-                  "Unable to find the requested symbol",
-                  "PlugIn::find_symbol");
-  return NULL;    // keep compiler happy
 }
 
 //==============================================================================

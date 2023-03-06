@@ -40,7 +40,7 @@
 // ============================================================================
 // DEPENDENCIES
 // ============================================================================
-#include <yat/plugin/PlugIn.h>
+#include <yat/plugin/PlugInBase.h>
 
 #ifdef YAT_WIN32
 
@@ -49,42 +49,42 @@ namespace yat
 {
 
 //-----------------------------------------------------------------------------
-// PlugIn::do_load_library
+// PlugInBase::do_load_library
 //-----------------------------------------------------------------------------
-PlugIn::LibraryHandle PlugIn::do_load_library( const std::string &library_file_name )
+PlugInBase::LibraryHandle PlugInBase::do_load_library( const std::string &library_file_name )
 {
-  PlugIn::LibraryHandle h = ::LoadLibrary( library_file_name.c_str() );
+  PlugInBase::LibraryHandle h = ::LoadLibrary( library_file_name.c_str() );
   if( NULL == h )
   {
     THROW_YAT_ERROR(std::string("SHAREDLIBRARY_ERROR"),
                     get_last_error_detail(),
-                    std::string("PlugIn::load_library"));
+                    std::string("PlugInBase::load_library"));
   }
   return h;
 }
 
 //-----------------------------------------------------------------------------
-// PlugIn::do_release_library
+// PlugInBase::do_release_library
 //-----------------------------------------------------------------------------
-void PlugIn::do_release_library()
+void PlugInBase::do_release_library()
 {
   ::FreeLibrary( static_cast<HINSTANCE>(m_libraryHandle) );
 }
 
 //-----------------------------------------------------------------------------
-// PlugIn::do_find_symbol
+// PlugInBase::do_find_symbol
 //-----------------------------------------------------------------------------
-PlugIn::Symbol PlugIn::do_find_symbol( const std::string &symbol )
+PlugInBase::Symbol PlugInBase::do_find_symbol( const std::string &symbol )
 {
   FARPROC far_proc = ::GetProcAddress( static_cast<HINSTANCE>(m_libraryHandle),
                                        symbol.c_str() );
-  return static_cast<PlugIn::Symbol>(far_proc);
+  return static_cast<PlugInBase::Symbol>(far_proc);
 }
 
 //-----------------------------------------------------------------------------
-// PlugIn::get_last_error_detail
+// PlugInBase::get_last_error_detail
 //-----------------------------------------------------------------------------
-std::string PlugIn::get_last_error_detail() const
+std::string PlugInBase::get_last_error_detail() const
 {
   LPVOID lp_msg_buf;
   ::FormatMessage(

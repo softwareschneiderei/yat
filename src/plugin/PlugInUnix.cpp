@@ -44,7 +44,7 @@
 // ============================================================================
 // DEPENDENCIES
 // ============================================================================
-#include <yat/plugin/PlugIn.h>
+#include <yat/plugin/PlugInBase.h>
 
 
 #if defined(YAT_LINUX) || defined(YAT_MACOSX)
@@ -57,40 +57,40 @@ namespace yat
 {
 
 //-----------------------------------------------------------------------------
-// PlugIn::do_load_library
+// PlugInBase::do_load_library
 //-----------------------------------------------------------------------------
-PlugIn::LibraryHandle PlugIn::do_load_library( const std::string &library_file_name )
+PlugInBase::LibraryHandle PlugInBase::do_load_library( const std::string &library_file_name )
 {
-  PlugIn::LibraryHandle handle = ::dlopen( library_file_name.c_str(), RTLD_NOW | RTLD_GLOBAL );
+  PlugInBase::LibraryHandle handle = ::dlopen( library_file_name.c_str(), RTLD_NOW | RTLD_GLOBAL );
   if( NULL == handle )
   {
     THROW_YAT_ERROR( std::string("SHAREDLIBRARY_ERROR"),
                      std::string(::dlerror()),
-                     std::string("PlugIn::do_load_library") );
+                     std::string("PlugInBase::do_load_library") );
   }
   return handle;
 }
 
 //-----------------------------------------------------------------------------
-// PlugIn::do_release_library
+// PlugInBase::do_release_library
 //-----------------------------------------------------------------------------
-void PlugIn::do_release_library()
+void PlugInBase::do_release_library()
 {
   ::dlclose( m_libraryHandle);
 }
 
 //-----------------------------------------------------------------------------
-// PlugIn::do_find_symbol
+// PlugInBase::do_find_symbol
 //-----------------------------------------------------------------------------
-PlugIn::Symbol PlugIn::do_find_symbol( const std::string &symbol )
+PlugInBase::Symbol PlugInBase::do_find_symbol( const std::string &symbol )
 {
   return ::dlsym ( m_libraryHandle, symbol.c_str() );
 }
 
 //-----------------------------------------------------------------------------
-// PlugIn::get_last_error_detail
+// PlugInBase::get_last_error_detail
 //-----------------------------------------------------------------------------
-std::string PlugIn::get_last_error_detail() const
+std::string PlugInBase::get_last_error_detail() const
 {
   return ::dlerror();
 }
