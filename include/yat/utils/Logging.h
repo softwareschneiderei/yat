@@ -320,8 +320,11 @@ public:
 //@{
 
 //! \brief log a verbose message with format
+//! \remark when using the short syntax, please not that the ',' is after
+//!         right parenthesis
 //! \verbatim
 //! yat::verbose("A message with an argument value: {}.").arg(value);
+//! yat::info("A message with an argument value: {}."), value;
 //! yat::verbose("A simple message");
 //! \endverbatim
 class LogFormat YAT_DECL verbose(const std::string& msg_fmt);
@@ -343,6 +346,12 @@ class LogFormat YAT_DECL emergency(const std::string& msg_fmt);
 class LogFormat YAT_DECL critical(const std::string& msg_fmt);
 
 //! \brief log a formatted message on std::cout stream
+//! \remark when using the short syntax, please not that the ',' is after
+//!         right parenthesis
+//! \verbatim
+//! yat::fcout("A log message with an argument value: {}."), value;
+//! yat::fcout("A simple log message");
+//! \endverbatim
 class LogFormat YAT_DECL fcout(const std::string& msg_fmt);
 //! \brief log a formatted message on std::cerr stream
 class LogFormat YAT_DECL fcerr(const std::string& msg_fmt);
@@ -379,6 +388,15 @@ public:
     try { Format::arg(p); }
     catch(...) {}
     return *this;
+  }
+
+  template<typename T> LogFormat& operator,(const T& v)
+  {
+    return arg(v);
+  }
+  template<typename T> LogFormat& operator,(T* p)
+  {
+    return arg(p);
   }
 
   ~LogFormat()

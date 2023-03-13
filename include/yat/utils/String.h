@@ -1385,6 +1385,14 @@ public:
     return *this;
   }
 
+  //! \brief Apply format using shorter syntax
+  //!
+  //! \param v the value argument
+  template<typename T> Format& operator%(const T& v)
+  {
+    return arg(v);
+  }
+
   //! \brief Apply format for any pointers type
   //!
   //! Output pointer address\n
@@ -1400,6 +1408,17 @@ public:
       m_replacements[PTR2INT(section_p)] = m_oss.str();
     }
     return *this;
+  }
+
+  //! \brief Apply format for any pointers type, shorter syntax
+  //!
+  //! Output pointer address\n
+  //! 'p' output type may be omitted in format specification.
+  //!
+  //! \param p the pointeur value argument
+  template<typename T> Format& operator%(T* p)
+  {
+    return arg(p);
   }
 
   //! \brief arg specialization for C-string pointer
