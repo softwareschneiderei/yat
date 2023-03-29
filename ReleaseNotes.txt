@@ -1,5 +1,28 @@
 YAT history file
 
+1.19.6 (2023/mm/dd)
+===================
+
+Fixes
+    class UDPListener
+        Fixed timeout that may occure if start() method is called long after
+        call to start_undetached()
+
+Additions
+    classes CPlugIn, CPlugInManager
+    New pure-C plug-ins manager
+
+    class Format
+        operator%() defined in order to shorter the syntax used to pass format
+        arguments
+        cget() return formatted string as const char*
+    -> see <yat/utils/String.h>
+
+    Log functions
+        operator,() defined in order to shorter the syntax used to pass format
+        arguments
+
+
 1.19.5 (2022/12/15)
 ===================
 
@@ -19,7 +42,7 @@ Changes
 1.19.3 (2022/09/28)
 ===================
 
-Changes:
+Changes
     classes UDPListener & UDPTrigger
         Use valid default values in config c-tor
         Better check of configuration values
@@ -31,12 +54,12 @@ Changes:
     class URI
         URI(const URI::Field&) c-tor now throw in case of bad field value
 
-Additions:
+Additions
     class URI
         new utility method is_ipv4
     -> see <yat/utils/URI.h>
 
-Fixes:
+Fixes
     class Socket
         return value from get_option() is now Socket::TCP_PROTOCOL or
         Socket::UDP_PROTOCOL
@@ -44,7 +67,7 @@ Fixes:
 1.19.2 (2022/07/20)
 ===================
 
-Changes:
+Changes
     class Task
         Task::post methods now return the value returned by MessageQ::post
         in order to be able to know if a message was properly posted,
@@ -55,7 +78,7 @@ Changes:
         pointer value output: '{p}' now truncate zeros, but '{0p}' does not.
     -> see <yat/utils/String.h>
 
-Additions:
+Additions
     Added formatter for SharedPtr. It allow to output object address
         yat::Format("{}").arg(my_shared_ptr) -> address of SharedPtr object
         yat::Format("{}").arg(my_shared_ptr.get()) -> address of pointed object
@@ -69,7 +92,7 @@ Additions:
 1.19.0 (2022/07/08)
 ===================
 
-Fixes:
+Fixes
     class Pulser
         Synchronization between Pulser config and PulserCoreImpl
 
@@ -82,7 +105,7 @@ Fixes:
     class Atomic
         was unusable due to bad header file!
 
-Changes:
+Changes
     class Format
         Complete rewriting for better performances (~x5 speedup) and thread-safety
         Several fixes
@@ -91,7 +114,7 @@ Changes:
         with custom format specification ability
     -> see <yat/utils/String.h>
 
-Additions:
+Additions
     new YAT_PTR_BYTES_LEN define value
     -> see <yat/config-linux.h>
     -> see <yat/config-win32.h>
@@ -130,7 +153,7 @@ Additions:
 1.18.9 (2022/04/22)
 ===================
 
-Fixes:
+Fixes
     class Barrier
         Documentation was wrong: a barrier object is not re-usable
     -> see <yat/threading/Barrier.h>
@@ -155,7 +178,7 @@ Fixes:
     class Duration
         any negative value passed in c-tor is automatically converted to positive one
 
-Changes:
+Changes
     class FileName
         file_access() now take an optional argument defing the access type to check
     -> see <yat/file/FileName.h>
@@ -163,7 +186,7 @@ Changes:
 1.18.8 (2022/02/14)
 ===================
 
-Additions:
+Additions
     class Atomic<T>
         Fully inspired by std::atomic. This class is aimed to offer the same
         functionality as std::atomic. 1st implementation is non-lock free,
@@ -173,18 +196,18 @@ Additions:
 1.18.7 (2021/12/01)
 ===================
 
-Fixes:
+Fixes
     class Time
         Timezone bias was not properly read from the system
 
-Changes:
+Changes
     StringTemplate now accept to substition string with "$var" when the variable
     name is not followed by an alphanumeric character
 
 1.18.6 (2021/09/21)
 ===================
 
-Additions:
+Additions
     class Regex::Match
         new method: void ready()
     -> see <yat/regex/Regex.h>

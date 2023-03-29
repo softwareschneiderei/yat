@@ -40,28 +40,6 @@
 #ifndef _YAT_C_PLUGIN_H_
 #define _YAT_C_PLUGIN_H_
 
-// ============================================================================
-//! \page plugPage Plugin documentation
-//! \tableofcontents
-//! The plugin utilities provide basic dynamic library manipulation functions.
-//!
-//! \section secP1 Plugin utilities
-//! The plugin utilities is a platform independent layer to manage dynamic libraries.
-//! They provide factory classes to construct "dynamic library" objects, and a plugin
-//! manager to load/unload these libraries.
-//!
-//! \section secP2 Plugin classes
-//! Links to plugin classes :
-//!   - yat::PlugIn
-//!   - yat::IPlugInFactory
-//!   - yat::GenericFactory
-//!   - yat::IPlugInInfo
-//!   - yat::IPlugInObject
-//!   - yat::IPlugInObjectWithAttr
-//!   - yat::PlugInManager
-//!   - yat::PlugInAttrInfo
-// ============================================================================
-
 #include <yat/utils/String.h>
 #include <yat/memory/SharedPtr.h>
 #include <yat/plugin/PlugInBase.h>

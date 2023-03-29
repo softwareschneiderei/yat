@@ -1255,16 +1255,20 @@ YAT_DECL std::istream& operator>>(std::istream& is, const String& s);
 //!
 //! \par Usage:
 //! \code{.cpp}
-//! yat::fcout("ga: {}, bu: {}, zo: {}, meu: {}").arg("pomper").arg(true).arg(42).arg(3.14);
-//! yat::fcout("{1:} {0:}").arg("gabu").arg("zomeu");
+//! yat::Format fmt("ga: {}, bu: {}, zo: {}, meu: {}");
+//! fmt % "pomper" % true % 42 % 3.14;
+//! yat::String str = fmt;
+//! The logging api offer the ability to use the ',' operator for the arguments :
+//! yat::fcout("ga: {}, bu: {}, zo: {}, meu: {}"), "pomper", true, 42, 3.14;
+//! yat::fcout("{1:} {0:}"), "gabu", "zomeu";
 //! yat::fcout("shadock={<10}").arg("gabu");
-//! yat::fcout("shadock={>10}").arg("zomeu");
-//! yat::fcout("ga {b} zo {s}").arg(true).arg("meu");
-//! yat::fcout("pct {.1%}").arg(0.2);
-//! yat::fcout("bu {B}").arg(42);
-//! yat::fcout("bu {*>#8x}").arg(42);
-//! yat::fcout("bu {X}").arg(42);
-//! yat::fcout("ga {12} {8.4} {*<+30} {!>15g} {8.7E} {>12.2f}").arg(5).arg(65*3.47).arg(42).arg(42).arg(4.245684451).arg(42);
+//! yat::fcout("shadock={>10}"), "zomeu";
+//! yat::fcout("ga {b} zo {s}"), true, "meu";
+//! yat::fcout("pct {.1%}"), 0.2;
+//! yat::fcout("bu {B}"), 42;
+//! yat::fcout("bu {*>#8x}"), 42;
+//! yat::fcout("bu {X}"), 42;
+//! yat::fcout("ga {12} {8.4} {*<+30} {!>15g} {8.7E} {>12.2f}"), 5, 65*3.47, 42, 42, 4.245684451, 42;
 //! \endcode
 //!
 //! \par Format::Formatter\<T\>
