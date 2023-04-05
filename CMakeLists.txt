@@ -4,8 +4,8 @@ cmake_minimum_required (VERSION 2.6)
 set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 set(MAJOR_VERSION "1")
-set(MINOR_VERSION "19")
-set(PATCH_VERSION "5")
+set(MINOR_VERSION "20")
+set(PATCH_VERSION "0")
 set(VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
 
 # check for 64 bit

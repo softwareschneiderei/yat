@@ -1,6 +1,6 @@
 YAT history file
 
-1.19.6 (2023/mm/dd)
+1.20.0 (2023/04/05)
 ===================
 
 Fixes
@@ -10,18 +10,24 @@ Fixes
 
 Additions
     classes CPlugIn, CPlugInManager
-    New pure-C plug-ins manager
+    New C-language plug-ins support
+    -> see <yat/plugin/CPlugIn.h>, <yat/plugin/CPlugInManager.h>,
+           <yat/plugin/CPlugInSymbols.h>
 
     class Format
-        operator%() defined in order to shorter the syntax used to pass format
+        new operator%() defined in order to shorter the syntax used to pass format
         arguments
-        cget() return formatted string as const char*
+        ne method cget() that return formatted string as const char*
     -> see <yat/utils/String.h>
 
     Log functions
-        operator,() defined in order to shorter the syntax used to pass format
-        arguments
+        new operator,() defined in order to shorter the syntax used to pass format
+        arguments. operator % is also available by inheritance from Format.
 
+    class String
+        new method h128_t h128() that return the a 128 bits hash value using an
+        high-speed version of Fnv1a128 algorithm (https://github.com/3F/Fnv1a128)
+    -> see <yat/utils/String.h>
 
 1.19.5 (2022/12/15)
 ===================
