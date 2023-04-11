@@ -1,5 +1,13 @@
 YAT history file
 
+1.20.1 (2023/04/11)
+===================
+
+Fixes
+    Method yat::ThreadingUtilities::sleep(double) cause ambiguous call
+    error at compilation time -> renamed to sleep_sec()
+    -> see <yat/threading/Utilities.h>
+
 1.20.0 (2023/04/05)
 ===================
 
@@ -28,6 +36,11 @@ Additions
         new method h128_t h128() that return the a 128 bits hash value using an
         high-speed version of Fnv1a128 algorithm (https://github.com/3F/Fnv1a128)
     -> see <yat/utils/String.h>
+
+    class ThreadingUtilities
+        new methods sleep(double), sleep_millis(uint64), sleep_micros(uint64),
+        sleep_nanos(uint64)
+    -> see <yat/threading/Utilities.h>
 
 1.19.5 (2022/12/15)
 ===================
