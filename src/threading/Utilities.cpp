@@ -64,9 +64,9 @@ void ThreadingUtilities::sleep (long _secs, long _nano_secs)
 }
 
 // ----------------------------------------------------------------------------
-// ThreadingUtilities::sleep
+// ThreadingUtilities::sleep_sec
 // ----------------------------------------------------------------------------
-void ThreadingUtilities::sleep(double _secs)
+void ThreadingUtilities::sleep_sec(double _secs)
 {
   if( _secs < 0 )
     throw yat::Exception("BAD_ARGUMENT", "sleep time can't be negative!",

@@ -84,7 +84,7 @@ public:
 
   //! \brief Causes the caller to sleep for the given time.
   //! \param secs Time in seconds.
-  static void sleep(double secs);
+  static void sleep_sec(double secs);
 
   //! \brief Causes the caller to sleep for the given time.
   //! \param secs Time in milliseconds.
