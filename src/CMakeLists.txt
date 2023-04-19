@@ -10,7 +10,12 @@ set (source_files
       network/Socket.cpp
       network/SocketException.cpp
       plugin/PlugIn.cpp
+      plugin/PlugInUnix.cpp
+      plugin/PlugInWin32.cpp
+      plugin/PlugInBase.cpp
       plugin/PlugInManager.cpp
+      plugin/CPlugIn.cpp
+      plugin/CPlugInManager.cpp
       threading/Barrier.cpp
       threading/Message.cpp
       threading/MessageQ.cpp
