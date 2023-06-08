@@ -133,6 +133,9 @@ Task::Task ()
 {
   YAT_TRACE("Task::Task");
 
+  msg_q_.enable_timeout_msg_ = false;
+  msg_q_.enable_periodic_msg_ = false;
+
 #if defined (YAT_DEBUG)
   this->next_msg_counter = 0;
   this->ctrl_msg_counter = 0;
