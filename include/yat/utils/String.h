@@ -1583,6 +1583,37 @@ public:
 };
 
 //==================================================================================================
+//! \brief fail-safe version of the Format class
+//!
+//! SFormat object will not throw exception when parsing the format string
+//! It's aimed to be used in logging apis for example
+//==================================================================================================
+class YAT_DECL SFormat : public Format
+{
+public:
+  //! \brief Constructor from a char pointer.
+  //! \param psz Char pointer.
+  //! \param throw_exception if 'true' then throw in case of error.
+  SFormat(const char *psz) : Format(psz, false) { }
+
+  //! \brief Constructor from char buffer.
+  //! \param psz Char pointer.
+  //! \param size Buffer size.
+  //! \param throw_exception if 'true' then throw in case of error.
+  SFormat(const char *psz, int size) : Format(psz, size, false) { }
+
+  //! \brief Copy Constructor.
+  //! \param str The source string.
+  //! \param throw_exception if 'true' then throw in case of error.
+  SFormat(const String &str) : Format(str, false) { }
+
+  //! \brief Constructor from std::string.
+  //! \param str The string.
+  //! \param throw_exception if 'true' then throw in case of error.
+  SFormat(const std::string &str) : Format(str, false) { }
+};
+
+//==================================================================================================
 //! \brief for using with yat::Format class
 //!
 //! No specific format syntax defined for this formatter\n
