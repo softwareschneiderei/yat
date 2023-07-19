@@ -1,5 +1,21 @@
 YAT history file
 
+1.20.2 (2023/07/19)
+===================
+
+Fixes
+    class Task
+        Bug fixed in default constructor: MessageQ member object was not properly
+        initialized.
+
+    CMakeLists.txt
+        Missing files declared
+
+Additions
+    class SFormat
+        Inherited from Format. The only difference is that it not throw exception
+        when parsing format.
+
 1.20.1 (2023/04/11)
 ===================
 
