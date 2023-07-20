@@ -23,6 +23,7 @@ set (source_files
       threading/SharedObject.cpp
       threading/SyncAccess.cpp
       threading/Task.cpp
+      threading/Utilities.cpp
       time/Time.cpp
       utils/CommandLine.cpp
       utils/Logging.cpp
