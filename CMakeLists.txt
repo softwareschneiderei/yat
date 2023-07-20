@@ -1,32 +1,26 @@
+cmake_minimum_required(VERSION 3.15)
 project (yat)
-cmake_minimum_required (VERSION 2.6)
 
-set(CMAKE_VERBOSE_MAKEFILE TRUE)
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
-set(MAJOR_VERSION "1")
-set(MINOR_VERSION "20")
-set(PATCH_VERSION "2")
-set(VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
-
-# check for 64 bit
-if (NOT DEFINED CMAKE_INSTALL_PREFIX AND CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(LIB_INSTALL_DIR "lib64")
-else()
-    set(LIB_INSTALL_DIR "lib")
-endif()
+add_definitions(-DYAT_PROJECT_NAME=${PROJECT_NAME})
+add_definitions(-DYAT_PROJECT_VERSION=${VERSION})
 
 if (UNIX)
-    add_definitions(-O2 -g -gstabs+ -std=c++0x -Wall -Wno-unused-variable -D_FILE_OFFSET_BITS=64 -DYAT_PROJECT_VERSION=${VERSION} -DYAT_PROJECT_NAME=YAT)
-    set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-z,defs")
+    add_definitions(-std=c++0x)
+    add_compile_definitions(_FILE_OFFSET_BITS=64)
+    add_compile_definitions(YAT_HAS_GNUREGEX)
+endif()
+
+if (WIN32 AND BUILD_SHARED_LIBS MATCHES "ON")
+    add_compile_definitions(YAT_DLL)
+    add_compile_definitions(YAT_BUILD)
 endif()
 
 add_subdirectory (src)
 
-set(prefix ${CMAKE_INSTALL_PREFIX})
-
-if (UNIX)
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/yat.pc.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/yat.pc" @ONLY IMMEDIATE)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/yat.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
+if (UNIX AND EXISTS ${CMAKE_SOURCE_DIR}/yat.pc.in)
+    configure_file("${CMAKE_SOURCE_DIR}/yat.pc.in"
+    "${CMAKE_BINARY_DIR}/yat.pc" @ONLY IMMEDIATE)
+    install(FILES ${CMAKE_BINARY_DIR}/yat.pc DESTINATION lib/pkgconfig)
 endif()
-

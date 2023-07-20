@@ -3,7 +3,7 @@
 /yat.sublime-workspace
 /target/
 CMakeFiles
-test_package
+build
 
 samples/memory/sharedptr/target
 samples/semaphore/target

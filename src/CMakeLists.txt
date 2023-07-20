@@ -23,6 +23,7 @@ set (source_files
       threading/SharedObject.cpp
       threading/SyncAccess.cpp
       threading/Task.cpp
+      threading/Utilities.cpp
       time/Time.cpp
       utils/CommandLine.cpp
       utils/Logging.cpp
@@ -49,16 +50,12 @@ if (WIN32)
 		plugin/PlugInWin32.cpp
 		system/Win32SysUtilsImpl.cpp
 		file/Win32FileImpl.cpp
+    regex/impl/gnuregex.c
 		)
 endif()
 
-include_directories(
-  ../include
-)
-
-add_library (yat SHARED ${source_files})
-
-set_target_properties (yat PROPERTIES VERSION ${VERSION} SOVERSION ${MAJOR_VERSION})
+add_library (yat ${source_files})
+target_include_directories(yat PUBLIC ${CMAKE_SOURCE_DIR}/include)
 
 if (UNIX)
 	target_link_libraries(yat pthread dl)
@@ -68,18 +65,39 @@ if (WIN32)
 	target_link_libraries(yat ws2_32.lib shell32.lib)
 endif()
 
-install (DIRECTORY ../include/yat DESTINATION include/
-  FILES_MATCHING PATTERN "*.h"
-  PATTERN "*.tpp"
-  PATTERN "*.hpp"
-  PATTERN "*.i"
-  PATTERN ".svn" EXCLUDE
-  PATTERN "CMakeFiles" EXCLUDE
-  PATTERN "config-macosx.h" EXCLUDE
-  PATTERN "config-win32.h" EXCLUDE
-  PATTERN "WinNt*" EXCLUDE
-)
+if(MAJOR_VERSION)
+  set_target_properties (yat PROPERTIES VERSION ${VERSION} SOVERSION ${MAJOR_VERSION})
+endif()
 
 if (UNIX)
-	install (TARGETS yat LIBRARY DESTINATION ${LIB_INSTALL_DIR})
+  install (DIRECTORY ${CMAKE_SOURCE_DIR}/include/yat DESTINATION include
+  	  FILES_MATCHING PATTERN "*.h"
+  	  PATTERN "*.tpp"
+  	  PATTERN "*.hpp"
+  	  PATTERN "*.i"
+  	  PATTERN ".svn" EXCLUDE
+  	  PATTERN "CMakeFiles" EXCLUDE
+  	  PATTERN "config-macosx.h" EXCLUDE
+  	  PATTERN "config-win32.h" EXCLUDE
+  	  PATTERN "WinNt*" EXCLUDE
+  )
 endif()
+
+if (WIN32)
+  install (DIRECTORY ${CMAKE_SOURCE_DIR}/include/yat DESTINATION include
+      FILES_MATCHING PATTERN "*.h"
+      PATTERN "*.tpp"
+      PATTERN "*.hpp"
+      PATTERN "*.i"
+      PATTERN ".svn" EXCLUDE
+      PATTERN "CMakeFiles" EXCLUDE
+      PATTERN "config-macosx.h" EXCLUDE
+      PATTERN "config-linux.h" EXCLUDE
+  )
+endif()
+
+install(TARGETS yat
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib
+    RUNTIME DESTINATION bin
+)
