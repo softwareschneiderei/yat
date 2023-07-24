@@ -3,8 +3,8 @@ project (yat)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
-add_definitions(-DYAT_PROJECT_NAME=${PROJECT_NAME})
-add_definitions(-DYAT_PROJECT_VERSION=${VERSION})
+add_compile_definitions(YAT_PROJECT_NAME=${PROJECT_NAME})
+add_compile_definitions(YAT_PROJECT_VERSION=${VERSION})
 
 if (UNIX)
     add_definitions(-std=c++0x)
