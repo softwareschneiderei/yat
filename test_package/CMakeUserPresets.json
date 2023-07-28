@@ -1,9 +1,0 @@
-{
-    "version": 4,
-    "vendor": {
-        "conan": {}
-    },
-    "include": [
-        "D:\\conan2\\recipes\\libraries\\yat\\test_package\\build\\msvc-180-x86_64-release\\generators\\CMakePresets.json"
-    ]
-}
