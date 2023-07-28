@@ -4,6 +4,7 @@
 /target/
 CMakeFiles
 build
+CMakeUserPresets.json
 
 samples/memory/sharedptr/target
 samples/semaphore/target
