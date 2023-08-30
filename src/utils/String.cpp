@@ -841,20 +841,44 @@ void StringUtil::trim_right( std::vector<yat::String>* vec_p )
     (*vec_p)[i].trim_right();
 }
 
-#define _SPLIT_TO_COLLECTION_IMPL_(s_p, coll_p)                                \
+#define _SPLIT_TO_COLLECTION_IMPL_(s, coll_p)                                  \
 do                                                                             \
 {                                                                              \
   if( clear_coll )                                                             \
     coll_p->clear();                                                           \
-  std::string strToken;                                                        \
-  bool sep_found = false;                                                      \
-  while( !(*s_p).empty() )                                                     \
+  std::string backslash_sep = "\\";                                            \
+  backslash_sep.append(1, c);                                                  \
+  std::size_t start_pos = 0;                                                   \
+  std::size_t search_pos = 0;                                                  \
+  std::size_t end_pos = std::string::npos;                                     \
+  while(true)                                                                  \
   {                                                                            \
-    sep_found = extract_token(s_p, c, &strToken, true) == StringUtil::SEP_FOUND; \
-    coll_p->push_back(strToken);                                               \
+    search_pos = start_pos;                                                    \
+    while(true)                                                                \
+    {                                                                          \
+      end_pos = s.find(c, search_pos);                                      \
+      if( 0 == end_pos || s[end_pos-1] != '\\' || std::string::npos == end_pos ) \
+        break;                                                                 \
+      if( end_pos > 1 && s[end_pos-1] == '\\' && s[end_pos-2] == '\\' )        \
+        break;                                                                 \
+      ++search_pos;                                                            \
+    }                                                                          \
+    std::string item = s.substr(start_pos, end_pos - start_pos);            \
+    std::size_t escaped_sep_pos = 0;                                           \
+    while( true )                                                              \
+    {                                                                          \
+      escaped_sep_pos = item.find(backslash_sep, escaped_sep_pos);             \
+      if( std::string::npos == escaped_sep_pos )                               \
+        break;                                                                 \
+      if( escaped_sep_pos > 0 && '\\' == item[escaped_sep_pos - 1] )           \
+        { ++escaped_sep_pos; continue; }                                       \
+      item.replace(escaped_sep_pos, 2, 1, c);                                  \
+    }                                                                          \
+    coll_p->push_back(item);                                                   \
+    start_pos = end_pos + 1;                                                   \
+    if( std::string::npos == end_pos )                                         \
+      break;                                                                   \
   }                                                                            \
-  if( sep_found )                                                              \
-    coll_p->push_back("");                                                     \
 } while (0)
 
 //---------------------------------------------------------------------------
@@ -863,7 +887,8 @@ do                                                                             \
 void StringUtil::split(std::string* str_p, char c,
                        std::vector<std::string> *vec_p, bool clear_coll)
 {
-  _SPLIT_TO_COLLECTION_IMPL_(str_p, vec_p);
+  _SPLIT_TO_COLLECTION_IMPL_((*str_p), vec_p);
+  str_p->clear();
 }
 
 //---------------------------------------------------------------------------
@@ -872,7 +897,8 @@ void StringUtil::split(std::string* str_p, char c,
 void StringUtil::split(std::string* str_p, char c, std::vector<String> *vec_p,
                        bool clear_coll)
 {
-  _SPLIT_TO_COLLECTION_IMPL_(str_p, vec_p);
+  _SPLIT_TO_COLLECTION_IMPL_((*str_p), vec_p);
+  str_p->clear();
 }
 
 //---------------------------------------------------------------------------
@@ -881,9 +907,7 @@ void StringUtil::split(std::string* str_p, char c, std::vector<String> *vec_p,
 void StringUtil::split(const std::string& str, char c,
                        std::vector<std::string> *vec_p, bool clear_coll)
 {
-  std::string tmp(str);
-  std::string* tmp_p = &tmp;
-  _SPLIT_TO_COLLECTION_IMPL_(tmp_p, vec_p);
+  _SPLIT_TO_COLLECTION_IMPL_(str, vec_p);
 }
 
 //---------------------------------------------------------------------------
@@ -892,9 +916,7 @@ void StringUtil::split(const std::string& str, char c,
 void StringUtil::split(const std::string& str, char c,
                        std::vector<String> *vec_p, bool clear_coll)
 {
-  std::string tmp(str);
-  std::string* tmp_p = &tmp;
-  _SPLIT_TO_COLLECTION_IMPL_(tmp_p, vec_p);
+  _SPLIT_TO_COLLECTION_IMPL_(str, vec_p);
 }
 
 //---------------------------------------------------------------------------
@@ -903,7 +925,8 @@ void StringUtil::split(const std::string& str, char c,
 void StringUtil::split(std::string* str_p, char c,
                        std::deque<std::string> *deque_p, bool clear_coll)
 {
-  _SPLIT_TO_COLLECTION_IMPL_(str_p, deque_p);
+  _SPLIT_TO_COLLECTION_IMPL_((*str_p), deque_p);
+  str_p->clear();
 }
 
 //---------------------------------------------------------------------------
@@ -912,7 +935,8 @@ void StringUtil::split(std::string* str_p, char c,
 void StringUtil::split(std::string* str_p, char c, std::deque<String> *deque_p,
                        bool clear_coll)
 {
-  _SPLIT_TO_COLLECTION_IMPL_(str_p, deque_p);
+  _SPLIT_TO_COLLECTION_IMPL_((*str_p), deque_p);
+  str_p->clear();
 }
 
 //---------------------------------------------------------------------------
@@ -921,9 +945,7 @@ void StringUtil::split(std::string* str_p, char c, std::deque<String> *deque_p,
 void StringUtil::split(const std::string& str, char c,
                        std::deque<std::string> *deque_p, bool clear_coll)
 {
-  std::string tmp(str);
-  std::string* tmp_p = &tmp;
-  _SPLIT_TO_COLLECTION_IMPL_(tmp_p, deque_p);
+  _SPLIT_TO_COLLECTION_IMPL_(str, deque_p);
 }
 
 //---------------------------------------------------------------------------
@@ -932,9 +954,7 @@ void StringUtil::split(const std::string& str, char c,
 void StringUtil::split(const std::string& str, char c,
                        std::deque<String> *deque_p, bool clear_coll)
 {
-  std::string tmp(str);
-  std::string* tmp_p = &tmp;
-  _SPLIT_TO_COLLECTION_IMPL_(tmp_p, deque_p);
+  _SPLIT_TO_COLLECTION_IMPL_(str, deque_p);
 }
 
 //---------------------------------------------------------------------------
