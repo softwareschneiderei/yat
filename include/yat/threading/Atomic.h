@@ -44,6 +44,7 @@
 // DEPENDENCIES
 // ============================================================================
 #include <yat/threading/Mutex.h>
+#include <yat/utils/String.h>
 
 namespace yat
 {
@@ -176,6 +177,8 @@ private:
 //! Common types
 typedef Atomic<bool>   atomic_bool;
 typedef Atomic<int>    atomic_int;
+typedef Atomic<int8>   atomic_int8;
+typedef Atomic<uint8>  atomic_uint8;
 typedef Atomic<int16>  atomic_int16;
 typedef Atomic<uint16> atomic_uint16;
 typedef Atomic<int32>  atomic_int32;
@@ -184,6 +187,59 @@ typedef Atomic<int64>  atomic_int64;
 typedef Atomic<uint64> atomic_uint64;
 typedef Atomic<float>  atomic_float;
 typedef Atomic<double> atomic_double;
+
+#define __YAT_ATOMIC_INT_FORMATTER__(T, dtype) \
+template<> struct Format::Formatter<T> \
+{ \
+  void operator()(const T& v, std::ostream &oss, const Context& fc) \
+  { \
+    prepare_format(oss, fc); \
+    if( 'B' == fc.type ) \
+      output_binary_value(dtype(v), oss, fc); \
+    else if( 'o' == fc.type ) \
+      output_octal_value(dtype(v), oss, fc); \
+    else if( 'x' == fc.type || 'X' == fc.type ) \
+      output_hex_value(dtype(v), oss, fc); \
+    else if( '%' == fc.type ) \
+      output_percent_value(dtype(v), oss, fc); \
+    else \
+      oss << dtype(v); \
+  } \
+};
+
+__YAT_ATOMIC_INT_FORMATTER__(atomic_int8, int8)
+__YAT_ATOMIC_INT_FORMATTER__(atomic_uint8, uint8)
+__YAT_ATOMIC_INT_FORMATTER__(atomic_int16, int16)
+__YAT_ATOMIC_INT_FORMATTER__(atomic_uint16, uint16)
+__YAT_ATOMIC_INT_FORMATTER__(atomic_int32, int32)
+__YAT_ATOMIC_INT_FORMATTER__(atomic_uint32, uint32)
+__YAT_ATOMIC_INT_FORMATTER__(atomic_int64, int64)
+__YAT_ATOMIC_INT_FORMATTER__(atomic_uint64, uint64)
+
+#define __YAT_ATOMIC_FLOAT_FORMATTER__(T, dtype) \
+template<> struct Format::Formatter<T> \
+{ \
+  void operator()(const T& v, std::ostream &oss, const Context& fc) \
+  { \
+    prepare_format(oss, fc); \
+    if( '%' == fc.type ) \
+      output_percent_value(dtype(v), oss, fc); \
+    else \
+      oss << dtype(v); \
+  } \
+};
+
+__YAT_ATOMIC_FLOAT_FORMATTER__(atomic_float, float)
+__YAT_ATOMIC_FLOAT_FORMATTER__(atomic_double, double)
+
+template<> struct Format::Formatter<atomic_bool>
+{
+  void operator()(const bool& v, std::ostream &oss, const Format::Context& fc)
+  {
+    prepare_format(oss, fc, 'b');
+    oss << bool(v);
+  }
+};
 
 } // yat
 
