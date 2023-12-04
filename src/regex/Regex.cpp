@@ -637,4 +637,53 @@ void Regex::set_cache_size(std::size_t s)
     RegexCache::set_cache_size(s);
 }
 
+// ============================================================================
+// class String
+// ============================================================================
+//---------------------------------------------------------------------------
+// String::re_match
+//---------------------------------------------------------------------------
+bool String::re_match(const std::string& pattern) const
+{
+  Regex re(pattern);
+  return re.match(*this);
 }
+
+//---------------------------------------------------------------------------
+// String::re_match
+//---------------------------------------------------------------------------
+bool String::re_search(const std::string& pattern, std::size_t* start_p,
+                       std::size_t* length_p, std::size_t start_pos) const
+{
+  Regex re(pattern);
+  Regex::Match m;
+  bool b = re.search(substr(start_pos), &m);
+  if( b )
+  {
+    if( start_p )
+      *start_p = m.position() + start_pos;
+    if( length_p )
+      *length_p = m.length();
+  }
+  return b;
+}
+
+//---------------------------------------------------------------------------
+// String::re_match
+//---------------------------------------------------------------------------
+String& String::re_replace(const std::string& search_for,
+                           const std::string& replace_by, bool first_only,
+                           bool reject_non_matching)
+{
+  Regex re(search_for);
+  int flags = Regex::match_default;
+  if( first_only )
+    flags |= Regex::format_first_only;
+  if( reject_non_matching )
+    flags |= Regex::format_no_copy;
+
+  m_str = re.replace(*this, replace_by, Regex::MatchFlags(flags));
+  return *this;
+}
+
+} // namespace

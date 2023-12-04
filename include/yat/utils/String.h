@@ -1128,9 +1128,10 @@ public:
   //! \param _throw If set to true, throws an exception if conversion fails.
   //! \exception SOFTWARE_ERROR Thrown if conversion fails.
   template <class T>
-  void from_num(const T& number, bool _throw = true)
+  String& from_num(const T& number, bool _throw = true)
   {
     StringUtil::from_num<T>(&m_str, number, _throw);
+    return *this;
   }
 
   //! \brief Converts string content to numeric type \<_T\>.
@@ -1144,6 +1145,30 @@ public:
   {
     return StringUtil::to_num<T>(m_str, _throw);
   }
+
+  //! \name pattern matching using regular expressions methods
+  //@{
+
+  //! check if the string match the given regex pattern 
+  //! \param pattern the regex pattern
+  //! \return true if the string match the pattern
+  bool re_match(const std::string& pattern) const;
+
+  //! search a match for the given pattern
+  //! \param pattern the regex pattern
+  //! \param start_p if a match is found then *start_p will contains the position of the first matching character
+  //! \param length_p if a match is found then *length_p will contains the number of matching characters
+  //! \param start_pos start searching at the given given position
+  //! \return true if a match is found
+  bool re_search(const std::string& pattern, std::size_t* start_p = 0, std::size_t* length_p = 0, std::size_t start_pos = 0) const;
+
+  //! search all occurences of a pattern and replace each
+  //! \param search_for the searched pattern
+  //! \param replace_by the replacement string
+  //! \param first_only if true replace only the 1st occurence
+  //! \param reject_non_matching if true  non matching parts are removed from the string
+  String& re_replace(const std::string& search_for, const std::string& replace_by, bool first_only = false, bool reject_non_matching = false);
+  //@}
 
 #ifndef YAT_CPP11
   //! \name some methods availables with c++ 11
