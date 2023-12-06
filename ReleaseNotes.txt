@@ -1,5 +1,25 @@
 YAT history file
 
+1.20.3 (2023/12/05)
+===================
+
+Changes
+    Now use atomic implementation provided by gcc if possible
+
+    class String
+        'split' method re-wroted to enhance performance (100x!)
+
+Additions
+    class String
+        new methods re_search, re_match, re_replace that provide simple use of
+        regex without the need to explicitely declare Regex class objets
+        If performance is a critical concern using thoses methods is not
+        recommanded.
+
+Fixes
+    class Thread
+        Throw correct exceptions in case of error
+
 1.20.2 (2023/07/19)
 ===================
 
