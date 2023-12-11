@@ -69,6 +69,7 @@ namespace yat {
 // ============================================================================
 class YAT_DECL Thread
 {
+  friend class JThread;
 public:
   //! A dedicated type for thread entry point argument (user specified data).
   typedef void * IOArg;

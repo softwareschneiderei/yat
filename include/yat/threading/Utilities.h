@@ -102,7 +102,7 @@ public:
   //! The value should be considered only a hint.
   //! If the value is not well defined or not computable, returns 0
   //! \note equivalent to c++11 std::thread::hardware_concurrency
-  static unsigned int harware_concurrency();
+  static unsigned int hardware_concurrency();
 
   //! \brief Calculates an absolute time in seconds and nanoseconds, suitable for
   //! use in timed waits (ex: Condition, Semaphore), which is the current
@@ -130,6 +130,9 @@ public:
   //! \param offset_secs Offset in seconds.
   //! \param offset_nsecs Offset in nanoseconds.
   static void get_time (Timespec & abs_time, unsigned long offset_secs, unsigned long offset_nsecs);
+
+  // deprecated
+  static unsigned int harware_concurrency() { return hardware_concurrency(); }
 
 private:
 

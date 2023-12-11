@@ -509,6 +509,8 @@ void Thread::spawn ()
 
   //- mark the thread as running (before leaving the critical section)
   this->m_state = yat::Thread::STATE_RUNNING;
+
+  m_uid = static_cast<yat::ThreadUID>(m_posix_thread);
 }
 
 // ----------------------------------------------------------------------------
@@ -710,7 +712,7 @@ void ThreadingUtilities::sleep_impl(long _secs, long _nano_secs)
 // ----------------------------------------------------------------------------
 // ThreadingUtilities::hardware_concurrency
 // ----------------------------------------------------------------------------
-unsigned int ThreadingUtilities::harware_concurrency()
+unsigned int ThreadingUtilities::hardware_concurrency()
 {
   return ::sysconf(_SC_NPROCESSORS_ONLN);
 }
