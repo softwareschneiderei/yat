@@ -79,6 +79,13 @@ public:
    //! \brief Returns the calling thread identifier.
   static ThreadUID self ();
 
+  //! \brief Allows another thread to run.
+  static void yield();
+
+  //! \brief Causes the caller to sleep for the given time.
+  //! \param duration Time duration.
+  static void sleep_for(const class Duration &duration);
+
   //! \deprecated
   static void sleep (long secs, long nanosecs = 0);
 
@@ -146,6 +153,9 @@ private:
   static void sleep_impl(long secs, long nanosecs = 0);
 
 };
+
+//! 'ThreadingUtilities' is too long, 'ThisThread' is better
+typedef ThreadingUtilities ThisThread;
 
 } // namespace yat
 

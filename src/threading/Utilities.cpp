@@ -45,6 +45,8 @@
 // DEPENDENCIES
 // ----------------------------------------------------------------------------
 #include <yat/threading/Utilities.h>
+#include <yat/threading/Thread.h>
+#include <yat/time/Time.h>
 
 // ----------------------------------------------------------------------------
 // SOME PSEUDO CONSTs
@@ -72,8 +74,8 @@ void ThreadingUtilities::sleep_sec(double _secs)
     throw yat::Exception("BAD_ARGUMENT", "sleep time can't be negative!",
                          "ThreadingUtilities::sleep");
 
-  long secs = long(_secs);
-  long nanos = (_secs - secs) * MAX_NSECS;
+  uint32 secs = uint32(_secs);
+  uint32 nanos = (_secs - secs) * MAX_NSECS;
   sleep_impl(secs, nanos);
 }
 
@@ -82,8 +84,8 @@ void ThreadingUtilities::sleep_sec(double _secs)
 // ----------------------------------------------------------------------------
 void ThreadingUtilities::sleep_millis(uint64 _millis)
 {
-  long secs = long(_millis / MAX_MSECS);
-  long nanos = (_millis % MAX_MSECS) * MAX_USECS;
+  uint32 secs = uint32(_millis / MAX_MSECS);
+  uint32 nanos = (_millis % MAX_MSECS) * MAX_USECS;
   sleep_impl(secs, nanos);
 }
 
@@ -92,8 +94,8 @@ void ThreadingUtilities::sleep_millis(uint64 _millis)
 // ----------------------------------------------------------------------------
 void ThreadingUtilities::sleep_micros(uint64 _micros)
 {
-  long secs = long(_micros / MAX_USECS);
-  long nanos = (_micros % MAX_USECS) * MAX_MSECS;
+  uint32 secs = uint32(_micros / MAX_USECS);
+  uint32 nanos = (_micros % MAX_USECS) * MAX_MSECS;
   sleep_impl(secs, nanos);
 }
 
@@ -102,9 +104,27 @@ void ThreadingUtilities::sleep_micros(uint64 _micros)
 // ----------------------------------------------------------------------------
 void ThreadingUtilities::sleep_nanos(uint64 _nanos)
 {
-  long secs = long(_nanos / MAX_NSECS);
-  long nanos = _nanos % MAX_NSECS;
+  uint32 secs = uint32(_nanos / MAX_NSECS);
+  uint32 nanos = _nanos % MAX_NSECS;
   sleep_impl(secs, nanos);
+}
+
+// ----------------------------------------------------------------------------
+// ThreadingUtilities::sleep_for
+// ----------------------------------------------------------------------------
+void ThreadingUtilities::sleep_for(const Duration& duration)
+{
+  uint32 secs, nanos;
+  duration.get(&secs, &nanos);
+  sleep_impl(long(secs), long(nanos));
+}
+
+// ----------------------------------------------------------------------------
+// ThreadingUtilities::yield
+// ----------------------------------------------------------------------------
+void ThreadingUtilities::yield()
+{
+  Thread::yield();
 }
 
 } // namespace yat
