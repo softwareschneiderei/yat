@@ -152,6 +152,7 @@
 //!   - yat::SharedObject
 //!   - yat::SyncAccess
 //!   - yat::ThreadingUtilities
+//!   - yat::Atomic
 // ============================================================================
 
 
