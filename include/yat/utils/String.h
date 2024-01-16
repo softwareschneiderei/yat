@@ -1668,7 +1668,7 @@ public:
 //! To output the pointed objet string representation, call arg with *ptr
 //==================================================================================================
 template <typename T, typename L>
-struct Format::Formatter< SharedPtr<T,L> >
+struct Format::Formatter<SharedPtr<T,L>>
 {
   void operator()(const SharedPtr<T,L>& ptr, std::ostream &oss, const Format::Context& fc)
   {
@@ -1676,6 +1676,34 @@ struct Format::Formatter< SharedPtr<T,L> >
     prepare_format(oss, fc, 'p');
 
     oss << this;
+  }
+};
+
+//==================================================================================================
+//! \brief for using with yat::Error class
+//!
+//! No specific format syntax defined for this formatter\n
+//! Output the three values of an exception\n
+//==================================================================================================
+template <>
+struct Format::Formatter<Error>
+{
+  void operator()(const Error& err, std::ostream &oss, const Format::Context& fc)
+  {
+    // setup width & alignment
+    prepare_format(oss, fc, 's');
+
+    if( !fc.fmt_ext.empty() )
+    {
+      if( fc.fmt_ext[0] == 'r' )
+        oss << err.reason;
+      else if( fc.fmt_ext[0] == 'd' )
+        oss << err.desc;
+      else if( fc.fmt_ext[0] == 'o' )
+        oss << err.origin;
+    }
+    else
+      oss << "what: " << err.reason << ". why: " << err.desc << ". where: " << err.origin;
   }
 };
 
