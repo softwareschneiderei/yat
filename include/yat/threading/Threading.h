@@ -48,15 +48,16 @@
 // ============================================================================
 //! \page threadingPage Threading documentation
 //! \tableofcontents
-//! The threading utilities provide a set of classes implementing classical threading
+//! The threading utilities provide a set of classes implementing threading
 //! concepts as well as the specific task notion. \n
 //!
-//! \section sec1 Classical threading concepts
-//! The threading utilities provide the following classical threading concepts :
+//! \section sec1 Threading concepts
+//! The threading utilities provide the following threading concepts :
 //! - thread
 //! - mutex
 //! - semaphore
 //! - barrier
+//! - condition
 //!
 //! \subsection ssec11 Thread concept
 //! The Thread class is a basic implementation of the thread concept. It's an abstract class
@@ -65,6 +66,8 @@
 //! It provides both "detached" and "undetached" (i.e. joinable) behaviour.\n
 //! For example, a Thread class can be used to implement a simple data acquisition thread.
 //! For more complex threaded treatments, use the Task concept described below.
+//! Due to the introduction of JThread (see below) this class should be
+//! considered as a easier solution than using Thread.
 //!
 //! \subsection ssec12 Mutex concept
 //! The Yat Mutex implementation provides three classes :
@@ -136,7 +139,12 @@
 //! condition handling.
 //! \remark It is recommended to use a yat::AutoMutex mutex.
 //!
-//! \section sec3 Threading classes
+//! \section sec3 JThread class
+//! This class is a advanced and easy to use implementation of the thread concept.
+//! It provides a standardized cancellation capability and automatically join when
+//! deleted if it was spawned in undetached mode, which is the default.
+//!
+//! \section sec4 Threading classes
 //! Links to threading classes : \n
 //!   - yat::Task
 //!   - yat::Thread
@@ -153,6 +161,12 @@
 //!   - yat::SyncAccess
 //!   - yat::ThreadingUtilities
 //!   - yat::Atomic
+//!   - yat::JThread
+//!   - yat::Promise
+//!   - yat::Future
+//!
+//! \section sec5 Threading functions
+//!   - yat::async
 // ============================================================================
 
 

@@ -87,12 +87,14 @@
 //!   - yat::String
 //!   - yat::StringDictionary
 //!   - yat::Format
+//!   - yat::SFormat
 //!   - yat::StringTemplate
 //!   - yat::StringTokenizer
 //!   - yat::URI
 //!   - yat::picojson
 //!   - yat::md5::md5_t
 //!   - yat::XString
+//!   - yat::ArgPack
 // ============================================================================
 
 #endif // _UTILS_H_
