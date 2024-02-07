@@ -485,8 +485,27 @@ void Thread::spawn ()
   ::pthread_attr_destroy(&thread_attrs);
 #endif
   //- check result
-  if (result)
-    throw Exception(); //-TODO
+  switch (result)
+  {
+    case 0:
+      break;
+    case EAGAIN:
+      throw Exception("YAT_THR_ERROR",
+                      "Failed to spawn new thread: insufficient resources to create another thread.",
+                      "yat::Thread::spawn");
+    case EINVAL:
+      throw Exception("YAT_THR_ERROR",
+                      "Failed to spawn new thread: invalid settings.",
+                      "yat::Thread::spawn");
+    case EPERM:
+      throw Exception("YAT_THR_ERROR",
+                      "Failed to spawn new thread: no permission to set the scheduling policy and parameters.",
+                      "yat::Thread::spawn");
+    default:
+      throw Exception("YAT_THR_ERROR",
+                      "Failed to spawn new thread: unknown reason.",
+                      "yat::Thread::spawn");
+  };
 
   //- mark the thread as running (before leaving the critical section)
   this->m_state = yat::Thread::STATE_RUNNING;
@@ -517,13 +536,36 @@ void Thread::join (Thread::IOArg * oarg_)
 
   //- be sure the thread is not detached
   if (this->m_detached)
-    throw Exception(); //-TODO
+    throw Exception("YAT_THR_ERROR",
+                    SFormat("Cannot join thread {x} because it's detached!")
+                    % m_posix_thread, "yat::Thread::join");
 
   YAT_LOG("Thread::join::waiting for the thread to terminate [pthread_join]");
 
-  if (::pthread_join(m_posix_thread, 0))
-    throw Exception(); //-TODO
+  int result = ::pthread_join(m_posix_thread, 0);
+  switch( result )
+  {
+    case 0:
+      break;
+    case EDEADLK:
+      throw Exception("YAT_THR_ERROR",
+                      SFormat("Failed to join thread {0:x}: A deadlock was detected "
+                       "(e.g., two threads tried to join with each other); "
+                       "or {0:x} specifies the calling thread.") % m_posix_thread,
+                      "yat::Thread::join");
+    case EINVAL:
+      throw Exception("YAT_THR_ERROR",
+                      SFormat("Failed to join thread {0:x}: not a joinable thread OR "
+                              "another thread is already waiting to join with this thread")
+                              % m_posix_thread,
+                      "yat::Thread::join");
+    case ESRCH:
+      throw Exception("YAT_THR_ERROR",
+                      SFormat("Failed to join thread {0:x}: no thread with the ID "
+                              "{0:x} could be found") % m_posix_thread,
+                      "yat::Thread::join");
 
+  }
 #if (PthreadDraftVersion == 4)
   //- with draft 4 pthreads implementations we have to detach the thread
   //- after join. if not, the storage for the thread will not be reclaimed.
@@ -552,7 +594,11 @@ void Thread::priority (Priority _p)
 
   //- check thread state
   if (this->m_state != yat::Thread::STATE_RUNNING)
-    throw Exception(); //-TODO
+    throw Exception("YAT_THR_ERROR",
+                    SFormat("Can't change priority of thread {x} because it's not running")
+                            % m_posix_thread,
+                    "yat::Thread::priority");
+
 
 #if defined(PthreadSupportThreadPriority)
 # if (PthreadDraftVersion == 4)
@@ -566,7 +612,10 @@ void Thread::priority (Priority _p)
     struct sched_param sp;
     sp.sched_priority = this->yat_to_posix_priority(_p);
     if (::pthread_setschedparam(m_posix_thread, SCHED_OTHER, &sp))
-      throw Exception(); //-TODO
+      throw Exception("YAT_THR_ERROR",
+                      SFormat("Failed to change priority of thread {x}")
+                              % m_posix_thread,
+                      "yat::Thread::priority");
 # endif
 #endif
 
@@ -614,7 +663,8 @@ int Thread::yat_to_posix_priority (Priority _p)
   switch (_p)
   {
     default:
-      throw Exception(); //-TODO
+      throw Exception("YAT_THR_ERROR", "No thread priority support on this plateform.",
+                      "yat::Thread::yat_to_posix_priority");
   }
 #endif
 }

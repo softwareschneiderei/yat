@@ -134,6 +134,21 @@ namespace yat
 #endif
 
 /**
+ *  atomic support
+ */
+#undef YAT_HAS_ATOMIC
+#if __GNUC__ >= 4
+# if __GNUC__ == 4
+#   if __GNUC_MINOR__ >= 4
+#     define YAT_HAS_ATOMIC
+#   endif
+# else
+#   define YAT_HAS_ATOMIC
+# endif
+#endif
+
+
+/**
  *  Pthread related stuffs
  */
 #define YAT_HAS_PTHREAD_YIELD 1

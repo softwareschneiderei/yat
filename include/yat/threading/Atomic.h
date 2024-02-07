@@ -40,50 +40,48 @@
 #ifndef _YAT_ATOMIC_H_
 #define _YAT_ATOMIC_H_
 
+#ifdef YAT_HAS_ATOMIC
+  #include <cstdatomic>
+#endif
+
 // ============================================================================
 // DEPENDENCIES
 // ============================================================================
 #include <yat/threading/Mutex.h>
+#include <yat/utils/String.h>
 
 namespace yat
 {
 
 // ============================================================================
-//! \class Atom<T>
-//! \brief Non lock-free atomic storage.
-//! Provide threadsafe access to bacic-type variables by avoiding the declaration
-//! of lock object in user code
-//!
-//! \todo lock-free implementation (at least on linux)
-//!
-//! \notice The main use is for basic-type object
-//!
-//! \verbatim
-//! yat::Atomint<int> ai = 1;
-//! int i(ai);
-//! int j = ai + i;
-//! \endverbatim
+//! class Atomic
 // ============================================================================
 template<typename T>
 class Atomic
 {
 public:
-  //! c-tor
+
   Atomic<T>()            { }
   Atomic<T>(const T& v)  { m_value = v; }
+  Atomic<T>(const Atomic<T>& v)  { m_value = T(v); }
 
-  //! Accessor, return a copy
   operator const T() const
   {
     AutoMutex<> _lock(m_mtx);
     return m_value;
   }
 
-  //! Equal operator
   T operator=(const T& v)
   {
     AutoMutex<> _lock(m_mtx);
     m_value = v;
+    return m_value;
+  }
+
+  T operator=(const Atomic<T>& v)
+  {
+    AutoMutex<> _lock(m_mtx);
+    m_value = T(v);
     return m_value;
   }
 
@@ -173,17 +171,71 @@ private:
   mutable Mutex m_mtx;
 };
 
-//! Common types
+#ifdef YAT_HAS_ATOMIC
+
+typedef  std::atomic_bool atomic_bool;
+typedef  std::atomic_int atomic_int;
+typedef  std::atomic_char atomic_int8;
+typedef  std::atomic_uchar atomic_uint8;
+typedef  std::atomic_short atomic_int16;
+typedef  std::atomic_ushort atomic_uint16;
+typedef  std::atomic_int atomic_int32;
+typedef  std::atomic_uint atomic_uint32;
+typedef  std::atomic_llong atomic_int64;
+typedef  std::atomic_ullong atomic_uint64;
+
+#else
+
+//! Atomic types
 typedef Atomic<bool>   atomic_bool;
 typedef Atomic<int>    atomic_int;
+typedef Atomic<int8>   atomic_int8;
+typedef Atomic<uint8>  atomic_uint8;
 typedef Atomic<int16>  atomic_int16;
 typedef Atomic<uint16> atomic_uint16;
 typedef Atomic<int32>  atomic_int32;
 typedef Atomic<uint32> atomic_uint32;
 typedef Atomic<int64>  atomic_int64;
 typedef Atomic<uint64> atomic_uint64;
-typedef Atomic<float>  atomic_float;
-typedef Atomic<double> atomic_double;
+
+#endif
+
+#define __YAT_ATOMIC_FORMATTER__(T, dtype) \
+template<> struct Format::Formatter<T> \
+{ \
+  void operator()(const T& v, std::ostream &oss, const Context& fc) \
+  { \
+    prepare_format(oss, fc); \
+    if( 'B' == fc.type ) \
+      output_binary_value(dtype(v), oss, fc); \
+    else if( 'o' == fc.type ) \
+      output_octal_value(dtype(v), oss, fc); \
+    else if( 'x' == fc.type || 'X' == fc.type ) \
+      output_hex_value(dtype(v), oss, fc); \
+    else if( '%' == fc.type ) \
+      output_percent_value(dtype(v), oss, fc); \
+    else \
+      oss << dtype(v); \
+  } \
+};
+
+__YAT_ATOMIC_FORMATTER__(atomic_int8, int8)
+__YAT_ATOMIC_FORMATTER__(atomic_uint8, uint8)
+__YAT_ATOMIC_FORMATTER__(atomic_int16, int16)
+__YAT_ATOMIC_FORMATTER__(atomic_uint16, uint16)
+__YAT_ATOMIC_FORMATTER__(atomic_int32, int32)
+__YAT_ATOMIC_FORMATTER__(atomic_uint32, uint32)
+__YAT_ATOMIC_FORMATTER__(atomic_int64, int64)
+__YAT_ATOMIC_FORMATTER__(atomic_uint64, uint64)
+
+template<> struct Format::Formatter<atomic_bool>
+{
+  void operator()(const atomic_bool& v, std::ostream &oss, const Format::Context& fc)
+  {
+    prepare_format(oss, fc, 'b');
+    oss << bool(v);
+  }
+};
 
 } // yat
 
