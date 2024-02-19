@@ -114,6 +114,12 @@ inline int64 int64FromHLPair(long lHigh, unsigned long ulLow)
 //! Number of nanoseconds per second.
 #define NANOSEC_PER_SEC       1000000000LL
 
+//! Number of nanoseconds per millisecond.
+#define NANOSEC_PER_MILLISEC  1000000L
+
+//! Number of nanoseconds per millisecond.
+#define NANOSEC_PER_MICROSEC  1000
+
 //! Number of microseconds per day - High part.
 #define MICROSEC_PER_DAY_H    20L
 //! Number of microseconds per day - Low part.
@@ -859,6 +865,7 @@ public:
   };
 
 public:
+  //! default c-tor
   Duration() : m_nanos(0) { }
 
   //! c-tor
@@ -879,14 +886,11 @@ public:
   //! Get duration fields
   void get(Fields *fields_p) const;
 
-  //! duration in seconds
-  double total_secs() const;
-
-  //! return a pair with number of seconds and nanoseconds
-  std::pair<uint32, uint32> secs_nanos() const;
-
   //! sets raw value: total number of nanoseconds
-  void set(uint64 ns) { m_nanos = ns; }
+  void raw_value(uint64 ns) { m_nanos = ns; }
+
+  //! gets the duration raw value
+  uint64 raw_value() const { return m_nanos; }
 
   //! sets secs and remnants nanosecs
   void set(uint32 secs, uint32 nanos);
@@ -894,8 +898,13 @@ public:
   //! gets seconds & nanosecs through pointers
   void get(uint32* secs_p, uint32* nsecs_p) const;
 
-  //! gets raw value: total number of nanoseconds
-  uint64 get() const { return m_nanos; }
+  //! get as requested duration sub-type
+  template<class T>
+  T& as()
+  {
+    throw yat::Exception("BAD_CAST", "Can't convert duration to the requested type",
+                         "Duration::get<T>");
+  }
 
   //! Assignement operators
   Duration  operator+(const Duration& other);
@@ -932,6 +941,7 @@ public:
   //! \name Deprecated methods
   //@{
   void get(DurationFields *pDF) const;
+  double total_secs() const;
   void total_micros(int64 microsecs) { m_nanos = 1000 * llabs(microsecs); }
   int64 total_micros() const { return m_nanos / 1000; }
   uint16 days() const;
@@ -957,25 +967,19 @@ class YAT_DECL Seconds : public Duration
 {
 public:
   //! construct a seconds duration
-  Seconds(uint32 secs)
-  {
-    set(uint64(secs) * 1000000000LL);
-  }
+  Seconds(double secs) { set(secs); }
 
-  //! construct a seconds duration
-  Seconds(int secs)
-  {
-    set(uint64(abs(secs)) * 1000000000LL);
-  }
-
-  //! construct a seconds duration
-  Seconds(double secs)
+  //! set duration in seconds
+  void set(double secs)
   {
     if( fabs(secs) <= DURATION_MAX_SECS )
-      set(uint64(fabs(secs) * 1000000000LL));
+      Duration::raw_value(uint64(fabs(secs) * NANOSEC_PER_SEC + 0.5));
     else
       throw Exception("OVERFLOW", "Overflow error", "Seconds::Seconds");
   }
+
+  //! return the number of seconds as a floating point value
+  double get() const { return double(raw_value()) / NANOSEC_PER_SEC; }
 };
 
 //==================================================================================================
@@ -985,13 +989,18 @@ class YAT_DECL Millisecs : public Duration
 {
 public:
   //! construct a milliseconds duration
-  Millisecs(uint64 ms)
+  Millisecs(uint64 ms) { set(ms); }
+
+  //! set duration in milliseconds
+  void set(uint64 ms)
   {
     if( ms <= DURATION_MAX_MILLIS )
-      set(ms * 1000000LL);
+      Duration::raw_value(ms * NANOSEC_PER_MILLISEC);
     else
       throw Exception("OVERFLOW", "Overflow error", "Millisecs::Millisecs");
   }
+
+  uint64 get() const { return uint64(double(raw_value()) / NANOSEC_PER_MILLISEC + 0.5); }
 };
 
 //==================================================================================================
@@ -1001,13 +1010,18 @@ class YAT_DECL Microsecs : public Duration
 {
 public:
   //! construct a microseconds duration
-  Microsecs(uint64 us)
+  Microsecs(uint64 us) { set(us); }
+
+  //! set duration in microseconds
+  void set(uint64 us)
   {
     if( us <= DURATION_MAX_MICROS )
-      set(us * 1000LL);
+      Duration::raw_value(us * NANOSEC_PER_MICROSEC);
     else
       throw Exception("OVERFLOW", "Overflow error", "Microsecs::Microsecs");
   }
+
+  uint64 get() const { return uint64(double(raw_value()) / NANOSEC_PER_MICROSEC + 0.5); }
 };
 
 //==================================================================================================
@@ -1017,14 +1031,26 @@ class YAT_DECL Nanosecs : public Duration
 {
 public:
   //! construct a nanosseconds duration
-  Nanosecs(uint64 ns)
+  Nanosecs(uint64 ns) { set(ns); }
+
+  //! set duration in nanoseconds
+  void set(uint64 ns)
   {
     if( ns <= DURATION_MAX_NANOS )
-      set(ns);
+      Duration::raw_value(ns);
     else
       throw Exception("OVERFLOW", "Overflow error", "Nanosecs::Nanosecs");
   }
+
+  uint64 get() const { return raw_value(); }
 };
+
+//==============================================================================
+
+template<> inline Seconds&   Duration::as() { return static_cast<Seconds&>(*this);   }
+template<> inline Millisecs& Duration::as() { return static_cast<Millisecs&>(*this); }
+template<> inline Microsecs& Duration::as() { return static_cast<Microsecs&>(*this); }
+template<> inline Nanosecs&  Duration::as() { return static_cast<Nanosecs&>(*this);  }
 
 //==================================================================================================
 // MeanDuration
@@ -1035,7 +1061,7 @@ public:
   MeanDuration(): m_count(0), m_mean() {}
 
   void add( const Duration& d )
-       { ++m_count; m_mean.set( ( m_mean.get() * (m_count - 1) + d.get() ) / m_count ); }
+       { ++m_count; m_mean.raw_value( ( m_mean.raw_value() * (m_count - 1) + d.raw_value() ) / m_count ); }
   std::size_t n() const { return m_count; }
   const Duration& get() const { return m_mean; }
 
@@ -1102,7 +1128,7 @@ struct Format::Formatter<Time>
         }
 
 #if (defined YAT_WIN32 || defined YAT_WIN64) && defined(YAT_DECL)
-// In shared mode The microsoft linker does not found static members Time::iso8601_z &  Time::iso8601
+// In shared mode The microsoft linker does not found static members Time::iso8601_z & Time::iso8601
         if( utc )
           oss << t.to_string_utc(tz ? "%Y-%m-%dT%H:%M:%S%Z" : "%Y-%m-%dT%H:%M:%S", fc.precision);
         else if( local )
