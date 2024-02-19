@@ -1770,17 +1770,6 @@ void Duration::get(uint32* secs_p, uint32* nsecs_p) const
 }
 
 //----------------------------------------------------------------------------
-// Duration::secs_nanos
-//----------------------------------------------------------------------------
-std::pair<uint32, uint32> Duration::secs_nanos() const
-{
-  uint32 secs, nanos;
-  nanos = m_nanos % NANOSEC_PER_SEC;
-  secs = uint32(m_nanos / NANOSEC_PER_SEC);
-  return std::make_pair(secs, nanos);
-}
-
-//----------------------------------------------------------------------------
 // Duration::set
 //----------------------------------------------------------------------------
 void Duration::set(uint32 secs, uint32 nanos)
