@@ -106,38 +106,38 @@ inline int64 int64FromHLPair(long lHigh, unsigned long ulLow)
 
 #ifndef MS_SEC
 //! Number of milliseconds per second.
-  #define MS_SEC              1000L
+  #define MS_SEC              1000UL
 #endif
 //! Number of microseconds per second.
-#define MICROSEC_PER_SEC      1000000L
+#define MICROSEC_PER_SEC      1000000UL
 
 //! Number of nanoseconds per second.
-#define NANOSEC_PER_SEC       1000000000LL
+#define NANOSEC_PER_SEC       1000000000ULL
 
 //! Number of nanoseconds per millisecond.
-#define NANOSEC_PER_MILLISEC  1000000L
+#define NANOSEC_PER_MILLISEC  1000000UL
 
 //! Number of nanoseconds per millisecond.
-#define NANOSEC_PER_MICROSEC  1000
+#define NANOSEC_PER_MICROSEC  1000U
 
 //! Number of microseconds per day - High part.
-#define MICROSEC_PER_DAY_H    20L
+#define MICROSEC_PER_DAY_H    20UL
 //! Number of microseconds per day - Low part.
 #define MICROSEC_PER_DAY_L    500654080UL
 //! Number of microseconds per day.
 #define MICROSEC_PER_DAY      int64FromHLPair(MICROSEC_PER_DAY_H, MICROSEC_PER_DAY_L) // microseconds per day
 
 //! max number of seconds for a duration
-#define DURATION_MAX_SECS     4294967295LL
+#define DURATION_MAX_SECS     4294967295UL
 
 //! max number of milliseconds for a duration
-#define DURATION_MAX_MILLIS   4294967295000LL
+#define DURATION_MAX_MILLIS   4294967295000ULL
 
 //! max number of microseconds for a duration
-#define DURATION_MAX_MICROS   4294967295000000LL
+#define DURATION_MAX_MICROS   4294967295000000ULL
 
 //! max number of nanoseconds for a duration
-#define DURATION_MAX_NANOS    4294967295000000000LL
+#define DURATION_MAX_NANOS    4294967295000000000ULL
 
 #ifndef MS_OVERFLOW
   //! \brief Number of milliseconds indicating an int64 capacity overflow.
@@ -487,19 +487,39 @@ public:
 
   //! \brief Adds seconds to the date.
   //! \param dSec Number of seconds to add.
-  void add_sec(double dSec) { m_llTime += int64(dSec * 1e6); }
+  Time& add_sec(double dSec) { m_llTime += int64(dSec * 1e6); return *this; }
+
+  //! \brief Adds a duration to the date.
+  //! \param d The duration to add
+  Time& add(const class Duration& d);
+
+  //! \brief Substract a duration to the date.
+  //! \param d The duration to substract
+  Time& sub(const class Duration& d);
 
   //! \brief operator+=.
   //!
   //! Adds seconds to the date.
   //! \param dSec Number of seconds to add.
-  void operator +=(double dSec) { add_sec(dSec); }
+  Time& operator +=(double dSec) { return add_sec(dSec); }
 
   //! \brief operator-=.
   //!
   //! Subtracts seconds to the date.
   //! \param dSec Number of seconds to subtract.
-  void operator -=(double dSec) { add_sec(-dSec); }
+  Time& operator -=(double dSec) { return add_sec(-dSec); }
+
+  //! \brief operator+=.
+  //!
+  //! Adds a duration to the date.
+  //! \param d the duration to add
+  Time& operator +=(const class Duration& d);
+
+  //! \brief operator-=.
+  //!
+  //! Substract a duration to the date.
+  //! \param d the duration to add
+  Time& operator -=(const class Duration& d);
 
   //@}
 
@@ -876,9 +896,9 @@ public:
   Duration(int64 microsecs) : m_nanos(llabs(microsecs) * 1000LL) { }
 
   //! c-tor
-  //! \param seconds duration in seconds with microseconds precision
+  //! \param seconds duration in seconds with nanoseconds precision
   //! a negative value will be converted to positive one
-  Duration(double seconds) : m_nanos( int64(fabs(seconds) * NANOSEC_PER_SEC) ) { }
+  Duration(double seconds) : m_nanos( uint64(fabs(seconds) * NANOSEC_PER_SEC) ) { }
 
   //! Distance between t1 and t2, always positive
   Duration(const Time& t1, const Time& t2);
@@ -902,8 +922,8 @@ public:
   template<class T>
   T& as()
   {
-    throw yat::Exception("BAD_CAST", "Can't convert duration to the requested type",
-                         "Duration::get<T>");
+    throw Exception("BAD_CAST", "Can't convert duration to the requested type",
+                                "Duration::get<T>");
   }
 
   //! Assignement operators
@@ -975,7 +995,7 @@ public:
     if( fabs(secs) <= DURATION_MAX_SECS )
       Duration::raw_value(uint64(fabs(secs) * NANOSEC_PER_SEC + 0.5));
     else
-      throw Exception("OVERFLOW", "Overflow error", "Seconds::Seconds");
+      throw Exception("OVERFLOW", "Overflow error", "yat::Seconds::Seconds");
   }
 
   //! return the number of seconds as a floating point value
@@ -997,7 +1017,7 @@ public:
     if( ms <= DURATION_MAX_MILLIS )
       Duration::raw_value(ms * NANOSEC_PER_MILLISEC);
     else
-      throw Exception("OVERFLOW", "Overflow error", "Millisecs::Millisecs");
+      throw Exception("OVERFLOW", "Overflow error", "yat::Millisecs::Millisecs");
   }
 
   uint64 get() const { return uint64(double(raw_value()) / NANOSEC_PER_MILLISEC + 0.5); }
@@ -1018,7 +1038,7 @@ public:
     if( us <= DURATION_MAX_MICROS )
       Duration::raw_value(us * NANOSEC_PER_MICROSEC);
     else
-      throw Exception("OVERFLOW", "Overflow error", "Microsecs::Microsecs");
+      throw Exception("OVERFLOW", "Overflow error", "yat::Microsecs::Microsecs");
   }
 
   uint64 get() const { return uint64(double(raw_value()) / NANOSEC_PER_MICROSEC + 0.5); }
@@ -1039,7 +1059,7 @@ public:
     if( ns <= DURATION_MAX_NANOS )
       Duration::raw_value(ns);
     else
-      throw Exception("OVERFLOW", "Overflow error", "Nanosecs::Nanosecs");
+      throw Exception("OVERFLOW", "Overflow error", "yat::Nanosecs::Nanosecs");
   }
 
   uint64 get() const { return raw_value(); }
