@@ -134,6 +134,7 @@
 namespace yat
 {
 
+
 // ============================================================================
 //! \class Regex
 //! \brief Wrapper over the GNU Regular expression processor
@@ -146,6 +147,14 @@ namespace yat
 class YAT_DECL Regex
 {
 public:
+
+  //! Some basic patterns
+  struct Pattern
+  {
+    static const String number;     //! real number with or without exposant
+    static const String dec_octet;  //! decimal octet (integer number in [0-255])
+    static const String ipv4_addr;  //! ipv4 address (dec_octet.dec_octer.dec_octet.dec_octet)
+  };
 
   enum CompFlags
   {
