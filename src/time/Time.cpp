@@ -1509,33 +1509,33 @@ uint8 Time::get_month_from_name(const std::string& month_name)
 //----------------------------------------------------------------------------
 // Time::add
 //----------------------------------------------------------------------------
-Time& Time::add(const class Duration& d)
+Time& Time::add(const Duration& d)
 {
-  return add_sec(d.as<Seconds>().get());
+  return add_sec(d.as_const<Seconds>().get());
 }
 
 //----------------------------------------------------------------------------
 // Time::sub
 //----------------------------------------------------------------------------
-Time& Time::sub(const class Duration& d)
+Time& Time::sub(const Duration& d)
 {
-  return add_sec(-d.as<Seconds>().get());
+  return add_sec(-d.as_const<Seconds>().get());
 }
 
 //----------------------------------------------------------------------------
 // Time::operator +=
 //----------------------------------------------------------------------------
-Time& Time::operator +=(const class Duration& d)
+Time& Time::operator +=(const Duration& d)
 {
-  return add_sec(d.as<Seconds>().get());
+  return add_sec(d.as_const<Seconds>().get());
 }
 
 //----------------------------------------------------------------------------
 // Time::operator -=
 //----------------------------------------------------------------------------
-Time& Time::operator -=(const class Duration& d)
+Time& Time::operator -=(const Duration& d)
 {
-  return add_sec(-d.as<Seconds>().get());
+  return add_sec(-d.as_const<Seconds>().get());
 }
 
 //===========================================================================
@@ -1690,7 +1690,7 @@ Duration Duration::operator-(const Duration& other)
 Duration Duration::operator-(int64 microsecs)
 {
   Duration d;
-  if( m_nanos > uint64(microsecs) )
+  if( m_nanos >  1000LL * uint64(microsecs) )
     d.m_nanos = m_nanos - (1000LL * microsecs);
   return d;
 }
@@ -1822,7 +1822,7 @@ void Duration::get(Duration::Fields *fields_p) const
   fields_p->minutes = (uint8)(ulSec / SEC_PER_MIN);
   fields_p->seconds = (uint8)(ulSec - fields_p->minutes * SEC_PER_MIN);
   // Retreive sub-seconds
-  fields_p->nanos = m_nanos % MICROSEC_PER_SEC;
+  fields_p->nanos = m_nanos % NANOSEC_PER_SEC;
 }
 
 //----------------------------------------------------------------------------

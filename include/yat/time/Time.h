@@ -926,6 +926,14 @@ public:
                                 "Duration::get<T>");
   }
 
+  //! get as requested duration sub-type
+  template<class T>
+  const T& as_const() const
+  {
+    throw Exception("BAD_CAST", "Can't convert duration to the requested type",
+                                "Duration::get<T>");
+  }
+
   //! Assignement operators
   Duration  operator+(const Duration& other);
   Duration  operator-(const Duration& other);
@@ -1071,6 +1079,11 @@ template<> inline Seconds&   Duration::as() { return static_cast<Seconds&>(*this
 template<> inline Millisecs& Duration::as() { return static_cast<Millisecs&>(*this); }
 template<> inline Microsecs& Duration::as() { return static_cast<Microsecs&>(*this); }
 template<> inline Nanosecs&  Duration::as() { return static_cast<Nanosecs&>(*this);  }
+
+template<> inline const Seconds&   Duration::as_const() const { return static_cast<const Seconds&>(*this);   }
+template<> inline const Millisecs& Duration::as_const() const { return static_cast<const Millisecs&>(*this); }
+template<> inline const Microsecs& Duration::as_const() const { return static_cast<const Microsecs&>(*this); }
+template<> inline const Nanosecs&  Duration::as_const() const { return static_cast<const Nanosecs&>(*this);  }
 
 //==================================================================================================
 // MeanDuration
