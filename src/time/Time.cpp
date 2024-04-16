@@ -77,7 +77,7 @@ const char DATE_SET_ERR[]        = "BAD_ARGS";
 const char DATE_BAD_ARGS[]        = "Cannot Setting Date object";
 
 // Month names.
-static yat::pcsz s_pszMonthEnAbbr[] =
+static pcsz s_pszMonthEnAbbr[] =
 {
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
@@ -370,10 +370,10 @@ void Time::set_tz(const std::string& tz)
   {
     if( tz.size() != 5 || (tz[0] != '+' && tz[0] != '-') ||
         !isdigit(tz[1]) || !isdigit(tz[2]) || !isdigit(tz[3]) || !isdigit(tz[4]) )
-      throw yat::Exception("BAD_FORMAT", "Bad time zone field string", "Time::set_tz");
+      throw Exception("BAD_FORMAT", "Bad time zone field string", "Time::set_tz");
 
-    m_tz_bias =    yat::String(tz.substr(1,2)).to_num<int>() * 60
-                +  yat::String(tz.substr(3,2)).to_num<int>();
+    m_tz_bias =    String(tz.substr(1,2)).to_num<int>() * 60
+                +  String(tz.substr(3,2)).to_num<int>();
 
     if( '-' == tz[0] )
       m_tz_bias = -m_tz_bias;
@@ -403,7 +403,7 @@ int Time::sys_time_zone_bias()
     GetTimeZoneInformation(&tzi);
     return -tzi.Bias;
 #else
-     return yat::CurrentTime().time_zone_bias();
+     return CurrentTime().time_zone_bias();
 #endif
 }
 
@@ -482,7 +482,7 @@ pcsz Time::day_name(uint8 day, bool long_name)
 //----------------------------------------------------------------------------
 // Time::get_current_local
 //----------------------------------------------------------------------------
-void Time::get_current_local(DateFields* df_p)
+void Time::get_current_local(Time::Fields* df_p)
 {
   #ifdef WIN32
 
@@ -528,7 +528,7 @@ void Time::get_current_local(DateFields* df_p)
 //----------------------------------------------------------------------------
 // Time::get_current_utc
 //----------------------------------------------------------------------------
-void Time::get_current_utc(DateFields* df_p)
+void Time::get_current_utc(Fields* df_p)
 {
   #ifdef WIN32
 
@@ -694,7 +694,7 @@ void Time::UT_to_local()
 //----------------------------------------------------------------------------
 // Time::get
 //----------------------------------------------------------------------------
-void Time::get(DateFields *pDF) const
+void Time::get(Fields *pDF) const
 {
   // Retreive Julian date
   long lJJ = julian_date();
@@ -738,7 +738,7 @@ void Time::get(DateFields *pDF) const
 //----------------------------------------------------------------------------
 // Time::set
 //----------------------------------------------------------------------------
-void Time::set(const DateFields &df)
+void Time::set(const Fields &df)
 {
   if( df.is_empty() )
     // Empty date
@@ -774,7 +774,7 @@ void Time::set(const DateFields &df)
 void Time::set(int16 iYear, uint8 uiMonth, uint8 uiDay,
                uint8 uiHour, uint8 uiMin, double dSec)
 {
-  DateFields df;
+  Fields df;
   df.year  = iYear;
   df.month = uiMonth;
   df.day   = uiDay;
@@ -811,7 +811,7 @@ void Time::set_local(int16 year, uint8 month, uint8 day,
 //----------------------------------------------------------------------------
 void Time::set_day_of_year(uint16 iDayOfYear, int16 iYear)
 {
-  DateFields df;
+  Fields df;
   get(&df);
   set(iYear, 1, 1, df.hour, df.min, df.sec);
   add_sec((iDayOfYear - 1) * SEC_PER_DAY);
@@ -821,7 +821,7 @@ void Time::set_day_of_year(uint16 iDayOfYear, int16 iYear)
 #define IMPLEMENT_DATEFIELD(Name)     \
 void Time::set_##Name(uint8 ui)       \
 {                                     \
-  DateFields df;                     \
+  Fields df;                     \
   get(&df);                           \
   df.Name = ui;                     \
   set(df);                            \
@@ -829,7 +829,7 @@ void Time::set_##Name(uint8 ui)       \
                                       \
 uint8 Time::Name() const               \
 {                                     \
-  DateFields df;                     \
+  Fields df;                     \
   get(&df);                           \
   return df.Name;                  \
 }
@@ -843,7 +843,7 @@ IMPLEMENT_DATEFIELD(month)
 //----------------------------------------------------------------------------
 void Time::set_minute(uint8 iMinute)
 {
-  DateFields df;
+  Fields df;
   get(&df);
   df.min = iMinute;
   set(df);
@@ -854,7 +854,7 @@ void Time::set_minute(uint8 iMinute)
 //----------------------------------------------------------------------------
 uint8 Time::minute() const
 {
-  DateFields df;
+  Fields df;
   get(&df);
   return df.min;
 }
@@ -864,7 +864,7 @@ uint8 Time::minute() const
 //----------------------------------------------------------------------------
 void Time::set_year(int16 iYear)
 {
-  DateFields df;
+  Fields df;
   get(&df);
   df.year = iYear;
   set(df);
@@ -883,7 +883,7 @@ void Time::set_month(const std::string& month_name)
 //----------------------------------------------------------------------------
 int16 Time::year() const
 {
-  DateFields df;
+  Fields df;
   get(&df);
   return df.year;
 }
@@ -893,7 +893,7 @@ int16 Time::year() const
 //----------------------------------------------------------------------------
 void Time::set_second(double dSec)
 {
-  DateFields df;
+  Fields df;
   get(&df);
   df.sec = dSec;
   set(df);
@@ -912,7 +912,7 @@ void Time::set_time_zone_bias(int minutes)
 //----------------------------------------------------------------------------
 double Time::second() const
 {
-  DateFields df;
+  Fields df;
   get(&df);
   return df.sec;
 }
@@ -954,7 +954,7 @@ void Time::set_julian_date(long lJulianDate)
 //----------------------------------------------------------------------------
 uint8 Time::day_of_week() const
 {
-  DateFields df;
+  Fields df;
   get(&df);
   return df.day_of_week;
 }
@@ -973,7 +973,7 @@ uint16 Time::day_of_year() const
 //----------------------------------------------------------------------------
 uint8 Time::week_of_year() const
 {
-  DateFields df;
+  Fields df;
   get(&df);
   return df.week_of_year;
 }
@@ -1033,7 +1033,7 @@ void Time::set_double_unix(double dRefSec)
 //----------------------------------------------------------------------------
 std::string Time::to_ISO8601_ms_TU() const
 {
-  return to_string_utc(yat::Time::iso8601, 3);
+  return to_string_utc(Time::iso8601, 3);
 }
 
 //----------------------------------------------------------------------------
@@ -1041,7 +1041,7 @@ std::string Time::to_ISO8601_ms_TU() const
 //----------------------------------------------------------------------------
 std::string Time::to_ISO8601_micro_TU() const
 {
-  return to_string_utc(yat::Time::iso8601, 6);
+  return to_string_utc(Time::iso8601, 6);
 }
 
 //----------------------------------------------------------------------------
@@ -1049,7 +1049,7 @@ std::string Time::to_ISO8601_micro_TU() const
 //----------------------------------------------------------------------------
 std::string Time::to_ISO8601_ms() const
 {
-  return to_string(yat::Time::iso8601, 3);
+  return to_string(Time::iso8601, 3);
 }
 
 //----------------------------------------------------------------------------
@@ -1057,7 +1057,7 @@ std::string Time::to_ISO8601_ms() const
 //----------------------------------------------------------------------------
 std::string Time::to_ISO8601() const
 {
-  return to_string(yat::Time::iso8601);
+  return to_string(Time::iso8601);
 }
 
 //----------------------------------------------------------------------------
@@ -1065,7 +1065,7 @@ std::string Time::to_ISO8601() const
 //----------------------------------------------------------------------------
 std::string Time::to_ISO8601_micro() const
 {
-  return to_string_utc(yat::Time::iso8601, 6);
+  return to_string_utc(Time::iso8601, 6);
 }
 
 //----------------------------------------------------------------------------
@@ -1073,7 +1073,7 @@ std::string Time::to_ISO8601_micro() const
 //----------------------------------------------------------------------------
 std::string Time::to_local_ISO8601() const
 {
-  return to_string_local(yat::Time::iso8601);
+  return to_string_local(Time::iso8601);
 }
 
 //----------------------------------------------------------------------------
@@ -1081,7 +1081,7 @@ std::string Time::to_local_ISO8601() const
 //----------------------------------------------------------------------------
 std::string Time::to_local_ISO8601_ms() const
 {
-  return to_string_local(yat::Time::iso8601, 3);
+  return to_string_local(Time::iso8601, 3);
 }
 
 //----------------------------------------------------------------------------
@@ -1089,7 +1089,7 @@ std::string Time::to_local_ISO8601_ms() const
 //----------------------------------------------------------------------------
 std::string Time::to_local_ISO8601_micro() const
 {
-  return to_string_local(yat::Time::iso8601, 6);
+  return to_string_local(Time::iso8601, 6);
 }
 
 //----------------------------------------------------------------------------
@@ -1106,7 +1106,7 @@ std::string Time::to_inter(bool bMillis) const
 //----------------------------------------------------------------------------
 // Time::to_string_local
 //----------------------------------------------------------------------------
-yat::String Time::to_string_local(const std::string& format, unsigned short precision) const
+String Time::to_string_local(const std::string& format, unsigned short precision) const
 {
   if( !m_local_time )
     return Time(*this).to_local().to_string(format, precision);
@@ -1117,7 +1117,7 @@ yat::String Time::to_string_local(const std::string& format, unsigned short prec
 //----------------------------------------------------------------------------
 // Time::to_string_utc
 //----------------------------------------------------------------------------
-yat::String Time::to_string_utc(const std::string& format, unsigned short precision) const
+String Time::to_string_utc(const std::string& format, unsigned short precision) const
 {
   if( m_local_time )
     return Time(*this).to_utc().to_string(format, precision);
@@ -1128,7 +1128,7 @@ yat::String Time::to_string_utc(const std::string& format, unsigned short precis
 //----------------------------------------------------------------------------
 // internal utility function
 //----------------------------------------------------------------------------
-std::string _iso8601_bias(const DateFields& df)
+std::string _iso8601_bias(const Time::Fields& df)
 {
   if( !df.local_time )
     return "Z";
@@ -1149,9 +1149,9 @@ std::string _iso8601_bias(const DateFields& df)
 //----------------------------------------------------------------------------
 // Time::to_string
 //----------------------------------------------------------------------------
-yat::String Time::to_string(const std::string& format, unsigned short precision) const
+String Time::to_string(const std::string& format, unsigned short precision) const
 {
-  DateFields df;
+  Fields df;
   get(&df);
   return to_string(df, format, precision);
 }
@@ -1159,7 +1159,7 @@ yat::String Time::to_string(const std::string& format, unsigned short precision)
 //----------------------------------------------------------------------------
 // Time::to_string
 //----------------------------------------------------------------------------
-yat::String Time::to_string(const DateFields& df, const std::string& format, unsigned short precision)
+String Time::to_string(const Fields& df, const std::string& format, unsigned short precision)
 {
   std::ostringstream oss;
   bool get_identifier = false;
@@ -1264,10 +1264,10 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
           oss << '%';
           break;
         default:
-          throw yat::Exception("BAD_FORMAT",
-                               std::string("Unknown date-time identifier: ") +
-                               format.substr(i_f, 1) + " in format: " + format,
-                               "Time::to_string");
+          throw Exception("BAD_FORMAT",
+              std::string("Unknown date-time identifier: ") +
+                          format.substr(i_f, 1) + " in format: " + format,
+                         "Time::to_string");
       }
       get_identifier = false;
     }
@@ -1275,7 +1275,7 @@ yat::String Time::to_string(const DateFields& df, const std::string& format, uns
       oss << format[i_f];
   }
 
-  return yat::String(oss.str());
+  return String(oss.str());
 }
 
 //----------------------------------------------------------------------------
@@ -1336,7 +1336,7 @@ void Time::from_string(const std::string& date_time, const std::string& format)
             // seconds value presision
             field_len = format[i_f] - '0';
           else
-            throw yat::Exception("BAD_FORMAT",
+            throw Exception("BAD_FORMAT",
                                std::string("Unknown date-time identifier: ") +
                                format.substr(i_f, 1) + " in format: " + format,
                                "Time::from_string");
@@ -1372,7 +1372,7 @@ void Time::from_string(const std::string& date_time, const std::string& format)
             set_tz(v);
             break;
           default:
-            throw yat::Exception("BAD_FORMAT",
+            throw Exception("BAD_FORMAT",
                                  std::string("Unknown date-time identifier: ") +
                                  format.substr(i_f, 1) + " in format: " + format,
                                  "Time::from_string");
@@ -1384,7 +1384,7 @@ void Time::from_string(const std::string& date_time, const std::string& format)
         for( std::size_t i = 0; i < field_len; ++i )
         {
           if( !isdigit(date_time[i_s]) || i_s >= date_time.size() )
-            throw yat::Exception("BAD_FORMAT", "Bad date-time string: expected digit", "Time::from_string");
+            throw Exception("BAD_FORMAT", "Bad date-time string: expected digit", "Time::from_string");
 
           v *= 10;
           v += date_time[i_s++] - char('0');
@@ -1393,25 +1393,25 @@ void Time::from_string(const std::string& date_time, const std::string& format)
         switch( format[i_f] )
         {
           case 'y':
-            set_year(static_cast<yat::int16>(v + 2000));
+            set_year(static_cast<int16>(v + 2000));
             break;
           case 'Y':
-            set_year(static_cast<yat::int16>(v));
+            set_year(static_cast<int16>(v));
             break;
           case 'm':
-            set_month(static_cast<yat::int8>(v));
+            set_month(static_cast<int8>(v));
             break;
           case 'd':
-            set_day(static_cast<yat::int8>(v));
+            set_day(static_cast<int8>(v));
             break;
           case 'j':
-            set_day_of_year(static_cast<yat::int16>(v), year());
+            set_day_of_year(static_cast<int16>(v), year());
             break;
           case 'H':
-            set_hour(static_cast<yat::int8>(v));
+            set_hour(static_cast<int8>(v));
             break;
           case 'M':
-            set_minute(static_cast<yat::int8>(v));
+            set_minute(static_cast<int8>(v));
             break;
           case 'S':
             set_second(v);
@@ -1425,7 +1425,7 @@ void Time::from_string(const std::string& date_time, const std::string& format)
                 set_second( second() + (((double)v + 0.5)/ pow(10, field_len)));
             }
             else
-              throw yat::Exception("BAD_FORMAT",
+              throw Exception("BAD_FORMAT",
                                    std::string("Unknown date-time identifier: ") +
                                    format.substr(i_f, 1) + " in format: " + format,
                                    "Time::from_string");
@@ -1435,13 +1435,13 @@ void Time::from_string(const std::string& date_time, const std::string& format)
       continue;
     }
     if( date_time.size() < i_s + 1 || date_time[i_s++] != format[i_f] )
-      throw yat::Exception("BAD_FORMAT",
-                           std::string("Time string: '")
-                           + date_time
-                           + std::string("' doesn't match the required format: '")
-                           + format
-                           + "'",
-                           "Time::from_string");
+      throw Exception("BAD_FORMAT",
+                      std::string("Time string: '")
+                      + date_time
+                      + std::string("' doesn't match the required format: '")
+                      + format
+                      + "'",
+                      "Time::from_string");
   }
 }
 
@@ -1496,14 +1496,46 @@ uint8 Time::get_month_from_name(const std::string& month_name)
 {
   for( std::size_t i = 0; i < 12; ++i )
   {
-    if( yat::StringUtil::is_equal_no_case(month_name, s_pszMonthEn[i]) )
+    if( StringUtil::is_equal_no_case(month_name, s_pszMonthEn[i]) )
       return i + 1;
-    if( yat::StringUtil::is_equal_no_case(month_name, s_pszMonthEnAbbr[i]) )
+    if( StringUtil::is_equal_no_case(month_name, s_pszMonthEnAbbr[i]) )
       return i + 1;
   }
   std::ostringstream oss;
   oss << "Bad month name: " << month_name;
-  throw yat::Exception("ERROR", oss.str(), "Time::get_month_from_name");
+  throw Exception("ERROR", oss.str(), "Time::get_month_from_name");
+}
+
+//----------------------------------------------------------------------------
+// Time::add
+//----------------------------------------------------------------------------
+Time& Time::add(const Duration& d)
+{
+  return add_sec(d.as_const<Seconds>().get());
+}
+
+//----------------------------------------------------------------------------
+// Time::sub
+//----------------------------------------------------------------------------
+Time& Time::sub(const Duration& d)
+{
+  return add_sec(-d.as_const<Seconds>().get());
+}
+
+//----------------------------------------------------------------------------
+// Time::operator +=
+//----------------------------------------------------------------------------
+Time& Time::operator +=(const Duration& d)
+{
+  return add_sec(d.as_const<Seconds>().get());
+}
+
+//----------------------------------------------------------------------------
+// Time::operator -=
+//----------------------------------------------------------------------------
+Time& Time::operator -=(const Duration& d)
+{
+  return add_sec(-d.as_const<Seconds>().get());
 }
 
 //===========================================================================
@@ -1562,12 +1594,12 @@ void DurationFields::clear()
 //----------------------------------------------------------------------------
 // Duration::Duration
 //----------------------------------------------------------------------------
-Duration::Duration(const yat::Time& t1, const yat::Time& t2)
+Duration::Duration(const Time& t1, const Time& t2)
 {
   if( t1.raw_value() > t2.raw_value() )
-    m_microsecs = t1.raw_value() - t2.raw_value();
+    m_nanos = 1000LL * (t1.raw_value() - t2.raw_value());
   else
-    m_microsecs = t2.raw_value() - t1.raw_value();
+    m_nanos = 1000LL * (t2.raw_value() - t1.raw_value());
 }
 
 //----------------------------------------------------------------------------
@@ -1575,16 +1607,16 @@ Duration::Duration(const yat::Time& t1, const yat::Time& t2)
 //----------------------------------------------------------------------------
 Duration& Duration::operator=(const Duration& other)
 {
-  m_microsecs = other.m_microsecs;
+  m_nanos = other.m_nanos;
   return *this;
 }
 
 //----------------------------------------------------------------------------
 // Duration::operator+=
 //----------------------------------------------------------------------------
-Duration& Duration::operator+=(yat::int64 microsecs)
+Duration& Duration::operator+=(int64 microsecs)
 {
-  m_microsecs += microsecs;
+  m_nanos += 1000LL * microsecs;
   return *this;
 }
 
@@ -1593,19 +1625,19 @@ Duration& Duration::operator+=(yat::int64 microsecs)
 //----------------------------------------------------------------------------
 Duration& Duration::operator+=(const Duration& other)
 {
-  m_microsecs += other.m_microsecs;
+  m_nanos += other.m_nanos;
   return *this;
 }
 
 //----------------------------------------------------------------------------
 // Duration::operator-=
 //----------------------------------------------------------------------------
-Duration& Duration::operator-=(yat::int64 microsecs)
+Duration& Duration::operator-=(int64 microsecs)
 {
-  if( m_microsecs > microsecs )
-    m_microsecs -= microsecs;
+  if( m_nanos > 1000LL * uint64(microsecs) )
+    m_nanos -= 1000LL * microsecs;
   else
-    m_microsecs = 0;
+    m_nanos = 0;
   return *this;
 }
 
@@ -1614,10 +1646,10 @@ Duration& Duration::operator-=(yat::int64 microsecs)
 //----------------------------------------------------------------------------
 Duration& Duration::operator-=(const Duration& other)
 {
-  if( m_microsecs > other.m_microsecs )
-    m_microsecs -= other.m_microsecs;
+  if( m_nanos > 1000LL * other.m_nanos )
+    m_nanos -= 1000LL * other.m_nanos;
   else
-    m_microsecs = 0;
+    m_nanos = 0;
   return *this;
 }
 
@@ -1627,17 +1659,17 @@ Duration& Duration::operator-=(const Duration& other)
 Duration Duration::operator+(const Duration& other)
 {
   Duration d;
-  d.m_microsecs = m_microsecs + other.m_microsecs;
+  d.m_nanos = m_nanos + other.m_nanos;
   return d;
 }
 
 //----------------------------------------------------------------------------
 // Duration::operator+
 //----------------------------------------------------------------------------
-Duration Duration::operator+(yat::int64 microsecs)
+Duration Duration::operator+(int64 microsecs)
 {
   Duration d;
-  d.m_microsecs = m_microsecs + microsecs;
+  d.m_nanos = m_nanos + (1000LL * microsecs);
   return d;
 }
 
@@ -1647,19 +1679,19 @@ Duration Duration::operator+(yat::int64 microsecs)
 Duration Duration::operator-(const Duration& other)
 {
   Duration d;
-  if( m_microsecs > other.m_microsecs )
-    d.m_microsecs = m_microsecs - other.m_microsecs;
+  if( m_nanos > other.m_nanos )
+    d.m_nanos = m_nanos - other.m_nanos;
   return d;
 }
 
 //----------------------------------------------------------------------------
 // Duration::operator-
 //----------------------------------------------------------------------------
-Duration Duration::operator-(yat::int64 microsecs)
+Duration Duration::operator-(int64 microsecs)
 {
   Duration d;
-  if( m_microsecs > microsecs )
-    d.m_microsecs = m_microsecs - microsecs;
+  if( m_nanos >  1000LL * uint64(microsecs) )
+    d.m_nanos = m_nanos - (1000LL * microsecs);
   return d;
 }
 
@@ -1669,7 +1701,7 @@ Duration Duration::operator-(yat::int64 microsecs)
 Duration& Duration::operator*=(int n)
 {
   if( n >= 0 )
-    m_microsecs *= n;
+    m_nanos *= n;
   return *this;
 }
 
@@ -1679,7 +1711,7 @@ Duration& Duration::operator*=(int n)
 Duration& Duration::operator/=(int n)
 {
   if( n > 0 )
-    m_microsecs /= n;
+    m_nanos /= n;
   return *this;
 }
 
@@ -1689,7 +1721,7 @@ Duration& Duration::operator/=(int n)
 Duration& Duration::operator*=(double factor)
 {
   if( factor >= 0 )
-    m_microsecs = yat::int64( double(m_microsecs) * factor );
+    m_nanos = uint64( double(m_nanos) * factor );
   return *this;
 }
 
@@ -1699,7 +1731,7 @@ Duration& Duration::operator*=(double factor)
 Duration& Duration::operator/=(double factor)
 {
   if( factor > 0 )
-    m_microsecs = yat::int64( double(m_microsecs) / factor );
+    m_nanos = uint64( double(m_nanos) / factor );
   return *this;
 }
 
@@ -1710,9 +1742,9 @@ Duration Duration::operator*(int n)
 {
   Duration d;
   if( n >= 0 )
-    d.m_microsecs = m_microsecs * n;
+    d.m_nanos = m_nanos * n;
   else
-    d.m_microsecs = m_microsecs;
+    d.m_nanos = m_nanos;
   return d;
 }
 
@@ -1723,9 +1755,9 @@ Duration Duration::operator/(int n)
 {
   Duration d;
   if( n > 0 )
-    d.m_microsecs = m_microsecs / n;
+    d.m_nanos = m_nanos / n;
   else
-    d.m_microsecs = m_microsecs;
+    d.m_nanos = m_nanos;
   return d;
 }
 
@@ -1736,9 +1768,9 @@ Duration Duration::operator*(double factor)
 {
   Duration d;
   if( factor >= 0 )
-    d.m_microsecs = yat::int64(double(m_microsecs) * factor);
+    d.m_nanos = uint64(double(m_nanos) * factor);
   else
-    d.m_microsecs = m_microsecs;
+    d.m_nanos = m_nanos;
   return d;
 }
 
@@ -1749,10 +1781,48 @@ Duration Duration::operator/(double factor)
 {
   Duration d;
   if( factor > 0 )
-    d.m_microsecs = yat::int64(double(m_microsecs) / factor);
+    d.m_nanos = uint64(double(m_nanos) / factor);
   else
-    d.m_microsecs = m_microsecs;
+    d.m_nanos = m_nanos;
   return d;
+}
+
+//----------------------------------------------------------------------------
+// Duration::secs_nanos
+//----------------------------------------------------------------------------
+void Duration::get(uint32* secs_p, uint32* nsecs_p) const
+{
+  if( secs_p && nsecs_p )
+  {
+    *nsecs_p = m_nanos % NANOSEC_PER_SEC;
+    *secs_p = uint32(m_nanos / NANOSEC_PER_SEC);
+  }
+  else
+    throw Exception("INVALID_PTR", "received invalid pointer", "Duration::get");
+}
+
+//----------------------------------------------------------------------------
+// Duration::set
+//----------------------------------------------------------------------------
+void Duration::set(uint32 secs, uint32 nanos)
+{
+  m_nanos = secs * NANOSEC_PER_SEC + nanos;
+}
+
+//----------------------------------------------------------------------------
+// Duration::get
+//----------------------------------------------------------------------------
+void Duration::get(Duration::Fields *fields_p) const
+{
+  fields_p->days = static_cast<uint16>((m_nanos / NANOSEC_PER_SEC) / SEC_PER_DAY);
+  // Hour, minutes, seconds
+  uint32 ulSec = uint32((m_nanos / uint64(NANOSEC_PER_SEC)) % uint32(SEC_PER_DAY));
+  fields_p->hours = (uint8)(ulSec / SEC_PER_HOUR);
+  ulSec -= fields_p->hours * SEC_PER_HOUR;
+  fields_p->minutes = (uint8)(ulSec / SEC_PER_MIN);
+  fields_p->seconds = (uint8)(ulSec - fields_p->minutes * SEC_PER_MIN);
+  // Retreive sub-seconds
+  fields_p->nanos = m_nanos % NANOSEC_PER_SEC;
 }
 
 //----------------------------------------------------------------------------
@@ -1760,15 +1830,15 @@ Duration Duration::operator/(double factor)
 //----------------------------------------------------------------------------
 void Duration::get(DurationFields *pDF) const
 {
-  pDF->days = static_cast<yat::uint8>((m_microsecs / MICROSEC_PER_SEC) / SEC_PER_DAY);
+  pDF->days = static_cast<uint8>((m_nanos / NANOSEC_PER_SEC) / SEC_PER_DAY);
   // Hour, minutes, seconds
-  uint32 ulSec = uint32((m_microsecs / int64(MICROSEC_PER_SEC)) % int64(SEC_PER_DAY));
+  uint32 ulSec = uint32((m_nanos / uint64(NANOSEC_PER_SEC)) % uint32(SEC_PER_DAY));
   pDF->hours = (uint8)(ulSec / SEC_PER_HOUR);
   ulSec -= pDF->hours * SEC_PER_HOUR;
   pDF->minutes = (uint8)(ulSec / SEC_PER_MIN);
   pDF->seconds = (uint8)(ulSec - pDF->minutes * SEC_PER_MIN);
   // Retreive micro-seconds
-  pDF->micros = m_microsecs % MICROSEC_PER_SEC;
+  pDF->micros = (m_nanos / 1000LL) % MICROSEC_PER_SEC;
 }
 
 //----------------------------------------------------------------------------
@@ -1836,7 +1906,7 @@ uint32 Duration::micros() const
 //----------------------------------------------------------------------------
 double Duration::total_secs() const
 {
-  return (double)m_microsecs / MICROSEC_PER_SEC;
+  return (double)m_nanos / NANOSEC_PER_SEC;
 }
 
 //----------------------------------------------------------------------------

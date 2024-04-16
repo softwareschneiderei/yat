@@ -1,5 +1,36 @@
 YAT history file
 
+1.21.0 (2024/04/03)
+===================
+
+Additions
+    classes JThread, StopSource, StopToken
+        Auto joinable & cancellable thread management class
+    -> see <yat/threading/JThread.h>
+
+    function 'async', classes Promise & Future
+        Function that start asynchronous execution of code
+    -> see <yat/threading/Future.h>
+
+    Formatter<Error>
+        text formatter for Error struct
+
+    class Duration
+        new classes Seconds, Millisecs, Microsecs, Nanosecs inherited from Duration.
+        new conversion methods from Duration to Seconds, Millisecs, Microsecs,
+        Nanosecs
+    -> see <yat/time/Time.h>
+
+    Formatter for Error class
+
+Changes
+    Duration now internally store duration value in ns reather than µs
+
+    function fp_is_equal
+        if no precision is provided then use std::epsilon
+
+    ThreadingUtilities class name is deprecated, Use ThisThread instead.
+
 1.20.3 (2023/12/05)
 ===================
 
@@ -15,6 +46,7 @@ Additions
         regex without the need to explicitely declare Regex class objets
         If performance is a critical concern using thoses methods is not
         recommanded.
+    -> see <yat/utils/String.h>
 
 Fixes
     class Thread
@@ -35,6 +67,7 @@ Additions
     class SFormat
         Inherited from Format. The only difference is that it not throw exception
         when parsing format.
+    -> see <yat/utils/String.h>
 
 1.20.1 (2023/04/11)
 ===================

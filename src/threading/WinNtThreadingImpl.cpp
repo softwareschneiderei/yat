@@ -623,7 +623,7 @@ void ThreadingUtilities::sleep_impl (long _secs, long _nano_secs)
 // ----------------------------------------------------------------------------
 // ThreadingUtilities::hardware_concurrency
 // ----------------------------------------------------------------------------
-unsigned int ThreadingUtilities::harware_concurrency()
+unsigned int ThreadingUtilities::hardware_concurrency()
 {
   SYSTEM_INFO sysinfo;
   ::GetSystemInfo(&sysinfo);

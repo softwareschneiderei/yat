@@ -10,7 +10,7 @@
 
   <groupId>fr.soleil.lib</groupId>
   <artifactId>YAT-${aol}-shared-${mode}</artifactId>
-  <version>1.20.2</version>
+  <version>1.21.0</version>
 
   <packaging>nar</packaging>
   <name>YAT</name>
@@ -47,7 +47,7 @@
       <plugin>
         <groupId>org.freehep</groupId>
         <artifactId>freehep-nar-plugin</artifactId>
-		<version>2.0-alpha-17-SOLEIL</version>
+	      <version>2.0-alpha-17-SOLEIL</version>
         <configuration>
           <cpp>
             <sourceDirectory>src</sourceDirectory>

@@ -67,6 +67,12 @@ typedef YAT_WEAK_PTR(::regex_t) CompiledRegexWPtr;
   Mutex  Regex::s_mtx;
 #endif
 
+const std::string _DEC_OCTET     = "([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])";
+
+const String Regex::Pattern::number    = R"([\+\-]?([0-9]+|\.[0-9]+|[0-9]+\.|[0-9]+\.[0-9]+)([eE][\+\-]?[0-9]+)?)";
+const String Regex::Pattern::dec_octet = _DEC_OCTET;
+const String Regex::Pattern::ipv4_addr = _DEC_OCTET + R"(\.)" + _DEC_OCTET + R"(\.)" + _DEC_OCTET + R"(\.)" + _DEC_OCTET;
+
 // ============================================================================
 // class RegexCache
 // Simple FIFO cache

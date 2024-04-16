@@ -162,7 +162,7 @@ public:
   static bool ends_with(const std::string& str, pcsz pcszEnd, bool bNoCase=false);
 
   //! \name Token extraction
-  //@{
+  //!@{
 
   //! \brief Family results for token extraction methods.
   enum ExtractTokenRes
@@ -227,7 +227,7 @@ public:
   static ExtractTokenRes extract_token_right(std::string* str_p, char cLeft, char cRight,
                                              std::string *pstrToken);
 
-  //@}
+  //!@}
 
   //! \brief Removes characters that enclose std::string: quotes, parenthesis, etc...
   //!
@@ -639,7 +639,7 @@ public:
   operator const std::string&() const { return m_str; }
 
   //! \name std::string definitions & methods mapping
-  //@{
+  //!@{
 
   typedef char value_type;
   typedef std::allocator<char> Allocator;
@@ -797,10 +797,10 @@ public:
                                           { return m_str.find_last_not_of(psz, pos); }
   size_type find_last_not_of(char c, size_type pos = std::string::npos) const
                                             { return m_str.find_last_not_of(c, pos); }
-  //@}
+  //!@}
 
   //! \name Constructors
-  //@{
+  //!@{
 
   //! \brief Default constructor.
   String() {}
@@ -837,7 +837,11 @@ public:
   //! \brief Constructor from std::string.
   //! \param str The string.
   String(const std::string &str) : m_str(str) {}
-  //@}
+
+  //!@}
+
+  //! \name Comparison methods
+  //!@{
 
   //! \brief Compares strings (i.e. operator==).
   //!
@@ -895,8 +899,10 @@ public:
   bool ends_with(const std::string& str, bool no_case=false) const
   { return StringUtil::ends_with(m_str, str.c_str(), no_case); }
 
+  //!@}
+
   //! \name Token extraction
-  //@{
+  //!@{
 
   //! \brief Family results for token extraction methods.
   enum ExtractTokenRes
@@ -959,28 +965,10 @@ public:
   ExtractTokenRes extract_token_right(char cl, char cr, std::string *token_p, bool apply_escape=false)
   { return static_cast<ExtractTokenRes>(StringUtil::extract_token_right(&m_str, cl, cr, token_p, apply_escape)); }
 
-  //@}
+  //!@}
 
-  //! \brief Removes characters that enclose string: quotes, parenthesis, etc...
-  //!
-  //! Returns true if enclosure was removed.
-  //! ex: RemoveEnclosure("'", "'") -\> removes quotes in a string like 'string'.
-  //! ex: RemoveEnclosure("(\[", ")\]") -\> removes parenthesis in a string like (string) or \[string\]
-  //! but not in string like (string\].
-  //! \param left List of possible left enclosure characters.
-  //! \param right List of possible right enclosure characters.
-  //! \remark \<pszLeft\> and \<pszRight\> must have the same length.
-  bool remove_enclosure(psz left, psz right)
-  { return StringUtil::remove_enclosure(&m_str, left, right); }
-
-  //! \brief Removes characters that enclose string: quotes, parenthesis, etc...
-  //!
-  //! Returns true if enclosure was removed.
-  //! ex: RemoveEnclosure("'", "'") -\> removes quotes in a string like 'string'.
-  //! \param cl Left enclosure character.
-  //! \param cr Right enclosure character.
-  bool remove_enclosure(char cl, char cr)
-  { return StringUtil::remove_enclosure(&m_str, cl, cr); }
+  //! \name Basic pattern matching
+  //!@{
 
   //! \brief Tests if string matches with mask containing '*' and '?' jokers.
   //!
@@ -1006,6 +994,11 @@ public:
   bool match(const std::string &mask, std::vector<std::string>* tokens_p=0) const
   { return StringUtil::match(m_str, mask, tokens_p); }
 
+  //!@}
+
+  //! \name Triming
+  //!@{
+
   //! \brief Removes white spaces at beginning and end of string.
   String& trim()
   { StringUtil::trim(&m_str); return *this; }
@@ -1017,6 +1010,11 @@ public:
   //! \brief Removes white spaces at end of string.
   String& trim_right()
   { StringUtil::trim_right(&m_str); return *this; }
+
+  //!@}
+
+  //! \name Split & Join
+  //!@{
 
   //! \brief Splits the string.
   //!
@@ -1067,6 +1065,29 @@ public:
   { StringUtil::join(&m_str, vec, sep ); return *this; }
   String& join(const std::vector<std::string> &vec, char sep=',')
   { StringUtil::join(&m_str, vec, sep ); return *this; }
+
+  //!@}
+
+  //! \brief Removes characters that enclose string: quotes, parenthesis, etc...
+  //!
+  //! Returns true if enclosure was removed.
+  //! ex: RemoveEnclosure("'", "'") -\> removes quotes in a string like 'string'.
+  //! ex: RemoveEnclosure("(\[", ")\]") -\> removes parenthesis in a string like (string) or \[string\]
+  //! but not in string like (string\].
+  //! \param left List of possible left enclosure characters.
+  //! \param right List of possible right enclosure characters.
+  //! \remark \<pszLeft\> and \<pszRight\> must have the same length.
+  bool remove_enclosure(psz left, psz right)
+  { return StringUtil::remove_enclosure(&m_str, left, right); }
+
+  //! \brief Removes characters that enclose string: quotes, parenthesis, etc...
+  //!
+  //! Returns true if enclosure was removed.
+  //! ex: RemoveEnclosure("'", "'") -\> removes quotes in a string like 'string'.
+  //! \param cl Left enclosure character.
+  //! \param cr Right enclosure character.
+  bool remove_enclosure(char cl, char cr)
+  { return StringUtil::remove_enclosure(&m_str, cl, cr); }
 
   //! \brief Removes items separated by a specific separator.
   //!
@@ -1146,8 +1167,8 @@ public:
     return StringUtil::to_num<T>(m_str, _throw);
   }
 
-  //! \name pattern matching using regular expressions methods
-  //@{
+  //! \name Pattern matching operations using regular expressions
+  //!@{
 
   //! check if the string match the given regex pattern 
   //! \param pattern the regex pattern
@@ -1168,28 +1189,28 @@ public:
   //! \param first_only if true replace only the 1st occurence
   //! \param reject_non_matching if true  non matching parts are removed from the string
   String& re_replace(const std::string& search_for, const std::string& replace_by, bool first_only = false, bool reject_non_matching = false);
-  //@}
+  //!@}
 
 #ifndef YAT_CPP11
   //! \name some methods availables with c++ 11
-  //@{
+  //!@{
   char& front() { return m_str[0]; }
   const char& front() const { return m_str[0]; }
   char& back() { return m_str[m_str.size()-1]; }
   const char& back() const { return m_str[m_str.size()-1]; }
   void pop_back() { m_str.erase(m_str.size()-1, 1); }
-  //@}
+  //!@}
 #endif
 
   //! \name Deprecated methods
-  //@{
+  //!@{
   static String str_format(pcsz format, ...);
   int printf(pcsz format, ...);
   bool start_with(char c) const { return starts_with(c); }
   bool start_with(pcsz p, bool b=false) const { return starts_with(p, b); }
   bool end_with(char c) const { return ends_with(c); }
   bool end_with(pcsz p, bool b=false) const { return ends_with(p, b); }
-  //@}
+  //!@}
 
 private:
   std::string m_str;
@@ -1647,7 +1668,7 @@ public:
 //! To output the pointed objet string representation, call arg with *ptr
 //==================================================================================================
 template <typename T, typename L>
-struct Format::Formatter< SharedPtr<T,L> >
+struct Format::Formatter<SharedPtr<T,L>>
 {
   void operator()(const SharedPtr<T,L>& ptr, std::ostream &oss, const Format::Context& fc)
   {
@@ -1655,6 +1676,34 @@ struct Format::Formatter< SharedPtr<T,L> >
     prepare_format(oss, fc, 'p');
 
     oss << this;
+  }
+};
+
+//==================================================================================================
+//! \brief for using with yat::Error class
+//!
+//! No specific format syntax defined for this formatter\n
+//! Output the three values of an exception\n
+//==================================================================================================
+template <>
+struct Format::Formatter<Error>
+{
+  void operator()(const Error& err, std::ostream &oss, const Format::Context& fc)
+  {
+    // setup width & alignment
+    prepare_format(oss, fc, 's');
+
+    if( !fc.fmt_ext.empty() )
+    {
+      if( fc.fmt_ext[0] == 'r' )
+        oss << err.reason;
+      else if( fc.fmt_ext[0] == 'd' )
+        oss << err.desc;
+      else if( fc.fmt_ext[0] == 'o' )
+        oss << err.origin;
+    }
+    else
+      oss << "what: " << err.reason << ". why: " << err.desc << ". where: " << err.origin;
   }
 };
 

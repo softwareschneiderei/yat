@@ -79,6 +79,13 @@ public:
    //! \brief Returns the calling thread identifier.
   static ThreadUID self ();
 
+  //! \brief Allows another thread to run.
+  static void yield();
+
+  //! \brief Causes the caller to sleep for the given time.
+  //! \param duration Time duration.
+  static void sleep_for(const class Duration &duration);
+
   //! \deprecated
   static void sleep (long secs, long nanosecs = 0);
 
@@ -102,7 +109,7 @@ public:
   //! The value should be considered only a hint.
   //! If the value is not well defined or not computable, returns 0
   //! \note equivalent to c++11 std::thread::hardware_concurrency
-  static unsigned int harware_concurrency();
+  static unsigned int hardware_concurrency();
 
   //! \brief Calculates an absolute time in seconds and nanoseconds, suitable for
   //! use in timed waits (ex: Condition, Semaphore), which is the current
@@ -131,6 +138,9 @@ public:
   //! \param offset_nsecs Offset in nanoseconds.
   static void get_time (Timespec & abs_time, unsigned long offset_secs, unsigned long offset_nsecs);
 
+  // deprecated
+  static unsigned int harware_concurrency() { return hardware_concurrency(); }
+
 private:
 
 #if defined (YAT_WIN32)
@@ -143,6 +153,9 @@ private:
   static void sleep_impl(long secs, long nanosecs = 0);
 
 };
+
+//! 'ThreadingUtilities' is too long, 'ThisThread' is better
+typedef ThreadingUtilities ThisThread;
 
 } // namespace yat
 

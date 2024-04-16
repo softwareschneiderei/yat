@@ -63,6 +63,7 @@
 //!   - yat::DateFields
 //!   - yat::Duration
 //!   - yat::Time
+//!   - yat::Time::Fields
 //!   - yat::UnixTime
 //!   - yat::CurrentTime
 //!   - yat::CurrentUTime
@@ -105,17 +106,38 @@ inline int64 int64FromHLPair(long lHigh, unsigned long ulLow)
 
 #ifndef MS_SEC
 //! Number of milliseconds per second.
-  #define MS_SEC              1000L
+  #define MS_SEC              1000UL
 #endif
 //! Number of microseconds per second.
-#define MICROSEC_PER_SEC      1000000L
+#define MICROSEC_PER_SEC      1000000UL
+
+//! Number of nanoseconds per second.
+#define NANOSEC_PER_SEC       1000000000ULL
+
+//! Number of nanoseconds per millisecond.
+#define NANOSEC_PER_MILLISEC  1000000UL
+
+//! Number of nanoseconds per millisecond.
+#define NANOSEC_PER_MICROSEC  1000U
 
 //! Number of microseconds per day - High part.
-#define MICROSEC_PER_DAY_H    20L
+#define MICROSEC_PER_DAY_H    20UL
 //! Number of microseconds per day - Low part.
 #define MICROSEC_PER_DAY_L    500654080UL
 //! Number of microseconds per day.
 #define MICROSEC_PER_DAY      int64FromHLPair(MICROSEC_PER_DAY_H, MICROSEC_PER_DAY_L) // microseconds per day
+
+//! max number of seconds for a duration
+#define DURATION_MAX_SECS     4294967295UL
+
+//! max number of milliseconds for a duration
+#define DURATION_MAX_MILLIS   4294967295000ULL
+
+//! max number of microseconds for a duration
+#define DURATION_MAX_MICROS   4294967295000000ULL
+
+//! max number of nanoseconds for a duration
+#define DURATION_MAX_NANOS    4294967295000000000ULL
 
 #ifndef MS_OVERFLOW
   //! \brief Number of milliseconds indicating an int64 capacity overflow.
@@ -212,6 +234,10 @@ struct YAT_DECL DateFields
 // ============================================================================
 class YAT_DECL Time
 {
+public:
+  //! Prefere to use Time::Fields instead of DateFields
+  typedef DateFields Fields;
+
 private:
   int64 m_llTime;         // Complete date with microsecond precision
   bool  m_local_time;     // true if time is local
@@ -291,11 +317,11 @@ public:
 
   //! \brief Splits the date in "time fields".
   //! \param pTm Structure to fill in.
-  void get(DateFields *pTm) const;
+  void get(Fields *pTm) const;
 
   //! \brief Splits the date in "time fields".
-  void get_local(DateFields *df_p) const;
-  void get_utc(DateFields *df_p) const;
+  void get_local(Fields *df_p) const;
+  void get_utc(Fields *df_p) const;
 
   //! \brief Returns the microsecond part.
   long micro() const;
@@ -363,7 +389,7 @@ public:
   //!
   //! \param sTm Structure containing split date.
   //! \exception BAD_ARGS Thrown if date is not correct.
-  void set(const DateFields& sTm);
+  void set(const Fields& sTm);
 
   //! \brief Initializes universal time (UT) from explicit values.
   //!
@@ -461,19 +487,39 @@ public:
 
   //! \brief Adds seconds to the date.
   //! \param dSec Number of seconds to add.
-  void add_sec(double dSec) { m_llTime += int64(dSec * 1e6); }
+  Time& add_sec(double dSec) { m_llTime += int64(dSec * 1e6); return *this; }
+
+  //! \brief Adds a duration to the date.
+  //! \param d The duration to add
+  Time& add(const class Duration& d);
+
+  //! \brief Substract a duration to the date.
+  //! \param d The duration to substract
+  Time& sub(const class Duration& d);
 
   //! \brief operator+=.
   //!
   //! Adds seconds to the date.
   //! \param dSec Number of seconds to add.
-  void operator +=(double dSec) { add_sec(dSec); }
+  Time& operator +=(double dSec) { return add_sec(dSec); }
 
   //! \brief operator-=.
   //!
   //! Subtracts seconds to the date.
   //! \param dSec Number of seconds to subtract.
-  void operator -=(double dSec) { add_sec(-dSec); }
+  Time& operator -=(double dSec) { return add_sec(-dSec); }
+
+  //! \brief operator+=.
+  //!
+  //! Adds a duration to the date.
+  //! \param d the duration to add
+  Time& operator +=(const class Duration& d);
+
+  //! \brief operator-=.
+  //!
+  //! Substract a duration to the date.
+  //! \param d the duration to add
+  Time& operator -=(const class Duration& d);
 
   //@}
 
@@ -504,15 +550,15 @@ public:
 
   //! Format date/time according to the given format
   //! \see to_string(const DateFields& df, const std::string& format, unsigned short precision=0)
-  yat::String to_string(const std::string& format, unsigned short precision=0) const;
+  String to_string(const std::string& format, unsigned short precision=0) const;
 
   //! Format convert to local if necessary & format date according to the given format
   //! \see to_string
-  yat::String to_string_local(const std::string& format, unsigned short precision=0) const ;
+  String to_string_local(const std::string& format, unsigned short precision=0) const ;
 
   //! Format convert to utc if necessary & format date according to the given format
   //! \see to_string
-  yat::String to_string_utc(const std::string& format, unsigned short precision=0) const;
+  String to_string_utc(const std::string& format, unsigned short precision=0) const;
 
   //! \brief Gets the date in the international format.
   //!
@@ -624,7 +670,7 @@ public:
   //!          %y   Year, last two digits (00-99)       01
   //!          %Y   Year                                2012
   //!          %%   A literal '%' character.
-  static yat::String to_string(const DateFields& df, const std::string& format, unsigned short precision=0);
+  static String to_string(const Fields& df, const std::string& format, unsigned short precision=0);
 
   //! \brief Time zone bias returned by the operating system in minutes
   static int sys_time_zone_bias();
@@ -669,9 +715,9 @@ public:
   //! - week_of_year & day_of_year on Windows plateform
   //! - week_of_year on Linux plateform
   //!
-  //! \param df_p DateFields struct
-  static void get_current_local(DateFields* df_p);
-  static void get_current_utc(DateFields* df_p);
+  //! \param df_p Fields struct
+  static void get_current_local(Fields* df_p);
+  static void get_current_utc(Fields* df_p);
 
   //@} Static methods
 
@@ -786,13 +832,7 @@ public:
 typedef CurrentTime CurrentDate;
 typedef CurrentTime CurrentDateTime;
 
-// ============================================================================
-//! \struct DurationFields
-//! \brief %Date split in fields.
-//!
-//! This structure provides a duration split in "duration fields", i.e. days,
-//! hours, minutes, seconds... to microseconds precision.
-// ============================================================================
+//! Deprecated structure: use Duration::Fields instead
 struct YAT_DECL DurationFields
 {
   //! nb Day.
@@ -819,98 +859,231 @@ struct YAT_DECL DurationFields
 // ============================================================================
 class YAT_DECL Duration
 {
-
 public:
-/* DO NOT DELETE, its on progress...
-  class Micro
+  // ============================================================================
+  //! \struct Fields
+  //! \brief %Duration split in fields.
+  //!
+  //! This structure provides a duration split in "duration fields", i.e. days,
+  //! hours, minutes, seconds... to nanoseconds precision.
+  // ============================================================================
+  struct YAT_DECL Fields
   {
-    Micro( yat::int64 micros ) : m_microsecs(micros) {}
-  private:
-    yat::int64 m_microsecs;
+    //! nb Day.
+    uint16  days;
+    //! Hour.
+    uint8  hours;
+    //! Minute.
+    uint8  minutes;
+    //! Second
+    uint8  seconds;
+    //! nanosecs
+    uint32 nanos;
+
+    //! \brief Clears all fields.
+    void clear();
   };
 
-  class Seconds
-  {
-    Seconds( std::size_t secs) : Micro( secs * 1000000 ) {}
-  };
-*/
 public:
-  Duration() : m_microsecs(0) { }
+  //! default c-tor
+  Duration() : m_nanos(0) { }
 
   //! c-tor
   //! \param microsecs duration in microseconds
   //! a negative value will be converted to positive one
-  Duration(yat::int64 microsecs) : m_microsecs(llabs(microsecs)) { }
+  //!
+  //! \notice this constructor is deprecated, use Microsecs class c-tor instead
+  Duration(int64 microsecs) : m_nanos(llabs(microsecs) * 1000LL) { }
 
   //! c-tor
-  //! \param seconds duration in seconds with microseconds precision
+  //! \param seconds duration in seconds with nanoseconds precision
   //! a negative value will be converted to positive one
-  Duration(double seconds) : m_microsecs( yat::int64(fabs(seconds) * MICROSEC_PER_SEC) ) { }
+  Duration(double seconds) : m_nanos( uint64(fabs(seconds) * NANOSEC_PER_SEC) ) { }
 
-  /// Distance between t1 and t2, always positive
-  Duration(const yat::Time& t1, const yat::Time& t2);
+  //! Distance between t1 and t2, always positive
+  Duration(const Time& t1, const Time& t2);
 
-  /// Set value
-  void total_micros(yat::int64 microsecs) { m_microsecs = llabs(microsecs); }
+  //! Get duration fields
+  void get(Fields *fields_p) const;
 
-  /// Get total value
-  int64 total_micros() const { return m_microsecs; }
+  //! sets raw value: total number of nanoseconds
+  void raw_value(uint64 ns) { m_nanos = ns; }
 
-  /// Get duration fields
-  void get(DurationFields *pDF) const;
+  //! gets the duration raw value
+  uint64 raw_value() const { return m_nanos; }
 
-  /// Assignement operators
+  //! sets secs and remnants nanosecs
+  void set(uint32 secs, uint32 nanos);
+
+  //! gets seconds & nanosecs through pointers
+  void get(uint32* secs_p, uint32* nsecs_p) const;
+
+  //! get as requested duration sub-type
+  template<class T>
+  T& as()
+  {
+    throw Exception("BAD_CAST", "Can't convert duration to the requested type",
+                                "Duration::get<T>");
+  }
+
+  //! get as requested duration sub-type
+  template<class T>
+  const T& as_const() const
+  {
+    throw Exception("BAD_CAST", "Can't convert duration to the requested type",
+                                "Duration::get<T>");
+  }
+
+  //! Assignement operators
   Duration  operator+(const Duration& other);
   Duration  operator-(const Duration& other);
   Duration  operator/(int n);
   Duration  operator*(int n);
   Duration  operator/(double factor);
   Duration  operator*(double factor);
-  Duration  operator+(yat::int64 microsecs);
-  Duration  operator-(yat::int64 microsecs);
   Duration& operator=(const Duration& other);
   Duration& operator+=(const Duration& other);
-  Duration& operator+=(yat::int64 microsecs);
   Duration& operator-=(const Duration& other);
-  Duration& operator-=(yat::int64 microsecs);
   Duration& operator*=(int n);
   Duration& operator/=(int n);
   Duration& operator*=(double factor);
   Duration& operator/=(double factor);
 
-  /// Duration fields
+  //! Export duration to a string using this format:
+  //! <d>d<sep><hh>h<sep><mm>m<sep><ss>s
+  //! \param sep field separator
+  //! example: 1d:12h:05m:25s, with sep = ':'
+  std::string to_string(char sep=':') const;
+
+  //! Export duration to a string using this format:
+  //! <d>d<sep><hh>h<sep><mm>m<sep><ss>s.micros
+  //! \param sep field separator
+  //! example: 1d:12h:05m:25s.123, with sep = ':'
+  std::string to_string_millis(char sep=':') const;
+
+  //! Export duration to a string using the ISO8601 format
+  //! but limited to day periods:
+  //! PnDTnHnMnS
+  std::string to_iso8601() const;
+
+  //! \name Deprecated methods
+  //@{
+  void get(DurationFields *pDF) const;
+  double total_secs() const;
+  void total_micros(int64 microsecs) { m_nanos = 1000 * llabs(microsecs); }
+  int64 total_micros() const { return m_nanos / 1000; }
   uint16 days() const;
   uint8 hours() const;
   uint8 minutes() const;
   uint8 seconds() const;
   uint16 millis() const;
   uint32 micros() const;
-
-  // duration in seconds
-  double total_secs() const;
-
-  ///
-  /// Export duration to a string using this format:
-  /// <d>d<sep><hh>h<sep><mm>m<sep><ss>s
-  /// \param sep field separator
-  /// example: 1d:12h:05m:25s, with sep = ':'
-  std::string to_string(char sep=':') const;
-
-  ///
-  /// Export duration to a string using this format:
-  /// <d>d<sep><hh>h<sep><mm>m<sep><ss>s.micros
-  /// \param sep field separator
-  /// example: 1d:12h:05m:25s.123, with sep = ':'
-  std::string to_string_millis(char sep=':') const;
-
-  /// Export duration to a string using the ISO8601 format
-  /// but limited to day periods:
-  /// PnDTnHnMnS
-  std::string to_iso8601() const;
+  Duration& operator-=(int64 microsecs);
+  Duration& operator+=(int64 microsecs);
+  Duration  operator-(int64 microsecs);
+  Duration  operator+(int64 microsecs);
+  //@}
 
 private:
-  int64 m_microsecs;   // duration in microsecond precision
+  uint64 m_nanos;   // duration in nanosecond precision
 };
+
+//==================================================================================================
+// Seconds duration
+//==================================================================================================
+class YAT_DECL Seconds : public Duration
+{
+public:
+  //! construct a seconds duration
+  Seconds(double secs) { set(secs); }
+
+  //! set duration in seconds
+  void set(double secs)
+  {
+    if( fabs(secs) <= DURATION_MAX_SECS )
+      Duration::raw_value(uint64(fabs(secs) * NANOSEC_PER_SEC + 0.5));
+    else
+      throw Exception("OVERFLOW", "Overflow error", "yat::Seconds::Seconds");
+  }
+
+  //! return the number of seconds as a floating point value
+  double get() const { return double(raw_value()) / NANOSEC_PER_SEC; }
+};
+
+//==================================================================================================
+// Millisecs duration
+//==================================================================================================
+class YAT_DECL Millisecs : public Duration
+{
+public:
+  //! construct a milliseconds duration
+  Millisecs(uint64 ms) { set(ms); }
+
+  //! set duration in milliseconds
+  void set(uint64 ms)
+  {
+    if( ms <= DURATION_MAX_MILLIS )
+      Duration::raw_value(ms * NANOSEC_PER_MILLISEC);
+    else
+      throw Exception("OVERFLOW", "Overflow error", "yat::Millisecs::Millisecs");
+  }
+
+  uint64 get() const { return uint64(double(raw_value()) / NANOSEC_PER_MILLISEC + 0.5); }
+};
+
+//==================================================================================================
+// Microsecs duration
+//==================================================================================================
+class YAT_DECL Microsecs : public Duration
+{
+public:
+  //! construct a microseconds duration
+  Microsecs(uint64 us) { set(us); }
+
+  //! set duration in microseconds
+  void set(uint64 us)
+  {
+    if( us <= DURATION_MAX_MICROS )
+      Duration::raw_value(us * NANOSEC_PER_MICROSEC);
+    else
+      throw Exception("OVERFLOW", "Overflow error", "yat::Microsecs::Microsecs");
+  }
+
+  uint64 get() const { return uint64(double(raw_value()) / NANOSEC_PER_MICROSEC + 0.5); }
+};
+
+//==================================================================================================
+// Nanosecs duration
+//==================================================================================================
+class YAT_DECL Nanosecs : public Duration
+{
+public:
+  //! construct a nanosseconds duration
+  Nanosecs(uint64 ns) { set(ns); }
+
+  //! set duration in nanoseconds
+  void set(uint64 ns)
+  {
+    if( ns <= DURATION_MAX_NANOS )
+      Duration::raw_value(ns);
+    else
+      throw Exception("OVERFLOW", "Overflow error", "yat::Nanosecs::Nanosecs");
+  }
+
+  uint64 get() const { return raw_value(); }
+};
+
+//==============================================================================
+
+template<> inline Seconds&   Duration::as() { return static_cast<Seconds&>(*this);   }
+template<> inline Millisecs& Duration::as() { return static_cast<Millisecs&>(*this); }
+template<> inline Microsecs& Duration::as() { return static_cast<Microsecs&>(*this); }
+template<> inline Nanosecs&  Duration::as() { return static_cast<Nanosecs&>(*this);  }
+
+template<> inline const Seconds&   Duration::as_const() const { return static_cast<const Seconds&>(*this);   }
+template<> inline const Millisecs& Duration::as_const() const { return static_cast<const Millisecs&>(*this); }
+template<> inline const Microsecs& Duration::as_const() const { return static_cast<const Microsecs&>(*this); }
+template<> inline const Nanosecs&  Duration::as_const() const { return static_cast<const Nanosecs&>(*this);  }
 
 //==================================================================================================
 // MeanDuration
@@ -921,7 +1094,7 @@ public:
   MeanDuration(): m_count(0), m_mean() {}
 
   void add( const Duration& d )
-       { ++m_count; m_mean.total_micros( ( m_mean.total_micros() * (m_count - 1) + d.total_micros() ) / m_count ); }
+       { ++m_count; m_mean.raw_value( ( m_mean.raw_value() * (m_count - 1) + d.raw_value() ) / m_count ); }
   std::size_t n() const { return m_count; }
   const Duration& get() const { return m_mean; }
 
@@ -988,7 +1161,7 @@ struct Format::Formatter<Time>
         }
 
 #if (defined YAT_WIN32 || defined YAT_WIN64) && defined(YAT_DECL)
-// In shared mode The microsoft linker does not found static members Time::iso8601_z &  Time::iso8601
+// In shared mode The microsoft linker does not found static members Time::iso8601_z & Time::iso8601
         if( utc )
           oss << t.to_string_utc(tz ? "%Y-%m-%dT%H:%M:%S%Z" : "%Y-%m-%dT%H:%M:%S", fc.precision);
         else if( local )

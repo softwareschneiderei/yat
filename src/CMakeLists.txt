@@ -24,6 +24,7 @@ set (source_files
       threading/SyncAccess.cpp
       threading/Task.cpp
       threading/Utilities.cpp
+      threading/JThread.cpp
       time/Time.cpp
       utils/CommandLine.cpp
       utils/Logging.cpp

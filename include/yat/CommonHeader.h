@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------
-// Copyright (c) 2004-2021 Synchrotron SOLEIL
+// Copyright (c) 2004-2024 Synchrotron SOLEIL
 // All rights reserved. This program and the accompanying materials
 // are made available under the terms of the GNU Lesser Public License v3
 // which accompanies this distribution, and is available at
@@ -48,6 +48,7 @@
 #endif
 
 #include <assert.h>
+#include <limits>
 #include <yat/Portability.h>
 #include <yat/Inline.h>
 #include <yat/LogHelper.h>
@@ -81,7 +82,7 @@ namespace yat
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-// Free function fuzzy float point numbers comparison
+//! Fuzzy float point numbers comparison
 //-----------------------------------------------------------------------------
 template<typename T>
 inline bool fp_is_equal(T a, T b, T precision)
@@ -93,6 +94,21 @@ inline bool fp_is_equal(T a, T b, T precision)
     return std::abs(a-b) <= ( std::abs(precision) * std::abs(a) );
   else
     return std::abs(b-a) <= ( std::abs(precision) * std::abs(b) );
+}
+
+//-----------------------------------------------------------------------------
+//! Accurate comparison of float numbers
+//-----------------------------------------------------------------------------
+template<typename T>
+inline bool fp_is_equal(T a, T b)
+{
+  if( std::abs(a-b) < std::numeric_limits<T>::epsilon() ) // work better near zero
+    return true;
+
+  if( std::abs(a) > std::abs(b) )
+    return std::abs(a-b) <= ( std::numeric_limits<T>::epsilon() * std::abs(a) );
+  else
+    return std::abs(b-a) <= ( std::numeric_limits<T>::epsilon() * std::abs(b) );
 }
 
 //-----------------------------------------------------------------------------
