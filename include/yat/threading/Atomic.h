@@ -40,7 +40,11 @@
 #ifndef _YAT_ATOMIC_H_
 #define _YAT_ATOMIC_H_
 
-#ifdef YAT_HAS_ATOMIC
+#ifdef YAT_HAS_C11ATOMIC
+  #include <atomic>
+#endif
+
+#ifdef YAT_HAS_CSTDATOMIC
   #include <cstdatomic>
 #endif
 

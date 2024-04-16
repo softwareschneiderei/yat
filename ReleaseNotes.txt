@@ -1,5 +1,11 @@
 YAT history file
 
+1.21.1 (2024/04/16)
+===================
+
+Fixes
+    Starting with gcc 4.8 'atomic' type is defined in <atomic> header file
+
 1.21.0 (2024/04/03)
 ===================
 
