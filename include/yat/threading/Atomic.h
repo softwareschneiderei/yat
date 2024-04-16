@@ -41,11 +41,7 @@
 #define _YAT_ATOMIC_H_
 
 #ifdef YAT_HAS_ATOMIC
-  #if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4))
-    #include <atomic>
-  #else
-    #include <cstdatomic>
-  #endif
+  #include <cstdatomic>
 #endif
 
 // ============================================================================
