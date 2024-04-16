@@ -139,12 +139,17 @@ namespace yat
 #undef YAT_HAS_ATOMIC
 #if __GNUC__ >= 4
 # if __GNUC__ == 4
-#   if __GNUC_MINOR__ >= 4
-#     define YAT_HAS_ATOMIC
+#   if __GNUC_MINOR__ >= 8
+#     define YAT_HAS_C11ATOMIC
+#   elif __GNUC_MINOR__ >= 4
+#     define YAT_HAS_CSTDATOMIC
 #   endif
 # else
-#   define YAT_HAS_ATOMIC
+#   define YAT_HAS_C11ATOMIC
 # endif
+#endif
+#if defined (YAT_HAS_C11ATOMIC) || defined (YAT_HAS_CSTDATOMIC)
+# define YAT_HAS_ATOMIC
 #endif
 
 
