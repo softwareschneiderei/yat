@@ -4,7 +4,7 @@ from conan.tools.files import collect_libs
 
 class yatRecipe(ConanFile):
     name = "yat"
-    version = "1.20.3"
+    version = "1.21.0"
     package_type = "library"
     user = "soleil"
 
