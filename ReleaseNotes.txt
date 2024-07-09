@@ -1,5 +1,25 @@
 YAT history file
 
+1.21.2 (2024/07/dd)
+===================
+
+Fixes
+    class StringUtil
+        'to_string' method was buggy: convert small values to zero (0.00000)
+    class String
+        'from_num' method was buggy: convert small values to zero (0.00000)
+    -> see <yat/utils/String.h>
+
+Additions
+    classes Float32 & Float64
+        Comparable floating point types with NaN support
+    -> see <yat/utils/Float.h>
+
+1.21.1 (2024/04/16)
+===================
+
+Minor internal change related to atomic support
+
 1.21.0 (2024/04/03)
 ===================
 
