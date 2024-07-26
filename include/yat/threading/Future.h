@@ -44,13 +44,14 @@
 // DEPENDENCIES
 // ----------------------------------------------------------------------------
 #include <yat/any/GenericContainer.h>
-#include <yat/threading/Thread.h>
+#include <yat/threading/Task.h>
 #include <yat/threading/Condition.h>
 #include <yat/threading/Utilities.h>
 #include <yat/threading/Atomic.h>
 #include <yat/utils/ArgPack.h>
 #include <yat/utils/Callback.h>
 #include <yat/utils/Logging.h>
+#include <yat/utils/Singleton.h>
 #include <yat/time/Time.h>
 
 namespace yat {
@@ -64,6 +65,27 @@ namespace yat {
 #else
   #define YAT_FUTURE_LOG(s, ...)
 #endif
+
+namespace exp // experimental
+{
+
+// =============================================================================
+// async launch policy (not implemented yet)
+// =============================================================================
+class YAT_DECL Launch
+{
+public:
+  static uint8 async;
+  static uint8 deffered;
+
+  Launch(uint8 v) { m_value = v; }
+  operator uint8() const { return m_value;}
+
+private:
+  uint8 m_value;
+};
+
+}
 
 // =============================================================================
 // The AsyncResult is an internal class, it should not be instantiated in client 
@@ -449,58 +471,66 @@ struct YAT_DECL AsyncParams
   std::size_t count() const { return args.count(); }
 };
 
-typedef AsyncParams& AsyncFunctionArg;
-
 const char* ASYNC_ERROR = "Can't execute asynchronous function";
 
-// =============================================================================
-//! The thread entry point of the function or a method invoked through
-//! yat::async
-// =============================================================================
+typedef AsyncParams& AsyncFunctionArg;
 YAT_DEFINE_CALLBACK(AsyncFunction, AsyncFunctionArg);
 
-class __AsyncImpl__: public Thread
+// =============================================================================
+// async implementation using a pool of threads
+// =============================================================================
+class __AsyncPool__;
+typedef std::pair<AsyncFunction, SharedPtr<AsyncParams>> AsyncRequest;
+class __AsyncWorker__:public Task
 {
 public:
-  __AsyncImpl__(AsyncFunction cb, SharedPtr<AsyncParams>& args_ptr)
-  : Thread(args_ptr.get()), m_cb(cb), m_args_ptr(args_ptr)
-  {
-    YAT_FUTURE_LOG("__AsyncImpl__::__AsyncImpl__() {}", this);
-    start();
-  }
 
-  ~__AsyncImpl__()
-  {
-    YAT_FUTURE_LOG("__AsyncImpl__::~__AsyncImpl__() {}", this);
-  }
+  typedef enum { RUN = FIRST_USER_MSG } MSG_TYPE;
+  __AsyncWorker__(WeakPtr<__AsyncPool__>& pool_wptr);
+  ~__AsyncWorker__();
 
-  void run(Thread::IOArg)
-  {
-    try
-    {
-      m_cb(*(m_args_ptr.get()));
-    }
-    catch(const Exception& ye)
-    {
-      m_args_ptr->promise.set_exception(ye);
-    }
-    catch(const std::exception& e)
-    {
-      yat::Exception ye("STD_ERROR", e.what(), "yat::async");
-      m_args_ptr->promise.set_exception(ye);
-    }
-    catch(...)
-    {
-      yat::Exception ye("UNKNOWN_ERROR", "Unknown error occured", "yat::async");
-      m_args_ptr->promise.set_exception(ye);      
-    }
-  }
-
-  void exit() {}
+protected:
+  void handle_message (yat::Message& msg);
 
 private:
-  AsyncFunction m_cb;
-  SharedPtr<AsyncParams> m_args_ptr;
+  void run(AsyncFunction cb, SharedPtr<AsyncParams> args_ptr);
+  WeakPtr<__AsyncPool__> m_pool_wptr;
+};
+
+// Threads pool
+class __AsyncPool__: public Task
+{
+public:
+  __AsyncPool__();
+  virtual ~__AsyncPool__();
+  void async_request(AsyncFunction cb, SharedPtr<AsyncParams> args_ptr);
+  void set_ptr(SharedPtr<__AsyncPool__>& ptr);
+  void set_pool_size(std::size_t min, std::size_t max);
+protected:
+  void handle_message (yat::Message& msg);
+
+private:
+  uint16 m_max_threads;
+  uint16 m_min_threads;
+  std::set<SharedPtr<__AsyncWorker__>> m_active_threads;
+  std::set<SharedPtr<__AsyncWorker__>> m_idle_threads;
+  std::vector<AsyncRequest> m_pending_requests;
+  Mutex m_mtx;
+  WeakPtr<__AsyncPool__> m_this_wptr;
+};
+
+// Thread pool owner because a yat::Task can't be a singleton object
+class __AsyncManager__:public Singleton<__AsyncManager__>
+{
+public:
+  typedef enum { DONE = FIRST_USER_MSG } MSG_TYPE;
+public:
+  __AsyncManager__();
+  virtual ~__AsyncManager__();
+  static void async_request(AsyncFunction cb, SharedPtr<AsyncParams>& args_ptr);
+  static void set_pool_size(std::size_t min, std::size_t max);
+private:
+  SharedPtr<__AsyncPool__> m_pool_ptr;
 };
 
 //! \brief asynchronously execute a function
@@ -516,7 +546,7 @@ YAT_DECL Future async(Function f)
   SharedPtr<AsyncParams> args_ptr = new AsyncParams;
   try
   {
-    new __AsyncImpl__(AsyncFunction::instanciate(f), args_ptr);
+    __AsyncManager__::async_request(AsyncFunction::instanciate(f), args_ptr);
   }
   catch(Exception& ex)
   {
@@ -541,7 +571,7 @@ YAT_DECL Future async(Function f, ArgPack&& args)
   args_ptr->args.swap(args);
   try
   {
-    new __AsyncImpl__(AsyncFunction::instanciate(f), args_ptr);
+    __AsyncManager__::async_request(AsyncFunction::instanciate(f), args_ptr);
   }
   catch(Exception& ex)
   {
@@ -565,7 +595,7 @@ YAT_DECL Future async(ClassMember m, Object& o)
   SharedPtr<AsyncParams> args_ptr = new AsyncParams;
   try
   {
-    new __AsyncImpl__(AsyncFunction::instanciate(o, m), args_ptr);
+    __AsyncManager__::async_request(AsyncFunction::instanciate(o, m), args_ptr);
   }
   catch(Exception& ex)
   {
@@ -591,7 +621,7 @@ YAT_DECL Future async(ClassMember m, Object& o, ArgPack&& args)
   args_ptr->args.swap(args);
   try
   {
-    new __AsyncImpl__(AsyncFunction::instanciate(o, m), args_ptr);
+    __AsyncManager__::async_request(AsyncFunction::instanciate(o, m), args_ptr);
   }
   catch(Exception& ex)
   {
@@ -600,6 +630,12 @@ YAT_DECL Future async(ClassMember m, Object& o, ArgPack&& args)
 
   return args_ptr->promise.get_future();
 }
+
+//! \brief sets the thread pool size
+//! initial values are
+//! min = 0
+//! max = 2 * ThreadingUtilities::hardware_concurrency
+YAT_DECL void async_set_pool_size(std::size_t min, std::size_t max);
 
 } // namespace yat
 
