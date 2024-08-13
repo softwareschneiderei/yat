@@ -59,13 +59,16 @@
 //---------------------------------------------------------------------------
 namespace yat
 {
+  /// deprecated
   inline double ieee_nan ()
   {
     return std::numeric_limits<double>::quiet_NaN();
   }
 
+/// deprecated
 # define IEEE_NAN ieee_nan()
 
+  /// deprecated
   template <typename T>
   bool is_nan ( const T & v )
   {

@@ -540,7 +540,7 @@ public:
   {
     OSStream oss;
 
-    if ( (oss << std::fixed << number) == false )
+    if ( (oss << number) == false )
     {
       if (_throw)
       {
@@ -569,7 +569,7 @@ public:
   {
     OSStream oss;
 
-    if ( !(oss << std::fixed << number) )
+    if ( !(oss << number) )
     {
       if (_throw)
       {
@@ -580,7 +580,7 @@ public:
              << std::ends;
         THROW_YAT_ERROR ("SOFTWARE_ERROR",
                          desc.str().c_str(),
-                         "StringUtil::from_num");
+                         "StringUtil::to_string");
       }
     }
 
