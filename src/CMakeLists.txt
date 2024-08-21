@@ -67,7 +67,7 @@ if (WIN32)
 endif()
 
 if(MAJOR_VERSION)
-  set_target_properties (yat PROPERTIES VERSION ${VERSION} SOVERSION ${MAJOR_VERSION})
+  set_target_properties (yat PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${MAJOR_VERSION})
 endif()
 
 if (UNIX)
