@@ -8,3 +8,7 @@ CMakeUserPresets.json
 
 wandbox
 catch1/pom_dev.xml
+.settings
+.project
+.cdtproject
+.cproject
