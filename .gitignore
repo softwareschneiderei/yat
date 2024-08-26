@@ -3,7 +3,12 @@
 /yat.sublime-workspace
 **/target
 CMakeFiles
-test_package
+build
+CMakeUserPresets.json
 
 wandbox
 catch1/pom_dev.xml
+.settings
+.project
+.cdtproject
+.cproject
