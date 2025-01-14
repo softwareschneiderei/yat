@@ -846,6 +846,8 @@ do                                                                             \
 {                                                                              \
   if( clear_coll )                                                             \
     coll_p->clear();                                                           \
+  if( s.empty() )                                                              \
+    break;                                                                     \
   std::string backslash_sep = "\\";                                            \
   backslash_sep.append(1, c);                                                  \
   std::size_t start_pos = 0;                                                   \
@@ -856,14 +858,14 @@ do                                                                             \
     search_pos = start_pos;                                                    \
     while(true)                                                                \
     {                                                                          \
-      end_pos = s.find(c, search_pos);                                      \
-      if( 0 == end_pos || s[end_pos-1] != '\\' || std::string::npos == end_pos ) \
+      end_pos = s.find(c, search_pos);                                         \
+      if( 0 == end_pos || (end_pos > 0 && s[end_pos-1] != '\\') || std::string::npos == end_pos )\
         break;                                                                 \
       if( end_pos > 1 && s[end_pos-1] == '\\' && s[end_pos-2] == '\\' )        \
         break;                                                                 \
       ++search_pos;                                                            \
     }                                                                          \
-    std::string item = s.substr(start_pos, end_pos - start_pos);            \
+    std::string item = s.substr(start_pos, end_pos - start_pos);               \
     std::size_t escaped_sep_pos = 0;                                           \
     while( true )                                                              \
     {                                                                          \
