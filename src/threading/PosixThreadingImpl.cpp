@@ -62,6 +62,13 @@
 # include <yat/threading/impl/PosixThreadImpl.i>
 #endif
 
+#if !defined(YAT_THR_DEBUG) && defined(YAT_ENABLE_TRACE)
+  #undef YAT_TRACE
+  #undef YAT_TRACE_STATIC
+  #define YAT_TRACE(func_name)
+  #define YAT_TRACE_STATIC(func_name)
+#endif
+
 // ----------------------------------------------------------------------------
 // SOME PSEUDO CONSTs
 // ----------------------------------------------------------------------------
