@@ -1,6 +1,19 @@
 YAT history file
 
 ===================
+1.21.3 (2025/01/14)
+===================
+
+Fixes
+    class String
+        split methods: empty input string result in empty output collection
+
+Changes:
+    function 'async'
+        Use a configurable pool of threads
+    -> see <yat/threading/Future.h>
+
+===================
 1.21.2 (2024/07/15)
 ===================
 

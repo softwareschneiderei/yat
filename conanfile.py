@@ -2,7 +2,7 @@ from conan import ConanFile
 
 class yatRecipe(ConanFile):
     name = "yat"
-    version = "1.21.2"
+    version = "1.21.3"
     package_type = "library"
     user = "soleil"
     python_requires = "base/[>=1.0]@soleil/stable"
