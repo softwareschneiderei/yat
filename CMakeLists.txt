@@ -5,6 +5,7 @@ set(MAJOR_VERSION "1")
 set(MINOR_VERSION "21")
 set(PATCH_VERSION "3")
 set(PROJECT_VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
+set(VERSION ${PROJECT_VERSION})
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
 add_compile_definitions(YAT_PROJECT_NAME=${PROJECT_NAME})
