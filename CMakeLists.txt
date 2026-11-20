@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
 project (yat)
 
+set(MAJOR_VERSION "1")
+set(MINOR_VERSION "21")
+set(PATCH_VERSION "3")
+set(PROJECT_VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
 add_compile_definitions(YAT_PROJECT_NAME=${PROJECT_NAME})
@@ -27,7 +31,7 @@ if (UNIX AND EXISTS ${CMAKE_SOURCE_DIR}/yat.pc.in)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/yat.pc DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
 endif()
 
-set(CPACK_PACKAGE_VERSION ${VERSION})
+set(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 set(CPACK_PACKAGE_CONTACT "Mihael Koep <mihael.koep@softwareschneiderei.de>")
 set(CPACK_GENERATOR DEB)
 set(CPACK_DEBIAN_PACKAGE_NAME ${PROJECT_NAME})
