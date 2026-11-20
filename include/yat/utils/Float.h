@@ -246,16 +246,6 @@ public:
   operator yat::int32() const { __FLOAT_2_INTEGER__; }
   operator yat::int64() const { __FLOAT_2_INTEGER__; }
 
-  operator int() const
-  {
-    if( m_f > 0 )
-    {
-      return m_f + std::numeric_limits<float>::epsilon();
-    }
-    else
-      return m_f - std::numeric_limits<float>::epsilon();
-  }
-
   /// comparison with other
   /// \param f other number
   /// \param precision relative precision for comparison
