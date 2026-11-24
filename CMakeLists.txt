@@ -8,7 +8,7 @@ set(PROJECT_VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
 set(VERSION ${PROJECT_VERSION})
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
-if (NOT EXISTS UBUNTU_VERSION)
+if (NOT UBUNTU_VERSION)
     set(UBUNTU_VERSION "unknown")
 endif()
 
