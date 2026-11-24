@@ -8,6 +8,10 @@ set(PROJECT_VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
 set(VERSION ${PROJECT_VERSION})
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 
+if (NOT EXISTS UBUNTU_VERSION)
+    set(UBUNTU_VERSION "unknown")
+endif()
+
 add_compile_definitions(YAT_PROJECT_NAME=${PROJECT_NAME})
 add_compile_definitions(YAT_PROJECT_VERSION=${PROJECT_VERSION})
 
@@ -37,7 +41,6 @@ set(CPACK_PACKAGE_CONTACT "Mihael Koep <mihael.koep@softwareschneiderei.de>")
 set(CPACK_GENERATOR DEB)
 set(CPACK_DEBIAN_PACKAGE_NAME ${PROJECT_NAME})
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
-set(CPACK_DEBIAN_PACKAGE_RELEASE 1ubuntu~22)
+set(CPACK_DEBIAN_PACKAGE_RELEASE 1ubuntu~${UBUNTU_VERSION})
 
 include(CPack)
-
